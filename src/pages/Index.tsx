@@ -1,3 +1,4 @@
+
 import Navigation from "@/components/Navigation";
 import { Link } from "react-router-dom";
 const featuredProducts = [{
@@ -22,7 +23,7 @@ const Index = () => {
           <p className="text-xl text-gray-600 mb-8 max-w-2xl mx-auto animate-slideUp">
             Design and sell custom products without inventory. Start your print-on-demand business today.
           </p>
-          <Link to="/create" className="inline-block bg-primary text-primary-foreground rounded-full text-lg font-medium hover:bg-primary/90 transition-colors animate-slideUp px-[85px] py-[20px] mx-0">
+          <Link to="/create" className="inline-block bg-accent text-accent-foreground rounded-full text-lg font-medium hover:bg-accent/90 transition-colors animate-slideUp px-[85px] py-[20px] mx-0">
             Start Creating
           </Link>
         </div>
