@@ -6,37 +6,37 @@ const productCategories = [
   {
     id: "textile",
     title: "Textile",
-    image: "/lovable-uploads/d28240cb-3480-4969-9eaf-7e5a3db73a93.png",
+    image: "/lovable-uploads/83279871-e720-4ac6-9c14-23e50fecfa8d.png",
     subcategories: ["T-shirts", "Sweats", "Casquettes", "Accessoires textiles"]
   },
   {
     id: "papier",
     title: "Papier",
-    image: "/lovable-uploads/d28240cb-3480-4969-9eaf-7e5a3db73a93.png",
+    image: "/lovable-uploads/83279871-e720-4ac6-9c14-23e50fecfa8d.png",
     subcategories: ["Cartes de visite", "Flyers", "Affiches", "Catalogues"]
   },
   {
     id: "vinyl",
     title: "Vinyl",
-    image: "/lovable-uploads/d28240cb-3480-4969-9eaf-7e5a3db73a93.png",
+    image: "/lovable-uploads/83279871-e720-4ac6-9c14-23e50fecfa8d.png",
     subcategories: ["Autocollants", "Vinyles adhésifs", "Bâches"]
   },
   {
     id: "accessoires",
     title: "Accessoires",
-    image: "/lovable-uploads/d28240cb-3480-4969-9eaf-7e5a3db73a93.png",
+    image: "/lovable-uploads/83279871-e720-4ac6-9c14-23e50fecfa8d.png",
     subcategories: ["Mugs", "Coques téléphone", "Badges", "Porte-clés"]
   },
   {
     id: "panneaux",
     title: "Panneaux publicitaires",
-    image: "/lovable-uploads/d28240cb-3480-4969-9eaf-7e5a3db73a93.png",
+    image: "/lovable-uploads/83279871-e720-4ac6-9c14-23e50fecfa8d.png",
     subcategories: ["Panneaux extérieurs", "Supports rigides", "PLV"]
   },
   {
     id: "enseignes",
     title: "Enseignes publicitaires",
-    image: "/lovable-uploads/d28240cb-3480-4969-9eaf-7e5a3db73a93.png",
+    image: "/lovable-uploads/83279871-e720-4ac6-9c14-23e50fecfa8d.png",
     subcategories: ["Enseignes lumineuses", "Totems", "Lettres découpées"]
   }
 ];
@@ -74,20 +74,31 @@ const Index = () => {
       <section className="py-16 px-4 bg-white">
         <div className="max-w-7xl mx-auto">
           <h2 className="text-3xl font-semibold mb-8 text-center">Catégories de Produits</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
             {productCategories.map(category => (
-              <div key={category.id} className="bg-secondary rounded-2xl p-6 hover:shadow-md transition-shadow">
-                <h3 className="text-2xl font-medium mb-4">{category.title}</h3>
-                <ul className="space-y-2">
-                  {category.subcategories.map((subcategory, index) => (
-                    <li key={index}>
-                      <Link to={`/products/${category.id}/${subcategory.toLowerCase()}`} className="text-gray-600 hover:text-accent transition-colors">
+              <Link 
+                key={category.id} 
+                to={`/products/${category.id}`}
+                className="group bg-secondary rounded-2xl overflow-hidden hover:shadow-lg transition-shadow"
+              >
+                <div className="aspect-video w-full overflow-hidden">
+                  <img 
+                    src={category.image} 
+                    alt={category.title}
+                    className="w-full h-full object-cover object-center transform group-hover:scale-105 transition-transform duration-300"
+                  />
+                </div>
+                <div className="p-6">
+                  <h3 className="text-xl font-medium mb-3 group-hover:text-accent transition-colors">{category.title}</h3>
+                  <ul className="space-y-1">
+                    {category.subcategories.map((subcategory, index) => (
+                      <li key={index} className="text-sm text-gray-600">
                         {subcategory}
-                      </Link>
-                    </li>
-                  ))}
-                </ul>
-              </div>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              </Link>
             ))}
           </div>
         </div>
