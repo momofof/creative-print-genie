@@ -38,6 +38,30 @@ const productCategories = [
     title: "Enseignes publicitaires",
     image: "/lovable-uploads/83279871-e720-4ac6-9c14-23e50fecfa8d.png",
     subcategories: ["Enseignes lumineuses", "Totems", "Lettres découpées"]
+  },
+  {
+    id: "vehicules",
+    title: "Véhicules",
+    image: "/lovable-uploads/83279871-e720-4ac6-9c14-23e50fecfa8d.png",
+    subcategories: ["Covering", "Lettrage", "Stickers", "Magnétiques"]
+  },
+  {
+    id: "ustensiles",
+    title: "Ustensiles",
+    image: "/lovable-uploads/83279871-e720-4ac6-9c14-23e50fecfa8d.png",
+    subcategories: ["Ustensiles de cuisine", "Plateaux", "Dessous de verre", "Sets de table"]
+  },
+  {
+    id: "bijoux",
+    title: "Bijoux",
+    image: "/lovable-uploads/83279871-e720-4ac6-9c14-23e50fecfa8d.png",
+    subcategories: ["Colliers", "Bracelets", "Boucles d'oreilles", "Pendentifs"]
+  },
+  {
+    id: "emballage",
+    title: "Emballage",
+    image: "/lovable-uploads/83279871-e720-4ac6-9c14-23e50fecfa8d.png",
+    subcategories: ["Boîtes personnalisées", "Papier cadeau", "Étiquettes", "Rubans"]
   }
 ];
 
@@ -74,7 +98,7 @@ const Index = () => {
       <section className="py-16 px-4 bg-white">
         <div className="max-w-7xl mx-auto">
           <h2 className="text-3xl font-semibold mb-8 text-center">Catégories de Produits</h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
             {productCategories.map(category => (
               <Link 
                 key={category.id} 
@@ -88,8 +112,8 @@ const Index = () => {
                     className="w-full h-full object-cover object-center transform group-hover:scale-105 transition-transform duration-300"
                   />
                 </div>
-                <div className="p-6">
-                  <h3 className="text-xl font-medium mb-3 group-hover:text-accent transition-colors">{category.title}</h3>
+                <div className="p-4">
+                  <h3 className="text-lg font-medium mb-2 group-hover:text-accent transition-colors">{category.title}</h3>
                   <ul className="space-y-1">
                     {category.subcategories.map((subcategory, index) => (
                       <li key={index} className="text-sm text-gray-600">
