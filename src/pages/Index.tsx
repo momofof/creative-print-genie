@@ -2,6 +2,45 @@
 import Navigation from "@/components/Navigation";
 import { Link } from "react-router-dom";
 
+const productCategories = [
+  {
+    id: "textile",
+    title: "Textile",
+    image: "/lovable-uploads/d28240cb-3480-4969-9eaf-7e5a3db73a93.png",
+    subcategories: ["T-shirts", "Sweats", "Casquettes", "Accessoires textiles"]
+  },
+  {
+    id: "papier",
+    title: "Papier",
+    image: "/lovable-uploads/d28240cb-3480-4969-9eaf-7e5a3db73a93.png",
+    subcategories: ["Cartes de visite", "Flyers", "Affiches", "Catalogues"]
+  },
+  {
+    id: "vinyl",
+    title: "Vinyl",
+    image: "/lovable-uploads/d28240cb-3480-4969-9eaf-7e5a3db73a93.png",
+    subcategories: ["Autocollants", "Vinyles adhésifs", "Bâches"]
+  },
+  {
+    id: "accessoires",
+    title: "Accessoires",
+    image: "/lovable-uploads/d28240cb-3480-4969-9eaf-7e5a3db73a93.png",
+    subcategories: ["Mugs", "Coques téléphone", "Badges", "Porte-clés"]
+  },
+  {
+    id: "panneaux",
+    title: "Panneaux publicitaires",
+    image: "/lovable-uploads/d28240cb-3480-4969-9eaf-7e5a3db73a93.png",
+    subcategories: ["Panneaux extérieurs", "Supports rigides", "PLV"]
+  },
+  {
+    id: "enseignes",
+    title: "Enseignes publicitaires",
+    image: "/lovable-uploads/d28240cb-3480-4969-9eaf-7e5a3db73a93.png",
+    subcategories: ["Enseignes lumineuses", "Totems", "Lettres découpées"]
+  }
+];
+
 const featuredProducts = [{
   id: 1,
   title: "T-shirts",
@@ -28,6 +67,29 @@ const Index = () => {
           <Link to="/create" className="inline-block bg-accent text-accent-foreground rounded-full text-lg font-medium hover:bg-accent/90 transition-colors animate-slideUp px-[85px] py-[20px] mx-0">
             Commencer à Créer
           </Link>
+        </div>
+      </section>
+
+      {/* Product Categories */}
+      <section className="py-16 px-4 bg-white">
+        <div className="max-w-7xl mx-auto">
+          <h2 className="text-3xl font-semibold mb-8 text-center">Catégories de Produits</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {productCategories.map(category => (
+              <div key={category.id} className="bg-secondary rounded-2xl p-6 hover:shadow-md transition-shadow">
+                <h3 className="text-2xl font-medium mb-4">{category.title}</h3>
+                <ul className="space-y-2">
+                  {category.subcategories.map((subcategory, index) => (
+                    <li key={index}>
+                      <Link to={`/products/${category.id}/${subcategory.toLowerCase()}`} className="text-gray-600 hover:text-accent transition-colors">
+                        {subcategory}
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ))}
+          </div>
         </div>
       </section>
 
