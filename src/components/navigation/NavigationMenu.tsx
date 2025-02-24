@@ -19,21 +19,22 @@ interface NavigationMenuProps {
 const NavigationMenu = ({ isOpen, onToggle, searchQuery, setSearchQuery, navItems }: NavigationMenuProps) => {
   return (
     <>
-      <button
-        className="lg:hidden p-2 rounded-md hover:bg-gray-100"
-        onClick={onToggle}
-      >
-        {isOpen ? <X size={24} /> : <Menu size={24} />}
-      </button>
+      <div className="flex items-center gap-2 lg:hidden">
+        <NavigationSearch
+          searchQuery={searchQuery}
+          setSearchQuery={setSearchQuery}
+          className="flex-1"
+        />
+        <button
+          className="p-2 rounded-md hover:bg-gray-100"
+          onClick={onToggle}
+        >
+          {isOpen ? <X size={24} /> : <Menu size={24} />}
+        </button>
+      </div>
 
       {isOpen && (
         <div className="lg:hidden bg-white border-t border-gray-200 animate-fadeIn">
-          <div className="px-4 py-3">
-            <NavigationSearch
-              searchQuery={searchQuery}
-              setSearchQuery={setSearchQuery}
-            />
-          </div>
           <div className="px-4 py-3 space-y-1">
             {navItems.map((item) => (
               <NavigationItem
