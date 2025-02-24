@@ -1,3 +1,4 @@
+
 import Navigation from "@/components/Navigation";
 import { Link } from "react-router-dom";
 
@@ -104,7 +105,7 @@ const Index = () => {
                 to={`/products/${category.id}`}
                 className="group bg-secondary rounded-2xl overflow-hidden hover:shadow-lg transition-shadow"
               >
-                <div className="aspect-video w-full overflow-hidden">
+                <div className="aspect-square w-full overflow-hidden">
                   <img 
                     src={category.image} 
                     alt={category.title}
