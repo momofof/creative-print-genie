@@ -1,4 +1,3 @@
-
 import Navigation from "@/components/Navigation";
 import { Link } from "react-router-dom";
 
@@ -98,7 +97,7 @@ const Index = () => {
       <section className="py-16 px-4 bg-white">
         <div className="max-w-7xl mx-auto">
           <h2 className="text-3xl font-semibold mb-8 text-center">Catégories de Produits</h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+          <div className="grid grid-cols-3 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
             {productCategories.map(category => (
               <Link 
                 key={category.id} 
