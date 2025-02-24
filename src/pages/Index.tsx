@@ -111,11 +111,11 @@ const Index = () => {
                     className="w-full h-full object-cover object-center transform group-hover:scale-105 transition-transform duration-300"
                   />
                 </div>
-                <div className="p-4">
-                  <h3 className="text-lg font-medium mb-2 group-hover:text-accent transition-colors">{category.title}</h3>
-                  <ul className="space-y-1">
+                <div className="p-2">
+                  <h3 className="text-sm font-medium mb-1 group-hover:text-accent transition-colors">{category.title}</h3>
+                  <ul className="space-y-0.5">
                     {category.subcategories.map((subcategory, index) => (
-                      <li key={index} className="text-sm text-gray-600">
+                      <li key={index} className="text-xs text-gray-600">
                         {subcategory}
                       </li>
                     ))}
