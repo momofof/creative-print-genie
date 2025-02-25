@@ -4,12 +4,12 @@ import { Link } from "react-router-dom";
 const productCategories = [{
   id: "textile",
   title: "Textile",
-  image: "https://images.unsplash.com/photo-1620799140408-edc6dcb6d633?auto=format&fit=crop&w=800&q=80",
+  image: "https://images.unsplash.com/photo-1582562124811-c09040d0a901?auto=format&fit=crop&w=800&q=80",
   subcategories: ["T-shirts", "Sweats", "Casquettes", "Accessoires textiles"]
 }, {
   id: "papier",
   title: "Papier",
-  image: "https://images.unsplash.com/photo-1517697471339-4aa32003c11a?auto=format&fit=crop&w=800&q=80",
+  image: "https://images.unsplash.com/photo-1498050108023-c5249f4df085?auto=format&fit=crop&w=800&q=80",
   subcategories: ["Cartes de visite", "Flyers", "Affiches", "Catalogues"]
 }, {
   id: "vinyl",
@@ -34,7 +34,7 @@ const productCategories = [{
 }, {
   id: "vehicules",
   title: "Véhicules",
-  image: "https://images.unsplash.com/photo-1625253769273-a9f61fc5caf3?auto=format&fit=crop&w=800&q=80",
+  image: "https://images.unsplash.com/photo-1487958449943-2429e8be8625?auto=format&fit=crop&w=800&q=80",
   subcategories: ["Covering", "Lettrage", "Stickers", "Magnétiques"]
 }, {
   id: "ustensiles",
