@@ -1,5 +1,6 @@
 import Navigation from "@/components/Navigation";
 import { Link } from "react-router-dom";
+
 const productCategories = [{
   id: "textile",
   title: "Textile",
@@ -51,6 +52,7 @@ const productCategories = [{
   image: "/lovable-uploads/83279871-e720-4ac6-9c14-23e50fecfa8d.png",
   subcategories: ["Boîtes personnalisées", "Papier cadeau", "Étiquettes", "Rubans"]
 }];
+
 const featuredProducts = [{
   id: 1,
   title: "T-shirts",
@@ -60,6 +62,7 @@ const featuredProducts = [{
   title: "Sweats",
   image: "/lovable-uploads/5c3e6357-3bff-4033-85a4-fc23513fc793.png"
 }];
+
 const Index = () => {
   return <div className="min-h-screen bg-white">
       <Navigation />
