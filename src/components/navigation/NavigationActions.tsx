@@ -1,12 +1,14 @@
 
 import { Link } from "react-router-dom";
+import { twMerge } from "tailwind-merge";
 
 interface NavigationActionsProps {
   mobile?: boolean;
   onActionClick?: () => void;
+  className?: string;
 }
 
-const NavigationActions = ({ mobile = false, onActionClick }: NavigationActionsProps) => {
+const NavigationActions = ({ mobile = false, onActionClick, className }: NavigationActionsProps) => {
   if (mobile) {
     return (
       <div className="pt-4 space-y-2">
@@ -29,7 +31,7 @@ const NavigationActions = ({ mobile = false, onActionClick }: NavigationActionsP
   }
 
   return (
-    <div className="hidden lg:flex items-center space-x-4">
+    <div className={twMerge("hidden lg:flex items-center space-x-4", className)}>
       <Link
         to="/login"
         className="text-sm font-medium text-gray-700 hover:text-accent"
