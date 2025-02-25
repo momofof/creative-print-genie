@@ -1,55 +1,56 @@
+
 import Navigation from "@/components/Navigation";
 import { Link } from "react-router-dom";
 
 const productCategories = [{
   id: "textile",
   title: "Textile",
-  image: "/lovable-uploads/83279871-e720-4ac6-9c14-23e50fecfa8d.png",
+  image: "https://images.unsplash.com/photo-1582562124811-c09040d0a901",
   subcategories: ["T-shirts", "Sweats", "Casquettes", "Accessoires textiles"]
 }, {
   id: "papier",
   title: "Papier",
-  image: "/lovable-uploads/83279871-e720-4ac6-9c14-23e50fecfa8d.png",
+  image: "https://images.unsplash.com/photo-1498050108023-c5249f4df085",
   subcategories: ["Cartes de visite", "Flyers", "Affiches", "Catalogues"]
 }, {
   id: "vinyl",
   title: "Vinyl",
-  image: "/lovable-uploads/83279871-e720-4ac6-9c14-23e50fecfa8d.png",
+  image: "https://images.unsplash.com/photo-1487058792275-0ad4aaf24ca7",
   subcategories: ["Autocollants", "Vinyles adhésifs", "Bâches"]
 }, {
   id: "accessoires",
   title: "Accessoires",
-  image: "/lovable-uploads/83279871-e720-4ac6-9c14-23e50fecfa8d.png",
+  image: "https://images.unsplash.com/photo-1523275335684-37898b6baf30",
   subcategories: ["Mugs", "Coques téléphone", "Badges", "Porte-clés"]
 }, {
   id: "panneaux",
   title: "Panneaux publicitaires",
-  image: "/lovable-uploads/83279871-e720-4ac6-9c14-23e50fecfa8d.png",
+  image: "https://images.unsplash.com/photo-1439337153520-7082a56a81f4",
   subcategories: ["Panneaux extérieurs", "Supports rigides", "PLV"]
 }, {
   id: "enseignes",
   title: "Enseignes publicitaires",
-  image: "/lovable-uploads/83279871-e720-4ac6-9c14-23e50fecfa8d.png",
+  image: "https://images.unsplash.com/photo-1519389950473-47ba0277781c",
   subcategories: ["Enseignes lumineuses", "Totems", "Lettres découpées"]
 }, {
   id: "vehicules",
   title: "Véhicules",
-  image: "/lovable-uploads/83279871-e720-4ac6-9c14-23e50fecfa8d.png",
+  image: "https://images.unsplash.com/photo-1487958449943-2429e8be8625",
   subcategories: ["Covering", "Lettrage", "Stickers", "Magnétiques"]
 }, {
   id: "ustensiles",
   title: "Ustensiles",
-  image: "/lovable-uploads/83279871-e720-4ac6-9c14-23e50fecfa8d.png",
+  image: "https://images.unsplash.com/photo-1618160702438-9b02ab6515c9",
   subcategories: ["Ustensiles de cuisine", "Plateaux", "Dessous de verre", "Sets de table"]
 }, {
   id: "bijoux",
   title: "Bijoux",
-  image: "/lovable-uploads/83279871-e720-4ac6-9c14-23e50fecfa8d.png",
+  image: "https://images.unsplash.com/photo-1515562141207-7a88fb7ce338",
   subcategories: ["Colliers", "Bracelets", "Boucles d'oreilles", "Pendentifs"]
 }, {
   id: "emballage",
   title: "Emballage",
-  image: "/lovable-uploads/83279871-e720-4ac6-9c14-23e50fecfa8d.png",
+  image: "https://images.unsplash.com/photo-1607344645866-009c320b63e0",
   subcategories: ["Boîtes personnalisées", "Papier cadeau", "Étiquettes", "Rubans"]
 }];
 
