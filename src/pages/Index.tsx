@@ -1,56 +1,55 @@
-
 import Navigation from "@/components/Navigation";
 import { Link } from "react-router-dom";
 
 const productCategories = [{
   id: "textile",
   title: "Textile",
-  image: "https://images.unsplash.com/photo-1620799140408-edc6dcb6d633",
+  image: "https://images.unsplash.com/photo-1620799140408-edc6dcb6d633?auto=format&fit=crop&w=800&q=80",
   subcategories: ["T-shirts", "Sweats", "Casquettes", "Accessoires textiles"]
 }, {
   id: "papier",
   title: "Papier",
-  image: "https://images.unsplash.com/photo-1517697471339-4aa32003c11a",
+  image: "https://images.unsplash.com/photo-1517697471339-4aa32003c11a?auto=format&fit=crop&w=800&q=80",
   subcategories: ["Cartes de visite", "Flyers", "Affiches", "Catalogues"]
 }, {
   id: "vinyl",
   title: "Vinyl",
-  image: "https://images.unsplash.com/photo-1611162458324-aae1eb4129a4",
+  image: "https://images.unsplash.com/photo-1611162458324-aae1eb4129a4?auto=format&fit=crop&w=800&q=80",
   subcategories: ["Autocollants", "Vinyles adhésifs", "Bâches"]
 }, {
   id: "accessoires",
   title: "Accessoires",
-  image: "https://images.unsplash.com/photo-1631729371254-42c2892f0e6e",
+  image: "https://images.unsplash.com/photo-1631729371254-42c2892f0e6e?auto=format&fit=crop&w=800&q=80",
   subcategories: ["Mugs", "Coques téléphone", "Badges", "Porte-clés"]
 }, {
   id: "panneaux",
   title: "Panneaux publicitaires",
-  image: "https://images.unsplash.com/photo-1527435229728-161ba24eca44",
+  image: "https://images.unsplash.com/photo-1527435229728-161ba24eca44?auto=format&fit=crop&w=800&q=80",
   subcategories: ["Panneaux extérieurs", "Supports rigides", "PLV"]
 }, {
   id: "enseignes",
   title: "Enseignes publicitaires",
-  image: "https://images.unsplash.com/photo-1542744173-8e7e53415bb0",
+  image: "https://images.unsplash.com/photo-1542744173-8e7e53415bb0?auto=format&fit=crop&w=800&q=80",
   subcategories: ["Enseignes lumineuses", "Totems", "Lettres découpées"]
 }, {
   id: "vehicules",
   title: "Véhicules",
-  image: "https://images.unsplash.com/photo-1625253769273-a9f61fc5caf3",
+  image: "https://images.unsplash.com/photo-1625253769273-a9f61fc5caf3?auto=format&fit=crop&w=800&q=80",
   subcategories: ["Covering", "Lettrage", "Stickers", "Magnétiques"]
 }, {
   id: "ustensiles",
   title: "Ustensiles",
-  image: "https://images.unsplash.com/photo-1556911220-e15b29be8c8f",
+  image: "https://images.unsplash.com/photo-1556911220-e15b29be8c8f?auto=format&fit=crop&w=800&q=80",
   subcategories: ["Ustensiles de cuisine", "Plateaux", "Dessous de verre", "Sets de table"]
 }, {
   id: "bijoux",
   title: "Bijoux",
-  image: "https://images.unsplash.com/photo-1515562141207-7a88fb7ce338",
+  image: "https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?auto=format&fit=crop&w=800&q=80",
   subcategories: ["Colliers", "Bracelets", "Boucles d'oreilles", "Pendentifs"]
 }, {
   id: "emballage",
   title: "Emballage",
-  image: "https://images.unsplash.com/photo-1607344645866-009c320b63e0",
+  image: "https://images.unsplash.com/photo-1607344645866-009c320b63e0?auto=format&fit=crop&w=800&q=80",
   subcategories: ["Boîtes personnalisées", "Papier cadeau", "Étiquettes", "Rubans"]
 }];
 
