@@ -79,23 +79,25 @@ const Index = () => {
           <p className="text-xl text-gray-600 mb-8 max-w-2xl mx-auto animate-slideUp">
             Concevez et vendez des produits personnalisés sans stock. Lancez votre activité d'impression à la demande dès aujourd'hui.
           </p>
-          {user ? (
-            <Link to="/create" className="inline-block bg-accent text-accent-foreground rounded-full text-lg font-medium hover:bg-accent/90 transition-colors animate-slideUp mx-0 px-[61px] py-[19px]">
+          <div className="space-y-4 animate-slideUp">
+            <Link to="/create" className="inline-block bg-accent text-accent-foreground rounded-full text-lg font-medium hover:bg-accent/90 transition-colors mx-0 px-[61px] py-[19px]">
               Commencer à Créer
             </Link>
-          ) : (
-            <div className="space-y-4 animate-slideUp">
-              <Link to="/signup" className="inline-block bg-accent text-accent-foreground rounded-full text-lg font-medium hover:bg-accent/90 transition-colors mx-0 px-[61px] py-[19px]">
-                Créer un compte
-              </Link>
-              <div className="text-gray-600">
-                Déjà membre ? {" "}
-                <Link to="/login" className="text-accent hover:underline">
-                  Se connecter
-                </Link>
+            {!user && (
+              <div className="mt-6">
+                <div className="text-gray-600">
+                  Vous avez déjà un compte ? {" "}
+                  <Link to="/login" className="text-accent hover:underline">
+                    Se connecter
+                  </Link>
+                  {" "} ou {" "}
+                  <Link to="/signup" className="text-accent hover:underline">
+                    Créer un compte
+                  </Link>
+                </div>
               </div>
-            </div>
-          )}
+            )}
+          </div>
         </div>
       </section>
 
