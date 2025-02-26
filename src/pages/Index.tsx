@@ -1,3 +1,4 @@
+
 import Navigation from "@/components/Navigation";
 import { Link } from "react-router-dom";
 
@@ -24,7 +25,7 @@ const productCategories = [{
 }, {
   id: "panneaux",
   title: "Panneaux publicitaires",
-  image: "https://images.unsplash.com/photo-1527435229728-161ba24eca44?auto=format&fit=crop&w=800&q=80",
+  image: "https://images.unsplash.com/photo-1613068387567-092e60c94504?auto=format&fit=crop&w=800&q=80",
   subcategories: ["Panneaux extérieurs", "Supports rigides", "PLV"]
 }, {
   id: "enseignes",
