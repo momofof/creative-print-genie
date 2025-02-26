@@ -1,6 +1,6 @@
-
 import Navigation from "@/components/Navigation";
 import { Link } from "react-router-dom";
+import { useUser } from "@supabase/auth-helpers-react";
 
 const productCategories = [{
   id: "textile",
@@ -65,6 +65,8 @@ const featuredProducts = [{
 }];
 
 const Index = () => {
+  const user = useUser();
+
   return <div className="min-h-screen bg-white">
       <Navigation />
       
@@ -77,9 +79,23 @@ const Index = () => {
           <p className="text-xl text-gray-600 mb-8 max-w-2xl mx-auto animate-slideUp">
             Concevez et vendez des produits personnalisés sans stock. Lancez votre activité d'impression à la demande dès aujourd'hui.
           </p>
-          <Link to="/create" className="inline-block bg-accent text-accent-foreground rounded-full text-lg font-medium hover:bg-accent/90 transition-colors animate-slideUp mx-0 px-[61px] py-[19px]">
-            Commencer à Créer
-          </Link>
+          {user ? (
+            <Link to="/create" className="inline-block bg-accent text-accent-foreground rounded-full text-lg font-medium hover:bg-accent/90 transition-colors animate-slideUp mx-0 px-[61px] py-[19px]">
+              Commencer à Créer
+            </Link>
+          ) : (
+            <div className="space-y-4 animate-slideUp">
+              <Link to="/signup" className="inline-block bg-accent text-accent-foreground rounded-full text-lg font-medium hover:bg-accent/90 transition-colors mx-0 px-[61px] py-[19px]">
+                Créer un compte
+              </Link>
+              <div className="text-gray-600">
+                Déjà membre ? {" "}
+                <Link to="/login" className="text-accent hover:underline">
+                  Se connecter
+                </Link>
+              </div>
+            </div>
+          )}
         </div>
       </section>
 
@@ -147,4 +163,5 @@ const Index = () => {
       </section>
     </div>;
 };
+
 export default Index;
