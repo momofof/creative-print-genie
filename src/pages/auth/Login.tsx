@@ -1,8 +1,41 @@
 
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { useSupabaseClient } from "@supabase/auth-helpers-react";
 import Navigation from "@/components/Navigation";
 import { Link } from "react-router-dom";
+import { toast } from "sonner";
 
 const Login = () => {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const supabase = useSupabaseClient();
+  const navigate = useNavigate();
+
+  const handleLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsLoading(true);
+
+    try {
+      const { error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+
+      if (error) {
+        throw error;
+      }
+
+      toast.success("Connexion réussie");
+      navigate("/");
+    } catch (error: any) {
+      toast.error(error.message || "Erreur lors de la connexion");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-white">
       <Navigation />
@@ -10,7 +43,7 @@ const Login = () => {
         <div className="max-w-md mx-auto">
           <h1 className="text-3xl font-bold mb-6 text-center">Se connecter</h1>
           <div className="bg-white p-8 rounded-lg shadow-sm border border-gray-200">
-            <form className="space-y-4">
+            <form className="space-y-4" onSubmit={handleLogin}>
               <div>
                 <label htmlFor="email" className="block text-sm font-medium text-gray-700">
                   Email
@@ -18,7 +51,10 @@ const Login = () => {
                 <input
                   type="email"
                   id="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
                   className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md"
+                  required
                 />
               </div>
               <div>
@@ -28,14 +64,18 @@ const Login = () => {
                 <input
                   type="password"
                   id="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
                   className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md"
+                  required
                 />
               </div>
               <button
                 type="submit"
-                className="w-full bg-accent text-accent-foreground rounded-full py-2 hover:bg-accent/90"
+                className="w-full bg-accent text-accent-foreground rounded-full py-2 hover:bg-accent/90 disabled:opacity-50"
+                disabled={isLoading}
               >
-                Se connecter
+                {isLoading ? "Connexion en cours..." : "Se connecter"}
               </button>
             </form>
             <p className="mt-4 text-center text-sm text-gray-600">
