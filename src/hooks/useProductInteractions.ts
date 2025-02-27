@@ -2,6 +2,7 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { useUser } from "@supabase/auth-helpers-react";
 
 export interface Like {
   id: string;
@@ -31,6 +32,7 @@ export interface Comment {
 }
 
 export function useProductInteractions(productId: string) {
+  const user = useUser();
   const queryClient = useQueryClient();
 
   // Fetch likes
@@ -87,9 +89,14 @@ export function useProductInteractions(productId: string) {
   // Like mutation
   const likeMutation = useMutation({
     mutationFn: async () => {
+      if (!user) throw new Error("User must be authenticated");
+
       const { error } = await supabase
         .from("likes")
-        .insert([{ product_id: productId }]);
+        .insert([{ 
+          product_id: productId,
+          user_id: user.id
+        }]);
 
       if (error) {
         if (error.code === '23505') {
@@ -109,10 +116,13 @@ export function useProductInteractions(productId: string) {
   // Unlike mutation
   const unlikeMutation = useMutation({
     mutationFn: async () => {
+      if (!user) throw new Error("User must be authenticated");
+
       const { error } = await supabase
         .from("likes")
         .delete()
-        .eq("product_id", productId);
+        .eq("product_id", productId)
+        .eq("user_id", user.id);
 
       if (error) {
         toast.error("Erreur lors de la suppression du like");
@@ -128,9 +138,16 @@ export function useProductInteractions(productId: string) {
   // Add review mutation
   const addReviewMutation = useMutation({
     mutationFn: async ({ rating, content }: { rating: number; content: string }) => {
+      if (!user) throw new Error("User must be authenticated");
+
       const { error } = await supabase
         .from("reviews")
-        .insert([{ product_id: productId, rating, content }]);
+        .insert([{ 
+          product_id: productId,
+          rating,
+          content,
+          user_id: user.id
+        }]);
 
       if (error) {
         if (error.code === '23505') {
@@ -150,12 +167,15 @@ export function useProductInteractions(productId: string) {
   // Add comment mutation
   const addCommentMutation = useMutation({
     mutationFn: async ({ content, parentId }: { content: string; parentId?: string }) => {
+      if (!user) throw new Error("User must be authenticated");
+
       const { error } = await supabase
         .from("comments")
         .insert([{ 
-          product_id: productId, 
+          product_id: productId,
           content,
-          parent_id: parentId 
+          parent_id: parentId,
+          user_id: user.id
         }]);
 
       if (error) {
