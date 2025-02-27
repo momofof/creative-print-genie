@@ -6,6 +6,7 @@ import Navigation from "@/components/Navigation";
 import { Link } from "react-router-dom";
 import { toast } from "sonner";
 import { UserPlus } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
 
 const Signup = () => {
   const [email, setEmail] = useState("");
@@ -13,7 +14,6 @@ const Signup = () => {
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const supabase = useSupabaseClient();
   const navigate = useNavigate();
 
   const handleSignup = async (e: React.FormEvent) => {
