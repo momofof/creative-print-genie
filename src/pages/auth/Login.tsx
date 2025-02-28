@@ -1,16 +1,15 @@
 
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useSupabaseClient } from "@supabase/auth-helpers-react";
 import Navigation from "@/components/Navigation";
 import { Link } from "react-router-dom";
 import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
 
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const supabase = useSupabaseClient();
   const navigate = useNavigate();
 
   const handleLogin = async (e: React.FormEvent) => {
@@ -18,7 +17,7 @@ const Login = () => {
     setIsLoading(true);
 
     try {
-      const { error } = await supabase.auth.signInWithPassword({
+      const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password,
       });
@@ -30,6 +29,7 @@ const Login = () => {
       toast.success("Connexion réussie");
       navigate("/");
     } catch (error: any) {
+      console.error("Erreur de connexion:", error);
       toast.error(error.message || "Erreur lors de la connexion");
     } finally {
       setIsLoading(false);

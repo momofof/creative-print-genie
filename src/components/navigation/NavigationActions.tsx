@@ -1,9 +1,10 @@
-
+import React from "react";
 import { Link } from "react-router-dom";
 import { twMerge } from "tailwind-merge";
 import { useSupabaseClient, useUser } from "@supabase/auth-helpers-react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
 
 interface NavigationActionsProps {
   mobile?: boolean;
@@ -12,24 +13,54 @@ interface NavigationActionsProps {
 }
 
 const NavigationActions = ({ mobile = false, onActionClick, className }: NavigationActionsProps) => {
-  const supabase = useSupabaseClient();
-  const user = useUser();
   const navigate = useNavigate();
 
   const handleSignOut = async () => {
     try {
-      await supabase.auth.signOut();
+      const { error } = await supabase.auth.signOut();
+      if (error) throw error;
+      
       toast.success("Déconnexion réussie");
       navigate("/");
     } catch (error) {
+      console.error("Erreur de déconnexion:", error);
       toast.error("Erreur lors de la déconnexion");
     }
   };
 
+  // Créer une fonction pour vérifier si l'utilisateur est connecté
+  const getUserStatus = async () => {
+    try {
+      const { data } = await supabase.auth.getSession();
+      return !!data.session;
+    } catch (error) {
+      console.error("Erreur lors de la vérification de la session:", error);
+      return false;
+    }
+  };
+
+  // Utiliser getUserStatus pour afficher le bouton approprié
+  const [isLoggedIn, setIsLoggedIn] = React.useState(false);
+
+  React.useEffect(() => {
+    getUserStatus().then(status => {
+      setIsLoggedIn(status);
+    });
+    
+    // Écouter les changements d'état d'authentification
+    const { data: authListener } = supabase.auth.onAuthStateChange((event, session) => {
+      setIsLoggedIn(!!session);
+    });
+
+    return () => {
+      authListener.subscription.unsubscribe();
+    };
+  }, []);
+
   if (mobile) {
     return (
       <div className="pt-4 space-y-2">
-        {user ? (
+        {isLoggedIn ? (
           <button
             onClick={() => {
               handleSignOut();
@@ -63,7 +94,7 @@ const NavigationActions = ({ mobile = false, onActionClick, className }: Navigat
 
   return (
     <div className={twMerge("hidden lg:flex items-center space-x-4", className)}>
-      {user ? (
+      {isLoggedIn ? (
         <button
           onClick={handleSignOut}
           className="text-sm font-medium bg-accent text-accent-foreground px-4 py-2 rounded-full hover:bg-accent/90 transition-colors"
