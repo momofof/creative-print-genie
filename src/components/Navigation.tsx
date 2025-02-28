@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import NavigationLogo from "./navigation/NavigationLogo";
 import NavigationSearch from "./navigation/NavigationSearch";
@@ -70,18 +71,36 @@ const Navigation = () => {
               <NavigationSearch
                 searchQuery={searchQuery}
                 setSearchQuery={setSearchQuery}
-                className="lg:hidden max-w-40"
+                className="lg:hidden w-36"
               />
-              <NavigationMenu
-                isOpen={isMenuOpen}
-                onToggle={() => setIsMenuOpen(!isMenuOpen)}
-                searchQuery={searchQuery}
-                setSearchQuery={setSearchQuery}
-                navItems={navItems}
-              />
-              <NavigationActions className="lg:hidden" />
+              <div className="flex items-center">
+                <NavigationMenu
+                  isOpen={isMenuOpen}
+                  onToggle={() => setIsMenuOpen(!isMenuOpen)}
+                  searchQuery={searchQuery}
+                  setSearchQuery={setSearchQuery}
+                  navItems={navItems}
+                />
+                <NavigationActions className="lg:hidden ml-2" />
+              </div>
             </div>
           </div>
+
+          {isMenuOpen && (
+            <div className="lg:hidden bg-white border-t border-gray-200 animate-fadeIn">
+              <div className="px-4 py-3 space-y-1">
+                {navItems.map((item) => (
+                  <NavigationItem
+                    key={item.title}
+                    item={item}
+                    onItemClick={() => setIsMenuOpen(false)}
+                    mobile
+                  />
+                ))}
+                <NavigationActions mobile onActionClick={() => setIsMenuOpen(false)} />
+              </div>
+            </div>
+          )}
 
           <div className="hidden lg:flex items-center space-x-1">
             {navItems.map((item) => (

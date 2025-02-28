@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { Search } from "lucide-react";
 import SearchResults from "./SearchResults";
 import { useSearch } from "@/hooks/useSearch";
@@ -14,9 +14,23 @@ interface NavigationSearchProps {
 const NavigationSearch = ({ searchQuery, setSearchQuery, className = "" }: NavigationSearchProps) => {
   const [isFocused, setIsFocused] = useState(false);
   const searchResults = useSearch(searchQuery);
+  const searchRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (searchRef.current && !searchRef.current.contains(event.target as Node)) {
+        setIsFocused(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
 
   return (
-    <div className={cn("relative", className)}>
+    <div className={cn("relative", className)} ref={searchRef}>
       <input
         type="text"
         placeholder="Rechercher..."
@@ -27,22 +41,14 @@ const NavigationSearch = ({ searchQuery, setSearchQuery, className = "" }: Navig
       />
       <Search className="absolute right-3 top-2.5 text-gray-400" size={18} />
       
-      {isFocused && (
+      {isFocused && searchResults.length > 0 && (
         <SearchResults
           results={searchResults}
           onResultClick={() => {
             setIsFocused(false);
             setSearchQuery("");
           }}
-          className="w-80"
-        />
-      )}
-      
-      {/* Overlay pour fermer les résultats quand on clique en dehors */}
-      {isFocused && (
-        <div
-          className="fixed inset-0 z-40"
-          onClick={() => setIsFocused(false)}
+          className="absolute z-50 w-full mt-1 max-h-80 overflow-y-auto"
         />
       )}
     </div>
