@@ -21,6 +21,8 @@ import CustomDesign from "./pages/services/CustomDesign";
 import TechnicalSupport from "./pages/services/TechnicalSupport";
 import HelpCenter from "./pages/support/HelpCenter";
 import Contact from "./pages/support/Contact";
+import Profile from "./pages/Profile";
+import Create from "./pages/Create";
 
 const queryClient = new QueryClient();
 
@@ -47,6 +49,8 @@ const App = () => (
           <Route path="/contact" element={<Contact />} />
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
+          <Route path="/profile" element={<Profile />} />
+          <Route path="/create" element={<Create />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
