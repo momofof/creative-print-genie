@@ -44,7 +44,10 @@ const NavigationMenu = ({ isOpen, onToggle, searchQuery, setSearchQuery, navItem
                 mobile
               />
             ))}
-            <NavigationActions mobile onActionClick={onToggle} />
+            <NavigationActions 
+              mobile={true} 
+              onActionClick={onToggle} 
+            />
           </div>
         </div>
       )}
