@@ -76,6 +76,7 @@ const Index = () => {
       navigate("/login");
       return;
     }
+    // Si l'utilisateur est connecté, le rediriger directement vers la page de création
     navigate("/create");
   };
 
@@ -98,6 +99,7 @@ const Index = () => {
             >
               Commencer à Créer
             </button>
+            {/* Afficher les liens de connexion uniquement si l'utilisateur n'est pas connecté */}
             {!user && (
               <div className="mt-6">
                 <div className="text-gray-600">
