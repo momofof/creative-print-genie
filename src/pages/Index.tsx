@@ -76,6 +76,7 @@ const Index = () => {
       navigate("/login");
       return;
     }
+    
     // Si l'utilisateur est connecté, le rediriger directement vers la page de création
     navigate("/create");
   };
