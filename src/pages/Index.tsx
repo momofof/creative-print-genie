@@ -1,8 +1,6 @@
-
 import Navigation from "@/components/Navigation";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { useUser } from "@supabase/auth-helpers-react";
-import { toast } from "sonner";
 
 const productCategories = [{
   id: "textile",
@@ -68,18 +66,6 @@ const featuredProducts = [{
 
 const Index = () => {
   const user = useUser();
-  const navigate = useNavigate();
-
-  const handleStartCreating = () => {
-    if (!user) {
-      toast.info("Veuillez vous connecter pour commencer à créer");
-      navigate("/login");
-      return;
-    }
-    
-    // Si l'utilisateur est connecté, le rediriger directement vers la page de création
-    navigate("/create");
-  };
 
   return <div className="min-h-screen bg-white">
       <Navigation />
@@ -94,13 +80,9 @@ const Index = () => {
             Concevez et vendez des produits personnalisés sans stock. Lancez votre activité d'impression à la demande dès aujourd'hui.
           </p>
           <div className="space-y-4 animate-slideUp">
-            <button 
-              onClick={handleStartCreating}
-              className="inline-block bg-accent text-accent-foreground rounded-full text-lg font-medium hover:bg-accent/90 transition-colors mx-0 px-[61px] py-[19px]"
-            >
+            <Link to="/create" className="inline-block bg-accent text-accent-foreground rounded-full text-lg font-medium hover:bg-accent/90 transition-colors mx-0 px-[61px] py-[19px]">
               Commencer à Créer
-            </button>
-            {/* Afficher les liens de connexion uniquement si l'utilisateur n'est pas connecté */}
+            </Link>
             {!user && (
               <div className="mt-6">
                 <div className="text-gray-600">
