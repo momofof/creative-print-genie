@@ -8,6 +8,7 @@ import NavigationMenu from "./navigation/NavigationMenu";
 import { useUser } from "@supabase/auth-helpers-react";
 import { Link } from "react-router-dom";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
+import { UserRound } from "lucide-react";
 
 const Navigation = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -96,7 +97,7 @@ const Navigation = () => {
                 <Avatar className="h-8 w-8">
                   <AvatarImage src="" alt="Photo de profil" />
                   <AvatarFallback className="text-sm bg-accent text-accent-foreground">
-                    {user.email?.charAt(0).toUpperCase() || "U"}
+                    <UserRound className="h-4 w-4" />
                   </AvatarFallback>
                 </Avatar>
               </Link>

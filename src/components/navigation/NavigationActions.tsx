@@ -1,7 +1,9 @@
+
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { useUser } from "@supabase/auth-helpers-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { UserRound } from "lucide-react";
 
 interface NavigationActionsProps {
   className?: string;
@@ -31,7 +33,10 @@ const NavigationActions = ({ className, mobile, onActionClick }: NavigationActio
     <div className={`flex items-center gap-4 ${className || ""}`}>
       <Link to="/profile" onClick={onActionClick}>
         <Avatar className="h-9 w-9 cursor-pointer hover:opacity-80 transition-opacity">
-          <AvatarFallback>{user.email?.charAt(0).toUpperCase() || "U"}</AvatarFallback>
+          <AvatarImage src="" alt="Photo de profil" />
+          <AvatarFallback>
+            <UserRound className="h-5 w-5" />
+          </AvatarFallback>
         </Avatar>
       </Link>
     </div>
