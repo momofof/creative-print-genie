@@ -5,10 +5,14 @@ import NavigationSearch from "./navigation/NavigationSearch";
 import NavigationItem from "./navigation/NavigationItem";
 import NavigationActions from "./navigation/NavigationActions";
 import NavigationMenu from "./navigation/NavigationMenu";
+import { useUser } from "@supabase/auth-helpers-react";
+import { Link } from "react-router-dom";
+import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 
 const Navigation = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+  const user = useUser();
 
   const navItems = [
     {
@@ -76,11 +80,28 @@ const Navigation = () => {
             ))}
           </div>
 
-          <NavigationSearch
-            searchQuery={searchQuery}
-            setSearchQuery={setSearchQuery}
-            className="hidden lg:block max-w-xs"
-          />
+          <div className="hidden lg:flex items-center space-x-4">
+            <NavigationSearch
+              searchQuery={searchQuery}
+              setSearchQuery={setSearchQuery}
+              className="max-w-xs"
+            />
+            
+            {user ? (
+              <Link 
+                to="/profile" 
+                className="flex items-center ml-2 hover:opacity-80 transition-opacity"
+                title="Votre profil"
+              >
+                <Avatar className="h-8 w-8">
+                  <AvatarImage src="" alt="Photo de profil" />
+                  <AvatarFallback className="text-sm bg-accent text-accent-foreground">
+                    {user.email?.charAt(0).toUpperCase() || "U"}
+                  </AvatarFallback>
+                </Avatar>
+              </Link>
+            ) : null}
+          </div>
 
           <NavigationMenu
             isOpen={isMenuOpen}

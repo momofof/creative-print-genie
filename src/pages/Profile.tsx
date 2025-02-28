@@ -9,6 +9,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Separator } from "@/components/ui/separator";
 import { toast } from "sonner";
+import { Pencil } from "lucide-react";
 
 const Profile = () => {
   const user = useUser();
@@ -86,7 +87,7 @@ const Profile = () => {
             <CardHeader className="flex flex-col items-center">
               <Avatar className="h-24 w-24 mb-4">
                 <AvatarImage src={profile?.avatar_url || ""} alt="Photo de profil" />
-                <AvatarFallback className="text-2xl">
+                <AvatarFallback className="text-2xl bg-accent text-accent-foreground">
                   {user?.email?.charAt(0).toUpperCase() || "U"}
                 </AvatarFallback>
               </Avatar>
@@ -95,8 +96,17 @@ const Profile = () => {
                   ? `${profile.first_name} ${profile.last_name}`
                   : user?.email || "Utilisateur"}
               </CardTitle>
+              <p className="text-sm text-gray-500 mt-1">{user?.email}</p>
             </CardHeader>
-            <CardContent>
+            <CardContent className="space-y-4">
+              <Button 
+                variant="outline" 
+                className="w-full" 
+              >
+                <Pencil className="h-4 w-4 mr-2" />
+                Modifier le profil
+              </Button>
+              
               <Button 
                 variant="destructive" 
                 className="w-full" 

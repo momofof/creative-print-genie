@@ -1,10 +1,9 @@
-
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { useUser } from "@supabase/auth-helpers-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
-export interface NavigationActionsProps {
+interface NavigationActionsProps {
   className?: string;
   mobile?: boolean;
   onActionClick?: () => void;
