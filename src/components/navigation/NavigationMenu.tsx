@@ -2,7 +2,7 @@
 import { Menu, X } from "lucide-react";
 import NavigationSearch from "./NavigationSearch";
 import NavigationItem from "./NavigationItem";
-import NavigationActions from "./NavigationActions";
+import NavigationActions, { NavigationActionsProps } from "./NavigationActions";
 
 interface NavigationMenuProps {
   isOpen: boolean;

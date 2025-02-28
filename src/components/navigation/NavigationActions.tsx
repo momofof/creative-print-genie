@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { useUser } from "@supabase/auth-helpers-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
-interface NavigationActionsProps {
+export interface NavigationActionsProps {
   className?: string;
   mobile?: boolean;
   onActionClick?: () => void;
