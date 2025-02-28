@@ -67,7 +67,14 @@ const Navigation = () => {
         <div className="flex flex-col gap-2 py-3 lg:flex-row lg:items-center lg:justify-between lg:h-16 lg:py-0">
           <div className="flex items-center justify-between">
             <NavigationLogo />
-            <NavigationActions className="lg:hidden" />
+            <div className="flex items-center gap-2">
+              <NavigationSearch
+                searchQuery={searchQuery}
+                setSearchQuery={setSearchQuery}
+                className="lg:hidden max-w-40"
+              />
+              <NavigationActions className="lg:hidden" />
+            </div>
           </div>
 
           <div className="hidden lg:flex items-center space-x-1">

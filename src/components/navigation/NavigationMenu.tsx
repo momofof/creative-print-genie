@@ -20,11 +20,6 @@ const NavigationMenu = ({ isOpen, onToggle, searchQuery, setSearchQuery, navItem
   return (
     <>
       <div className="flex items-center gap-2 lg:hidden">
-        <NavigationSearch
-          searchQuery={searchQuery}
-          setSearchQuery={setSearchQuery}
-          className="flex-1"
-        />
         <button
           className="p-2 rounded-md hover:bg-gray-100"
           onClick={onToggle}
