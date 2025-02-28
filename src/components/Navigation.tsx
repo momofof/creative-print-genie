@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import NavigationLogo from "./navigation/NavigationLogo";
 import NavigationSearch from "./navigation/NavigationSearch";
@@ -73,6 +72,13 @@ const Navigation = () => {
                 setSearchQuery={setSearchQuery}
                 className="lg:hidden max-w-40"
               />
+              <NavigationMenu
+                isOpen={isMenuOpen}
+                onToggle={() => setIsMenuOpen(!isMenuOpen)}
+                searchQuery={searchQuery}
+                setSearchQuery={setSearchQuery}
+                navItems={navItems}
+              />
               <NavigationActions className="lg:hidden" />
             </div>
           </div>
@@ -87,14 +93,6 @@ const Navigation = () => {
             searchQuery={searchQuery}
             setSearchQuery={setSearchQuery}
             className="hidden lg:block max-w-xs"
-          />
-
-          <NavigationMenu
-            isOpen={isMenuOpen}
-            onToggle={() => setIsMenuOpen(!isMenuOpen)}
-            searchQuery={searchQuery}
-            setSearchQuery={setSearchQuery}
-            navItems={navItems}
           />
         </div>
       </div>
