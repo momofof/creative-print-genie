@@ -1,6 +1,9 @@
+
 import Navigation from "@/components/Navigation";
 import { Link } from "react-router-dom";
 import { useUser } from "@supabase/auth-helpers-react";
+import { useState, useEffect } from "react";
+import { supabase } from "@/integrations/supabase/client";
 
 const productCategories = [{
   id: "textile",
@@ -66,6 +69,26 @@ const featuredProducts = [{
 
 const Index = () => {
   const user = useUser();
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  
+  useEffect(() => {
+    // Vérifier si l'utilisateur est connecté au chargement
+    const checkUserSession = async () => {
+      const { data } = await supabase.auth.getSession();
+      setIsLoggedIn(!!data.session);
+    };
+    
+    checkUserSession();
+    
+    // Écouter les changements d'état d'authentification
+    const { data: authListener } = supabase.auth.onAuthStateChange((event, session) => {
+      setIsLoggedIn(!!session);
+    });
+
+    return () => {
+      authListener.subscription.unsubscribe();
+    };
+  }, []);
 
   return <div className="min-h-screen bg-white">
       <Navigation />
@@ -83,7 +106,7 @@ const Index = () => {
             <Link to="/create" className="inline-block bg-accent text-accent-foreground rounded-full text-lg font-medium hover:bg-accent/90 transition-colors mx-0 px-[61px] py-[19px]">
               Commencer à Créer
             </Link>
-            {!user && (
+            {!isLoggedIn && (
               <div className="mt-6">
                 <div className="text-gray-600">
                   Vous avez déjà un compte ? {" "}
