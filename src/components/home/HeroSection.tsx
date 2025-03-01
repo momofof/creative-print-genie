@@ -15,8 +15,8 @@ const HeroSection = () => {
       </div>
       
       {/* Overlay text */}
-      <div className="relative z-10 h-full flex flex-col justify-center max-w-7xl mx-auto px-4 sm:px-6 pt-36 md:pt-40">
-        <div className="text-white space-y-4 sm:space-y-6 max-w-xl">
+      <div className="relative z-10 h-full flex flex-col justify-end max-w-7xl mx-auto px-4 sm:px-6 pb-32 md:pb-28">
+        <div className="text-white space-y-4 sm:space-y-6 max-w-xl md:ml-24">
           <div className="space-y-2 sm:space-y-3">
             <h2 className="text-lg sm:text-xl font-medium">Vos Idées, Votre Style</h2>
             <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold">VOTRE CRÉATION</h1>
