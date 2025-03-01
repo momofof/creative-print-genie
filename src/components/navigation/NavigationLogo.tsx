@@ -1,4 +1,3 @@
-
 import { Link } from "react-router-dom";
 import { UserRound, LogOut } from "lucide-react";
 import { useState, useEffect, useRef } from "react";
@@ -13,7 +12,6 @@ const NavigationLogo = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Vérifier si l'utilisateur est connecté au chargement
     const checkUserSession = async () => {
       const { data } = await supabase.auth.getSession();
       setIsLoggedIn(!!data.session);
@@ -21,12 +19,10 @@ const NavigationLogo = () => {
     
     checkUserSession();
     
-    // Écouter les changements d'état d'authentification
     const { data: authListener } = supabase.auth.onAuthStateChange((event, session) => {
       setIsLoggedIn(!!session);
     });
 
-    // Ajouter un event listener pour fermer le dropdown quand on clique ailleurs
     const handleClickOutside = (event: MouseEvent) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
         setShowDropdown(false);
@@ -43,11 +39,9 @@ const NavigationLogo = () => {
 
   const handleSignOut = async () => {
     try {
-      // Vérifier d'abord si une session existe
       const { data: sessionData } = await supabase.auth.getSession();
       
       if (!sessionData.session) {
-        // Si pas de session, mettre à jour l'état local sans appeler signOut
         setIsLoggedIn(false);
         setShowDropdown(false);
         toast.success("Vous êtes déjà déconnecté");
@@ -55,7 +49,6 @@ const NavigationLogo = () => {
         return;
       }
       
-      // Si la session existe, procéder à la déconnexion
       const { error } = await supabase.auth.signOut();
       if (error) throw error;
       
@@ -65,7 +58,6 @@ const NavigationLogo = () => {
     } catch (error) {
       console.error("Erreur de déconnexion:", error);
       
-      // En cas d'erreur, essayer de mettre à jour l'état manuellement
       setIsLoggedIn(false);
       setShowDropdown(false);
       toast.error("Erreur lors de la déconnexion, veuillez rafraîchir la page");
@@ -77,20 +69,10 @@ const NavigationLogo = () => {
       {isLoggedIn && (
         <div className="relative" ref={dropdownRef}>
           <div 
-            className="w-8 h-8 rounded-full bg-accent flex items-center justify-center cursor-pointer relative"
+            className="w-8 h-8 rounded-full bg-accent flex items-center justify-center cursor-pointer"
             onClick={() => setShowDropdown(!showDropdown)}
           >
             <UserRound size={16} className="text-accent-foreground" />
-            <button 
-              onClick={(e) => {
-                e.stopPropagation();
-                handleSignOut();
-              }}
-              className="absolute -bottom-1 -right-1 bg-white rounded-full p-0.5 border border-gray-200 hover:bg-gray-100"
-              aria-label="Déconnexion"
-            >
-              <LogOut size={12} className="text-gray-600" />
-            </button>
           </div>
           
           {showDropdown && (
