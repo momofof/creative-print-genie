@@ -28,14 +28,15 @@ const HeroSection = () => {
     <section className="relative h-[60vh] sm:h-[70vh] md:h-[80vh] w-full overflow-hidden">
       {/* Full-width background image */}
       <div className="absolute inset-0 w-full h-full">
-        {/* Afficher uniquement l'image actuelle */}
-        <div className="absolute inset-0 w-full h-full">
-          <img 
-            src={heroImages[currentImageIndex]} 
-            alt={`Hero image ${currentImageIndex + 1}`} 
-            className="w-full h-full object-cover transition-all duration-300"
-          />
-        </div>
+        {/* Create a container for smooth transitions */}
+        <div 
+          className="absolute inset-0 w-full h-full transition-all duration-1000 ease-in-out"
+          style={{ 
+            backgroundImage: `url(${heroImages[currentImageIndex]})`,
+            backgroundSize: 'cover',
+            backgroundPosition: 'center'
+          }}
+        />
         <div className="absolute inset-0 bg-black bg-opacity-50 md:bg-opacity-40"></div>
       </div>
       
