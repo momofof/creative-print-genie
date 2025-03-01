@@ -77,10 +77,20 @@ const NavigationLogo = () => {
       {isLoggedIn && (
         <div className="relative" ref={dropdownRef}>
           <div 
-            className="w-8 h-8 rounded-full bg-accent flex items-center justify-center cursor-pointer"
+            className="w-8 h-8 rounded-full bg-accent flex items-center justify-center cursor-pointer relative"
             onClick={() => setShowDropdown(!showDropdown)}
           >
             <UserRound size={16} className="text-accent-foreground" />
+            <button 
+              onClick={(e) => {
+                e.stopPropagation();
+                handleSignOut();
+              }}
+              className="absolute -bottom-1 -right-1 bg-white rounded-full p-0.5 border border-gray-200 hover:bg-gray-100"
+              aria-label="Déconnexion"
+            >
+              <LogOut size={12} className="text-gray-600" />
+            </button>
           </div>
           
           {showDropdown && (
