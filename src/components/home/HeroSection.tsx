@@ -14,7 +14,7 @@ const HeroSection = () => {
         <div className="absolute inset-0 bg-black bg-opacity-50 md:bg-opacity-40"></div>
       </div>
       
-      {/* Overlay text and buttons */}
+      {/* Overlay text */}
       <div className="relative z-10 h-full flex flex-col justify-center max-w-7xl mx-auto px-4 sm:px-6">
         <div className="text-white space-y-4 sm:space-y-6 max-w-xl">
           <div className="space-y-2 sm:space-y-3">
@@ -24,15 +24,17 @@ const HeroSection = () => {
           <p className="text-base sm:text-lg max-w-md">
             Donnez vie à vos designs sur une variété de produits de qualité. Imprimez à la demande sans stock minimum.
           </p>
-          <div className="flex flex-wrap gap-3 sm:gap-4 pt-4">
-            <Link to="/create" className="bg-white text-gray-900 hover:bg-gray-100 px-4 sm:px-6 py-2 sm:py-3 rounded font-medium shadow-sm transition-colors text-sm sm:text-base">
-              Créer Maintenant
-            </Link>
-            <Link to="/products" className="bg-black text-white hover:bg-gray-800 border border-white px-4 sm:px-6 py-2 sm:py-3 rounded font-medium shadow-sm transition-colors text-sm sm:text-base">
-              Acheter Maintenant
-            </Link>
-          </div>
         </div>
+      </div>
+
+      {/* Buttons positioned at the bottom of the image with small margin */}
+      <div className="absolute bottom-4 left-0 right-0 z-10 flex justify-center gap-3 sm:gap-4 px-4">
+        <Link to="/create" className="bg-white text-gray-900 hover:bg-gray-100 px-4 sm:px-6 py-2 sm:py-3 rounded font-medium shadow-sm transition-colors text-sm sm:text-base">
+          Créer Maintenant
+        </Link>
+        <Link to="/products" className="bg-black text-white hover:bg-gray-800 border border-white px-4 sm:px-6 py-2 sm:py-3 rounded font-medium shadow-sm transition-colors text-sm sm:text-base">
+          Acheter Maintenant
+        </Link>
       </div>
     </section>
   );
