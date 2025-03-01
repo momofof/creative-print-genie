@@ -24,11 +24,18 @@ const HeroSection = () => {
           <p className="text-base sm:text-lg max-w-md">
             Donnez vie à vos designs sur une variété de produits de qualité. Imprimez à la demande sans stock minimum.
           </p>
+          
+          {/* Desktop button positioned on the left */}
+          <div className="hidden md:block">
+            <Link to="/create" className="bg-white text-gray-900 hover:bg-gray-100 px-6 sm:px-8 py-3 sm:py-4 rounded font-medium shadow-sm transition-colors text-base sm:text-lg inline-block">
+              Créer Maintenant
+            </Link>
+          </div>
         </div>
       </div>
 
-      {/* Button positioned at the bottom of the image with small margin */}
-      <div className="absolute bottom-4 left-0 right-0 z-10 flex justify-center px-4">
+      {/* Mobile button positioned at the bottom of the image with small margin */}
+      <div className="absolute bottom-4 left-0 right-0 z-10 flex justify-center px-4 md:hidden">
         <Link to="/create" className="bg-white text-gray-900 hover:bg-gray-100 px-6 sm:px-8 py-3 sm:py-4 rounded font-medium shadow-sm transition-colors text-base sm:text-lg">
           Créer Maintenant
         </Link>
