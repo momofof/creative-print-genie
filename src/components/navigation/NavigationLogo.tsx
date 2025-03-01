@@ -43,6 +43,19 @@ const NavigationLogo = () => {
 
   const handleSignOut = async () => {
     try {
+      // Vérifier d'abord si une session existe
+      const { data: sessionData } = await supabase.auth.getSession();
+      
+      if (!sessionData.session) {
+        // Si pas de session, mettre à jour l'état local sans appeler signOut
+        setIsLoggedIn(false);
+        setShowDropdown(false);
+        toast.success("Vous êtes déjà déconnecté");
+        navigate("/");
+        return;
+      }
+      
+      // Si la session existe, procéder à la déconnexion
       const { error } = await supabase.auth.signOut();
       if (error) throw error;
       
@@ -51,7 +64,11 @@ const NavigationLogo = () => {
       navigate("/");
     } catch (error) {
       console.error("Erreur de déconnexion:", error);
-      toast.error("Erreur lors de la déconnexion");
+      
+      // En cas d'erreur, essayer de mettre à jour l'état manuellement
+      setIsLoggedIn(false);
+      setShowDropdown(false);
+      toast.error("Erreur lors de la déconnexion, veuillez rafraîchir la page");
     }
   };
 

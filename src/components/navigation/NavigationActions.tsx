@@ -2,7 +2,6 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import { twMerge } from "tailwind-merge";
-import { useSupabaseClient, useUser } from "@supabase/auth-helpers-react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
@@ -18,6 +17,17 @@ const NavigationActions = ({ mobile = false, onActionClick, className }: Navigat
 
   const handleSignOut = async () => {
     try {
+      // Vérifier d'abord si une session existe
+      const { data: sessionData } = await supabase.auth.getSession();
+      
+      if (!sessionData.session) {
+        // Si pas de session, ne rien faire de plus
+        toast.success("Vous êtes déjà déconnecté");
+        navigate("/");
+        return;
+      }
+      
+      // Si la session existe, procéder à la déconnexion
       const { error } = await supabase.auth.signOut();
       if (error) throw error;
       
@@ -25,7 +35,7 @@ const NavigationActions = ({ mobile = false, onActionClick, className }: Navigat
       navigate("/");
     } catch (error) {
       console.error("Erreur de déconnexion:", error);
-      toast.error("Erreur lors de la déconnexion");
+      toast.error("Erreur lors de la déconnexion, veuillez rafraîchir la page");
     }
   };
 
