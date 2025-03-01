@@ -62,7 +62,7 @@ const HeroSection = () => {
       
       {/* Content container with alignment adjusted to bottom of image with small margin */}
       <div className="relative z-30 h-full flex flex-col justify-end pb-8 max-w-7xl mx-auto px-4 sm:px-6 md:pl-4 lg:pl-8">
-        <div className="text-white space-y-5 md:max-w-xl">
+        <div className="text-white space-y-5 md:max-w-lg lg:max-w-md">
           <div className="space-y-2 md:space-y-3">
             <h2 className="text-lg sm:text-xl font-medium">Vos Idées, Votre Style</h2>
             <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold">VOTRE CRÉATION</h1>
