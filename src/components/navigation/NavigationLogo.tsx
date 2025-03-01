@@ -1,14 +1,17 @@
+
 import { Link } from "react-router-dom";
 import { UserRound, LogOut } from "lucide-react";
 import { useState, useEffect, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
+
 const NavigationLogo = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [showDropdown, setShowDropdown] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
+
   useEffect(() => {
     const checkUserSession = async () => {
       const {
@@ -33,6 +36,7 @@ const NavigationLogo = () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, []);
+
   const handleSignOut = async () => {
     try {
       const {
@@ -59,13 +63,14 @@ const NavigationLogo = () => {
       toast.error("Erreur lors de la déconnexion, veuillez rafraîchir la page");
     }
   };
+
   return <div className="flex items-center gap-3">
       {isLoggedIn && <div className="relative" ref={dropdownRef}>
           <div className="w-8 h-8 rounded-full bg-accent flex items-center justify-center cursor-pointer" onClick={() => setShowDropdown(!showDropdown)}>
             <UserRound size={16} className="text-accent-foreground" />
           </div>
           
-          {showDropdown && <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-50 border border-gray-200 md:left-auto md:right-0 md:top-full">
+          {showDropdown && <div className="absolute left-0 right-auto mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-50 border border-gray-200 transform -translate-x-1/2 sm:transform-none sm:left-auto sm:right-0">
               <button onClick={handleSignOut} className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 text-left">
                 <LogOut size={16} className="mr-2" />
                 Se déconnecter
@@ -77,4 +82,5 @@ const NavigationLogo = () => {
       </Link>
     </div>;
 };
+
 export default NavigationLogo;
