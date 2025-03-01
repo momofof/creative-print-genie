@@ -5,7 +5,7 @@ import Navigation from "@/components/Navigation";
 import { Link } from "react-router-dom";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
-import { Github, Mail, Facebook, Twitter } from "lucide-react";
+import { Github, Mail, Facebook, Twitter, Loader2 } from "lucide-react";
 
 const Login = () => {
   const [email, setEmail] = useState("");
@@ -55,7 +55,14 @@ const Login = () => {
       // La redirection se fait automatiquement par Supabase
     } catch (error: any) {
       console.error(`Erreur de connexion avec ${provider}:`, error);
-      toast.error(`Erreur lors de la connexion avec ${provider}`);
+      
+      // Affiche une erreur plus conviviale en fonction du code d'erreur
+      if (error.error_code === "validation_failed" && error.msg?.includes("provider is not enabled")) {
+        toast.error(`Le fournisseur ${provider} n'est pas activé dans Supabase. Veuillez l'activer dans la console.`);
+      } else {
+        toast.error(`Erreur lors de la connexion avec ${provider}`);
+      }
+      
       setSocialLoading(null);
     }
   };
@@ -120,12 +127,16 @@ const Login = () => {
                   disabled={socialLoading !== null}
                   style={{ backgroundColor: "#fff", borderColor: "#ddd" }}
                 >
-                  <svg className="h-5 w-5" aria-hidden="true" viewBox="0 0 24 24">
-                    <path
-                      d="M12.48 10.92v3.28h7.84c-.24 1.84-.853 3.187-1.787 4.133-1.147 1.147-2.933 2.4-6.053 2.4-4.827 0-8.6-3.893-8.6-8.72s3.773-8.72 8.6-8.72c2.6 0 4.507 1.027 5.907 2.347l2.307-2.307C18.747 1.44 16.133 0 12.48 0 5.867 0 .307 5.387.307 12s5.56 12 12.173 12c3.573 0 6.267-1.173 8.373-3.36 2.16-2.16 2.84-5.213 2.84-7.667 0-.76-.053-1.467-.173-2.053H12.48z"
-                      fill="#4285F4"
-                    />
-                  </svg>
+                  {socialLoading === "google" ? (
+                    <Loader2 className="h-5 w-5 animate-spin" />
+                  ) : (
+                    <svg className="h-5 w-5" aria-hidden="true" viewBox="0 0 24 24">
+                      <path
+                        d="M12.48 10.92v3.28h7.84c-.24 1.84-.853 3.187-1.787 4.133-1.147 1.147-2.933 2.4-6.053 2.4-4.827 0-8.6-3.893-8.6-8.72s3.773-8.72 8.6-8.72c2.6 0 4.507 1.027 5.907 2.347l2.307-2.307C18.747 1.44 16.133 0 12.48 0 5.867 0 .307 5.387.307 12s5.56 12 12.173 12c3.573 0 6.267-1.173 8.373-3.36 2.16-2.16 2.84-5.213 2.84-7.667 0-.76-.053-1.467-.173-2.053H12.48z"
+                        fill="#4285F4"
+                      />
+                    </svg>
+                  )}
                   <span className="ml-2">Google</span>
                 </button>
 
@@ -135,7 +146,11 @@ const Login = () => {
                   disabled={socialLoading !== null}
                   style={{ backgroundColor: "#24292e" }}
                 >
-                  <Github className="h-5 w-5" />
+                  {socialLoading === "github" ? (
+                    <Loader2 className="h-5 w-5 animate-spin" />
+                  ) : (
+                    <Github className="h-5 w-5" />
+                  )}
                   <span className="ml-2">GitHub</span>
                 </button>
 
@@ -145,7 +160,11 @@ const Login = () => {
                   disabled={socialLoading !== null}
                   style={{ backgroundColor: "#1877f2" }}
                 >
-                  <Facebook className="h-5 w-5" />
+                  {socialLoading === "facebook" ? (
+                    <Loader2 className="h-5 w-5 animate-spin" />
+                  ) : (
+                    <Facebook className="h-5 w-5" />
+                  )}
                   <span className="ml-2">Facebook</span>
                 </button>
 
@@ -155,9 +174,17 @@ const Login = () => {
                   disabled={socialLoading !== null}
                   style={{ backgroundColor: "#1da1f2" }}
                 >
-                  <Twitter className="h-5 w-5" />
+                  {socialLoading === "twitter" ? (
+                    <Loader2 className="h-5 w-5 animate-spin" />
+                  ) : (
+                    <Twitter className="h-5 w-5" />
+                  )}
                   <span className="ml-2">Twitter</span>
                 </button>
+              </div>
+              
+              <div className="mt-4 text-xs text-center text-gray-500">
+                <p>Pour activer ces boutons de connexion, vous devez configurer les fournisseurs d'authentification dans votre console Supabase.</p>
               </div>
             </div>
 
