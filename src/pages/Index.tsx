@@ -113,33 +113,47 @@ const Index = () => {
       
       <Navigation />
       
-      {/* Hero Section */}
-      <section className="pt-32 pb-16 px-4 py-[12px]">
-        <div className="max-w-7xl mx-auto text-center">
-          <h1 className="text-5xl sm:text-6xl font-bold mb-6 animate-slideUp">
-            Créez et Vendez vos Produits Personnalisés
-          </h1>
-          <p className="text-xl text-gray-600 mb-8 max-w-2xl mx-auto animate-slideUp">
-            Concevez et vendez des produits personnalisés sans stock. Lancez votre activité d'impression à la demande dès aujourd'hui.
-          </p>
-          <div className="space-y-4 animate-slideUp">
-            <Link to="/create" className="inline-block bg-accent text-accent-foreground rounded-full text-lg font-medium hover:bg-accent/90 transition-colors mx-0 px-[61px] py-[19px]">
-              Commencer à Créer
-            </Link>
-            {!isLoggedIn && (
-              <div className="mt-6">
-                <div className="text-gray-600">
-                  Vous avez déjà un compte ? {" "}
-                  <Link to="/login" className="text-accent hover:underline">
-                    Se connecter
-                  </Link>
-                  {" "} ou {" "}
-                  <Link to="/signup" className="text-accent hover:underline">
-                    Créer un compte
-                  </Link>
-                </div>
-              </div>
-            )}
+      {/* Hero Banner Advertising - Inspired by the provided image */}
+      <section className="relative overflow-hidden bg-[#f5f1eb] py-16 md:py-24">
+        <div className="max-w-7xl mx-auto px-4 flex flex-col md:flex-row items-center">
+          <div className="w-full md:w-1/2 space-y-6 text-left mb-8 md:mb-0">
+            <div className="space-y-2">
+              <h2 className="text-xl font-medium text-gray-700">Vos Idées, Votre Style</h2>
+              <h1 className="text-5xl md:text-6xl font-bold text-gray-900">VOTRE CRÉATION</h1>
+            </div>
+            <p className="text-lg text-gray-600 max-w-md">
+              Donnez vie à vos designs sur une variété de produits de qualité. Imprimez à la demande sans stock minimum.
+            </p>
+            <div className="flex flex-wrap gap-4 pt-4">
+              <Link to="/create" className="bg-white text-gray-900 hover:bg-gray-100 px-6 py-3 rounded font-medium shadow-sm transition-colors">
+                Créer Maintenant
+              </Link>
+              <Link to="/products" className="bg-black text-white hover:bg-gray-800 px-6 py-3 rounded font-medium shadow-sm transition-colors">
+                Acheter
+              </Link>
+            </div>
+          </div>
+          <div className="w-full md:w-1/2 relative">
+            <img 
+              src="https://images.unsplash.com/photo-1626947346165-4c2288dadc2a?auto=format&fit=crop&w=800&q=80" 
+              alt="Person wearing customized apparel" 
+              className="rounded-lg shadow-md object-cover h-[500px] w-full"
+            />
+          </div>
+        </div>
+        
+        {/* Category Pills - Similar to the image's bottom section */}
+        <div className="max-w-7xl mx-auto px-4 mt-12">
+          <div className="flex flex-wrap justify-center gap-3">
+            {["T-shirts", "Sweats & Hoodies", "Broderie", "Accessoires", "Articles pour Bébé", "Mugs", "Casquettes"].map((category) => (
+              <Link 
+                key={category} 
+                to={`/products/${category.toLowerCase().replace(" & ", "-")}`}
+                className="whitespace-nowrap bg-white border border-gray-200 rounded-full px-5 py-2 text-sm font-medium hover:bg-gray-50 transition-colors"
+              >
+                {category}
+              </Link>
+            ))}
           </div>
         </div>
       </section>
