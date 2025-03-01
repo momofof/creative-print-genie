@@ -60,30 +60,30 @@ const HeroSection = () => {
         </div>
       </div>
       
-      {/* Content container with alignment adjusted to bottom of image with small margin */}
-      <div className="relative z-30 h-full flex flex-col justify-end pb-8 max-w-7xl mx-auto px-4 sm:px-6 md:pl-4 lg:pl-8">
-        <div className="text-white space-y-5 md:max-w-lg lg:max-w-md">
-          <div className="space-y-2 md:space-y-3">
-            <h2 className="text-lg sm:text-xl font-medium">Vos Idées, Votre Style</h2>
+      {/* Content container - Improved positioning for better desktop display */}
+      <div className="relative z-30 h-full flex flex-col justify-end pb-12 md:pb-16 max-w-7xl mx-auto px-4 sm:px-6 md:px-8 lg:px-12">
+        <div className="text-white space-y-5 md:space-y-6 md:max-w-lg lg:max-w-xl">
+          <div className="space-y-2 md:space-y-4">
+            <h2 className="text-lg sm:text-xl md:text-2xl font-medium">Vos Idées, Votre Style</h2>
             <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold">VOTRE CRÉATION</h1>
           </div>
           
-          {/* Button integrated with text for better alignment */}
-          <div>
-            <Link to="/create" className="bg-white text-gray-900 hover:bg-gray-100 px-6 sm:px-8 py-3 sm:py-4 rounded font-medium shadow-sm transition-colors text-base sm:text-lg inline-block">
+          {/* Button with improved spacing */}
+          <div className="pt-2 md:pt-4">
+            <Link to="/create" className="bg-white text-gray-900 hover:bg-gray-100 px-6 sm:px-8 py-3 sm:py-4 rounded font-medium shadow-md transition-colors text-base sm:text-lg inline-block">
               Créer Maintenant
             </Link>
           </div>
         </div>
       </div>
 
-      {/* Image navigation indicators */}
-      <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 z-40 flex space-x-2">
+      {/* Image navigation indicators - moved up slightly for better spacing */}
+      <div className="absolute bottom-6 left-1/2 transform -translate-x-1/2 z-40 flex space-x-3">
         {heroImages.map((_, index) => (
           <button
             key={index}
             onClick={() => navigateToSlide(index)}
-            className={`w-2 h-2 rounded-full transition-colors ${
+            className={`w-2.5 h-2.5 rounded-full transition-colors ${
               index === currentImageIndex ? "bg-white" : "bg-white/50"
             }`}
             aria-label={`Go to slide ${index + 1}`}
