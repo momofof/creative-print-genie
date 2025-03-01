@@ -1,5 +1,7 @@
+
 import { Link } from "react-router-dom";
-import { ChevronDown } from "lucide-react";
+import { ChevronDown, ChevronRight } from "lucide-react";
+import { useState } from "react";
 
 interface NavigationItemProps {
   item: {
@@ -12,23 +14,42 @@ interface NavigationItemProps {
 }
 
 const NavigationItem = ({ item, onItemClick, mobile = false }: NavigationItemProps) => {
+  const [isExpanded, setIsExpanded] = useState(false);
+
+  const handleToggleExpand = (e: React.MouseEvent) => {
+    if (mobile && item.children) {
+      e.preventDefault();
+      setIsExpanded(!isExpanded);
+    }
+  };
+
   if (mobile) {
     return (
-      <div>
-        <Link
-          to={item.link}
-          className="block px-3 py-1.5 rounded-md text-base font-medium text-gray-700 hover:text-accent hover:bg-gray-50"
-          onClick={onItemClick}
+      <div className="mb-1">
+        <div 
+          className="flex items-center justify-between px-3 py-1.5 rounded-md text-base font-medium text-gray-700 hover:text-accent hover:bg-gray-50"
+          onClick={handleToggleExpand}
         >
-          {item.title}
-        </Link>
-        {item.children && (
-          <div className="pl-4 space-y-0.5">
+          <Link
+            to={item.link}
+            className="flex-1"
+            onClick={item.children ? undefined : onItemClick}
+          >
+            {item.title}
+          </Link>
+          {item.children && (
+            <button className="p-1">
+              {isExpanded ? <ChevronDown size={18} /> : <ChevronRight size={18} />}
+            </button>
+          )}
+        </div>
+        {item.children && isExpanded && (
+          <div className="pl-4 mt-1 space-y-1 border-l border-gray-100">
             {item.children.map((child) => (
               <Link
                 key={child.title}
                 to={child.link}
-                className="block px-3 py-1 rounded-md text-sm text-gray-600 hover:text-accent hover:bg-gray-50"
+                className="block px-3 py-1.5 rounded-md text-sm text-gray-600 hover:text-accent hover:bg-gray-50"
                 onClick={onItemClick}
               >
                 {child.title}
