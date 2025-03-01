@@ -1,6 +1,5 @@
 
 import Navigation from "@/components/Navigation";
-import PromoBanner from "@/components/home/PromoBanner";
 import HeroSection from "@/components/home/HeroSection";
 import CategoryPills from "@/components/home/CategoryPills";
 import ProductCategories from "@/components/home/ProductCategories";
@@ -12,7 +11,6 @@ const Index = () => {
   return (
     <AuthStateWrapper>
       <div className="min-h-screen bg-white">
-        <PromoBanner />
         <Navigation />
         <HeroSection />
         <CategoryPills />
