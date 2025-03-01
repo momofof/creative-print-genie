@@ -14,51 +14,16 @@ interface NavigationActionsProps {
 
 const NavigationActions = ({ mobile = false, onActionClick, className }: NavigationActionsProps) => {
   const navigate = useNavigate();
-
-  const handleSignOut = async () => {
-    try {
-      // Vérifier d'abord si une session existe
-      const { data: sessionData } = await supabase.auth.getSession();
-      
-      if (!sessionData.session) {
-        // Si pas de session, ne rien faire de plus
-        toast.success("Vous êtes déjà déconnecté");
-        navigate("/");
-        return;
-      }
-      
-      // Si la session existe, procéder à la déconnexion
-      const { error } = await supabase.auth.signOut();
-      if (error) throw error;
-      
-      toast.success("Déconnexion réussie");
-      navigate("/");
-    } catch (error) {
-      console.error("Erreur de déconnexion:", error);
-      toast.error("Erreur lors de la déconnexion, veuillez rafraîchir la page");
-    }
-  };
-
-  // Créer une fonction pour vérifier si l'utilisateur est connecté
-  const getUserStatus = async () => {
-    try {
-      const { data } = await supabase.auth.getSession();
-      return !!data.session;
-    } catch (error) {
-      console.error("Erreur lors de la vérification de la session:", error);
-      return false;
-    }
-  };
-
-  // Utiliser getUserStatus pour afficher le bouton approprié
   const [isLoggedIn, setIsLoggedIn] = React.useState(false);
 
   React.useEffect(() => {
-    getUserStatus().then(status => {
-      setIsLoggedIn(status);
-    });
+    const checkUserSession = async () => {
+      const { data } = await supabase.auth.getSession();
+      setIsLoggedIn(!!data.session);
+    };
     
-    // Écouter les changements d'état d'authentification
+    checkUserSession();
+    
     const { data: authListener } = supabase.auth.onAuthStateChange((event, session) => {
       setIsLoggedIn(!!session);
     });
@@ -68,15 +33,39 @@ const NavigationActions = ({ mobile = false, onActionClick, className }: Navigat
     };
   }, []);
 
+  const handleSignOut = async () => {
+    try {
+      // Mettre immédiatement à jour l'interface utilisateur
+      setIsLoggedIn(false);
+      
+      // Fermer le menu mobile si nécessaire
+      if (onActionClick) {
+        onActionClick();
+      }
+      
+      // Ensuite tenter de déconnecter la session dans Supabase
+      const { error } = await supabase.auth.signOut();
+      
+      // Afficher un message de succès et rediriger
+      toast.success("Déconnexion réussie");
+      navigate("/");
+      
+      // Journaliser les erreurs si nécessaire, mais ne pas interrompre l'expérience utilisateur
+      if (error) {
+        console.log("Info déconnexion:", error.message);
+      }
+    } catch (error) {
+      // Capturer toute erreur inattendue, mais l'utilisateur est déjà "déconnecté" visuellement
+      console.log("Info déconnexion:", error);
+    }
+  };
+
   if (mobile) {
     return (
       <div className="pt-4 space-y-2">
         {isLoggedIn ? (
           <button
-            onClick={() => {
-              handleSignOut();
-              onActionClick?.();
-            }}
+            onClick={handleSignOut}
             className="block w-full text-center px-4 py-2 bg-accent text-accent-foreground rounded-full text-sm font-medium hover:bg-accent/90"
           >
             Se déconnecter

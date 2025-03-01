@@ -39,28 +39,24 @@ const NavigationLogo = () => {
 
   const handleSignOut = async () => {
     try {
-      const {
-        data: sessionData
-      } = await supabase.auth.getSession();
-      if (!sessionData.session) {
-        setIsLoggedIn(false);
-        setShowDropdown(false);
-        toast.success("Vous êtes déjà déconnecté");
-        navigate("/");
-        return;
-      }
-      const {
-        error
-      } = await supabase.auth.signOut();
-      if (error) throw error;
-      toast.success("Déconnexion réussie");
-      setShowDropdown(false);
-      navigate("/");
-    } catch (error) {
-      console.error("Erreur de déconnexion:", error);
+      // Mettre immédiatement à jour l'interface utilisateur
       setIsLoggedIn(false);
       setShowDropdown(false);
-      toast.error("Erreur lors de la déconnexion, veuillez rafraîchir la page");
+      
+      // Ensuite tenter de déconnecter la session dans Supabase
+      const { error } = await supabase.auth.signOut();
+      
+      // Afficher un message de succès et rediriger
+      toast.success("Déconnexion réussie");
+      navigate("/");
+      
+      // Journaliser les erreurs si nécessaire, mais ne pas interrompre l'expérience utilisateur
+      if (error) {
+        console.log("Info déconnexion:", error.message);
+      }
+    } catch (error) {
+      // Capturer toute erreur inattendue, mais l'utilisateur est déjà "déconnecté" visuellement
+      console.log("Info déconnexion:", error);
     }
   };
 
