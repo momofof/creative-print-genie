@@ -4,6 +4,7 @@ import { Link } from "react-router-dom";
 import { useUser } from "@supabase/auth-helpers-react";
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { X } from "lucide-react";
 
 const productCategories = [{
   id: "textile",
@@ -70,6 +71,7 @@ const featuredProducts = [{
 const Index = () => {
   const user = useUser();
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [showBanner, setShowBanner] = useState(true);
   
   useEffect(() => {
     // Vérifier si l'utilisateur est connecté au chargement
@@ -91,6 +93,24 @@ const Index = () => {
   }, []);
 
   return <div className="min-h-screen bg-white">
+      {/* Promotional Banner */}
+      {showBanner && (
+        <div className="bg-[#ff3c5a] text-white py-3 px-4 text-center relative">
+          <div className="max-w-7xl mx-auto flex justify-center items-center">
+            <p className="text-sm font-medium">
+              10% off everything <Link to="/promo" className="underline font-bold ml-2">Redeem Code Now</Link>
+            </p>
+            <button 
+              onClick={() => setShowBanner(false)}
+              className="absolute right-4 text-white hover:text-gray-200"
+              aria-label="Close banner"
+            >
+              <X size={18} />
+            </button>
+          </div>
+        </div>
+      )}
+      
       <Navigation />
       
       {/* Hero Section */}
@@ -145,7 +165,7 @@ const Index = () => {
           </div>
         </div>
       </section>
-
+      
       {/* Featured Products */}
       <section className="py-16 px-4 bg-secondary">
         <div className="max-w-7xl mx-auto">
