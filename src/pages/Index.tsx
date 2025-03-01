@@ -113,47 +113,53 @@ const Index = () => {
       
       <Navigation />
       
-      {/* Hero Banner Advertising - Inspired by the provided image */}
-      <section className="relative overflow-hidden bg-[#f5f1eb] py-16 md:py-24">
-        <div className="max-w-7xl mx-auto px-4 flex flex-col md:flex-row items-center">
-          <div className="w-full md:w-1/2 space-y-6 text-left mb-8 md:mb-0">
-            <div className="space-y-2">
-              <h2 className="text-xl font-medium text-gray-700">Vos Idées, Votre Style</h2>
-              <h1 className="text-5xl md:text-6xl font-bold text-gray-900">VOTRE CRÉATION</h1>
+      {/* Full-width Hero Banner with Overlay Text */}
+      <section className="relative h-[80vh] w-full">
+        {/* Full-width background image */}
+        <div className="absolute inset-0 w-full h-full">
+          <img 
+            src="https://images.unsplash.com/photo-1626947346165-4c2288dadc2a?auto=format&fit=crop&w=2000&q=80" 
+            alt="Person wearing customized apparel" 
+            className="w-full h-full object-cover"
+          />
+          <div className="absolute inset-0 bg-black bg-opacity-40"></div>
+        </div>
+        
+        {/* Overlay text and buttons */}
+        <div className="relative z-10 h-full flex flex-col justify-center max-w-7xl mx-auto px-6">
+          <div className="text-white space-y-6 max-w-xl">
+            <div className="space-y-3">
+              <h2 className="text-xl font-medium">Vos Idées, Votre Style</h2>
+              <h1 className="text-5xl md:text-6xl font-bold">VOTRE CRÉATION</h1>
             </div>
-            <p className="text-lg text-gray-600 max-w-md">
+            <p className="text-lg max-w-md">
               Donnez vie à vos designs sur une variété de produits de qualité. Imprimez à la demande sans stock minimum.
             </p>
             <div className="flex flex-wrap gap-4 pt-4">
               <Link to="/create" className="bg-white text-gray-900 hover:bg-gray-100 px-6 py-3 rounded font-medium shadow-sm transition-colors">
                 Créer Maintenant
               </Link>
-              <Link to="/products" className="bg-black text-white hover:bg-gray-800 px-6 py-3 rounded font-medium shadow-sm transition-colors">
+              <Link to="/products" className="bg-black text-white hover:bg-gray-800 border border-white px-6 py-3 rounded font-medium shadow-sm transition-colors">
                 Acheter
               </Link>
             </div>
           </div>
-          <div className="w-full md:w-1/2 relative">
-            <img 
-              src="https://images.unsplash.com/photo-1626947346165-4c2288dadc2a?auto=format&fit=crop&w=800&q=80" 
-              alt="Person wearing customized apparel" 
-              className="rounded-lg shadow-md object-cover h-[500px] w-full"
-            />
-          </div>
         </div>
         
-        {/* Category Pills - Similar to the image's bottom section */}
-        <div className="max-w-7xl mx-auto px-4 mt-12">
-          <div className="flex flex-wrap justify-center gap-3">
-            {["T-shirts", "Sweats & Hoodies", "Broderie", "Accessoires", "Articles pour Bébé", "Mugs", "Casquettes"].map((category) => (
-              <Link 
-                key={category} 
-                to={`/products/${category.toLowerCase().replace(" & ", "-")}`}
-                className="whitespace-nowrap bg-white border border-gray-200 rounded-full px-5 py-2 text-sm font-medium hover:bg-gray-50 transition-colors"
-              >
-                {category}
-              </Link>
-            ))}
+        {/* Category Pills at bottom */}
+        <div className="absolute bottom-8 left-0 right-0 px-4 z-10">
+          <div className="max-w-7xl mx-auto">
+            <div className="flex flex-wrap justify-center gap-3">
+              {["T-shirts", "Sweats & Hoodies", "Broderie", "Accessoires", "Articles pour Bébé", "Mugs", "Casquettes"].map((category) => (
+                <Link 
+                  key={category} 
+                  to={`/products/${category.toLowerCase().replace(" & ", "-")}`}
+                  className="whitespace-nowrap bg-white border border-gray-200 rounded-full px-5 py-2 text-sm font-medium hover:bg-gray-50 transition-colors"
+                >
+                  {category}
+                </Link>
+              ))}
+            </div>
           </div>
         </div>
       </section>
