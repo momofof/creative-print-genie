@@ -33,12 +33,12 @@ const HeroSection = () => {
         {heroImages.map((src, index) => (
           <div 
             key={index}
-            className={`absolute inset-0 w-full h-full transition-all duration-1000 transform ${
+            className={`absolute inset-0 w-full h-full transition-transform duration-1000 ${
               index === currentImageIndex 
-                ? "opacity-100 translate-x-0" 
+                ? "translate-x-0" 
                 : direction === "next" 
-                  ? "opacity-0 translate-x-full" 
-                  : "opacity-0 -translate-x-full"
+                  ? "translate-x-full" 
+                  : "-translate-x-full"
             }`}
           >
             <img 
