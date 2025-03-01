@@ -73,7 +73,7 @@ const NavigationLogo = () => {
               </button>
             </div>}
         </div>}
-      <Link to="/" className="text-2xl font-semibold -ml-2 sm:ml-0">
+      <Link to="/" className="text-2xl font-semibold -ml-4 sm:ml-0">
         PrintGenie
       </Link>
     </div>;
