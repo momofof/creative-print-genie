@@ -9,7 +9,7 @@ const HeroSection = () => {
         <img 
           src="https://images.unsplash.com/photo-1626947346165-4c2288dadc2a?auto=format&fit=crop&w=2000&q=80" 
           alt="Person wearing customized apparel" 
-          className="w-full h-full object-cover"
+          className="w-full h-full object-cover md:object-contain lg:object-scale-down"
         />
         <div className="absolute inset-0 bg-black bg-opacity-50 md:bg-opacity-40"></div>
       </div>
