@@ -115,9 +115,10 @@ const Login = () => {
 
               <div className="mt-6 grid grid-cols-2 gap-3">
                 <button
-                  className="w-full inline-flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50"
+                  className="w-full inline-flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50 transition-colors"
                   onClick={() => handleSocialLogin("google")}
                   disabled={socialLoading !== null}
+                  style={{ backgroundColor: "#fff", borderColor: "#ddd" }}
                 >
                   <svg className="h-5 w-5" aria-hidden="true" viewBox="0 0 24 24">
                     <path
@@ -129,29 +130,32 @@ const Login = () => {
                 </button>
 
                 <button
-                  className="w-full inline-flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50"
+                  className="w-full inline-flex justify-center py-2 px-4 rounded-md shadow-sm text-sm font-medium text-white hover:bg-opacity-90 disabled:opacity-50 transition-colors"
                   onClick={() => handleSocialLogin("github")}
                   disabled={socialLoading !== null}
+                  style={{ backgroundColor: "#24292e" }}
                 >
-                  <Github className="h-5 w-5 text-black" />
+                  <Github className="h-5 w-5" />
                   <span className="ml-2">GitHub</span>
                 </button>
 
                 <button
-                  className="w-full inline-flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50"
+                  className="w-full inline-flex justify-center py-2 px-4 rounded-md shadow-sm text-sm font-medium text-white hover:bg-opacity-90 disabled:opacity-50 transition-colors"
                   onClick={() => handleSocialLogin("facebook")}
                   disabled={socialLoading !== null}
+                  style={{ backgroundColor: "#1877f2" }}
                 >
-                  <Facebook className="h-5 w-5 text-blue-600" />
+                  <Facebook className="h-5 w-5" />
                   <span className="ml-2">Facebook</span>
                 </button>
 
                 <button
-                  className="w-full inline-flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50"
+                  className="w-full inline-flex justify-center py-2 px-4 rounded-md shadow-sm text-sm font-medium text-white hover:bg-opacity-90 disabled:opacity-50 transition-colors"
                   onClick={() => handleSocialLogin("twitter")}
                   disabled={socialLoading !== null}
+                  style={{ backgroundColor: "#1da1f2" }}
                 >
-                  <Twitter className="h-5 w-5 text-blue-400" />
+                  <Twitter className="h-5 w-5" />
                   <span className="ml-2">Twitter</span>
                 </button>
               </div>
