@@ -1,9 +1,16 @@
 
 import Navigation from "@/components/Navigation";
 import { productCategories } from "@/data/productData";
-import { Link } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 
 const Products = () => {
+  const { categoryId, subcategoryId } = useParams();
+  
+  // Filter categories based on URL parameters
+  const displayedCategories = categoryId 
+    ? productCategories.filter(cat => cat.id === categoryId) 
+    : productCategories;
+
   return (
     <div className="min-h-screen bg-white">
       <Navigation />
@@ -15,7 +22,7 @@ const Products = () => {
           </p>
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {productCategories.map((category) => (
+            {displayedCategories.map((category) => (
               <div key={category.id} className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-md transition-shadow">
                 <div className="aspect-video w-full overflow-hidden">
                   <img 

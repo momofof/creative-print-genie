@@ -8,6 +8,7 @@ import NavigationItem from "./navigation/NavigationItem";
 import NavigationActions from "./navigation/NavigationActions";
 import NavigationMenu from "./navigation/NavigationMenu";
 import { supabase } from "@/integrations/supabase/client";
+import { productCategories } from "@/data/productData";
 
 const Navigation = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -36,10 +37,17 @@ const Navigation = () => {
     setShowSearch(!showSearch);
   };
 
+  // Create subcategories navigation items for the Catalogue section
+  const catalogueSubItems = productCategories.map(category => ({
+    title: category.title,
+    link: `/products/${category.id}`
+  }));
+
   const navItems = [
     {
       title: "Catalogue",
       link: "/products",
+      children: catalogueSubItems
     },
     {
       title: "Services",
