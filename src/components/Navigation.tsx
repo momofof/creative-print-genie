@@ -92,16 +92,21 @@ const Navigation = () => {
       <div className="max-w-7xl mx-auto px-4">
         <div className="flex flex-col gap-2 py-3 lg:flex-row lg:items-center lg:justify-between lg:h-16 lg:py-0">
           <div className="flex items-center justify-between">
+            {/* Mobile view: Cart icon on the left, Menu on right */}
+            <div className="flex items-center lg:hidden">
+              <Link
+                to="/cart"
+                className="p-2 rounded-full hover:bg-secondary/80 transition-colors"
+                aria-label="Shopping Cart"
+              >
+                <ShoppingCart className="text-gray-700" size={20} />
+              </Link>
+            </div>
+            
             <NavigationLogo />
+            
             <div className="flex items-center gap-2">
               <div className="flex items-center lg:hidden">
-                <Link
-                  to="/cart"
-                  className="p-2 rounded-full hover:bg-secondary/80 transition-colors"
-                  aria-label="Shopping Cart"
-                >
-                  <ShoppingCart className="text-gray-700" size={20} />
-                </Link>
                 {isLoggedIn ? (
                   <Link
                     to="/profile"
@@ -120,8 +125,6 @@ const Navigation = () => {
                   </Link>
                 )}
                 <NavigationSearch onClick={handleSearchIconClick} />
-              </div>
-              <div className="flex items-center">
                 <NavigationMenu
                   isOpen={isMenuOpen}
                   onToggle={() => setIsMenuOpen(!isMenuOpen)}
@@ -129,8 +132,8 @@ const Navigation = () => {
                   setSearchQuery={setSearchQuery}
                   navItems={navItems}
                 />
-                <NavigationActions className="lg:hidden ml-2" />
               </div>
+              <NavigationActions className="lg:hidden ml-2" />
             </div>
           </div>
 
