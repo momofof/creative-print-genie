@@ -17,16 +17,7 @@ const NavigationActions = ({ mobile = false, onActionClick, className }: Navigat
 
   const handleSignOut = async () => {
     try {
-      // Check if user is actually logged in before signing out
-      const { data: sessionData } = await supabase.auth.getSession();
-      
-      if (!sessionData.session) {
-        // If no session exists, just update UI and redirect
-        navigate("/");
-        return;
-      }
-      
-      // If session exists, proceed with logout
+      // Attempt to sign out from Supabase without checking session first
       await supabase.auth.signOut();
       toast.success("Déconnexion réussie");
       navigate("/");
