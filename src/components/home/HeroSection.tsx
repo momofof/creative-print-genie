@@ -44,7 +44,7 @@ const HeroSection = () => {
             <img 
               src={src} 
               alt={`Hero image ${index + 1}`} 
-              className="w-full h-full object-cover md:object-contain lg:object-scale-down"
+              className="w-full h-full object-cover"
             />
           </div>
         ))}
