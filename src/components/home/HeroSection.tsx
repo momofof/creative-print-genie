@@ -28,7 +28,7 @@ const HeroSection = () => {
       </div>
 
       {/* Button positioned at the bottom of the image with small margin for both mobile and desktop */}
-      <div className="absolute bottom-4 left-0 right-0 z-10 flex justify-center px-4 md:justify-start md:left-8 md:right-auto md:px-0">
+      <div className="absolute bottom-4 left-0 right-0 z-10 flex justify-center px-4 md:justify-start md:left-16 md:right-auto md:px-0">
         <Link to="/create" className="bg-white text-gray-900 hover:bg-gray-100 px-6 sm:px-8 py-3 sm:py-4 rounded font-medium shadow-sm transition-colors text-base sm:text-lg">
           Créer Maintenant
         </Link>
