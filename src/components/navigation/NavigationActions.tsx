@@ -17,25 +17,23 @@ const NavigationActions = ({ mobile = false, onActionClick, className }: Navigat
 
   const handleSignOut = async () => {
     try {
-      // Vérifier d'abord si une session existe
+      // Check if user is actually logged in before signing out
       const { data: sessionData } = await supabase.auth.getSession();
       
       if (!sessionData.session) {
-        // Si pas de session, ne rien faire de plus
-        toast.success("Vous êtes déjà déconnecté");
+        // If no session exists, just update UI and redirect
         navigate("/");
         return;
       }
       
-      // Si la session existe, procéder à la déconnexion
-      const { error } = await supabase.auth.signOut();
-      if (error) throw error;
-      
+      // If session exists, proceed with logout
+      await supabase.auth.signOut();
       toast.success("Déconnexion réussie");
       navigate("/");
     } catch (error) {
       console.error("Erreur de déconnexion:", error);
-      toast.error("Erreur lors de la déconnexion, veuillez rafraîchir la page");
+      // Redirect anyway
+      navigate("/");
     }
   };
 

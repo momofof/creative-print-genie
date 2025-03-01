@@ -39,28 +39,28 @@ const NavigationLogo = () => {
 
   const handleSignOut = async () => {
     try {
-      const {
-        data: sessionData
-      } = await supabase.auth.getSession();
+      // Check if user is actually logged in before signing out
+      const { data: sessionData } = await supabase.auth.getSession();
+      
       if (!sessionData.session) {
+        // If no session exists, just update UI and redirect
         setIsLoggedIn(false);
         setShowDropdown(false);
-        toast.success("Vous êtes déjà déconnecté");
         navigate("/");
         return;
       }
-      const {
-        error
-      } = await supabase.auth.signOut();
-      if (error) throw error;
+      
+      // If session exists, proceed with logout
+      await supabase.auth.signOut();
       toast.success("Déconnexion réussie");
       setShowDropdown(false);
       navigate("/");
     } catch (error) {
       console.error("Erreur de déconnexion:", error);
+      // Gracefully handle logout error - update UI state anyway
       setIsLoggedIn(false);
       setShowDropdown(false);
-      toast.error("Erreur lors de la déconnexion, veuillez rafraîchir la page");
+      navigate("/");
     }
   };
 
