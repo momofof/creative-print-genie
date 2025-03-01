@@ -4,9 +4,8 @@ import { Link } from "react-router-dom";
 import NavigationItem from "./NavigationItem";
 import NavigationActions from "./NavigationActions";
 import NavigationLoginItems from "./NavigationLoginItems";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { LucideIcon } from "lucide-react";
-import { supabase } from "@/integrations/supabase/client";
 
 interface NavigationMenuProps {
   isOpen: boolean;
@@ -22,25 +21,6 @@ interface NavigationMenuProps {
 }
 
 const NavigationMenu = ({ isOpen, onToggle, navItems, searchQuery, setSearchQuery }: NavigationMenuProps) => {
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-
-  useEffect(() => {
-    const checkUserSession = async () => {
-      const { data } = await supabase.auth.getSession();
-      setIsLoggedIn(!!data.session);
-    };
-    
-    checkUserSession();
-    
-    const { data: authListener } = supabase.auth.onAuthStateChange((event, session) => {
-      setIsLoggedIn(!!session);
-    });
-
-    return () => {
-      authListener.subscription.unsubscribe();
-    };
-  }, []);
-
   return (
     <>
       <button
@@ -64,7 +44,6 @@ const NavigationMenu = ({ isOpen, onToggle, navItems, searchQuery, setSearchQuer
             ))}
             <div className="py-2 border-t border-gray-100 mt-2">
               <NavigationLoginItems 
-                isLoggedIn={isLoggedIn} 
                 onItemClick={() => onToggle()} 
                 className="flex items-center w-full px-3 py-2 text-sm hover:bg-gray-100 rounded-md"
                 mobile={true}
