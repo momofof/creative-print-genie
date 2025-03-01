@@ -5,6 +5,7 @@ import { useState, useEffect, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
+import { Button } from "@/components/ui/button";
 
 interface NavigationLoginItemsProps {
   onItemClick?: () => void;
@@ -113,12 +114,15 @@ const NavigationLoginItems = ({ onItemClick, className = "", mobile = false }: N
     <div className={className}>
       {isLoggedIn ? (
         <div className="relative" ref={dropdownRef}>
-          <div 
-            className="w-8 h-8 rounded-full bg-accent flex items-center justify-center cursor-pointer"
+          <Button 
+            variant="ghost" 
+            size="icon"
+            className="flex items-center justify-center w-10 h-10 rounded-full hover:bg-secondary/80"
             onClick={() => setShowDropdown(!showDropdown)}
+            aria-label="User menu"
           >
-            <UserRound size={16} className="text-accent-foreground" />
-          </div>
+            <UserRound size={20} className="text-gray-700" />
+          </Button>
           
           {showDropdown && (
             <div className="absolute right-0 mt-2 w-40 bg-white rounded-md shadow-lg py-1 z-50 border border-gray-200">
