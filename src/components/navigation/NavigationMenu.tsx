@@ -27,8 +27,8 @@ const NavigationMenu = ({ isOpen, onToggle, navItems, searchQuery, setSearchQuer
       </button>
       
       {isOpen && (
-        <div className="lg:hidden bg-white/80 backdrop-blur-md border-t border-gray-200 animate-fadeIn absolute left-0 right-0 top-full z-50">
-          <div className="max-w-xs mx-auto px-4 py-2 space-y-0.5">
+        <div className="lg:hidden bg-white/80 backdrop-blur-md border-t border-gray-200 animate-fadeIn absolute left-0 top-full z-50 w-3/4 max-w-xs border-r border-gray-200">
+          <div className="px-4 py-2 space-y-0.5">
             {navItems.map((item) => (
               <NavigationItem
                 key={item.title}
