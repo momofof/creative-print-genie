@@ -70,7 +70,7 @@ const NavigationLogo = () => {
             <UserRound size={16} className="text-accent-foreground" />
           </div>
           
-          {showDropdown && <div className="absolute right-[-120px] xs:right-[-110px] sm:right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-50 border border-gray-200">
+          {showDropdown && <div className="absolute right-[-150px] xs:right-[-130px] sm:right-0 mt-2 w-40 bg-white rounded-md shadow-lg py-1 z-50 border border-gray-200">
               <button onClick={handleSignOut} className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 text-left">
                 <LogOut size={16} className="mr-2" />
                 Se déconnecter
