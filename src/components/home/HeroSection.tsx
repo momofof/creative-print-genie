@@ -14,8 +14,8 @@ const HeroSection = () => {
         <div className="absolute inset-0 bg-black bg-opacity-50 md:bg-opacity-40"></div>
       </div>
       
-      {/* Content container with adjusted alignment - moved down by adding pt-16 */}
-      <div className="relative z-10 h-full flex items-center pt-16 max-w-7xl mx-auto px-4 sm:px-6">
+      {/* Content container with alignment adjusted to bottom of image with small margin */}
+      <div className="relative z-10 h-full flex flex-col justify-end pb-8 max-w-7xl mx-auto px-4 sm:px-6">
         <div className="text-white space-y-5 md:max-w-xl">
           <div className="space-y-2 md:space-y-3">
             <h2 className="text-lg sm:text-xl font-medium">Vos Idées, Votre Style</h2>
