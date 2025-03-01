@@ -1,8 +1,10 @@
 
-import { Menu, X, ShoppingCart } from "lucide-react";
+import { Menu, X, ShoppingCart, UserRound } from "lucide-react";
 import { Link } from "react-router-dom";
 import NavigationItem from "./NavigationItem";
 import NavigationActions from "./NavigationActions";
+import { supabase } from "@/integrations/supabase/client";
+import { useState, useEffect } from "react";
 
 interface NavigationMenuProps {
   isOpen: boolean;
@@ -17,6 +19,25 @@ interface NavigationMenuProps {
 }
 
 const NavigationMenu = ({ isOpen, onToggle, navItems, searchQuery, setSearchQuery }: NavigationMenuProps) => {
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+  useEffect(() => {
+    const checkUserSession = async () => {
+      const { data } = await supabase.auth.getSession();
+      setIsLoggedIn(!!data.session);
+    };
+    
+    checkUserSession();
+    
+    const { data: authListener } = supabase.auth.onAuthStateChange((event, session) => {
+      setIsLoggedIn(!!session);
+    });
+
+    return () => {
+      authListener.subscription.unsubscribe();
+    };
+  }, []);
+
   return (
     <>
       <button
@@ -48,6 +69,27 @@ const NavigationMenu = ({ isOpen, onToggle, navItems, searchQuery, setSearchQuer
                 <ShoppingCart size={18} className="mr-2" />
                 <span>Panier</span>
               </Link>
+              {isLoggedIn ? (
+                <Link
+                  to="/profile"
+                  className="flex items-center w-full px-3 py-2 text-sm hover:bg-gray-100 rounded-md"
+                  aria-label="User Profile"
+                  onClick={() => onToggle()}
+                >
+                  <UserRound size={18} className="mr-2" />
+                  <span>Profil</span>
+                </Link>
+              ) : (
+                <Link
+                  to="/login"
+                  className="flex items-center w-full px-3 py-2 text-sm hover:bg-gray-100 rounded-md"
+                  aria-label="Login"
+                  onClick={() => onToggle()}
+                >
+                  <UserRound size={18} className="mr-2" />
+                  <span>Connexion</span>
+                </Link>
+              )}
             </div>
             <NavigationActions mobile onActionClick={() => onToggle()} />
           </div>

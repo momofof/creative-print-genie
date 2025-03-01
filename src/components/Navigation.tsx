@@ -1,16 +1,36 @@
-import { useState } from "react";
-import { ShoppingCart } from "lucide-react";
+
+import { useState, useEffect } from "react";
+import { ShoppingCart, UserRound } from "lucide-react";
 import { Link } from "react-router-dom";
 import NavigationLogo from "./navigation/NavigationLogo";
 import NavigationSearch from "./navigation/NavigationSearch";
 import NavigationItem from "./navigation/NavigationItem";
 import NavigationActions from "./navigation/NavigationActions";
 import NavigationMenu from "./navigation/NavigationMenu";
+import { supabase } from "@/integrations/supabase/client";
 
 const Navigation = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [showSearch, setShowSearch] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+  useEffect(() => {
+    const checkUserSession = async () => {
+      const { data } = await supabase.auth.getSession();
+      setIsLoggedIn(!!data.session);
+    };
+    
+    checkUserSession();
+    
+    const { data: authListener } = supabase.auth.onAuthStateChange((event, session) => {
+      setIsLoggedIn(!!session);
+    });
+
+    return () => {
+      authListener.subscription.unsubscribe();
+    };
+  }, []);
 
   const handleSearchIconClick = () => {
     setShowSearch(!showSearch);
@@ -74,7 +94,31 @@ const Navigation = () => {
           <div className="flex items-center justify-between">
             <NavigationLogo />
             <div className="flex items-center gap-2">
-              <div className="lg:hidden">
+              <div className="flex items-center lg:hidden">
+                <Link
+                  to="/cart"
+                  className="p-2 rounded-full hover:bg-secondary/80 transition-colors"
+                  aria-label="Shopping Cart"
+                >
+                  <ShoppingCart className="text-gray-700" size={20} />
+                </Link>
+                {isLoggedIn ? (
+                  <Link
+                    to="/profile"
+                    className="p-2 rounded-full hover:bg-secondary/80 transition-colors"
+                    aria-label="User Profile"
+                  >
+                    <UserRound className="text-gray-700" size={20} />
+                  </Link>
+                ) : (
+                  <Link
+                    to="/login"
+                    className="p-2 rounded-full hover:bg-secondary/80 transition-colors"
+                    aria-label="Login"
+                  >
+                    <UserRound className="text-gray-700" size={20} />
+                  </Link>
+                )}
                 <NavigationSearch onClick={handleSearchIconClick} />
               </div>
               <div className="flex items-center">
@@ -105,6 +149,23 @@ const Navigation = () => {
             >
               <ShoppingCart className="text-gray-700" size={20} />
             </Link>
+            {isLoggedIn ? (
+              <Link
+                to="/profile"
+                className="p-2 rounded-full hover:bg-secondary/80 transition-colors"
+                aria-label="User Profile"
+              >
+                <UserRound className="text-gray-700" size={20} />
+              </Link>
+            ) : (
+              <Link
+                to="/login"
+                className="p-2 rounded-full hover:bg-secondary/80 transition-colors"
+                aria-label="Login"
+              >
+                <UserRound className="text-gray-700" size={20} />
+              </Link>
+            )}
           </div>
         </div>
       </div>
