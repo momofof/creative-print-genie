@@ -145,21 +145,21 @@ const Index = () => {
             </div>
           </div>
         </div>
-        
-        {/* Category Pills at bottom */}
-        <div className="absolute bottom-4 sm:bottom-8 left-0 right-0 px-4 z-10 overflow-x-auto">
-          <div className="max-w-7xl mx-auto">
-            <div className="flex justify-start sm:justify-center gap-2 sm:gap-3 pb-2 sm:pb-0 overflow-x-auto scrollbar-none whitespace-nowrap">
-              {["T-shirts", "Sweats & Hoodies", "Broderie", "Accessoires", "Articles pour Bébé", "Mugs", "Casquettes"].map((category) => (
-                <Link 
-                  key={category} 
-                  to={`/products/${category.toLowerCase().replace(" & ", "-")}`}
-                  className="whitespace-nowrap bg-white border border-gray-200 rounded-full px-3 sm:px-5 py-1.5 sm:py-2 text-xs sm:text-sm font-medium hover:bg-gray-50 transition-colors flex-shrink-0"
-                >
-                  {category}
-                </Link>
-              ))}
-            </div>
+      </section>
+      
+      {/* Category Pills - Now in a separate section below the hero */}
+      <section className="bg-white py-4 sm:py-6 px-4">
+        <div className="max-w-7xl mx-auto">
+          <div className="flex justify-start sm:justify-center gap-2 sm:gap-3 pb-2 sm:pb-0 overflow-x-auto scrollbar-none whitespace-nowrap">
+            {["T-shirts", "Sweats & Hoodies", "Broderie", "Accessoires", "Articles pour Bébé", "Mugs", "Casquettes"].map((category) => (
+              <Link 
+                key={category} 
+                to={`/products/${category.toLowerCase().replace(" & ", "-")}`}
+                className="whitespace-nowrap bg-gray-100 border border-gray-200 rounded-full px-3 sm:px-5 py-1.5 sm:py-2 text-xs sm:text-sm font-medium hover:bg-gray-200 transition-colors flex-shrink-0"
+              >
+                {category}
+              </Link>
+            ))}
           </div>
         </div>
       </section>
@@ -230,4 +230,3 @@ const Index = () => {
 };
 
 export default Index;
-
