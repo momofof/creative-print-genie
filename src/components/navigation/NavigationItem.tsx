@@ -1,4 +1,3 @@
-
 import { Link } from "react-router-dom";
 import { ChevronDown } from "lucide-react";
 
@@ -18,18 +17,18 @@ const NavigationItem = ({ item, onItemClick, mobile = false }: NavigationItemPro
       <div>
         <Link
           to={item.link}
-          className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-accent hover:bg-gray-50"
+          className="block px-3 py-1.5 rounded-md text-base font-medium text-gray-700 hover:text-accent hover:bg-gray-50"
           onClick={onItemClick}
         >
           {item.title}
         </Link>
         {item.children && (
-          <div className="pl-4 space-y-1">
+          <div className="pl-4 space-y-0.5">
             {item.children.map((child) => (
               <Link
                 key={child.title}
                 to={child.link}
-                className="block px-3 py-2 rounded-md text-sm text-gray-600 hover:text-accent hover:bg-gray-50"
+                className="block px-3 py-1 rounded-md text-sm text-gray-600 hover:text-accent hover:bg-gray-50"
                 onClick={onItemClick}
               >
                 {child.title}
