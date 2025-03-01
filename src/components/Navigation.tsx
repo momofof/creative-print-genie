@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { ShoppingCart, UserRound } from "lucide-react";
 import { Link } from "react-router-dom";
@@ -44,30 +43,6 @@ const Navigation = () => {
     {
       title: "Tarifs",
       link: "/pricing",
-    },
-    {
-      title: "Comment ça marche",
-      link: "/how-it-works",
-      children: [
-        { title: "Guide de démarrage", link: "/getting-started" },
-        { title: "FAQ", link: "/faq" },
-      ],
-    },
-    {
-      title: "Solutions",
-      link: "/solutions",
-      children: [
-        { title: "Pour créateurs", link: "/creators" },
-        { title: "Pour entreprises", link: "/business" },
-      ],
-    },
-    {
-      title: "Apprendre",
-      link: "/learn",
-      children: [
-        { title: "Tutoriels", link: "/tutorials" },
-        { title: "Blog", link: "/blog" },
-      ],
     },
     {
       title: "Services",
