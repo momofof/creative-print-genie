@@ -14,8 +14,6 @@ import GettingStarted from "./pages/GettingStarted";
 import FAQ from "./pages/FAQ";
 import CustomDesign from "./pages/services/CustomDesign";
 import TechnicalSupport from "./pages/services/TechnicalSupport";
-import HelpCenter from "./pages/support/HelpCenter";
-import Contact from "./pages/support/Contact";
 import Create from "./pages/Create";
 import Cart from "./pages/Cart";
 
@@ -35,8 +33,6 @@ const App = () => (
           <Route path="/faq" element={<FAQ />} />
           <Route path="/custom-design" element={<CustomDesign />} />
           <Route path="/support" element={<TechnicalSupport />} />
-          <Route path="/help-center" element={<HelpCenter />} />
-          <Route path="/contact" element={<Contact />} />
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
           <Route path="/create" element={<Create />} />

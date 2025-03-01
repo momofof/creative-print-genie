@@ -52,14 +52,6 @@ const Navigation = () => {
         { title: "Support technique", link: "/support" },
       ],
     },
-    {
-      title: "Soutien",
-      link: "/support",
-      children: [
-        { title: "Centre d'aide", link: "/help-center" },
-        { title: "Contact", link: "/contact" },
-      ],
-    },
   ];
 
   return (
