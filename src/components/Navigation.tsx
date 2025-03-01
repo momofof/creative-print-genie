@@ -1,7 +1,7 @@
 
 import { useState, useEffect } from "react";
 import { ShoppingCart, UserRound, Briefcase } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import NavigationLogo from "./navigation/NavigationLogo";
 import NavigationSearch from "./navigation/NavigationSearch";
 import NavigationItem from "./navigation/NavigationItem";
@@ -9,12 +9,15 @@ import NavigationActions from "./navigation/NavigationActions";
 import NavigationMenu from "./navigation/NavigationMenu";
 import { supabase } from "@/integrations/supabase/client";
 import { productCategories } from "@/data/productData";
+import { useSearch } from "@/hooks/useSearch";
 
 const Navigation = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [showSearch, setShowSearch] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const searchResults = useSearch(searchQuery);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const checkUserSession = async () => {
@@ -35,6 +38,16 @@ const Navigation = () => {
 
   const handleSearchIconClick = () => {
     setShowSearch(!showSearch);
+  };
+
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchQuery(e.target.value);
+  };
+
+  const handleSearchResultClick = (link: string) => {
+    setShowSearch(false);
+    setSearchQuery("");
+    navigate(link);
   };
 
   // Create subcategories navigation items for the Catalogue section
@@ -153,14 +166,42 @@ const Navigation = () => {
       {/* Search overlay when search icon is clicked */}
       {showSearch && (
         <div className="absolute top-full left-0 right-0 bg-white border-b border-gray-200 shadow-md p-4 animate-fadeIn">
-          <input
-            type="text"
-            placeholder="Rechercher..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full px-4 py-2 rounded-full bg-secondary/50 border border-gray-200 focus:outline-none focus:ring-2 focus:ring-accent text-sm"
-            autoFocus
-          />
+          <div className="max-w-3xl mx-auto">
+            <input
+              type="text"
+              placeholder="Rechercher..."
+              value={searchQuery}
+              onChange={handleSearchChange}
+              className="w-full px-4 py-2 rounded-full bg-secondary/50 border border-gray-200 focus:outline-none focus:ring-2 focus:ring-accent text-sm"
+              autoFocus
+            />
+            
+            {searchResults.length > 0 && searchQuery && (
+              <div className="mt-4 bg-white rounded-lg shadow-lg border border-gray-100 max-h-96 overflow-y-auto">
+                {searchResults.map((result) => (
+                  <button
+                    key={`${result.type}-${result.id}`}
+                    onClick={() => handleSearchResultClick(result.link)}
+                    className="w-full text-left px-4 py-3 hover:bg-gray-50 border-b border-gray-100 last:border-none"
+                  >
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="font-medium text-gray-900">{result.title}</p>
+                        {result.parentCategory && (
+                          <p className="text-sm text-gray-500">
+                            dans {result.parentCategory}
+                          </p>
+                        )}
+                      </div>
+                      <span className="text-xs text-gray-400 capitalize">
+                        {result.type}
+                      </span>
+                    </div>
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
         </div>
       )}
     </nav>
@@ -168,3 +209,4 @@ const Navigation = () => {
 };
 
 export default Navigation;
+
