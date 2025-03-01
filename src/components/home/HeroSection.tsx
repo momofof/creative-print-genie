@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 
 const HeroSection = () => {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [direction, setDirection] = useState("next"); // "next" or "prev"
   
   // Collection of hero images
   const heroImages = [
@@ -16,6 +17,7 @@ const HeroSection = () => {
   // Rotate through images automatically
   useEffect(() => {
     const interval = setInterval(() => {
+      setDirection("next");
       setCurrentImageIndex((prevIndex) => 
         prevIndex === heroImages.length - 1 ? 0 : prevIndex + 1
       );
@@ -25,14 +27,18 @@ const HeroSection = () => {
   }, [heroImages.length]);
 
   return (
-    <section className="relative h-[60vh] sm:h-[70vh] md:h-[80vh] w-full">
+    <section className="relative h-[60vh] sm:h-[70vh] md:h-[80vh] w-full overflow-hidden">
       {/* Full-width background image */}
       <div className="absolute inset-0 w-full h-full">
         {heroImages.map((src, index) => (
           <div 
             key={index}
-            className={`absolute inset-0 w-full h-full transition-opacity duration-1000 ${
-              index === currentImageIndex ? "opacity-100" : "opacity-0"
+            className={`absolute inset-0 w-full h-full transition-all duration-1000 transform ${
+              index === currentImageIndex 
+                ? "opacity-100 translate-x-0" 
+                : direction === "next" 
+                  ? "opacity-0 translate-x-full" 
+                  : "opacity-0 -translate-x-full"
             }`}
           >
             <img 
@@ -67,7 +73,10 @@ const HeroSection = () => {
         {heroImages.map((_, index) => (
           <button
             key={index}
-            onClick={() => setCurrentImageIndex(index)}
+            onClick={() => {
+              setDirection(index > currentImageIndex ? "next" : "prev");
+              setCurrentImageIndex(index);
+            }}
             className={`w-2 h-2 rounded-full transition-colors ${
               index === currentImageIndex ? "bg-white" : "bg-white/50"
             }`}
