@@ -1,11 +1,12 @@
 
-import { Menu, X, UserRound } from "lucide-react";
+import { Menu, X } from "lucide-react";
 import { Link } from "react-router-dom";
 import NavigationItem from "./NavigationItem";
 import NavigationActions from "./NavigationActions";
-import { supabase } from "@/integrations/supabase/client";
+import NavigationLoginItems from "./NavigationLoginItems";
 import { useState, useEffect } from "react";
 import { LucideIcon } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
 
 interface NavigationMenuProps {
   isOpen: boolean;
@@ -62,27 +63,12 @@ const NavigationMenu = ({ isOpen, onToggle, navItems, searchQuery, setSearchQuer
               />
             ))}
             <div className="py-2 border-t border-gray-100 mt-2">
-              {isLoggedIn ? (
-                <Link
-                  to="/profile"
-                  className="flex items-center w-full px-3 py-2 text-sm hover:bg-gray-100 rounded-md"
-                  aria-label="User Profile"
-                  onClick={() => onToggle()}
-                >
-                  <UserRound size={18} className="mr-2" />
-                  <span>Profil</span>
-                </Link>
-              ) : (
-                <Link
-                  to="/login"
-                  className="flex items-center w-full px-3 py-2 text-sm hover:bg-gray-100 rounded-md"
-                  aria-label="Login"
-                  onClick={() => onToggle()}
-                >
-                  <UserRound size={18} className="mr-2" />
-                  <span>Connexion</span>
-                </Link>
-              )}
+              <NavigationLoginItems 
+                isLoggedIn={isLoggedIn} 
+                onItemClick={() => onToggle()} 
+                className="flex items-center w-full px-3 py-2 text-sm hover:bg-gray-100 rounded-md"
+                mobile={true}
+              />
             </div>
             <NavigationActions mobile onActionClick={() => onToggle()} />
           </div>

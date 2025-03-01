@@ -6,9 +6,38 @@ interface NavigationLoginItemsProps {
   isLoggedIn: boolean;
   onItemClick?: () => void;
   className?: string;
+  mobile?: boolean;
 }
 
-const NavigationLoginItems = ({ isLoggedIn, onItemClick, className = "" }: NavigationLoginItemsProps) => {
+const NavigationLoginItems = ({ isLoggedIn, onItemClick, className = "", mobile = false }: NavigationLoginItemsProps) => {
+  if (mobile) {
+    return (
+      <div className={className}>
+        {isLoggedIn ? (
+          <Link
+            to="/profile"
+            className="flex items-center w-full"
+            aria-label="User Profile"
+            onClick={onItemClick}
+          >
+            <UserRound size={18} className="mr-2" />
+            <span>Profil</span>
+          </Link>
+        ) : (
+          <Link
+            to="/login"
+            className="flex items-center w-full"
+            aria-label="Login"
+            onClick={onItemClick}
+          >
+            <UserRound size={18} className="mr-2" />
+            <span>Connexion</span>
+          </Link>
+        )}
+      </div>
+    );
+  }
+  
   return (
     <div className={className}>
       {isLoggedIn ? (
