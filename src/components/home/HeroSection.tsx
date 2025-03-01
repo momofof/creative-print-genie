@@ -21,9 +21,6 @@ const HeroSection = () => {
             <h2 className="text-lg sm:text-xl font-medium">Vos Idées, Votre Style</h2>
             <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold">VOTRE CRÉATION</h1>
           </div>
-          <p className="text-base sm:text-lg max-w-md mb-8">
-            Donnez vie à vos designs sur une variété de produits de qualité. Imprimez à la demande sans stock minimum.
-          </p>
           
           {/* Button integrated with text for better alignment */}
           <div>
