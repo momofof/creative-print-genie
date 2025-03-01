@@ -16,6 +16,7 @@ import TechnicalSupport from "./pages/services/TechnicalSupport";
 import Create from "./pages/Create";
 import Cart from "./pages/Cart";
 import Pro from "./pages/Pro";
+import Profile from "./pages/Profile";
 
 const queryClient = new QueryClient();
 
@@ -39,6 +40,7 @@ const App = () => (
           <Route path="/create" element={<Create />} />
           <Route path="/cart" element={<Cart />} />
           <Route path="/pro" element={<Pro />} />
+          <Route path="/profile" element={<Profile />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
