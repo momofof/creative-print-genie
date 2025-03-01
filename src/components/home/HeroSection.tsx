@@ -27,13 +27,10 @@ const HeroSection = () => {
         </div>
       </div>
 
-      {/* Buttons positioned at the bottom of the image with small margin */}
-      <div className="absolute bottom-4 left-0 right-0 z-10 flex justify-center gap-3 sm:gap-4 px-4">
+      {/* Button positioned at the bottom of the image with small margin */}
+      <div className="absolute bottom-4 left-0 right-0 z-10 flex justify-center px-4">
         <Link to="/create" className="bg-white text-gray-900 hover:bg-gray-100 px-4 sm:px-6 py-2 sm:py-3 rounded font-medium shadow-sm transition-colors text-sm sm:text-base">
           Créer Maintenant
-        </Link>
-        <Link to="/products" className="bg-black text-white hover:bg-gray-800 border border-white px-4 sm:px-6 py-2 sm:py-3 rounded font-medium shadow-sm transition-colors text-sm sm:text-base">
-          Acheter Maintenant
         </Link>
       </div>
     </section>
