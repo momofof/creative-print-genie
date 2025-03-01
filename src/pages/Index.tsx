@@ -1,4 +1,3 @@
-
 import Navigation from "@/components/Navigation";
 import { Link } from "react-router-dom";
 import { useUser } from "@supabase/auth-helpers-react";
@@ -74,7 +73,6 @@ const Index = () => {
   const [showBanner, setShowBanner] = useState(true);
   
   useEffect(() => {
-    // Vérifier si l'utilisateur est connecté au chargement
     const checkUserSession = async () => {
       const { data } = await supabase.auth.getSession();
       setIsLoggedIn(!!data.session);
@@ -82,7 +80,6 @@ const Index = () => {
     
     checkUserSession();
     
-    // Écouter les changements d'état d'authentification
     const { data: authListener } = supabase.auth.onAuthStateChange((event, session) => {
       setIsLoggedIn(!!session);
     });
@@ -93,7 +90,6 @@ const Index = () => {
   }, []);
 
   return <div className="min-h-screen bg-white">
-      {/* Promotional Banner */}
       {showBanner && (
         <div className="bg-[#ff3c5a] text-white py-3 px-4 text-center relative">
           <div className="max-w-7xl mx-auto flex justify-center items-center">
@@ -113,58 +109,52 @@ const Index = () => {
       
       <Navigation />
       
-      {/* Full-width Hero Banner with Overlay Text */}
-      <section className="relative h-[60vh] sm:h-[70vh] md:h-[80vh] w-full">
-        {/* Full-width background image */}
-        <div className="absolute inset-0 w-full h-full">
+      <section className="relative w-full">
+        <div className="w-full">
           <img 
             src="https://images.unsplash.com/photo-1626947346165-4c2288dadc2a?auto=format&fit=crop&w=2000&q=80" 
             alt="Person wearing customized apparel" 
-            className="w-full h-full object-cover"
+            className="w-full h-[60vh] sm:h-[70vh] md:h-[80vh] object-cover"
           />
-          <div className="absolute inset-0 bg-black bg-opacity-50 md:bg-opacity-40"></div>
         </div>
-        
-        {/* Overlay text and buttons */}
-        <div className="relative z-10 h-full flex flex-col justify-center max-w-7xl mx-auto px-4 sm:px-6">
-          <div className="text-white space-y-4 sm:space-y-6 max-w-xl">
-            <div className="space-y-2 sm:space-y-3">
-              <h2 className="text-lg sm:text-xl font-medium">Vos Idées, Votre Style</h2>
-              <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold">VOTRE CRÉATION</h1>
-            </div>
-            <p className="text-base sm:text-lg max-w-md">
-              Donnez vie à vos designs sur une variété de produits de qualité. Imprimez à la demande sans stock minimum.
-            </p>
-            <div className="flex flex-wrap gap-3 sm:gap-4 pt-4">
-              <Link to="/create" className="bg-white text-gray-900 hover:bg-gray-100 px-4 sm:px-6 py-2 sm:py-3 rounded font-medium shadow-sm transition-colors text-sm sm:text-base">
-                Créer Maintenant
-              </Link>
-              <Link to="/products" className="bg-black text-white hover:bg-gray-800 border border-white px-4 sm:px-6 py-2 sm:py-3 rounded font-medium shadow-sm transition-colors text-sm sm:text-base">
-                Acheter Maintenant
-              </Link>
-            </div>
+      </section>
+      
+      <section className="bg-gray-900 text-white py-8 sm:py-12 px-4">
+        <div className="max-w-7xl mx-auto space-y-6 text-center">
+          <div className="space-y-3">
+            <h2 className="text-lg sm:text-xl font-medium">Vos Idées, Votre Style</h2>
+            <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold">VOTRE CRÉATION</h1>
+          </div>
+          <p className="text-base sm:text-lg max-w-md mx-auto">
+            Donnez vie à vos designs sur une variété de produits de qualité. Imprimez à la demande sans stock minimum.
+          </p>
+          <div className="flex flex-wrap justify-center gap-3 sm:gap-4 pt-4">
+            <Link to="/create" className="bg-white text-gray-900 hover:bg-gray-100 px-4 sm:px-6 py-2 sm:py-3 rounded font-medium shadow-sm transition-colors text-sm sm:text-base">
+              Créer Maintenant
+            </Link>
+            <Link to="/products" className="bg-black text-white hover:bg-gray-800 border border-white px-4 sm:px-6 py-2 sm:py-3 rounded font-medium shadow-sm transition-colors text-sm sm:text-base">
+              Acheter Maintenant
+            </Link>
           </div>
         </div>
-        
-        {/* Category Pills at bottom */}
-        <div className="absolute bottom-4 sm:bottom-8 left-0 right-0 px-4 z-10 overflow-x-auto">
-          <div className="max-w-7xl mx-auto">
-            <div className="flex justify-start sm:justify-center gap-2 sm:gap-3 pb-2 sm:pb-0 overflow-x-auto scrollbar-none whitespace-nowrap">
-              {["T-shirts", "Sweats & Hoodies", "Broderie", "Accessoires", "Articles pour Bébé", "Mugs", "Casquettes"].map((category) => (
-                <Link 
-                  key={category} 
-                  to={`/products/${category.toLowerCase().replace(" & ", "-")}`}
-                  className="whitespace-nowrap bg-white border border-gray-200 rounded-full px-3 sm:px-5 py-1.5 sm:py-2 text-xs sm:text-sm font-medium hover:bg-gray-50 transition-colors flex-shrink-0"
-                >
-                  {category}
-                </Link>
-              ))}
-            </div>
+      </section>
+      
+      <section className="bg-gray-100 py-6 px-4 overflow-x-auto">
+        <div className="max-w-7xl mx-auto">
+          <div className="flex justify-start sm:justify-center gap-2 sm:gap-3 pb-2 sm:pb-0 overflow-x-auto scrollbar-none whitespace-nowrap">
+            {["T-shirts", "Sweats & Hoodies", "Broderie", "Accessoires", "Articles pour Bébé", "Mugs", "Casquettes"].map((category) => (
+              <Link 
+                key={category} 
+                to={`/products/${category.toLowerCase().replace(" & ", "-")}`}
+                className="whitespace-nowrap bg-white border border-gray-200 rounded-full px-3 sm:px-5 py-1.5 sm:py-2 text-xs sm:text-sm font-medium hover:bg-gray-50 transition-colors flex-shrink-0"
+              >
+                {category}
+              </Link>
+            ))}
           </div>
         </div>
       </section>
 
-      {/* Product Categories */}
       <section className="px-4 bg-white py-6 sm:py-[35px]">
         <div className="max-w-7xl mx-auto">
           <h2 className="text-2xl sm:text-3xl font-semibold mb-6 sm:mb-8 text-center">Catégories de Produits</h2>
@@ -186,7 +176,6 @@ const Index = () => {
         </div>
       </section>
       
-      {/* Featured Products */}
       <section className="py-8 sm:py-16 px-4 bg-secondary">
         <div className="max-w-7xl mx-auto">
           <h2 className="text-2xl sm:text-3xl font-semibold mb-6 sm:mb-8 text-center">Produits Phares</h2>
@@ -205,7 +194,6 @@ const Index = () => {
         </div>
       </section>
 
-      {/* Features Section */}
       <section className="py-8 sm:py-16 px-4">
         <div className="max-w-7xl mx-auto">
           <h2 className="text-2xl sm:text-3xl font-semibold mb-8 sm:mb-12 text-center">Pourquoi Nous Choisir</h2>
@@ -230,4 +218,3 @@ const Index = () => {
 };
 
 export default Index;
-
