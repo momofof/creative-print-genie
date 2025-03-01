@@ -36,9 +36,7 @@ const HeroSection = () => {
             className={`absolute inset-0 w-full h-full transition-transform duration-1000 ${
               index === currentImageIndex 
                 ? "translate-x-0" 
-                : direction === "next" 
-                  ? "translate-x-full" 
-                  : "-translate-x-full"
+                : "translate-x-full"
             }`}
           >
             <img 
