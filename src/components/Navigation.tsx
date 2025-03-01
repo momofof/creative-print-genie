@@ -1,6 +1,6 @@
 
 import { useState, useEffect } from "react";
-import { ShoppingCart, UserRound } from "lucide-react";
+import { ShoppingCart, UserRound, Briefcase } from "lucide-react";
 import { Link } from "react-router-dom";
 import NavigationLogo from "./navigation/NavigationLogo";
 import NavigationSearch from "./navigation/NavigationSearch";
@@ -48,6 +48,11 @@ const Navigation = () => {
         { title: "Design personnalisé", link: "/custom-design" },
         { title: "Support technique", link: "/support" },
       ],
+    },
+    {
+      title: "Pro",
+      link: "/pro",
+      icon: Briefcase,
     },
   ];
 

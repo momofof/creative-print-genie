@@ -5,6 +5,7 @@ import NavigationItem from "./NavigationItem";
 import NavigationActions from "./NavigationActions";
 import { supabase } from "@/integrations/supabase/client";
 import { useState, useEffect } from "react";
+import { LucideIcon } from "lucide-react";
 
 interface NavigationMenuProps {
   isOpen: boolean;
@@ -14,6 +15,7 @@ interface NavigationMenuProps {
   navItems: Array<{
     title: string;
     link: string;
+    icon?: LucideIcon;
     children?: Array<{ title: string; link: string }>;
   }>;
 }

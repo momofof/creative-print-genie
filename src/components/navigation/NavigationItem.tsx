@@ -2,11 +2,13 @@
 import { Link } from "react-router-dom";
 import { ChevronDown, ChevronRight } from "lucide-react";
 import { useState } from "react";
+import { LucideIcon } from "lucide-react";
 
 interface NavigationItemProps {
   item: {
     title: string;
     link: string;
+    icon?: LucideIcon;
     children?: Array<{ title: string; link: string }>;
   };
   onItemClick?: () => void;
@@ -15,6 +17,7 @@ interface NavigationItemProps {
 
 const NavigationItem = ({ item, onItemClick, mobile = false }: NavigationItemProps) => {
   const [isExpanded, setIsExpanded] = useState(false);
+  const Icon = item.icon;
 
   const handleToggleExpand = (e: React.MouseEvent) => {
     if (mobile && item.children) {
@@ -32,9 +35,10 @@ const NavigationItem = ({ item, onItemClick, mobile = false }: NavigationItemPro
         >
           <Link
             to={item.link}
-            className="flex-1"
+            className="flex-1 flex items-center gap-2"
             onClick={item.children ? undefined : onItemClick}
           >
+            {Icon && <Icon size={18} />}
             {item.title}
           </Link>
           {item.children && (
@@ -65,8 +69,9 @@ const NavigationItem = ({ item, onItemClick, mobile = false }: NavigationItemPro
     <div className="relative group">
       <Link
         to={item.link}
-        className="px-3 py-2 rounded-md text-sm font-medium text-gray-700 hover:text-accent flex items-center"
+        className="px-3 py-2 rounded-md text-sm font-medium text-gray-700 hover:text-accent flex items-center gap-2"
       >
+        {Icon && <Icon size={18} />}
         {item.title}
         {item.children && <ChevronDown className="ml-1 h-4 w-4" />}
       </Link>
