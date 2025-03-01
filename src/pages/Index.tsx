@@ -98,7 +98,7 @@ const Index = () => {
         <div className="bg-[#ff3c5a] text-white py-3 px-4 text-center relative">
           <div className="max-w-7xl mx-auto flex justify-center items-center">
             <p className="text-sm font-medium">
-              10% off everything <Link to="/promo" className="underline font-bold ml-2">Redeem Code Now</Link>
+              10% de réduction sur tout <Link to="/promo" className="underline font-bold ml-2">Utilisez le code maintenant</Link>
             </p>
             <button 
               onClick={() => setShowBanner(false)}
@@ -140,7 +140,7 @@ const Index = () => {
                 Créer Maintenant
               </Link>
               <Link to="/products" className="bg-black text-white hover:bg-gray-800 border border-white px-6 py-3 rounded font-medium shadow-sm transition-colors">
-                Acheter
+                Acheter Maintenant
               </Link>
             </div>
           </div>
@@ -230,3 +230,4 @@ const Index = () => {
 };
 
 export default Index;
+
