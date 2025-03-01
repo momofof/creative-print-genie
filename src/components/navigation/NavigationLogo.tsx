@@ -60,7 +60,7 @@ const NavigationLogo = () => {
     }
   };
 
-  return <div className="flex items-center gap-3">
+  return <div className="flex items-center gap-1 sm:gap-3">
       {isLoggedIn && <div className="relative" ref={dropdownRef}>
           <div className="w-8 h-8 rounded-full bg-accent flex items-center justify-center cursor-pointer" onClick={() => setShowDropdown(!showDropdown)}>
             <UserRound size={16} className="text-accent-foreground" />
@@ -73,7 +73,7 @@ const NavigationLogo = () => {
               </button>
             </div>}
         </div>}
-      <Link to="/" className="text-2xl font-semibold">
+      <Link to="/" className="text-2xl font-semibold -ml-1 sm:ml-0">
         PrintGenie
       </Link>
     </div>;
