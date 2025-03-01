@@ -1,4 +1,6 @@
+
 import { useState } from "react";
+import { ShoppingCart } from "lucide-react";
 import NavigationLogo from "./navigation/NavigationLogo";
 import NavigationSearch from "./navigation/NavigationSearch";
 import NavigationItem from "./navigation/NavigationItem";
@@ -8,6 +10,11 @@ import NavigationMenu from "./navigation/NavigationMenu";
 const Navigation = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+  const [showSearch, setShowSearch] = useState(false);
+
+  const handleSearchIconClick = () => {
+    setShowSearch(!showSearch);
+  };
 
   const navItems = [
     {
@@ -67,11 +74,9 @@ const Navigation = () => {
           <div className="flex items-center justify-between">
             <NavigationLogo />
             <div className="flex items-center gap-2">
-              <NavigationSearch
-                searchQuery={searchQuery}
-                setSearchQuery={setSearchQuery}
-                className="lg:hidden w-36"
-              />
+              <div className="lg:hidden">
+                <NavigationSearch onClick={handleSearchIconClick} />
+              </div>
               <div className="flex items-center">
                 <NavigationMenu
                   isOpen={isMenuOpen}
@@ -91,13 +96,31 @@ const Navigation = () => {
             ))}
           </div>
 
-          <NavigationSearch
-            searchQuery={searchQuery}
-            setSearchQuery={setSearchQuery}
-            className="hidden lg:block max-w-xs"
-          />
+          <div className="hidden lg:flex items-center gap-4">
+            <NavigationSearch onClick={handleSearchIconClick} />
+            <button
+              className="p-2 rounded-full hover:bg-secondary/80 transition-colors"
+              aria-label="Shopping Cart"
+            >
+              <ShoppingCart className="text-gray-700" size={20} />
+            </button>
+          </div>
         </div>
       </div>
+      
+      {/* Search overlay when search icon is clicked */}
+      {showSearch && (
+        <div className="absolute top-full left-0 right-0 bg-white border-b border-gray-200 shadow-md p-4 animate-fadeIn">
+          <input
+            type="text"
+            placeholder="Rechercher..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="w-full px-4 py-2 rounded-full bg-secondary/50 border border-gray-200 focus:outline-none focus:ring-2 focus:ring-accent text-sm"
+            autoFocus
+          />
+        </div>
+      )}
     </nav>
   );
 };
