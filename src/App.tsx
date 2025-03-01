@@ -22,6 +22,7 @@ import TechnicalSupport from "./pages/services/TechnicalSupport";
 import HelpCenter from "./pages/support/HelpCenter";
 import Contact from "./pages/support/Contact";
 import Create from "./pages/Create";
+import Cart from "./pages/Cart";
 
 const queryClient = new QueryClient();
 
@@ -49,6 +50,7 @@ const App = () => (
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
           <Route path="/create" element={<Create />} />
+          <Route path="/cart" element={<Cart />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>

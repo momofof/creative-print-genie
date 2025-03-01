@@ -1,6 +1,6 @@
-
 import { useState } from "react";
 import { ShoppingCart } from "lucide-react";
+import { Link } from "react-router-dom";
 import NavigationLogo from "./navigation/NavigationLogo";
 import NavigationSearch from "./navigation/NavigationSearch";
 import NavigationItem from "./navigation/NavigationItem";
@@ -98,12 +98,13 @@ const Navigation = () => {
 
           <div className="hidden lg:flex items-center gap-4">
             <NavigationSearch onClick={handleSearchIconClick} />
-            <button
+            <Link
+              to="/cart"
               className="p-2 rounded-full hover:bg-secondary/80 transition-colors"
               aria-label="Shopping Cart"
             >
               <ShoppingCart className="text-gray-700" size={20} />
-            </button>
+            </Link>
           </div>
         </div>
       </div>

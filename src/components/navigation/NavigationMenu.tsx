@@ -1,5 +1,6 @@
 
 import { Menu, X, ShoppingCart } from "lucide-react";
+import { Link } from "react-router-dom";
 import NavigationItem from "./NavigationItem";
 import NavigationActions from "./NavigationActions";
 
@@ -38,13 +39,15 @@ const NavigationMenu = ({ isOpen, onToggle, navItems, searchQuery, setSearchQuer
               />
             ))}
             <div className="py-2 border-t border-gray-100 mt-2">
-              <button
+              <Link
+                to="/cart"
                 className="flex items-center w-full px-3 py-2 text-sm hover:bg-gray-100 rounded-md"
                 aria-label="Shopping Cart"
+                onClick={() => onToggle()}
               >
                 <ShoppingCart size={18} className="mr-2" />
                 <span>Panier</span>
-              </button>
+              </Link>
             </div>
             <NavigationActions mobile onActionClick={() => onToggle()} />
           </div>
