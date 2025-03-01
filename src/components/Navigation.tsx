@@ -1,15 +1,18 @@
 
 import { useState, useEffect } from "react";
-import { ShoppingCart, UserRound, Briefcase } from "lucide-react";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import NavigationLogo from "./navigation/NavigationLogo";
 import NavigationSearch from "./navigation/NavigationSearch";
 import NavigationItem from "./navigation/NavigationItem";
 import NavigationActions from "./navigation/NavigationActions";
 import NavigationMenu from "./navigation/NavigationMenu";
+import NavigationLoginItems from "./navigation/NavigationLoginItems";
+import NavigationCart from "./navigation/NavigationCart";
+import NavigationSearchOverlay from "./navigation/NavigationSearchOverlay";
 import { supabase } from "@/integrations/supabase/client";
 import { productCategories } from "@/data/productData";
 import { useSearch } from "@/hooks/useSearch";
+import { Briefcase } from "lucide-react";
 
 const Navigation = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -97,31 +100,9 @@ const Navigation = () => {
             
             <div className="flex items-center gap-2">
               <div className="flex items-center lg:hidden">
-                {isLoggedIn ? (
-                  <Link
-                    to="/profile"
-                    className="p-2 rounded-full hover:bg-secondary/80 transition-colors"
-                    aria-label="User Profile"
-                  >
-                    <UserRound className="text-gray-700" size={20} />
-                  </Link>
-                ) : (
-                  <Link
-                    to="/login"
-                    className="p-2 rounded-full hover:bg-secondary/80 transition-colors"
-                    aria-label="Login"
-                  >
-                    <UserRound className="text-gray-700" size={20} />
-                  </Link>
-                )}
+                <NavigationLoginItems isLoggedIn={isLoggedIn} />
                 <NavigationSearch onClick={handleSearchIconClick} />
-                <Link
-                  to="/cart"
-                  className="p-2 rounded-full hover:bg-secondary/80 transition-colors"
-                  aria-label="Shopping Cart"
-                >
-                  <ShoppingCart className="text-gray-700" size={20} />
-                </Link>
+                <NavigationCart />
               </div>
               <NavigationActions className="lg:hidden ml-2" />
             </div>
@@ -135,78 +116,22 @@ const Navigation = () => {
 
           <div className="hidden lg:flex items-center gap-4">
             <NavigationSearch onClick={handleSearchIconClick} />
-            <Link
-              to="/cart"
-              className="p-2 rounded-full hover:bg-secondary/80 transition-colors"
-              aria-label="Shopping Cart"
-            >
-              <ShoppingCart className="text-gray-700" size={20} />
-            </Link>
-            {isLoggedIn ? (
-              <Link
-                to="/profile"
-                className="p-2 rounded-full hover:bg-secondary/80 transition-colors"
-                aria-label="User Profile"
-              >
-                <UserRound className="text-gray-700" size={20} />
-              </Link>
-            ) : (
-              <Link
-                to="/login"
-                className="p-2 rounded-full hover:bg-secondary/80 transition-colors"
-                aria-label="Login"
-              >
-                <UserRound className="text-gray-700" size={20} />
-              </Link>
-            )}
+            <NavigationCart />
+            <NavigationLoginItems isLoggedIn={isLoggedIn} />
           </div>
         </div>
       </div>
       
       {/* Search overlay when search icon is clicked */}
-      {showSearch && (
-        <div className="absolute top-full left-0 right-0 bg-white border-b border-gray-200 shadow-md p-4 animate-fadeIn">
-          <div className="max-w-3xl mx-auto">
-            <input
-              type="text"
-              placeholder="Rechercher..."
-              value={searchQuery}
-              onChange={handleSearchChange}
-              className="w-full px-4 py-2 rounded-full bg-secondary/50 border border-gray-200 focus:outline-none focus:ring-2 focus:ring-accent text-sm"
-              autoFocus
-            />
-            
-            {searchResults.length > 0 && searchQuery && (
-              <div className="mt-4 bg-white rounded-lg shadow-lg border border-gray-100 max-h-96 overflow-y-auto">
-                {searchResults.map((result) => (
-                  <button
-                    key={`${result.type}-${result.id}`}
-                    onClick={() => handleSearchResultClick(result.link)}
-                    className="w-full text-left px-4 py-3 hover:bg-gray-50 border-b border-gray-100 last:border-none"
-                  >
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <p className="font-medium text-gray-900">{result.title}</p>
-                        {result.parentCategory && (
-                          <p className="text-sm text-gray-500">
-                            dans {result.parentCategory}
-                          </p>
-                        )}
-                      </div>
-                      <span className="text-xs text-gray-400 capitalize">
-                        {result.type}
-                      </span>
-                    </div>
-                  </button>
-                ))}
-              </div>
-            )}
-          </div>
-        </div>
-      )}
+      <NavigationSearchOverlay
+        showSearch={showSearch}
+        searchQuery={searchQuery}
+        searchResults={searchResults}
+        onSearchChange={handleSearchChange}
+        onSearchResultClick={handleSearchResultClick}
+      />
     </nav>
   );
 };
 
 export default Navigation;
-
