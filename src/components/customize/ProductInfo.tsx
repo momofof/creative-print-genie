@@ -10,9 +10,16 @@ interface ProductInfoProps {
   colors: Color[];
   selectedColor: string;
   setSelectedColor: (colorId: string) => void;
+  onChooseQuantityAndSize: () => void;
 }
 
-const ProductInfo = ({ product, colors, selectedColor, setSelectedColor }: ProductInfoProps) => {
+const ProductInfo = ({ 
+  product, 
+  colors, 
+  selectedColor, 
+  setSelectedColor,
+  onChooseQuantityAndSize
+}: ProductInfoProps) => {
   const deliveryDate = "13 - 27 mars";
   
   return (
@@ -55,7 +62,7 @@ const ProductInfo = ({ product, colors, selectedColor, setSelectedColor }: Produ
               className={`w-8 h-8 rounded-full focus:outline-none ${
                 selectedColor === color.id ? "ring-2 ring-accent ring-offset-2" : ""
               } ${!color.available ? "opacity-50 cursor-not-allowed" : ""}`}
-              style={{ backgroundColor: color.hex }}
+              style={{ backgroundColor: color.hex, border: color.id === 'white' ? '1px solid #e5e7eb' : 'none' }}
               onClick={() => color.available && setSelectedColor(color.id)}
               disabled={!color.available}
               aria-label={`Couleur ${color.name}`}
@@ -71,7 +78,10 @@ const ProductInfo = ({ product, colors, selectedColor, setSelectedColor }: Produ
         </div>
       </Link>
       
-      <Button className="w-full py-6 bg-teal-600 hover:bg-teal-700">
+      <Button 
+        className="w-full py-6 bg-teal-600 hover:bg-teal-700"
+        onClick={onChooseQuantityAndSize}
+      >
         Choisir la quantité & taille
       </Button>
     </div>

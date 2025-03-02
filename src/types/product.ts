@@ -65,4 +65,31 @@ export interface CustomizationElement {
   position: { x: number; y: number };
   size: { width: number; height: number };
   rotation: number;
+  fontSize?: number;
+  fontFamily?: string;
+  fontStyle?: {
+    bold?: boolean;
+    italic?: boolean;
+    underline?: boolean;
+    alignment?: 'left' | 'center' | 'right';
+  };
+  color?: string;
+}
+
+export interface FontOption {
+  id: string;
+  name: string;
+}
+
+export interface DesignCategory {
+  id: string;
+  name: string;
+  designs: DesignItem[];
+}
+
+export interface DesignItem {
+  id: string;
+  name: string;
+  image: string;
+  category: string;
 }
