@@ -38,7 +38,7 @@ const ProductList = ({ categoryId, subcategoryId }: ProductListProps) => {
       const term = searchTerm.toLowerCase();
       result = result.filter(product => 
         product.name.toLowerCase().includes(term) || 
-        product.description?.toLowerCase().includes(term)
+        (product.description && product.description.toLowerCase().includes(term))
       );
     }
 
@@ -48,7 +48,7 @@ const ProductList = ({ categoryId, subcategoryId }: ProductListProps) => {
       
       // Logique de filtrage en fonction de la catégorie
       if (category === "Couleur") {
-        result = result.filter(product => options.includes(product.color?.toLowerCase() || ""));
+        result = result.filter(product => product.color && options.includes(product.color.toLowerCase()));
       } else if (category === "Prix") {
         result = result.filter(product => {
           const price = product.price;
@@ -70,7 +70,7 @@ const ProductList = ({ categoryId, subcategoryId }: ProductListProps) => {
         case "price-desc":
           return b.price - a.price;
         case "newest":
-          return new Date(b.date || 0).getTime() - new Date(a.date || 0).getTime();
+          return (b.date ? new Date(b.date).getTime() : 0) - (a.date ? new Date(a.date).getTime() : 0);
         case "rating":
           return b.rating - a.rating;
         default:

@@ -39,4 +39,8 @@ export interface Product {
   reviewCount: number;
   category: string;
   subcategory: string;
+  description?: string;
+  color?: string;
+  date?: string;
+  isNew?: boolean;
 }
