@@ -4,12 +4,13 @@ import { NavigationItemInfo } from '@/types/product';
 import NavigationItemLink from './NavigationItemLink';
 import NavigationItemDropdown from './NavigationItemDropdown';
 import NavigationItemMobile from './NavigationItemMobile';
+import { LucideProps } from 'lucide-react';
 
 interface NavigationItemProps {
   title?: string;
   link?: string;
   children?: Array<{ title: string; link: string }>;
-  icon?: React.ComponentType<{ size?: number; className?: string }>;
+  icon?: React.ComponentType<LucideProps>;
   onItemClick?: () => void;
   mobile?: boolean;
   item?: NavigationItemInfo;

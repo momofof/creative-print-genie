@@ -1,13 +1,13 @@
 
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { ChevronDown } from "lucide-react";
+import { ChevronDown, LucideProps } from "lucide-react";
 
 interface NavigationItemMobileProps {
   title: string;
   link?: string;
   children?: Array<{ title: string; link: string }>;
-  icon?: React.ComponentType<{ size?: number; className?: string }>;
+  icon?: React.ComponentType<LucideProps>;
   onItemClick?: () => void;
 }
 

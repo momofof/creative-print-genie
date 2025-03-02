@@ -1,4 +1,3 @@
-
 export interface Color {
   id: string;
   name: string;
@@ -132,10 +131,12 @@ export interface ProductVariant {
   updatedAt: string;
 }
 
+import { LucideProps } from 'lucide-react';
+
 export interface NavigationItemInfo {
   title: string;
   link: string;
-  icon?: React.ComponentType<{ size?: number; className?: string }>;
+  icon?: React.ComponentType<LucideProps>;
   children?: Array<{ title: string; link: string }>;
 }
 
