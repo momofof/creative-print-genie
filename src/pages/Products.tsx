@@ -4,9 +4,10 @@ import { productCategories } from "@/data/productData";
 import { useParams } from "react-router-dom";
 import CategoryDetailView from "@/components/products/CategoryDetailView";
 import CategoriesOverview from "@/components/products/CategoriesOverview";
+import ProductList from "@/components/products/ProductList";
 
 const Products = () => {
-  const { categoryId } = useParams();
+  const { categoryId, subcategoryId } = useParams();
   
   // Filter categories based on URL parameters
   const displayedCategories = categoryId 
@@ -23,7 +24,14 @@ const Products = () => {
       <Navigation />
       
       {currentCategory ? (
-        <CategoryDetailView category={currentCategory} />
+        <>
+          <CategoryDetailView category={currentCategory} />
+          {subcategoryId ? (
+            <ProductList categoryId={categoryId} subcategoryId={subcategoryId} />
+          ) : (
+            <ProductList categoryId={categoryId} />
+          )}
+        </>
       ) : (
         <CategoriesOverview displayedCategories={displayedCategories} />
       )}

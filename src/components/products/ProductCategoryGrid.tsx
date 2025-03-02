@@ -22,12 +22,12 @@ const ProductCategoryGrid = ({ displayedCategories }: ProductCategoryGridProps) 
             <Link to={`/products/${category.id}`}>
               <h2 className="text-xl font-semibold mb-3 hover:text-accent transition-colors">{category.title}</h2>
             </Link>
-            <div className="space-y-2">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
               {category.subcategories.map((subcategory, index) => (
                 <Link 
                   key={index} 
                   to={`/products/${category.id}/${subcategory.toLowerCase().replace(/\s+/g, '-')}`}
-                  className="block py-2 px-3 rounded-md bg-secondary/50 hover:bg-secondary hover:text-accent transition-colors text-sm"
+                  className="py-2 px-3 rounded-md bg-secondary/50 hover:bg-secondary hover:text-accent transition-colors text-sm"
                 >
                   {subcategory}
                 </Link>
