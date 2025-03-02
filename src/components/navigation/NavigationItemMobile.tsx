@@ -7,7 +7,7 @@ interface NavigationItemMobileProps {
   title: string;
   link?: string;
   children?: Array<{ title: string; link: string }>;
-  icon?: React.ComponentType<{ size: number; className?: string }>;
+  icon?: React.ComponentType<{ size?: number; className?: string }>;
   onItemClick?: () => void;
 }
 

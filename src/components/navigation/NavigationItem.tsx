@@ -9,7 +9,7 @@ interface NavigationItemProps {
   title?: string;
   link?: string;
   children?: Array<{ title: string; link: string }>;
-  icon?: React.ComponentType<{ size: number; className?: string }>;
+  icon?: React.ComponentType<{ size?: number; className?: string }>;
   onItemClick?: () => void;
   mobile?: boolean;
   item?: NavigationItemInfo;

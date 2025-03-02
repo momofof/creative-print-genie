@@ -135,7 +135,7 @@ export interface ProductVariant {
 export interface NavigationItemInfo {
   title: string;
   link: string;
-  icon?: React.ComponentType;
+  icon?: React.ComponentType<{ size?: number; className?: string }>;
   children?: Array<{ title: string; link: string }>;
 }
 
