@@ -17,6 +17,7 @@ import Create from "./pages/Create";
 import Cart from "./pages/Cart";
 import Pro from "./pages/Pro";
 import Profile from "./pages/Profile";
+import CustomizeTShirt from "./pages/CustomizeTShirt";
 
 const queryClient = new QueryClient();
 
@@ -41,6 +42,7 @@ const App = () => (
           <Route path="/cart" element={<Cart />} />
           <Route path="/pro" element={<Pro />} />
           <Route path="/profile" element={<Profile />} />
+          <Route path="/customize" element={<CustomizeTShirt />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
