@@ -42,7 +42,6 @@ import Navigation from "@/components/Navigation";
 import LoadingSpinner from "@/components/profile/LoadingSpinner";
 import { DatabaseProduct, ProductVariant } from "@/types/product";
 
-// Schéma de validation du formulaire de produit
 const productSchema = z.object({
   name: z.string().min(3, "Le nom doit contenir au moins 3 caractères"),
   description: z.string().optional(),
@@ -54,7 +53,6 @@ const productSchema = z.object({
   status: z.enum(["draft", "published", "archived"]).default("draft"),
 });
 
-// Colors array for product variants
 const AVAILABLE_COLORS = [
   { name: "Noir", hex: "#000000" },
   { name: "Blanc", hex: "#FFFFFF" },
@@ -70,10 +68,8 @@ const AVAILABLE_COLORS = [
   { name: "Beige", hex: "#F5F5DC" }
 ];
 
-// Available sizes
 const AVAILABLE_SIZES = ["XS", "S", "M", "L", "XL", "XXL", "3XL"];
 
-// Available product categories
 const PRODUCT_CATEGORIES = [
   { id: "t-shirts", name: "T-shirts" },
   { id: "sweatshirts", name: "Sweat-shirts" },
@@ -85,7 +81,6 @@ const PRODUCT_CATEGORIES = [
   { id: "kids", name: "Vêtements enfants" },
 ];
 
-// Subcategories dictionary
 const SUBCATEGORIES = {
   "t-shirts": [
     "T-shirt manches courtes",
@@ -118,10 +113,9 @@ export default function ProductForm() {
   const [views, setViews] = useState<{id?: string, name: string, image: string, order: number}[]>([
     { name: "Face avant", image: "", order: 1 }
   ]);
-  
+
   const isEditing = Boolean(productId);
-  
-  // Initialize form with default values
+
   const form = useForm<ProductFormValue>({
     resolver: zodResolver(productSchema),
     defaultValues: {
@@ -136,7 +130,6 @@ export default function ProductForm() {
     },
   });
 
-  // Fetch product data when editing
   useEffect(() => {
     const checkAuthentication = async () => {
       const { data } = await supabase.auth.getSession();
@@ -154,7 +147,6 @@ export default function ProductForm() {
     checkAuthentication();
   }, [productId, navigate, isEditing]);
 
-  // Fetch product data for editing
   const fetchProductData = async () => {
     try {
       setLoading(true);
@@ -166,7 +158,6 @@ export default function ProductForm() {
 
       if (error) throw error;
 
-      // Format product data for the form
       const formattedProduct: DatabaseProduct = {
         id: product.id,
         supplierId: product.supplier_id,
@@ -183,10 +174,8 @@ export default function ProductForm() {
         updatedAt: product.updated_at
       };
 
-      // Set original product data
       setOriginalProduct(formattedProduct);
       
-      // Update form values
       form.reset({
         name: formattedProduct.name,
         description: formattedProduct.description,
@@ -198,18 +187,14 @@ export default function ProductForm() {
         status: formattedProduct.status,
       });
       
-      // Set image preview
       if (formattedProduct.image) {
         setImagePreview(formattedProduct.image);
       }
       
-      // Set selected category for subcategory select
       setSelectedCategory(formattedProduct.category);
       
-      // Fetch product variants
       fetchProductVariants();
       
-      // Fetch product views
       fetchProductViews();
     } catch (error) {
       console.error("Error fetching product:", error);
@@ -219,7 +204,6 @@ export default function ProductForm() {
     }
   };
 
-  // Fetch product variants
   const fetchProductVariants = async () => {
     try {
       const { data, error } = await supabase
@@ -230,7 +214,6 @@ export default function ProductForm() {
 
       if (error) throw error;
 
-      // Format variant data
       const formattedVariants: ProductVariant[] = data.map(item => ({
         id: item.id,
         productId: item.product_id,
@@ -250,7 +233,6 @@ export default function ProductForm() {
     }
   };
 
-  // Fetch product views
   const fetchProductViews = async () => {
     try {
       const { data, error } = await supabase
@@ -261,7 +243,6 @@ export default function ProductForm() {
 
       if (error) throw error;
 
-      // Format view data
       const formattedViews = data.map(item => ({
         id: item.id,
         name: item.name,
@@ -277,14 +258,12 @@ export default function ProductForm() {
     }
   };
 
-  // Handle category change for subcategory select
   const handleCategoryChange = (value: string) => {
     form.setValue("category", value);
-    form.setValue("subcategory", ""); // Reset subcategory
+    form.setValue("subcategory", "");
     setSelectedCategory(value);
   };
 
-  // Handle image upload
   const handleImageUpload = async (event: ChangeEvent<HTMLInputElement>) => {
     if (!event.target.files || event.target.files.length === 0) {
       return;
@@ -297,14 +276,12 @@ export default function ProductForm() {
       const fileExt = file.name.split('.').pop();
       const filePath = `${Date.now()}.${fileExt}`;
       
-      // Upload image to Supabase Storage
       const { data, error } = await supabase.storage
         .from('product-images')
         .upload(filePath, file);
 
       if (error) throw error;
 
-      // Get public URL
       const { data: publicURL } = supabase.storage
         .from('product-images')
         .getPublicUrl(data.path);
@@ -319,7 +296,6 @@ export default function ProductForm() {
     }
   };
 
-  // Handle view image upload
   const handleViewImageUpload = async (event: React.ChangeEvent<HTMLInputElement>, index: number) => {
     if (!event.target.files || event.target.files.length === 0) {
       return;
@@ -332,19 +308,16 @@ export default function ProductForm() {
       const fileExt = file.name.split('.').pop();
       const filePath = `views/${Date.now()}.${fileExt}`;
       
-      // Upload image to Supabase Storage
       const { data, error } = await supabase.storage
         .from('product-images')
         .upload(filePath, file);
 
       if (error) throw error;
 
-      // Get public URL
       const { data: publicURL } = supabase.storage
         .from('product-images')
         .getPublicUrl(data.path);
 
-      // Update view image
       const updatedViews = [...views];
       updatedViews[index].image = publicURL.publicUrl;
       setViews(updatedViews);
@@ -358,7 +331,6 @@ export default function ProductForm() {
     }
   };
 
-  // Add a product variant
   const addVariant = () => {
     const newVariants = [
       ...variants,
@@ -378,18 +350,15 @@ export default function ProductForm() {
     setVariants(newVariants);
   };
 
-  // Remove a product variant
   const removeVariant = (index: number) => {
     const newVariants = [...variants];
     newVariants.splice(index, 1);
     setVariants(newVariants);
   };
 
-  // Update variant field
   const updateVariant = (index: number, field: keyof ProductVariant, value: any) => {
     const newVariants = [...variants];
     
-    // Handle special case for color selection
     if (field === 'color') {
       const selectedColor = AVAILABLE_COLORS.find(c => c.name === value);
       if (selectedColor) {
@@ -403,7 +372,6 @@ export default function ProductForm() {
     setVariants(newVariants);
   };
 
-  // Add a product view
   const addView = () => {
     const newViews = [
       ...views,
@@ -416,7 +384,6 @@ export default function ProductForm() {
     setViews(newViews);
   };
 
-  // Remove a product view
   const removeView = (index: number) => {
     if (views.length <= 1) {
       toast.error("Vous devez avoir au moins une vue pour le produit");
@@ -426,7 +393,6 @@ export default function ProductForm() {
     const newViews = [...views];
     newViews.splice(index, 1);
     
-    // Update order for remaining views
     newViews.forEach((view, idx) => {
       view.order = idx + 1;
     });
@@ -434,21 +400,18 @@ export default function ProductForm() {
     setViews(newViews);
   };
 
-  // Update view field
   const updateView = (index: number, field: 'name', value: string) => {
     const newViews = [...views];
     newViews[index][field] = value;
     setViews(newViews);
   };
 
-  // Submit form
   const onSubmit = async (data: ProductFormValue) => {
     if (!imagePreview) {
       toast.error("Veuillez télécharger une image pour le produit");
       return;
     }
     
-    // Check if at least one view has an image
     if (data.isCustomizable && !views.some(view => view.image)) {
       toast.error("Pour un produit personnalisable, au moins une vue doit avoir une image");
       return;
@@ -457,7 +420,6 @@ export default function ProductForm() {
     try {
       setSubmitting(true);
       
-      // Format product data for Supabase
       const productData = {
         name: data.name,
         description: data.description,
@@ -473,7 +435,6 @@ export default function ProductForm() {
       let productId;
       
       if (isEditing) {
-        // Update existing product
         const { error } = await supabase
           .from("products")
           .update(productData)
@@ -484,7 +445,6 @@ export default function ProductForm() {
         productId = originalProduct?.id;
         toast.success("Produit mis à jour avec succès");
       } else {
-        // Create new product
         const { data: newProduct, error } = await supabase
           .from("products")
           .insert([{
@@ -500,17 +460,14 @@ export default function ProductForm() {
         toast.success("Produit créé avec succès");
       }
       
-      // Process variants
       if (productId) {
         await processVariants(productId);
         
-        // Process views if product is customizable
         if (data.isCustomizable) {
           await processViews(productId);
         }
       }
       
-      // Redirect to dashboard
       navigate("/supplier/dashboard");
     } catch (error) {
       console.error("Error saving product:", error);
@@ -520,10 +477,8 @@ export default function ProductForm() {
     }
   };
 
-  // Process variants
   const processVariants = async (productId: string) => {
     try {
-      // If editing, delete existing variants first
       if (isEditing) {
         await supabase
           .from("product_variants")
@@ -531,7 +486,6 @@ export default function ProductForm() {
           .eq("product_id", productId);
       }
       
-      // Insert new variants
       if (variants.length > 0) {
         const variantsToInsert = variants.map(variant => ({
           product_id: productId,
@@ -555,10 +509,8 @@ export default function ProductForm() {
     }
   };
 
-  // Process views
   const processViews = async (productId: string) => {
     try {
-      // If editing, delete existing views first
       if (isEditing) {
         await supabase
           .from("product_views")
@@ -566,7 +518,6 @@ export default function ProductForm() {
           .eq("product_id", productId);
       }
       
-      // Insert new views
       if (views.length > 0) {
         const viewsToInsert = views.map(view => ({
           product_id: productId,
@@ -587,7 +538,6 @@ export default function ProductForm() {
     }
   };
 
-  // Delete product
   const deleteProduct = async () => {
     if (!window.confirm("Êtes-vous sûr de vouloir supprimer ce produit ? Cette action est irréversible.")) {
       return;
@@ -613,7 +563,6 @@ export default function ProductForm() {
     }
   };
 
-  // Loading state
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-50">
@@ -657,7 +606,6 @@ export default function ProductForm() {
             <form onSubmit={form.handleSubmit(onSubmit)}>
               <TabsContent value="details" className="mt-0">
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                  {/* Product Image Upload */}
                   <Card className="lg:col-span-1">
                     <CardContent className="p-6">
                       <div className="flex flex-col items-center">
@@ -731,7 +679,6 @@ export default function ProductForm() {
                     </CardContent>
                   </Card>
                   
-                  {/* Product Details Form */}
                   <Card className="lg:col-span-2">
                     <CardContent className="p-6">
                       <div className="grid grid-cols-1 gap-6">

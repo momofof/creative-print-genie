@@ -1,4 +1,3 @@
-
 export interface Color {
   id: string;
   name: string;
@@ -94,8 +93,6 @@ export interface DesignItem {
   category: string;
 }
 
-// Nouvelles interfaces pour le système de fournisseurs
-
 export type SupplierStatus = 'active' | 'pending' | 'suspended';
 
 export interface Supplier {
@@ -134,7 +131,6 @@ export interface ProductVariant {
   updatedAt: string;
 }
 
-// Additional NavigationItem related interfaces
 export interface NavigationItemInfo {
   title: string;
   link: string;
