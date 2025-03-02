@@ -6,9 +6,10 @@ import { Link } from "react-router-dom";
 
 interface ProductActionsProps {
   // Add any props needed for customization
+  productId?: string;
 }
 
-const ProductActions = ({}: ProductActionsProps) => {
+const ProductActions = ({ productId }: ProductActionsProps) => {
   return (
     <div className="flex flex-col space-y-3 mb-6">
       <Button className="w-full py-6 text-base font-medium flex items-center gap-2 bg-accent hover:bg-accent/90">
@@ -24,7 +25,7 @@ const ProductActions = ({}: ProductActionsProps) => {
         Ajouter aux favoris
       </Button>
       
-      <Link to="/customize">
+      <Link to={`/customize/${productId || ''}`}>
         <Button 
           className="w-full py-6 text-base font-medium bg-teal-600 hover:bg-teal-700"
         >

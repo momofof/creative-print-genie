@@ -39,4 +39,30 @@ export interface Product {
   reviewCount: number;
   category: string;
   subcategory: string;
+  description?: string;
+  color?: string;
+  date?: string;
+  isNew?: boolean;
+  customizationViews?: ProductView[];
+}
+
+export interface ProductView {
+  id: string;
+  name: string;
+  image: string;
+}
+
+export interface CustomizableProduct extends Product {
+  views: ProductView[];
+  selectedView: string;
+  customizationElements: CustomizationElement[];
+}
+
+export interface CustomizationElement {
+  id: string;
+  type: 'text' | 'image';
+  content: string;
+  position: { x: number; y: number };
+  size: { width: number; height: number };
+  rotation: number;
 }
