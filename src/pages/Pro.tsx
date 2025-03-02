@@ -1,4 +1,3 @@
-
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
@@ -13,7 +12,7 @@ import {
   PenTool, 
   ShoppingBag, 
   Truck, 
-  TShirt,
+  Shirt,
   MessageSquare
 } from "lucide-react";
 
@@ -45,7 +44,7 @@ const Pro = () => {
     {
       title: "Uniformes d'entreprise",
       description: "Créez des uniformes cohérents avec votre image de marque pour toute votre équipe",
-      icon: TShirt,
+      icon: Shirt,
       image: "https://images.unsplash.com/photo-1529374255404-311a2a4f1fd9?auto=format&fit=crop&w=800&q=80"
     },
     {

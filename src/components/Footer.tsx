@@ -1,8 +1,7 @@
-
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Facebook, Instagram, Twitter, Youtube, CreditCard, PaypalIcon, Mail, Phone, MapPin } from "lucide-react";
+import { Facebook, Instagram, Twitter, Youtube, CreditCard, Mail, Phone, MapPin } from "lucide-react";
 import { toast } from "sonner";
 
 const Footer = () => {
@@ -117,7 +116,6 @@ const Footer = () => {
             <CreditCard size={32} className="text-gray-600" />
             <img src="https://www.mastercard.fr/content/dam/public/mastercardcom/eu/fr/images/logo-mastercard.svg" alt="Mastercard" className="h-8" />
             <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/5e/Visa_Inc._logo.svg/1280px-Visa_Inc._logo.svg.png" alt="Visa" className="h-8" />
-            <PaypalIcon size={32} className="text-gray-600" />
           </div>
         </div>
 
