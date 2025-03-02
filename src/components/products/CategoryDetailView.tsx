@@ -32,18 +32,6 @@ const CategoryDetailView = ({ category }: CategoryDetailViewProps) => {
         categoryId={category.id}
         subcategories={category.subcategories}
       />
-      
-      <PopularStylesSection categoryTitle={category.title} />
-      
-      <FeaturedCollectionSection />
-      
-      <NewArrivalsSection categoryTitle={category.title} />
-      
-      <PromotionalBanner />
-      
-      <DesignServiceBanner />
-      
-      <RecentlyViewedSection categoryTitle={category.title} />
     </div>
   );
 };

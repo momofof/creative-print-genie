@@ -5,6 +5,12 @@ import { useParams } from "react-router-dom";
 import CategoryDetailView from "@/components/products/CategoryDetailView";
 import CategoriesOverview from "@/components/products/CategoriesOverview";
 import ProductList from "@/components/products/ProductList";
+import PopularStylesSection from "@/components/products/PopularStylesSection";
+import FeaturedCollectionSection from "@/components/products/FeaturedCollectionSection";
+import NewArrivalsSection from "@/components/products/NewArrivalsSection";
+import PromotionalBanner from "@/components/products/PromotionalBanner";
+import DesignServiceBanner from "@/components/products/DesignServiceBanner";
+import RecentlyViewedSection from "@/components/products/RecentlyViewedSection";
 
 const Products = () => {
   const { categoryId, subcategoryId } = useParams();
@@ -26,10 +32,23 @@ const Products = () => {
       {currentCategory ? (
         <>
           <CategoryDetailView category={currentCategory} />
+          
           {subcategoryId ? (
             <ProductList categoryId={categoryId} subcategoryId={subcategoryId} />
           ) : (
             <ProductList categoryId={categoryId} />
+          )}
+          
+          {/* Sections promotionnelles déplacées après la liste de produits */}
+          {currentCategory && (
+            <>
+              <PopularStylesSection categoryTitle={currentCategory.title} />
+              <FeaturedCollectionSection />
+              <NewArrivalsSection categoryTitle={currentCategory.title} />
+              <PromotionalBanner />
+              <DesignServiceBanner />
+              <RecentlyViewedSection categoryTitle={currentCategory.title} />
+            </>
           )}
         </>
       ) : (
