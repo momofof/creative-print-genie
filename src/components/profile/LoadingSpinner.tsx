@@ -1,13 +1,23 @@
 
 import React from "react";
 
-const LoadingSpinner = () => {
+interface LoadingSpinnerProps {
+  size?: "small" | "medium" | "large";
+  className?: string;
+}
+
+const LoadingSpinner: React.FC<LoadingSpinnerProps> = ({ 
+  size = "medium", 
+  className = "" 
+}) => {
+  const sizeClasses = {
+    small: "w-4 h-4 border-2",
+    medium: "w-8 h-8 border-4",
+    large: "w-12 h-12 border-4"
+  };
+
   return (
-    <div className="min-h-screen bg-white">
-      <div className="pt-32 pb-16 px-4 flex justify-center items-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-accent"></div>
-      </div>
-    </div>
+    <div className={`${sizeClasses[size]} ${className} border-t-accent border-r-transparent border-b-transparent border-l-transparent rounded-full animate-spin`}></div>
   );
 };
 

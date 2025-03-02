@@ -1,4 +1,3 @@
-
 import { useState, useEffect, ChangeEvent } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
@@ -321,7 +320,7 @@ export default function ProductForm() {
   };
 
   // Handle view image upload
-  const handleViewImageUpload = async (event: ChangeEvent<HTMLInputElement>, index: number) => {
+  const handleViewImageUpload = async (event: React.ChangeEvent<HTMLInputElement>, index: number) => {
     if (!event.target.files || event.target.files.length === 0) {
       return;
     }

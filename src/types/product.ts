@@ -133,3 +133,11 @@ export interface ProductVariant {
   createdAt: string;
   updatedAt: string;
 }
+
+// Additional NavigationItem related interfaces
+export interface NavigationItemInfo {
+  title: string;
+  link: string;
+  icon?: React.ComponentType;
+  children?: Array<{ title: string; link: string }>;
+}

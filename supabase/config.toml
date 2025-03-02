@@ -33,6 +33,3 @@ enable_signup = true
 
 [functions.approve-supplier]
 verify_jwt = true
-
-[services]
-protocols = ["http", "https"]
