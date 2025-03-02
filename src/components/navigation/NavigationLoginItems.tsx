@@ -1,4 +1,3 @@
-
 import { Link } from "react-router-dom";
 import { UserRound, LogOut } from "lucide-react";
 import { useState, useEffect, useRef } from "react";
@@ -11,15 +10,21 @@ interface NavigationLoginItemsProps {
   onItemClick?: () => void;
   className?: string;
   mobile?: boolean;
+  isLoggedIn?: boolean;
 }
 
-const NavigationLoginItems = ({ onItemClick, className = "", mobile = false }: NavigationLoginItemsProps) => {
+const NavigationLoginItems = ({ onItemClick, className = "", mobile = false, isLoggedIn: externalIsLoggedIn }: NavigationLoginItemsProps) => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [showDropdown, setShowDropdown] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
 
   useEffect(() => {
+    if (externalIsLoggedIn !== undefined) {
+      setIsLoggedIn(externalIsLoggedIn);
+      return;
+    }
+
     const checkUserSession = async () => {
       const {
         data
@@ -42,32 +47,26 @@ const NavigationLoginItems = ({ onItemClick, className = "", mobile = false }: N
       authListener.subscription.unsubscribe();
       document.removeEventListener("mousedown", handleClickOutside);
     };
-  }, []);
+  }, [externalIsLoggedIn]);
 
   const handleSignOut = async () => {
     try {
-      // Mettre immédiatement à jour l'interface utilisateur
       setIsLoggedIn(false);
       setShowDropdown(false);
       
-      // Ensuite tenter de déconnecter la session dans Supabase
       const { error } = await supabase.auth.signOut();
       
-      // Afficher un message de succès et rediriger
       toast.success("Déconnexion réussie");
       navigate("/");
       
-      // Journaliser les erreurs si nécessaire, mais ne pas interrompre l'expérience utilisateur
       if (error) {
         console.log("Info déconnexion:", error.message);
       }
 
-      // Exécuter le callback de clic si fourni
       if (onItemClick) {
         onItemClick();
       }
     } catch (error) {
-      // Capturer toute erreur inattendue, mais l'utilisateur est déjà "déconnecté" visuellement
       console.log("Info déconnexion:", error);
     }
   };
