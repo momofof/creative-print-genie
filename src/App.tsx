@@ -17,6 +17,7 @@ import Create from "./pages/Create";
 import Cart from "./pages/Cart";
 import Pro from "./pages/Pro";
 import Profile from "./pages/Profile";
+import ProductDetail from "./pages/ProductDetail";
 
 const queryClient = new QueryClient();
 
@@ -31,6 +32,7 @@ const App = () => (
           <Route path="/products" element={<Products />} />
           <Route path="/products/:categoryId" element={<Products />} />
           <Route path="/products/:categoryId/:subcategoryId" element={<Products />} />
+          <Route path="/products/detail/:productId" element={<ProductDetail />} />
           <Route path="/getting-started" element={<GettingStarted />} />
           <Route path="/faq" element={<FAQ />} />
           <Route path="/custom-design" element={<CustomDesign />} />
