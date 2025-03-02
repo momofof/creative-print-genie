@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import Index from "@/pages/Index";
@@ -7,15 +8,15 @@ import Pro from "@/pages/Pro";
 import Pricing from "@/pages/Pricing";
 import Cart from "@/pages/Cart";
 import Profile from "@/pages/Profile";
-import Login from "@/pages/Login";
-import Signup from "@/pages/Signup";
+import Login from "@/pages/auth/Login";
+import Signup from "@/pages/auth/Signup";
 import FAQ from "@/pages/FAQ";
 import GettingStarted from "@/pages/GettingStarted";
 import Create from "@/pages/Create";
-import HelpCenter from "@/pages/HelpCenter";
-import Contact from "@/pages/Contact";
-import CustomDesign from "@/pages/CustomDesign";
-import TechnicalSupport from "@/pages/TechnicalSupport";
+import HelpCenter from "@/pages/support/HelpCenter";
+import Contact from "@/pages/support/Contact";
+import CustomDesign from "@/pages/services/CustomDesign";
+import TechnicalSupport from "@/pages/services/TechnicalSupport";
 import NotFound from "@/pages/NotFound";
 
 import Customize from "./pages/Customize";
