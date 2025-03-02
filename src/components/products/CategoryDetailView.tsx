@@ -2,12 +2,6 @@
 import ProductHero from "./ProductHero";
 import ProductBreadcrumbs from "./ProductBreadcrumbs";
 import ProductSubcategories from "./ProductSubcategories";
-import PopularStylesSection from "./PopularStylesSection";
-import FeaturedCollectionSection from "./FeaturedCollectionSection";
-import NewArrivalsSection from "./NewArrivalsSection";
-import PromotionalBanner from "./PromotionalBanner";
-import DesignServiceBanner from "./DesignServiceBanner";
-import RecentlyViewedSection from "./RecentlyViewedSection";
 
 interface CategoryDetailViewProps {
   category: {

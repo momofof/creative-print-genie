@@ -11,6 +11,10 @@ import ProductActions from "@/components/products/ProductActions";
 import ProductBenefits from "@/components/products/ProductBenefits";
 import ProductExpandableSections from "@/components/products/ProductExpandableSections";
 import RelatedProducts from "@/components/products/RelatedProducts";
+import NewArrivalsSection from "@/components/products/NewArrivalsSection";
+import PromotionalBanner from "@/components/products/PromotionalBanner";
+import DesignServiceBanner from "@/components/products/DesignServiceBanner";
+import RecentlyViewedSection from "@/components/products/RecentlyViewedSection";
 import { Color, SizeGuideItem, Review, RelatedProduct } from "@/types/product";
 
 // Product data
@@ -151,6 +155,12 @@ const ProductDetail = () => {
 
           {/* Related Products */}
           <RelatedProducts products={relatedProducts} />
+          
+          {/* Sections promotionnelles ajoutées après les produits connexes */}
+          <NewArrivalsSection categoryTitle="T-shirts manches longues" />
+          <PromotionalBanner />
+          <DesignServiceBanner />
+          <RecentlyViewedSection categoryTitle="T-shirts manches longues" />
         </div>
       </div>
     </div>
