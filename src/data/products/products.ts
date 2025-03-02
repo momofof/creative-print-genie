@@ -1,4 +1,3 @@
-
 // Product data for the catalog
 import { Product } from "@/types/product";
 
@@ -182,5 +181,21 @@ export const allProducts: Product[] = [
     color: "wood",
     date: "2023-07-25",
     isNew: true
+  }
+];
+
+// Featured products for the homepage
+export const featuredProducts = [
+  {
+    id: "tshirt-premium-black",
+    title: "T-Shirt Premium Noir",
+    price: 16.99,
+    image: "https://images.unsplash.com/photo-1503341504253-dff4815485f1?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1374&q=80"
+  },
+  {
+    id: "polo-classic-navy",
+    title: "Polo Classic Marine",
+    price: 24.99,
+    image: "https://images.unsplash.com/photo-1598033129183-c4f50c736f10?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1425&q=80"
   }
 ];

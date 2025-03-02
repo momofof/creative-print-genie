@@ -1,4 +1,3 @@
-
 // Categories data for the product catalog
 
 export const productCategories = [
@@ -54,4 +53,17 @@ export const productCategories = [
       "Signalétique"
     ]
   }
+];
+
+// Category pills for the homepage
+export const categoryPills = [
+  "T-Shirts",
+  "Sweatshirts",
+  "Polos",
+  "Casquettes",
+  "Sacs",
+  "Accessoires",
+  "Bureau",
+  "Tech & Gadgets",
+  "Événementiel"
 ];
