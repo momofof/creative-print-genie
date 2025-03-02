@@ -18,9 +18,10 @@ interface NavigationMenuProps {
     icon?: LucideIcon;
     children?: Array<{ title: string; link: string }>;
   }>;
+  isLoggedIn?: boolean;
 }
 
-const NavigationMenu = ({ isOpen, onToggle, navItems, searchQuery, setSearchQuery }: NavigationMenuProps) => {
+const NavigationMenu = ({ isOpen, onToggle, navItems, searchQuery, setSearchQuery, isLoggedIn }: NavigationMenuProps) => {
   return (
     <>
       <button
@@ -47,6 +48,7 @@ const NavigationMenu = ({ isOpen, onToggle, navItems, searchQuery, setSearchQuer
                 onItemClick={() => onToggle()} 
                 className="flex items-center w-full px-3 py-2 text-sm hover:bg-gray-100 rounded-md"
                 mobile={true}
+                isLoggedIn={isLoggedIn}
               />
             </div>
             <NavigationActions mobile onActionClick={() => onToggle()} />

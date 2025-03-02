@@ -93,6 +93,7 @@ const Navigation = () => {
                 searchQuery={searchQuery}
                 setSearchQuery={setSearchQuery}
                 navItems={navItems}
+                isLoggedIn={isLoggedIn}
               />
             </div>
             
