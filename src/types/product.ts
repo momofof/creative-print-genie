@@ -1,3 +1,4 @@
+
 export interface Color {
   id: string;
   name: string;
@@ -136,4 +137,15 @@ export interface NavigationItemInfo {
   link: string;
   icon?: React.ComponentType;
   children?: Array<{ title: string; link: string }>;
+}
+
+export interface SupplierResponse {
+  id: string;
+  company_name: string;
+  contact_name: string;
+  email: string;
+  phone: string;
+  address: string;
+  created_at: string;
+  status: SupplierStatus;
 }

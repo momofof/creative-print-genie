@@ -1,3 +1,4 @@
+
 import React, { Suspense } from 'react';
 import {
   BrowserRouter,
@@ -9,17 +10,17 @@ import { Toaster } from "@/components/ui/toaster"
 
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
-import Login from "./pages/Login";
-import Signup from "./pages/Signup";
 import Profile from "./pages/Profile";
-import ForgotPassword from "./pages/ForgotPassword";
-import ResetPassword from "./pages/ResetPassword";
 import Pro from "./pages/Pro";
 
-// Ajoutez ici l'import des nouvelles pages fournisseur
+// Import supplier pages
 import SupplierDashboard from "./pages/supplier/Dashboard";
 import SupplierRegister from "./pages/supplier/Register";
 import ProductForm from "./pages/supplier/ProductForm";
+
+// Import from auth folder for auth pages
+import Signup from "./pages/auth/Signup";
+import Login from "./pages/auth/Login";
 
 function App() {
   return (
@@ -42,8 +43,6 @@ function App() {
           <Route path="/login" element={<Login />} />
           <Route path="/auth/signup" element={<Signup />} />
           <Route path="/profile" element={<Profile />} />
-          <Route path="/forgot-password" element={<ForgotPassword />} />
-          <Route path="/reset-password" element={<ResetPassword />} />
           
           {/* Routes fournisseur */}
           <Route path="/pro" element={<Pro />} />
