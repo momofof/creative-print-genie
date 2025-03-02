@@ -37,7 +37,7 @@ const ProductList = ({ categoryId, subcategoryId }: ProductListProps) => {
       const term = searchTerm.toLowerCase();
       result = result.filter(product => 
         product.name.toLowerCase().includes(term) || 
-        (product.description ? product.description.toLowerCase().includes(term) : false)
+        (product.description?.toLowerCase().includes(term) ?? false)
       );
     }
 
@@ -47,7 +47,7 @@ const ProductList = ({ categoryId, subcategoryId }: ProductListProps) => {
       
       // Logique de filtrage en fonction de la catégorie
       if (category === "Couleur") {
-        result = result.filter(product => options.includes(product.color?.toLowerCase() || ""));
+        result = result.filter(product => options.includes(product.color?.toLowerCase() ?? ""));
       } else if (category === "Prix") {
         result = result.filter(product => {
           const price = product.price;
@@ -70,7 +70,7 @@ const ProductList = ({ categoryId, subcategoryId }: ProductListProps) => {
           return b.price - a.price;
         case "newest":
           // Use optional chaining and nullish coalescing to handle optional date property
-          return new Date(b.date || Date.now()).getTime() - new Date(a.date || Date.now()).getTime();
+          return new Date(b.date ?? Date.now()).getTime() - new Date(a.date ?? Date.now()).getTime();
         case "rating":
           return b.rating - a.rating;
         default:
