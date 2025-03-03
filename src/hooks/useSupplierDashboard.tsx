@@ -15,8 +15,13 @@ interface SupplierData {
   status: "active" | "pending" | "suspended";
 }
 
+// Define product status type to match Supabase enum
+type ProductStatus = "draft" | "published" | "archived";
+
 // Define a type for the product without id, supplier_id, and stock
-type CreateProductData = Omit<Product, 'id' | 'supplier_id' | 'stock'>;
+type CreateProductData = Omit<Product, 'id' | 'supplier_id' | 'stock'> & {
+  status?: ProductStatus;
+};
 
 export const useSupplierDashboard = () => {
   const [isLoading, setIsLoading] = useState(true);
@@ -195,10 +200,14 @@ export const useSupplierDashboard = () => {
 
       const userId = sessionData.session.user.id;
       
+      // Ensure status is one of the valid enum values
+      const status = productData.status as ProductStatus || "draft";
+      
       const { data, error } = await supabase
         .from('products')
         .insert({
           ...productData,
+          status: status, // Use the properly typed status
           supplier_id: userId
         })
         .select()

@@ -36,7 +36,7 @@ const Dashboard = () => {
       category: "Non classé",
       image: "", // Add required fields
       subcategory: "", 
-      status: "draft", // Fixed type to match enum
+      status: "draft", // Explicitly use the correct enum value
       created_at: new Date().toISOString(), // Convert Date to string ISO format
       description: ""
     }).then(productId => {
