@@ -22,29 +22,60 @@ import NotFound from "@/pages/NotFound";
 import Customize from "./pages/Customize";
 import SupplierRegister from "./pages/supplier/Register";
 import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 
-// Protected route component
+// Protected route component for supplier-only access
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const [isAuthenticated, setIsAuthenticated] = React.useState<boolean | null>(null);
+  const [isLoading, setIsLoading] = React.useState(true);
   const navigate = useNavigate();
 
   useEffect(() => {
     const checkAuth = async () => {
+      setIsLoading(true);
+      // Check if user is logged in
       const { data } = await supabase.auth.getSession();
       
       if (!data.session) {
-        // Store the current path to redirect after login
+        // Not logged in at all - store current path and redirect to login
         localStorage.setItem("redirectAfterLogin", window.location.pathname);
         setIsAuthenticated(false);
-      } else {
-        setIsAuthenticated(true);
+        setIsLoading(false);
+        return;
+      }
+      
+      // User is logged in, now check if they are a supplier
+      try {
+        const { data: supplierData, error } = await supabase
+          .from('suppliers')
+          .select('*')
+          .eq('id', data.session.user.id)
+          .single();
+        
+        if (error || !supplierData) {
+          // User is logged in but not a supplier
+          toast.error("Accès réservé aux fournisseurs");
+          setIsAuthenticated(false);
+        } else if (supplierData.status !== 'approved') {
+          // Supplier account exists but not approved
+          toast.error("Votre compte fournisseur est en attente d'approbation");
+          setIsAuthenticated(false);
+        } else {
+          // User is a valid, approved supplier
+          setIsAuthenticated(true);
+        }
+      } catch (error) {
+        console.error("Erreur de vérification du statut fournisseur:", error);
+        setIsAuthenticated(false);
+      } finally {
+        setIsLoading(false);
       }
     };
     
     checkAuth();
   }, [navigate]);
 
-  if (isAuthenticated === null) {
+  if (isLoading) {
     // Still loading
     return <div className="flex justify-center items-center h-screen">Chargement...</div>;
   }

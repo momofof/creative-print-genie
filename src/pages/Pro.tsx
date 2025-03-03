@@ -19,7 +19,6 @@ import { toast } from "sonner";
 
 const Pro = () => {
   const [activeTab, setActiveTab] = useState("overview");
-  const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
   const navigate = useNavigate();
   const { profile, isLoading: profileLoading } = useProfileData();
   const { 
@@ -29,43 +28,6 @@ const Pro = () => {
     stats, 
     deleteProduct
   } = useSupplierDashboard();
-
-  // Vérifier si l'utilisateur est authentifié
-  useEffect(() => {
-    const checkAuth = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      
-      if (!session) {
-        setIsAuthenticated(false);
-        navigate("/pro-landing");
-        return;
-      }
-      
-      // Vérifier si l'utilisateur est un fournisseur
-      try {
-        const { data, error } = await supabase
-          .from('suppliers')
-          .select('*')
-          .eq('id', session.user.id)
-          .single();
-          
-        if (error || !data) {
-          setIsAuthenticated(false);
-          toast.error("Accès réservé aux fournisseurs enregistrés");
-          navigate("/pro-landing");
-          return;
-        }
-        
-        setIsAuthenticated(true);
-      } catch (error) {
-        console.error("Erreur de vérification du statut fournisseur:", error);
-        setIsAuthenticated(false);
-        navigate("/pro-landing");
-      }
-    };
-    
-    checkAuth();
-  }, [navigate]);
 
   // Dashboard features for the promo section
   const proFeatures: ProFeature[] = [
@@ -109,11 +71,9 @@ const Pro = () => {
   };
 
   // If loading or authentication check not completed
-  if (isLoading || profileLoading || isAuthenticated === null) {
+  if (isLoading || profileLoading) {
     return <LoadingSpinner />;
   }
-
-  // Si l'utilisateur n'est pas authentifié comme fournisseur, il sera redirigé par l'useEffect
 
   return (
     <div className="min-h-screen bg-white">

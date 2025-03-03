@@ -33,10 +33,36 @@ const Login = () => {
       
       // Check if the user was trying to access the Pro area
       const redirectPath = localStorage.getItem("redirectAfterLogin");
-      if (redirectPath) {
+      
+      if (redirectPath && redirectPath === "/pro") {
+        // For Pro area, we need to check if the user is a supplier
+        const { data: supplierData, error: supplierError } = await supabase
+          .from('suppliers')
+          .select('*')
+          .eq('id', data.user.id)
+          .single();
+          
+        if (supplierError || !supplierData) {
+          // Not a supplier, redirect to pro landing instead
+          localStorage.removeItem("redirectAfterLogin");
+          toast.error("Accès réservé aux fournisseurs");
+          navigate("/pro-landing");
+        } else if (supplierData.status !== 'approved') {
+          // Supplier account exists but not approved
+          localStorage.removeItem("redirectAfterLogin");
+          toast.error("Votre compte fournisseur est en attente d'approbation");
+          navigate("/pro-landing");
+        } else {
+          // Valid supplier, allow redirect to Pro
+          localStorage.removeItem("redirectAfterLogin");
+          navigate(redirectPath);
+        }
+      } else if (redirectPath) {
+        // For non-Pro protected areas, redirect normally
         localStorage.removeItem("redirectAfterLogin");
         navigate(redirectPath);
       } else {
+        // Default redirect
         navigate("/");
       }
     } catch (error: any) {
