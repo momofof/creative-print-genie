@@ -1,3 +1,4 @@
+
 export interface Color {
   id: string;
   name: string;
@@ -91,49 +92,4 @@ export interface DesignItem {
   name: string;
   image: string;
   category: string;
-}
-
-export type SupplierStatus = 'active' | 'pending' | 'suspended';
-
-export interface Supplier {
-  id: string;
-  companyName: string;
-  contactName?: string;
-  email: string;
-  phone?: string;
-  address?: string;
-  createdAt: string;
-  status: SupplierStatus;
-}
-
-export type ProductStatus = 'draft' | 'published' | 'archived';
-
-export interface DatabaseProduct extends Omit<Product, 'rating' | 'reviewCount'> {
-  supplierId: string;
-  isCustomizable: boolean;
-  status: ProductStatus;
-  createdAt: string;
-  updatedAt: string;
-}
-
-export type VariantStatus = 'in_stock' | 'low_stock' | 'out_of_stock';
-
-export interface ProductVariant {
-  id: string;
-  productId: string;
-  size: string;
-  color: string;
-  hexColor: string;
-  stock: number;
-  priceAdjustment: number;
-  status: VariantStatus;
-  createdAt: string;
-  updatedAt: string;
-}
-
-export interface NavigationItemInfo {
-  title: string;
-  link: string;
-  icon?: React.ComponentType;
-  children?: Array<{ title: string; link: string }>;
 }

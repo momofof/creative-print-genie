@@ -83,144 +83,6 @@ export type Database = {
           },
         ]
       }
-      product_variants: {
-        Row: {
-          color: string
-          created_at: string | null
-          hex_color: string
-          id: string
-          price_adjustment: number | null
-          product_id: string
-          size: string
-          status: Database["public"]["Enums"]["variant_status"] | null
-          stock: number
-          updated_at: string | null
-        }
-        Insert: {
-          color: string
-          created_at?: string | null
-          hex_color: string
-          id?: string
-          price_adjustment?: number | null
-          product_id: string
-          size: string
-          status?: Database["public"]["Enums"]["variant_status"] | null
-          stock?: number
-          updated_at?: string | null
-        }
-        Update: {
-          color?: string
-          created_at?: string | null
-          hex_color?: string
-          id?: string
-          price_adjustment?: number | null
-          product_id?: string
-          size?: string
-          status?: Database["public"]["Enums"]["variant_status"] | null
-          stock?: number
-          updated_at?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "product_variants_product_id_fkey"
-            columns: ["product_id"]
-            isOneToOne: false
-            referencedRelation: "products"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      product_views: {
-        Row: {
-          created_at: string | null
-          id: string
-          image: string
-          name: string
-          order: number
-          product_id: string
-        }
-        Insert: {
-          created_at?: string | null
-          id?: string
-          image: string
-          name: string
-          order: number
-          product_id: string
-        }
-        Update: {
-          created_at?: string | null
-          id?: string
-          image?: string
-          name?: string
-          order?: number
-          product_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "product_views_product_id_fkey"
-            columns: ["product_id"]
-            isOneToOne: false
-            referencedRelation: "products"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      products: {
-        Row: {
-          category: string
-          created_at: string | null
-          description: string | null
-          id: string
-          image: string | null
-          is_customizable: boolean | null
-          name: string
-          original_price: number | null
-          price: number
-          status: Database["public"]["Enums"]["product_status"] | null
-          subcategory: string | null
-          supplier_id: string
-          updated_at: string | null
-        }
-        Insert: {
-          category: string
-          created_at?: string | null
-          description?: string | null
-          id?: string
-          image?: string | null
-          is_customizable?: boolean | null
-          name: string
-          original_price?: number | null
-          price: number
-          status?: Database["public"]["Enums"]["product_status"] | null
-          subcategory?: string | null
-          supplier_id: string
-          updated_at?: string | null
-        }
-        Update: {
-          category?: string
-          created_at?: string | null
-          description?: string | null
-          id?: string
-          image?: string | null
-          is_customizable?: boolean | null
-          name?: string
-          original_price?: number | null
-          price?: number
-          status?: Database["public"]["Enums"]["product_status"] | null
-          subcategory?: string | null
-          supplier_id?: string
-          updated_at?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "products_supplier_id_fkey"
-            columns: ["supplier_id"]
-            isOneToOne: false
-            referencedRelation: "suppliers"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       profiles: {
         Row: {
           avatar_url: string | null
@@ -283,39 +145,6 @@ export type Database = {
           },
         ]
       }
-      suppliers: {
-        Row: {
-          address: string | null
-          company_name: string
-          contact_name: string | null
-          created_at: string | null
-          email: string
-          id: string
-          phone: string | null
-          status: Database["public"]["Enums"]["supplier_status"] | null
-        }
-        Insert: {
-          address?: string | null
-          company_name: string
-          contact_name?: string | null
-          created_at?: string | null
-          email: string
-          id?: string
-          phone?: string | null
-          status?: Database["public"]["Enums"]["supplier_status"] | null
-        }
-        Update: {
-          address?: string | null
-          company_name?: string
-          contact_name?: string | null
-          created_at?: string | null
-          email?: string
-          id?: string
-          phone?: string | null
-          status?: Database["public"]["Enums"]["supplier_status"] | null
-        }
-        Relationships: []
-      }
     }
     Views: {
       [_ in never]: never
@@ -324,9 +153,7 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      product_status: "draft" | "published" | "archived"
-      supplier_status: "active" | "pending" | "suspended"
-      variant_status: "in_stock" | "low_stock" | "out_of_stock"
+      [_ in never]: never
     }
     CompositeTypes: {
       [_ in never]: never
