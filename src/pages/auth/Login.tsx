@@ -47,7 +47,7 @@ const Login = () => {
           localStorage.removeItem("redirectAfterLogin");
           toast.error("Accès réservé aux fournisseurs");
           navigate("/pro-landing");
-        } else if (supplierData.status !== 'approved') {
+        } else if (supplierData.status !== 'active') {
           // Supplier account exists but not approved
           localStorage.removeItem("redirectAfterLogin");
           toast.error("Votre compte fournisseur est en attente d'approbation");

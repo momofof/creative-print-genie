@@ -56,7 +56,7 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
           // User is logged in but not a supplier
           toast.error("Accès réservé aux fournisseurs");
           setIsAuthenticated(false);
-        } else if (supplierData.status !== 'approved') {
+        } else if (supplierData.status !== 'active') {
           // Supplier account exists but not approved
           toast.error("Votre compte fournisseur est en attente d'approbation");
           setIsAuthenticated(false);

@@ -53,7 +53,7 @@ const SupplierRegister = () => {
         throw new Error("Erreur lors de la création du compte");
       }
 
-      // 2. Create supplier record
+      // 2. Create supplier record with pending status (matches the enum)
       const { error: supplierError } = await supabase
         .from("suppliers")
         .insert({
