@@ -1,5 +1,5 @@
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Navigation from "@/components/Navigation";
 import { Shield, Star, Settings, Briefcase, Package, LineChart, Truck, Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -9,13 +9,15 @@ import { Badge } from "@/components/ui/badge";
 import LoadingSpinner from "@/components/profile/LoadingSpinner";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
+import { useProfileData } from "@/hooks/useProfileData";
+import { toast } from "sonner";
 
 // Type pour les produits
 interface Product {
   id: string;
   name: string;
   price: number;
-  originalPrice?: number;
+  original_price?: number;
   image: string;
   category: string;
   subcategory: string;
@@ -35,103 +37,124 @@ interface Order {
 }
 
 const Pro = () => {
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const [activeTab, setActiveTab] = useState("overview");
-  const navigate = useNavigate();
-  
-  // Données fictives pour le tableau de bord
-  const products: Product[] = [
-    {
-      id: "1",
-      name: "T-shirt Premium",
-      price: 29.99,
-      originalPrice: 39.99,
-      image: "/placeholder.svg",
-      category: "Vêtements",
-      subcategory: "T-shirts",
-      status: "active",
-      stock: 42,
-      created_at: "2023-05-15"
-    },
-    {
-      id: "2",
-      name: "Sweat à capuche",
-      price: 49.99,
-      image: "/placeholder.svg",
-      category: "Vêtements",
-      subcategory: "Sweats",
-      status: "active",
-      stock: 18,
-      created_at: "2023-06-02"
-    },
-    {
-      id: "3",
-      name: "Casquette Logo",
-      price: 19.99,
-      originalPrice: 24.99,
-      image: "/placeholder.svg",
-      category: "Accessoires",
-      subcategory: "Chapeaux",
-      status: "low_stock",
-      stock: 5,
-      created_at: "2023-04-28"
-    }
-  ];
-
-  const orders: Order[] = [
-    {
-      id: "ORD-39285",
-      customer: "Jean Dupont",
-      date: "2023-09-23",
-      total: 79.98,
-      status: "delivered",
-      items: 2
-    },
-    {
-      id: "ORD-38104",
-      customer: "Marie Lambert",
-      date: "2023-09-21",
-      total: 129.97,
-      status: "processing",
-      items: 3
-    },
-    {
-      id: "ORD-37490",
-      customer: "Thomas Martin",
-      date: "2023-09-18",
-      total: 49.99,
-      status: "shipped",
-      items: 1
-    }
-  ];
-
-  // Stats pour le tableau de bord
-  const stats = [
+  const [products, setProducts] = useState<Product[]>([]);
+  const [orders, setOrders] = useState<Order[]>([]);
+  const [stats, setStats] = useState([
     {
       title: "Ventes Totales",
-      value: "4 280 €",
-      change: "+12%",
+      value: "0 €",
+      change: "+0%",
       changeType: "positive"
     },
     {
       title: "Commandes",
-      value: "145",
-      change: "+8%",
+      value: "0",
+      change: "+0%",
       changeType: "positive"
     },
     {
       title: "Produits Actifs",
-      value: "32",
-      change: "+3",
+      value: "0",
+      change: "+0",
       changeType: "positive"
     },
     {
       title: "Taux de Conversion",
-      value: "3.2%",
-      change: "-0.5%",
-      changeType: "negative"
+      value: "0%",
+      change: "0%",
+      changeType: "neutral"
     },
-  ];
+  ]);
+  
+  const navigate = useNavigate();
+  const { profile, isLoading: profileLoading } = useProfileData();
+
+  // Récupérer les produits depuis Supabase
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('products')
+          .select('*')
+          .order('created_at', { ascending: false })
+          .limit(10);
+
+        if (error) {
+          console.error("Erreur lors de la récupération des produits:", error);
+          toast.error("Impossible de charger les produits");
+        } else {
+          setProducts(data || []);
+          
+          // Mettre à jour les statistiques
+          if (data) {
+            const productsCount = data.length;
+            setStats(prevStats => {
+              const newStats = [...prevStats];
+              newStats[2].value = String(productsCount);
+              return newStats;
+            });
+          }
+        }
+      } catch (error) {
+        console.error("Erreur:", error);
+        toast.error("Une erreur est survenue");
+      }
+    };
+
+    // Simuler les commandes (à remplacer par une vraie API)
+    const simulateOrders = () => {
+      const mockOrders: Order[] = [
+        {
+          id: "ORD-39285",
+          customer: "Jean Dupont",
+          date: "2023-09-23",
+          total: 79.98,
+          status: "delivered",
+          items: 2
+        },
+        {
+          id: "ORD-38104",
+          customer: "Marie Lambert",
+          date: "2023-09-21",
+          total: 129.97,
+          status: "processing",
+          items: 3
+        },
+        {
+          id: "ORD-37490",
+          customer: "Thomas Martin",
+          date: "2023-09-18",
+          total: 49.99,
+          status: "shipped",
+          items: 1
+        }
+      ];
+      
+      setOrders(mockOrders);
+      
+      // Mettre à jour les statistiques
+      const totalSales = mockOrders.reduce((sum, order) => sum + order.total, 0);
+      const ordersCount = mockOrders.length;
+      
+      setStats(prevStats => {
+        const newStats = [...prevStats];
+        newStats[0].value = `${totalSales.toFixed(2)} €`;
+        newStats[1].value = String(ordersCount);
+        return newStats;
+      });
+    };
+
+    const loadData = async () => {
+      setIsLoading(true);
+      await fetchProducts();
+      simulateOrders();
+      setIsLoading(false);
+    };
+
+    loadData();
+  }, []);
 
   // Rediriger vers le formulaire d'ajout de produit
   const handleAddProduct = () => {
@@ -141,6 +164,34 @@ const Pro = () => {
   // Rediriger vers la modification d'un produit
   const handleEditProduct = (productId: string) => {
     navigate(`/supplier/product/${productId}/edit`);
+  };
+  
+  // Supprimer un produit
+  const handleDeleteProduct = async (productId: string) => {
+    try {
+      // Afficher une confirmation
+      if (!confirm("Êtes-vous sûr de vouloir supprimer ce produit ?")) {
+        return;
+      }
+      
+      // Supprimer le produit
+      const { error } = await supabase
+        .from('products')
+        .delete()
+        .eq('id', productId);
+        
+      if (error) {
+        console.error("Erreur lors de la suppression:", error);
+        toast.error("Impossible de supprimer le produit");
+      } else {
+        // Mettre à jour la liste des produits
+        setProducts(products.filter(product => product.id !== productId));
+        toast.success("Produit supprimé avec succès");
+      }
+    } catch (error) {
+      console.error("Erreur:", error);
+      toast.error("Une erreur est survenue");
+    }
   };
 
   // Fonctionnalités du tableau de bord
@@ -168,7 +219,7 @@ const Pro = () => {
   ];
 
   // Si chargement en cours
-  if (isLoading) {
+  if (isLoading || profileLoading) {
     return <LoadingSpinner />;
   }
 
@@ -206,7 +257,10 @@ const Pro = () => {
                   </CardHeader>
                   <CardContent>
                     <div className="text-2xl font-bold">{stat.value}</div>
-                    <p className={`text-sm mt-1 ${stat.changeType === 'positive' ? 'text-green-600' : 'text-red-600'}`}>
+                    <p className={`text-sm mt-1 ${
+                      stat.changeType === 'positive' ? 'text-green-600' : 
+                      stat.changeType === 'negative' ? 'text-red-600' : 'text-gray-500'
+                    }`}>
                       {stat.change} depuis le mois dernier
                     </p>
                   </CardContent>
@@ -219,7 +273,7 @@ const Pro = () => {
               <CardHeader>
                 <CardTitle>Commandes récentes</CardTitle>
                 <CardDescription>
-                  Les 3 dernières commandes passées
+                  Les {orders.length} dernières commandes passées
                 </CardDescription>
               </CardHeader>
               <CardContent>
@@ -235,29 +289,39 @@ const Pro = () => {
                       </tr>
                     </thead>
                     <tbody>
-                      {orders.map((order) => (
-                        <tr key={order.id} className="border-b">
-                          <td className="py-3">{order.id}</td>
-                          <td className="py-3">{order.customer}</td>
-                          <td className="py-3">{order.date}</td>
-                          <td className="py-3">{order.total.toFixed(2)} €</td>
-                          <td className="py-3">
-                            <Badge variant={
-                              order.status === "delivered" ? "default" :
-                              order.status === "processing" ? "secondary" : "outline"
-                            }>
-                              {order.status === "delivered" ? "Livré" :
-                              order.status === "processing" ? "En traitement" : "Expédié"}
-                            </Badge>
+                      {orders.length > 0 ? (
+                        orders.map((order) => (
+                          <tr key={order.id} className="border-b">
+                            <td className="py-3">{order.id}</td>
+                            <td className="py-3">{order.customer}</td>
+                            <td className="py-3">{order.date}</td>
+                            <td className="py-3">{order.total.toFixed(2)} €</td>
+                            <td className="py-3">
+                              <Badge variant={
+                                order.status === "delivered" ? "default" :
+                                order.status === "processing" ? "secondary" : "outline"
+                              }>
+                                {order.status === "delivered" ? "Livré" :
+                                order.status === "processing" ? "En traitement" : "Expédié"}
+                              </Badge>
+                            </td>
+                          </tr>
+                        ))
+                      ) : (
+                        <tr>
+                          <td colSpan={5} className="py-4 text-center text-gray-500">
+                            Aucune commande récente
                           </td>
                         </tr>
-                      ))}
+                      )}
                     </tbody>
                   </table>
                 </div>
               </CardContent>
               <CardFooter>
-                <Button variant="outline" className="w-full">Voir toutes les commandes</Button>
+                <Button variant="outline" className="w-full" onClick={() => setActiveTab("orders")}>
+                  Voir toutes les commandes
+                </Button>
               </CardFooter>
             </Card>
           </TabsContent>
@@ -281,52 +345,68 @@ const Pro = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {products.map((product) => (
-                    <tr key={product.id} className="border-b">
-                      <td className="py-3">
-                        <div className="flex items-center gap-3">
-                          <img 
-                            src={product.image} 
-                            alt={product.name} 
-                            className="w-10 h-10 object-cover rounded-md"
-                          />
-                          <span>{product.name}</span>
-                        </div>
-                      </td>
-                      <td className="py-3">{product.category} / {product.subcategory}</td>
-                      <td className="py-3">
-                        <div>
-                          {product.price.toFixed(2)} €
-                          {product.originalPrice && (
-                            <span className="text-sm text-gray-500 line-through ml-2">
-                              {product.originalPrice.toFixed(2)} €
-                            </span>
-                          )}
-                        </div>
-                      </td>
-                      <td className="py-3">
-                        <Badge variant={product.stock <= 5 ? "destructive" : "outline"}>
-                          {product.stock} en stock
-                        </Badge>
-                      </td>
-                      <td className="py-3">
-                        <Badge variant={product.status === "active" ? "default" : "secondary"}>
-                          {product.status === "active" ? "Actif" : "Stock faible"}
-                        </Badge>
-                      </td>
-                      <td className="py-3">
-                        <div className="flex gap-2">
-                          <Button 
-                            variant="outline" 
-                            size="sm"
-                            onClick={() => handleEditProduct(product.id)}
-                          >
-                            Modifier
-                          </Button>
-                        </div>
+                  {products.length > 0 ? (
+                    products.map((product) => (
+                      <tr key={product.id} className="border-b">
+                        <td className="py-3">
+                          <div className="flex items-center gap-3">
+                            <img 
+                              src={product.image || "/placeholder.svg"} 
+                              alt={product.name} 
+                              className="w-10 h-10 object-cover rounded-md"
+                            />
+                            <span>{product.name}</span>
+                          </div>
+                        </td>
+                        <td className="py-3">{product.category} {product.subcategory ? `/ ${product.subcategory}` : ''}</td>
+                        <td className="py-3">
+                          <div>
+                            {product.price.toFixed(2)} €
+                            {product.original_price && (
+                              <span className="text-sm text-gray-500 line-through ml-2">
+                                {product.original_price.toFixed(2)} €
+                              </span>
+                            )}
+                          </div>
+                        </td>
+                        <td className="py-3">
+                          <Badge variant={product.stock <= 5 ? "destructive" : "outline"}>
+                            {product.stock} en stock
+                          </Badge>
+                        </td>
+                        <td className="py-3">
+                          <Badge variant={product.status === "published" ? "default" : "secondary"}>
+                            {product.status === "published" ? "Actif" : 
+                             product.status === "draft" ? "Brouillon" : "Archivé"}
+                          </Badge>
+                        </td>
+                        <td className="py-3">
+                          <div className="flex gap-2">
+                            <Button 
+                              variant="outline" 
+                              size="sm"
+                              onClick={() => handleEditProduct(product.id)}
+                            >
+                              Modifier
+                            </Button>
+                            <Button 
+                              variant="destructive" 
+                              size="sm"
+                              onClick={() => handleDeleteProduct(product.id)}
+                            >
+                              Supprimer
+                            </Button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))
+                  ) : (
+                    <tr>
+                      <td colSpan={6} className="py-4 text-center text-gray-500">
+                        Aucun produit trouvé. Commencez par ajouter un produit !
                       </td>
                     </tr>
-                  ))}
+                  )}
                 </tbody>
               </table>
             </div>
@@ -348,27 +428,35 @@ const Pro = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {orders.map((order) => (
-                    <tr key={order.id} className="border-b">
-                      <td className="py-3">{order.id}</td>
-                      <td className="py-3">{order.customer}</td>
-                      <td className="py-3">{order.date}</td>
-                      <td className="py-3">{order.items}</td>
-                      <td className="py-3">{order.total.toFixed(2)} €</td>
-                      <td className="py-3">
-                        <Badge variant={
-                          order.status === "delivered" ? "default" :
-                          order.status === "processing" ? "secondary" : "outline"
-                        }>
-                          {order.status === "delivered" ? "Livré" :
-                          order.status === "processing" ? "En traitement" : "Expédié"}
-                        </Badge>
-                      </td>
-                      <td className="py-3">
-                        <Button variant="outline" size="sm">Détails</Button>
+                  {orders.length > 0 ? (
+                    orders.map((order) => (
+                      <tr key={order.id} className="border-b">
+                        <td className="py-3">{order.id}</td>
+                        <td className="py-3">{order.customer}</td>
+                        <td className="py-3">{order.date}</td>
+                        <td className="py-3">{order.items}</td>
+                        <td className="py-3">{order.total.toFixed(2)} €</td>
+                        <td className="py-3">
+                          <Badge variant={
+                            order.status === "delivered" ? "default" :
+                            order.status === "processing" ? "secondary" : "outline"
+                          }>
+                            {order.status === "delivered" ? "Livré" :
+                            order.status === "processing" ? "En traitement" : "Expédié"}
+                          </Badge>
+                        </td>
+                        <td className="py-3">
+                          <Button variant="outline" size="sm">Détails</Button>
+                        </td>
+                      </tr>
+                    ))
+                  ) : (
+                    <tr>
+                      <td colSpan={7} className="py-4 text-center text-gray-500">
+                        Aucune commande trouvée.
                       </td>
                     </tr>
-                  ))}
+                  )}
                 </tbody>
               </table>
             </div>
