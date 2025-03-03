@@ -1,5 +1,5 @@
 
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import Index from "./pages/Index";
 import Products from "./pages/Products";
 import ProductDetail from "./pages/ProductDetail";
@@ -13,7 +13,7 @@ import ResetPassword from "./pages/auth/ResetPassword";
 import Customize from "./pages/Customize";
 import Create from "./pages/Create";
 import AuthStateWrapper from "./components/home/AuthStateWrapper";
-import Pro from "./pages/supplier/Dashboard";
+import SupplierDashboard from "./pages/supplier/Dashboard";
 import HelpCenter from "./pages/support/HelpCenter";
 import Contact from "./pages/support/Contact";
 import CustomDesign from "./pages/services/CustomDesign";
@@ -23,6 +23,7 @@ import FAQ from "./pages/FAQ";
 import Pricing from "./pages/Pricing";
 import "./App.css";
 import Register from "./pages/supplier/Register";
+import SupplierProductForm from "./pages/supplier/ProductForm";
 
 function App() {
   return (
@@ -40,8 +41,16 @@ function App() {
           <Route path="/reset-password" element={<ResetPassword />} />
           <Route path="/customize/:id" element={<Customize />} />
           <Route path="/create" element={<Create />} />
-          <Route path="/pro" element={<Pro />} />
+          
+          {/* Supplier routes */}
+          <Route path="/supplier/dashboard" element={<SupplierDashboard />} />
           <Route path="/supplier/register" element={<Register />} />
+          <Route path="/supplier/product/new" element={<SupplierProductForm />} />
+          <Route path="/supplier/product/:id/edit" element={<SupplierProductForm />} />
+          
+          {/* Redirect /pro to supplier dashboard for backward compatibility */}
+          <Route path="/pro" element={<Navigate to="/supplier/dashboard" replace />} />
+          
           <Route path="/help" element={<HelpCenter />} />
           <Route path="/contact" element={<Contact />} />
           <Route path="/services/custom-design" element={<CustomDesign />} />

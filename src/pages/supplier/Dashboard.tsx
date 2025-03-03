@@ -1,5 +1,5 @@
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Navigation from "@/components/Navigation";
 import { useNavigate } from "react-router-dom";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -19,15 +19,26 @@ const Dashboard = () => {
   const { profile, isLoading: profileLoading } = useProfileData();
   const { 
     isLoading, 
+    isSupplier,
     products, 
     orders, 
     stats,
-    deleteProduct
+    deleteProduct,
+    createProduct
   } = useSupplierDashboard();
 
   // Navigation handlers
   const handleAddProduct = () => {
-    navigate("/supplier/product/new");
+    // Now the function will create a new product and navigate to edit page
+    createProduct({
+      name: "Nouveau produit",
+      price: 0,
+      category: "Non classé"
+    }).then(productId => {
+      if (productId) {
+        navigate(`/supplier/product/${productId}/edit`);
+      }
+    });
   };
 
   const handleEditProduct = (productId: string) => {

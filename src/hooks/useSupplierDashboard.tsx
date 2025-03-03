@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Product, Order, Stat } from "@/types/dashboard";
 import { toast } from "sonner";
+import { useNavigate } from "react-router-dom";
 
 interface SupplierData {
   id: string;
@@ -22,6 +23,7 @@ export const useSupplierDashboard = () => {
   const [orders, setOrders] = useState<Order[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [stats, setStats] = useState<Stat[]>([]);
+  const navigate = useNavigate();
 
   const loadSupplierData = async () => {
     try {
@@ -38,6 +40,8 @@ export const useSupplierDashboard = () => {
       if (!sessionData.session) {
         setIsSupplier(false);
         setIsLoading(false);
+        toast.error("Vous devez être connecté pour accéder à cette page");
+        navigate("/login");
         return;
       }
 
@@ -54,8 +58,16 @@ export const useSupplierDashboard = () => {
         throw new Error(supplierError.message);
       }
 
-      // If supplier exists, fetch products and mock orders
+      // If supplier exists, check if they are active
       if (supplierData) {
+        if (supplierData.status !== "active") {
+          setIsSupplier(false);
+          setIsLoading(false);
+          toast.error("Votre compte fournisseur est en attente d'approbation ou a été suspendu");
+          navigate("/");
+          return;
+        }
+
         setIsSupplier(true);
         setSupplierData(supplierData);
 
@@ -134,10 +146,13 @@ export const useSupplierDashboard = () => {
         ]);
       } else {
         setIsSupplier(false);
+        toast.error("Vous n'êtes pas enregistré comme fournisseur");
+        navigate("/supplier/register");
       }
     } catch (error: any) {
       console.error("Error loading supplier data:", error);
       setError(error.message);
+      toast.error(error.message);
     } finally {
       setIsLoading(false);
     }
@@ -166,6 +181,45 @@ export const useSupplierDashboard = () => {
     }
   };
 
+  // Create a new product
+  const createProduct = async (productData: Omit<Product, 'id' | 'supplier_id' | 'stock'>) => {
+    try {
+      const { data: sessionData } = await supabase.auth.getSession();
+      if (!sessionData.session) {
+        toast.error("Vous devez être connecté pour créer un produit");
+        return null;
+      }
+
+      const userId = sessionData.session.user.id;
+      
+      const { data, error } = await supabase
+        .from('products')
+        .insert({
+          ...productData,
+          supplier_id: userId,
+          status: 'draft'
+        })
+        .select()
+        .single();
+      
+      if (error) throw error;
+      
+      toast.success("Produit créé avec succès!");
+      // Add the new product to the products state with a mock stock value
+      const newProductWithStock = {
+        ...data,
+        stock: 0 // New product starts with 0 stock
+      };
+      
+      setProducts([...products, newProductWithStock]);
+      return data.id;
+    } catch (error: any) {
+      console.error("Error creating product:", error);
+      toast.error(`Erreur lors de la création du produit: ${error.message}`);
+      return null;
+    }
+  };
+
   return {
     isLoading,
     isSupplier,
@@ -175,6 +229,7 @@ export const useSupplierDashboard = () => {
     stats,
     error,
     deleteProduct,
+    createProduct,
     refreshData: loadSupplierData
   };
 };
