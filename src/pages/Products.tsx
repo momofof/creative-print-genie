@@ -1,6 +1,6 @@
 
 import Navigation from "@/components/Navigation";
-import { productCategories } from "@/data/productData";
+import { productCategories, allProducts } from "@/data/productData";
 import { useParams } from "react-router-dom";
 import CategoryDetailView from "@/components/products/CategoryDetailView";
 import CategoriesOverview from "@/components/products/CategoriesOverview";
@@ -22,6 +22,16 @@ const Products = () => {
   const currentCategory = categoryId 
     ? productCategories.find(cat => cat.id === categoryId)
     : null;
+    
+  // Filter products based on category and subcategory
+  const filteredProducts = allProducts.filter(product => {
+    if (categoryId && subcategoryId) {
+      return product.category === categoryId && product.subcategory === subcategoryId;
+    } else if (categoryId) {
+      return product.category === categoryId;
+    }
+    return true;
+  });
 
   return (
     <div className="min-h-screen bg-white">
@@ -31,14 +41,20 @@ const Products = () => {
         <>
           <CategoryDetailView category={currentCategory} />
           
-          {subcategoryId ? (
-            <ProductList categoryId={categoryId} subcategoryId={subcategoryId} />
-          ) : (
-            <ProductList categoryId={categoryId} />
-          )}
+          <div className="max-w-7xl mx-auto px-4 py-8">
+            <h2 className="text-2xl font-bold mb-6">{subcategoryId || currentCategory.title}</h2>
+            <ProductList products={filteredProducts} />
+          </div>
         </>
       ) : (
-        <CategoriesOverview displayedCategories={displayedCategories} />
+        <>
+          <CategoriesOverview displayedCategories={displayedCategories} />
+          
+          <div className="max-w-7xl mx-auto px-4 py-8">
+            <h2 className="text-2xl font-bold mb-6">Tous nos produits</h2>
+            <ProductList products={allProducts.slice(0, 8)} />
+          </div>
+        </>
       )}
 
       {/* Sections promotionnelles placées après la liste de produits pour toutes les vues */}
