@@ -5,6 +5,7 @@ import Index from "@/pages/Index";
 import Products from "@/pages/Products";
 import ProductDetail from "@/pages/ProductDetail";
 import Pro from "@/pages/Pro";
+import ProLanding from "@/pages/ProLanding";
 import Pricing from "@/pages/Pricing";
 import Cart from "@/pages/Cart";
 import Profile from "@/pages/Profile";
@@ -18,8 +19,8 @@ import Contact from "@/pages/support/Contact";
 import CustomDesign from "@/pages/services/CustomDesign";
 import TechnicalSupport from "@/pages/services/TechnicalSupport";
 import NotFound from "@/pages/NotFound";
-
 import Customize from "./pages/Customize";
+import SupplierRegister from "./pages/supplier/Register";
 
 function App() {
   return (
@@ -32,6 +33,7 @@ function App() {
         <Route path="/customize/:productId?" element={<Customize />} />
         <Route path="/customize" element={<Customize />} />
         <Route path="/pro" element={<Pro />} />
+        <Route path="/pro-landing" element={<ProLanding />} />
         <Route path="/pricing" element={<Pricing />} />
         <Route path="/cart" element={<Cart />} />
         <Route path="/profile" element={<Profile />} />
@@ -44,6 +46,7 @@ function App() {
         <Route path="/contact" element={<Contact />} />
         <Route path="/custom-design" element={<CustomDesign />} />
         <Route path="/technical-support" element={<TechnicalSupport />} />
+        <Route path="/supplier/register" element={<SupplierRegister />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
     </Router>

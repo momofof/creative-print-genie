@@ -1,10 +1,10 @@
 
-import React, { useState } from "react";
-import Navigation from "@/components/Navigation";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import Navigation from "@/components/Navigation";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
-import { Shield, Star, Settings, Briefcase, Package, LineChart, Truck, Users } from "lucide-react";
+import { Package, LineChart, Truck, Users } from "lucide-react";
 import { ProFeature } from "@/types/dashboard";
 import { useSupplierDashboard } from "@/hooks/useSupplierDashboard";
 import { useProfileData } from "@/hooks/useProfileData";
@@ -14,9 +14,12 @@ import ProductsTab from "@/components/supplier/ProductsTab";
 import OrdersTab from "@/components/supplier/OrdersTab";
 import AnalyticsTab from "@/components/supplier/AnalyticsTab";
 import FeaturesSection from "@/components/supplier/FeaturesSection";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 
 const Pro = () => {
   const [activeTab, setActiveTab] = useState("overview");
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
   const navigate = useNavigate();
   const { profile, isLoading: profileLoading } = useProfileData();
   const { 
@@ -26,6 +29,43 @@ const Pro = () => {
     stats, 
     deleteProduct
   } = useSupplierDashboard();
+
+  // Vérifier si l'utilisateur est authentifié
+  useEffect(() => {
+    const checkAuth = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      
+      if (!session) {
+        setIsAuthenticated(false);
+        navigate("/pro-landing");
+        return;
+      }
+      
+      // Vérifier si l'utilisateur est un fournisseur
+      try {
+        const { data, error } = await supabase
+          .from('suppliers')
+          .select('*')
+          .eq('id', session.user.id)
+          .single();
+          
+        if (error || !data) {
+          setIsAuthenticated(false);
+          toast.error("Accès réservé aux fournisseurs enregistrés");
+          navigate("/pro-landing");
+          return;
+        }
+        
+        setIsAuthenticated(true);
+      } catch (error) {
+        console.error("Erreur de vérification du statut fournisseur:", error);
+        setIsAuthenticated(false);
+        navigate("/pro-landing");
+      }
+    };
+    
+    checkAuth();
+  }, [navigate]);
 
   // Dashboard features for the promo section
   const proFeatures: ProFeature[] = [
@@ -68,10 +108,12 @@ const Pro = () => {
     setActiveTab("orders");
   };
 
-  // If loading
-  if (isLoading || profileLoading) {
+  // If loading or authentication check not completed
+  if (isLoading || profileLoading || isAuthenticated === null) {
     return <LoadingSpinner />;
   }
+
+  // Si l'utilisateur n'est pas authentifié comme fournisseur, il sera redirigé par l'useEffect
 
   return (
     <div className="min-h-screen bg-white">
@@ -80,9 +122,6 @@ const Pro = () => {
         <div className="flex justify-between items-center mb-8">
           <h1 className="text-3xl font-bold">Tableau de bord Fournisseur</h1>
           <div className="flex gap-3">
-            <Button variant="outline" onClick={() => navigate("/supplier/register")}>
-              Inscription Fournisseur
-            </Button>
             <Button onClick={handleAddProduct}>
               Ajouter un produit
             </Button>

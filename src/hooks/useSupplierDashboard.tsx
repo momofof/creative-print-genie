@@ -13,25 +13,25 @@ export const useSupplierDashboard = () => {
       title: "Ventes Totales",
       value: "0 €",
       change: "+0%",
-      changeType: "positive"
+      changeType: "positive" as const
     },
     {
       title: "Commandes",
       value: "0",
       change: "+0%",
-      changeType: "positive"
+      changeType: "positive" as const
     },
     {
       title: "Produits Actifs",
       value: "0",
       change: "+0",
-      changeType: "positive"
+      changeType: "positive" as const
     },
     {
       title: "Taux de Conversion",
       value: "0%",
       change: "0%",
-      changeType: "neutral"
+      changeType: "neutral" as const
     },
   ]);
 
@@ -111,7 +111,10 @@ export const useSupplierDashboard = () => {
     
     setStats(prevStats => {
       const newStats = [...prevStats];
-      newStats[2].value = String(productsCount);
+      newStats[2] = {
+        ...newStats[2],
+        value: String(productsCount)
+      };
       return newStats;
     });
   };
@@ -123,8 +126,14 @@ export const useSupplierDashboard = () => {
     
     setStats(prevStats => {
       const newStats = [...prevStats];
-      newStats[0].value = `${totalSales.toFixed(2)} €`;
-      newStats[1].value = String(ordersCount);
+      newStats[0] = {
+        ...newStats[0],
+        value: `${totalSales.toFixed(2)} €`
+      };
+      newStats[1] = {
+        ...newStats[1],
+        value: String(ordersCount)
+      };
       return newStats;
     });
   };
