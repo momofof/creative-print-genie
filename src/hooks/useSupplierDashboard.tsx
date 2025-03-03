@@ -15,6 +15,9 @@ interface SupplierData {
   status: "active" | "pending" | "suspended";
 }
 
+// Define a type for the product without id, supplier_id, and stock
+type CreateProductData = Omit<Product, 'id' | 'supplier_id' | 'stock'>;
+
 export const useSupplierDashboard = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [isSupplier, setIsSupplier] = useState(false);
@@ -182,7 +185,7 @@ export const useSupplierDashboard = () => {
   };
 
   // Create a new product
-  const createProduct = async (productData: Omit<Product, 'id' | 'supplier_id' | 'stock'>) => {
+  const createProduct = async (productData: CreateProductData) => {
     try {
       const { data: sessionData } = await supabase.auth.getSession();
       if (!sessionData.session) {
@@ -196,8 +199,7 @@ export const useSupplierDashboard = () => {
         .from('products')
         .insert({
           ...productData,
-          supplier_id: userId,
-          status: 'draft'
+          supplier_id: userId
         })
         .select()
         .single();

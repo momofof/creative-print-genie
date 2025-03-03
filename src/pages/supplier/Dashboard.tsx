@@ -33,7 +33,12 @@ const Dashboard = () => {
     createProduct({
       name: "Nouveau produit",
       price: 0,
-      category: "Non classé"
+      category: "Non classé",
+      image: "", // Add required fields
+      subcategory: "", 
+      status: "draft", // Fixed type to match enum
+      created_at: new Date().toISOString(), // Convert Date to string ISO format
+      description: ""
     }).then(productId => {
       if (productId) {
         navigate(`/supplier/product/${productId}/edit`);

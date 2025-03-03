@@ -11,6 +11,9 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import LoadingSpinner from "@/components/profile/LoadingSpinner";
 
+// Define a type for the product status to ensure we use the correct enum values
+type ProductStatus = "draft" | "published" | "archived";
+
 const ProductForm = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
@@ -24,7 +27,7 @@ const ProductForm = () => {
     category: "",
     subcategory: "",
     image: "",
-    status: "draft",
+    status: "draft" as ProductStatus, // Ensure correct type
   });
 
   // Load product data if editing
@@ -103,7 +106,7 @@ const ProductForm = () => {
             subcategory: product.subcategory || null,
             image: product.image || null,
             status: product.status,
-            updated_at: new Date(),
+            updated_at: new Date().toISOString(), // Convert Date to string
           })
           .eq("id", id)
           .eq("supplier_id", userId);
