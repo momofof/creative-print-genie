@@ -1,26 +1,19 @@
 
-
-export interface Stat {
-  title: string;
-  value: string;
-  change: string;
-  changeType: "positive" | "negative" | "neutral";
-}
-
+// Types for the supplier dashboard
 export interface Product {
   id: string;
   name: string;
-  description?: string;
-  category: string;
-  subcategory?: string;
   price: number;
   original_price?: number;
+  image: string;
+  category: string;
+  subcategory: string;
+  status: string;
   stock: number;
-  image?: string;
-  status: "published" | "draft" | "archived";
-  supplier_id: string;
+  created_at: string;
+  description?: string;
   is_customizable?: boolean;
-  created_at?: string;
+  supplier_id?: string;
   updated_at?: string;
 }
 
@@ -29,35 +22,19 @@ export interface Order {
   customer: string;
   date: string;
   total: number;
-  status: "pending" | "processing" | "shipped" | "delivered" | "cancelled";
+  status: string;
   items: number;
+}
+
+export interface Stat {
+  title: string;
+  value: string;
+  change: string;
+  changeType: 'positive' | 'negative' | 'neutral';
 }
 
 export interface ProFeature {
   title: string;
   description: string;
-  icon: React.ComponentType<React.SVGProps<SVGSVGElement>>;
+  icon: React.ElementType;
 }
-
-export interface Customization {
-  id: string;
-  product_id: string;
-  name: string;
-  type: "text" | "image";
-  position: "front" | "back" | "sleeve" | "collar";
-  description?: string;
-  price_adjustment: number;
-  is_required: boolean;
-  created_at?: string;
-  updated_at?: string;
-}
-
-export interface CustomerCustomization {
-  id: string;
-  customization_id: string;
-  user_id?: string;
-  content?: string;
-  image_path?: string;
-  created_at: string;
-}
-

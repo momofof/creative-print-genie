@@ -1,79 +1,179 @@
 
 import { useState, useEffect } from "react";
+import { supabase } from "@/integrations/supabase/client";
 import { Product, Order, Stat } from "@/types/dashboard";
-import { fetchProducts, addProduct, updateProduct, deleteProduct } from "@/services/productService";
-import { simulateOrders } from "@/services/orderService";
-import { getInitialStats, updateProductStats, updateOrderStats } from "@/services/dashboardStatsService";
+import { toast } from "sonner";
 
 export const useSupplierDashboard = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [products, setProducts] = useState<Product[]>([]);
   const [orders, setOrders] = useState<Order[]>([]);
-  const [stats, setStats] = useState<Stat[]>(getInitialStats());
+  const [stats, setStats] = useState<Stat[]>([
+    {
+      title: "Ventes Totales",
+      value: "0 €",
+      change: "+0%",
+      changeType: "positive" as const
+    },
+    {
+      title: "Commandes",
+      value: "0",
+      change: "+0%",
+      changeType: "positive" as const
+    },
+    {
+      title: "Produits Actifs",
+      value: "0",
+      change: "+0",
+      changeType: "positive" as const
+    },
+    {
+      title: "Taux de Conversion",
+      value: "0%",
+      change: "0%",
+      changeType: "neutral" as const
+    },
+  ]);
 
-  // Fetch all products from the service
-  const fetchAllProducts = async () => {
-    const productsList = await fetchProducts();
-    setProducts(productsList);
-    
-    // Update stats
-    setStats(prevStats => updateProductStats(productsList, prevStats));
-    
-    return productsList;
-  };
+  // Fetch products from Supabase
+  const fetchProducts = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('products')
+        .select('*')
+        .order('created_at', { ascending: false })
+        .limit(10);
 
-  // Simulate orders using the service
-  const fetchAllOrders = () => {
-    const ordersList = simulateOrders();
-    setOrders(ordersList);
-    
-    // Update stats
-    setStats(prevStats => updateOrderStats(ordersList, prevStats));
-    
-    return ordersList;
-  };
-
-  // Add a new product using the service
-  const handleAddProduct = async (productData: Partial<Product>) => {
-    const newProduct = await addProduct(productData);
-    if (newProduct) {
-      await fetchAllProducts();
-      return newProduct;
+      if (error) {
+        console.error("Erreur lors de la récupération des produits:", error);
+        toast.error("Impossible de charger les produits");
+        return [];
+      } else {
+        // Add stock property to products (since it's not in the database yet)
+        const productsWithStock = data.map(product => ({
+          ...product,
+          stock: Math.floor(Math.random() * 20) + 1, // Random stock for demo
+        }));
+        
+        // Update products state
+        setProducts(productsWithStock);
+        
+        // Update stats
+        updateProductStats(productsWithStock);
+        
+        return productsWithStock;
+      }
+    } catch (error) {
+      console.error("Erreur:", error);
+      toast.error("Une erreur est survenue");
+      return [];
     }
-    return null;
   };
 
-  // Update a product using the service
-  const handleUpdateProduct = async (productId: string, productData: Partial<Product>) => {
-    const updatedProduct = await updateProduct(productId, productData);
-    if (updatedProduct) {
-      await fetchAllProducts();
-      return updatedProduct;
-    }
-    return null;
+  // Simulate orders (to be replaced with a real API)
+  const simulateOrders = () => {
+    const mockOrders: Order[] = [
+      {
+        id: "ORD-39285",
+        customer: "Jean Dupont",
+        date: "2023-09-23",
+        total: 79.98,
+        status: "delivered",
+        items: 2
+      },
+      {
+        id: "ORD-38104",
+        customer: "Marie Lambert",
+        date: "2023-09-21",
+        total: 129.97,
+        status: "processing",
+        items: 3
+      },
+      {
+        id: "ORD-37490",
+        customer: "Thomas Martin",
+        date: "2023-09-18",
+        total: 49.99,
+        status: "shipped",
+        items: 1
+      }
+    ];
+    
+    setOrders(mockOrders);
+    updateOrderStats(mockOrders);
+    
+    return mockOrders;
   };
 
-  // Delete a product using the service
-  const handleDeleteProduct = async (productId: string) => {
-    // Display confirmation
-    if (!confirm("Êtes-vous sûr de vouloir supprimer ce produit ?")) {
+  // Update product-related stats
+  const updateProductStats = (products: Product[]) => {
+    const productsCount = products.length;
+    
+    setStats(prevStats => {
+      const newStats = [...prevStats];
+      newStats[2] = {
+        ...newStats[2],
+        value: String(productsCount)
+      };
+      return newStats;
+    });
+  };
+
+  // Update order-related stats
+  const updateOrderStats = (orders: Order[]) => {
+    const totalSales = orders.reduce((sum, order) => sum + order.total, 0);
+    const ordersCount = orders.length;
+    
+    setStats(prevStats => {
+      const newStats = [...prevStats];
+      newStats[0] = {
+        ...newStats[0],
+        value: `${totalSales.toFixed(2)} €`
+      };
+      newStats[1] = {
+        ...newStats[1],
+        value: String(ordersCount)
+      };
+      return newStats;
+    });
+  };
+
+  // Delete a product
+  const deleteProduct = async (productId: string) => {
+    try {
+      // Display confirmation
+      if (!confirm("Êtes-vous sûr de vouloir supprimer ce produit ?")) {
+        return false;
+      }
+      
+      // Delete the product
+      const { error } = await supabase
+        .from('products')
+        .delete()
+        .eq('id', productId);
+        
+      if (error) {
+        console.error("Erreur lors de la suppression:", error);
+        toast.error("Impossible de supprimer le produit");
+        return false;
+      } else {
+        // Update products list
+        setProducts(products.filter(product => product.id !== productId));
+        toast.success("Produit supprimé avec succès");
+        return true;
+      }
+    } catch (error) {
+      console.error("Erreur:", error);
+      toast.error("Une erreur est survenue");
       return false;
     }
-    
-    const success = await deleteProduct(productId);
-    if (success) {
-      // Update products list locally (no need to refetch)
-      setProducts(products.filter(product => product.id !== productId));
-      return true;
-    }
-    return false;
   };
 
-  // Load all dashboard data
+  // Load all data
   const loadDashboardData = async () => {
     setIsLoading(true);
-    await fetchAllProducts();
-    fetchAllOrders();
+    await fetchProducts();
+    simulateOrders();
     setIsLoading(false);
   };
 
@@ -87,10 +187,8 @@ export const useSupplierDashboard = () => {
     products,
     orders,
     stats,
-    fetchProducts: fetchAllProducts,
-    addProduct: handleAddProduct,
-    updateProduct: handleUpdateProduct,
-    deleteProduct: handleDeleteProduct,
+    fetchProducts,
+    deleteProduct,
     loadDashboardData
   };
 };

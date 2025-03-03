@@ -52,11 +52,6 @@ export interface ProductView {
   image: string;
 }
 
-export interface ProductCardProps {
-  product: Product;
-  viewMode?: "grid" | "list";
-}
-
 export interface CustomizableProduct extends Product {
   views: ProductView[];
   selectedView: string;
