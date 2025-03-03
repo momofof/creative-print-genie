@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import NavigationLogo from "./navigation/NavigationLogo";
@@ -23,8 +22,8 @@ const Navigation = () => {
   const navigate = useNavigate();
   const location = useLocation();
   
-  // Check if we're on the Pro page
-  const isProPage = location.pathname === "/pro";
+  // Check if we're on the Pro page or Pro Landing page
+  const isProPage = location.pathname === "/pro" || location.pathname === "/pro-landing";
 
   useEffect(() => {
     const checkUserSession = async () => {
