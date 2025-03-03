@@ -1,41 +1,45 @@
 
-import React, { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { useSupabaseClient } from "@supabase/auth-helpers-react";
 import Navigation from "@/components/Navigation";
+import { Link } from "react-router-dom";
 import { toast } from "sonner";
+import { UserPlus } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
-import { Loader2 } from "lucide-react";
 
 const Signup = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
 
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
-    
-    if (password !== confirmPassword) {
-      toast.error("Les mots de passe ne correspondent pas");
-      return;
-    }
-    
     setIsLoading(true);
-    
+
     try {
-      const { data, error } = await supabase.auth.signUp({
+      const { error } = await supabase.auth.signUp({
         email,
         password,
+        options: {
+          data: {
+            first_name: firstName,
+            last_name: lastName,
+          },
+        },
       });
-      
-      if (error) throw error;
-      
-      toast.success("Compte créé avec succès! Vérifiez vos emails pour confirmer votre inscription.");
-      navigate("/login");
+
+      if (error) {
+        throw error;
+      }
+
+      toast.success("Inscription réussie ! Vérifiez votre email pour confirmer votre compte.");
+      navigate("/");
     } catch (error: any) {
-      console.error("Erreur lors de l'inscription:", error);
-      toast.error(error.message || "Une erreur est survenue lors de l'inscription");
+      toast.error(error.message || "Erreur lors de l'inscription");
     } finally {
       setIsLoading(false);
     }
@@ -46,9 +50,40 @@ const Signup = () => {
       <Navigation />
       <div className="pt-32 px-4">
         <div className="max-w-md mx-auto">
-          <h1 className="text-3xl font-bold mb-6 text-center">Créer un compte</h1>
+          <div className="flex items-center justify-center mb-6 space-x-2">
+            <UserPlus className="w-8 h-8 text-accent" />
+            <h1 className="text-3xl font-bold text-center">Créer un compte</h1>
+          </div>
           <div className="bg-white p-8 rounded-lg shadow-sm border border-gray-200">
             <form className="space-y-4" onSubmit={handleSignup}>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label htmlFor="firstName" className="block text-sm font-medium text-gray-700">
+                    Prénom
+                  </label>
+                  <input
+                    type="text"
+                    id="firstName"
+                    value={firstName}
+                    onChange={(e) => setFirstName(e.target.value)}
+                    className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-accent focus:border-transparent"
+                    required
+                  />
+                </div>
+                <div>
+                  <label htmlFor="lastName" className="block text-sm font-medium text-gray-700">
+                    Nom
+                  </label>
+                  <input
+                    type="text"
+                    id="lastName"
+                    value={lastName}
+                    onChange={(e) => setLastName(e.target.value)}
+                    className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-accent focus:border-transparent"
+                    required
+                  />
+                </div>
+              </div>
               <div>
                 <label htmlFor="email" className="block text-sm font-medium text-gray-700">
                   Email
@@ -58,7 +93,7 @@ const Signup = () => {
                   id="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md"
+                  className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-accent focus:border-transparent"
                   required
                 />
               </div>
@@ -71,42 +106,22 @@ const Signup = () => {
                   id="password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md"
-                  required
-                />
-              </div>
-              <div>
-                <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700">
-                  Confirmer le mot de passe
-                </label>
-                <input
-                  type="password"
-                  id="confirmPassword"
-                  value={confirmPassword}
-                  onChange={(e) => setConfirmPassword(e.target.value)}
-                  className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md"
+                  className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-accent focus:border-transparent"
+                  minLength={6}
                   required
                 />
               </div>
               <button
                 type="submit"
-                className="w-full bg-accent text-accent-foreground rounded-full py-2 hover:bg-accent/90 disabled:opacity-50"
+                className="w-full bg-accent text-accent-foreground rounded-full py-2 hover:bg-accent/90 disabled:opacity-50 transition-colors"
                 disabled={isLoading}
               >
-                {isLoading ? (
-                  <span className="flex items-center justify-center">
-                    <Loader2 className="h-4 w-4 animate-spin mr-2" />
-                    Inscription en cours...
-                  </span>
-                ) : (
-                  "S'inscrire"
-                )}
+                {isLoading ? "Inscription en cours..." : "S'inscrire"}
               </button>
             </form>
-
-            <p className="mt-6 text-center text-sm text-gray-600">
+            <p className="mt-4 text-center text-sm text-gray-600">
               Déjà un compte ?{" "}
-              <Link to="/login" className="text-accent hover:text-accent/90">
+              <Link to="/login" className="text-accent hover:text-accent/90 transition-colors">
                 Se connecter
               </Link>
             </p>

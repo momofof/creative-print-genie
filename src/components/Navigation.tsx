@@ -13,7 +13,6 @@ import { supabase } from "@/integrations/supabase/client";
 import { productCategories } from "@/data/productData";
 import { useSearch } from "@/hooks/useSearch";
 import { Briefcase } from "lucide-react";
-import { NavigationItemInfo } from "@/types/product";
 
 const Navigation = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -60,7 +59,7 @@ const Navigation = () => {
     link: `/products/${category.id}`
   }));
 
-  const navItems: NavigationItemInfo[] = [
+  const navItems = [
     {
       title: "Catalogue",
       link: "/products",

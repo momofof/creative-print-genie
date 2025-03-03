@@ -5,14 +5,19 @@ import NavigationItem from "./NavigationItem";
 import NavigationActions from "./NavigationActions";
 import NavigationLoginItems from "./NavigationLoginItems";
 import { useState } from "react";
-import { NavigationItemInfo } from "@/types/product";
+import { LucideIcon } from "lucide-react";
 
 interface NavigationMenuProps {
   isOpen: boolean;
   onToggle: () => void;
   searchQuery: string;
   setSearchQuery: (query: string) => void;
-  navItems: NavigationItemInfo[];
+  navItems: Array<{
+    title: string;
+    link: string;
+    icon?: LucideIcon;
+    children?: Array<{ title: string; link: string }>;
+  }>;
   isLoggedIn?: boolean;
 }
 

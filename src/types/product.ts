@@ -131,22 +131,9 @@ export interface ProductVariant {
   updatedAt: string;
 }
 
-import { LucideProps } from 'lucide-react';
-
 export interface NavigationItemInfo {
   title: string;
   link: string;
-  icon?: React.ComponentType<LucideProps>;
+  icon?: React.ComponentType;
   children?: Array<{ title: string; link: string }>;
-}
-
-export interface SupplierResponse {
-  id: string;
-  company_name: string;
-  contact_name: string;
-  email: string;
-  phone: string;
-  address: string;
-  created_at: string;
-  status: SupplierStatus;
 }
