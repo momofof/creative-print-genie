@@ -8,9 +8,10 @@ interface ProductListProps {
   products: any[];
   categoryId?: string;
   subcategoryId?: string;
+  viewMode?: "grid" | "list";
 }
 
-const ProductList = ({ products, categoryId, subcategoryId }: ProductListProps) => {
+const ProductList = ({ products, categoryId, subcategoryId, viewMode = "grid" }: ProductListProps) => {
   const [databaseProducts, setDatabaseProducts] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -95,6 +96,7 @@ const ProductList = ({ products, categoryId, subcategoryId }: ProductListProps) 
             description: product.description,
             isNew: new Date(product.created_at).getTime() > Date.now() - 7 * 24 * 60 * 60 * 1000
           }}
+          viewMode={viewMode}
         />
       ))}
     </div>

@@ -1,16 +1,12 @@
 
 import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Switch } from "@/components/ui/switch";
-import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
-import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { Customization } from "@/types/dashboard";
-import { PlusCircle, Trash, Edit, Save } from "lucide-react";
+import { PlusCircle } from "lucide-react";
+import CustomizationForm from "./customization/CustomizationForm";
+import CustomizationList from "./customization/CustomizationList";
+import { fetchCustomizations, createCustomization, updateCustomization, deleteCustomization } from "@/services/customizationService";
 
 interface CustomizationManagerProps {
   productId: string;
@@ -31,23 +27,16 @@ const CustomizationManager: React.FC<CustomizationManagerProps> = ({ productId }
 
   useEffect(() => {
     if (productId) {
-      fetchCustomizations();
+      loadCustomizations();
     }
   }, [productId]);
 
-  const fetchCustomizations = async () => {
+  const loadCustomizations = async () => {
     setIsLoading(true);
     try {
-      const { data, error } = await supabase
-        .from('customizations')
-        .select('*')
-        .eq('product_id', productId)
-        .order('name', { ascending: true });
-
-      if (error) throw error;
-      setCustomizations(data || []);
+      const data = await fetchCustomizations(productId);
+      setCustomizations(data);
     } catch (error) {
-      console.error("Error fetching customizations:", error);
       toast.error("Impossible de récupérer les options de personnalisation");
     } finally {
       setIsLoading(false);
@@ -107,26 +96,15 @@ const CustomizationManager: React.FC<CustomizationManagerProps> = ({ productId }
       };
 
       if (isEditing) {
-        // Update existing customization
-        const { error } = await supabase
-          .from('customizations')
-          .update(customizationData)
-          .eq('id', isEditing);
-
-        if (error) throw error;
+        await updateCustomization(isEditing, customizationData);
         toast.success("Option de personnalisation mise à jour");
       } else {
-        // Add new customization
-        const { error } = await supabase
-          .from('customizations')
-          .insert(customizationData);
-
-        if (error) throw error;
+        await createCustomization(customizationData);
         toast.success("Option de personnalisation ajoutée");
       }
 
       resetForm();
-      fetchCustomizations();
+      loadCustomizations();
     } catch (error) {
       console.error("Error saving customization:", error);
       toast.error("Erreur lors de l'enregistrement de l'option de personnalisation");
@@ -142,14 +120,9 @@ const CustomizationManager: React.FC<CustomizationManagerProps> = ({ productId }
 
     setIsLoading(true);
     try {
-      const { error } = await supabase
-        .from('customizations')
-        .delete()
-        .eq('id', id);
-
-      if (error) throw error;
+      await deleteCustomization(id);
       toast.success("Option de personnalisation supprimée");
-      fetchCustomizations();
+      loadCustomizations();
     } catch (error) {
       console.error("Error deleting customization:", error);
       toast.error("Erreur lors de la suppression de l'option de personnalisation");
@@ -169,151 +142,22 @@ const CustomizationManager: React.FC<CustomizationManagerProps> = ({ productId }
         )}
       </div>
 
-      <form onSubmit={handleSubmit} className="space-y-4 border p-4 rounded-md bg-gray-50">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div className="space-y-2">
-            <Label htmlFor="name">Nom de l'option *</Label>
-            <Input
-              id="name"
-              name="name"
-              value={formData.name}
-              onChange={handleInputChange}
-              required
-              placeholder="Ex: Texte personnalisé, Logo"
-            />
-          </div>
+      <CustomizationForm
+        formData={formData}
+        isLoading={isLoading}
+        isEditing={!!isEditing}
+        onInputChange={handleInputChange}
+        onNumberInputChange={handleNumberInputChange}
+        onSelectChange={handleSelectChange}
+        onSwitchChange={handleSwitchChange}
+        onSubmit={handleSubmit}
+      />
 
-          <div className="space-y-2">
-            <Label htmlFor="type">Type *</Label>
-            <Select 
-              value={formData.type as string} 
-              onValueChange={(value) => handleSelectChange("type", value)}
-              required
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="Choisir un type" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="text">Texte</SelectItem>
-                <SelectItem value="image">Image</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div className="space-y-2">
-            <Label htmlFor="position">Position *</Label>
-            <Select 
-              value={formData.position as string} 
-              onValueChange={(value) => handleSelectChange("position", value)}
-              required
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="Choisir une position" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="front">Avant</SelectItem>
-                <SelectItem value="back">Arrière</SelectItem>
-                <SelectItem value="sleeve">Manche</SelectItem>
-                <SelectItem value="collar">Col</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="price_adjustment">Ajustement de prix (€)</Label>
-            <Input
-              id="price_adjustment"
-              name="price_adjustment"
-              type="number"
-              min="0"
-              step="0.01"
-              value={formData.price_adjustment}
-              onChange={handleNumberInputChange}
-              placeholder="0.00"
-            />
-          </div>
-        </div>
-
-        <div className="space-y-2">
-          <Label htmlFor="description">Description</Label>
-          <Textarea
-            id="description"
-            name="description"
-            value={formData.description || ""}
-            onChange={handleInputChange}
-            placeholder="Décrivez cette option de personnalisation..."
-            rows={2}
-          />
-        </div>
-
-        <div className="flex items-center space-x-2">
-          <Switch
-            id="is_required"
-            checked={formData.is_required}
-            onCheckedChange={(checked) => handleSwitchChange("is_required", checked)}
-          />
-          <Label htmlFor="is_required">Option obligatoire</Label>
-        </div>
-
-        <Button type="submit" disabled={isLoading} className="w-full">
-          {isLoading ? "Enregistrement..." : isEditing ? "Mettre à jour" : "Ajouter l'option"}
-        </Button>
-      </form>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mt-6">
-        {customizations.length > 0 ? (
-          customizations.map((customization) => (
-            <Card key={customization.id}>
-              <CardHeader className="pb-2">
-                <CardTitle className="text-lg flex justify-between items-center">
-                  <span>{customization.name}</span>
-                  <span className="text-xs px-2 py-1 bg-gray-100 rounded-full">
-                    {customization.type === "text" ? "Texte" : "Image"}
-                  </span>
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="pb-2">
-                <div className="text-sm space-y-1">
-                  <p><span className="font-medium">Position:</span> {customization.position === "front" ? "Avant" : 
-                                                                customization.position === "back" ? "Arrière" : 
-                                                                customization.position === "sleeve" ? "Manche" : "Col"}</p>
-                  {customization.price_adjustment > 0 && (
-                    <p><span className="font-medium">Prix:</span> +{customization.price_adjustment.toFixed(2)} €</p>
-                  )}
-                  {customization.description && (
-                    <p className="text-gray-600 text-xs mt-2">{customization.description}</p>
-                  )}
-                  {customization.is_required && (
-                    <p className="text-xs text-red-600 mt-1">Option obligatoire</p>
-                  )}
-                </div>
-              </CardContent>
-              <CardFooter className="pt-0 flex justify-end gap-2">
-                <Button 
-                  variant="ghost" 
-                  size="sm" 
-                  onClick={() => handleDelete(customization.id)}
-                >
-                  <Trash className="h-4 w-4" />
-                </Button>
-                <Button 
-                  variant="ghost" 
-                  size="sm"
-                  onClick={() => handleEditStart(customization)}
-                >
-                  <Edit className="h-4 w-4" />
-                </Button>
-              </CardFooter>
-            </Card>
-          ))
-        ) : (
-          <div className="col-span-full text-center text-gray-500 py-8">
-            Aucune option de personnalisation ajoutée.
-          </div>
-        )}
-      </div>
+      <CustomizationList
+        customizations={customizations}
+        onDelete={handleDelete}
+        onEdit={handleEditStart}
+      />
     </div>
   );
 };
