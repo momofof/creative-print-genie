@@ -6,6 +6,8 @@ import { Link } from "react-router-dom";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { Loader2 } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 
 const Login = () => {
   const [email, setEmail] = useState("");
@@ -28,7 +30,15 @@ const Login = () => {
       }
 
       toast.success("Connexion réussie");
-      navigate("/");
+      
+      // Check if the user was trying to access the Pro area
+      const redirectPath = localStorage.getItem("redirectAfterLogin");
+      if (redirectPath) {
+        localStorage.removeItem("redirectAfterLogin");
+        navigate(redirectPath);
+      } else {
+        navigate("/");
+      }
     } catch (error: any) {
       console.error("Erreur de connexion:", error);
       toast.error(error.message || "Erreur lors de la connexion");
@@ -49,12 +59,12 @@ const Login = () => {
                 <label htmlFor="email" className="block text-sm font-medium text-gray-700">
                   Email
                 </label>
-                <input
+                <Input
                   type="email"
                   id="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md"
+                  className="mt-1"
                   required
                 />
               </div>
@@ -62,16 +72,16 @@ const Login = () => {
                 <label htmlFor="password" className="block text-sm font-medium text-gray-700">
                   Mot de passe
                 </label>
-                <input
+                <Input
                   type="password"
                   id="password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md"
+                  className="mt-1"
                   required
                 />
               </div>
-              <button
+              <Button
                 type="submit"
                 className="w-full bg-accent text-accent-foreground rounded-full py-2 hover:bg-accent/90 disabled:opacity-50"
                 disabled={isLoading}
@@ -84,7 +94,7 @@ const Login = () => {
                 ) : (
                   "Se connecter"
                 )}
-              </button>
+              </Button>
             </form>
 
             <p className="mt-6 text-center text-sm text-gray-600">

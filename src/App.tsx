@@ -1,6 +1,6 @@
 
-import React from 'react';
-import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import React, { useEffect } from 'react';
+import { BrowserRouter as Router, Route, Routes, useNavigate, Navigate } from 'react-router-dom';
 import Index from "@/pages/Index";
 import Products from "@/pages/Products";
 import ProductDetail from "@/pages/ProductDetail";
@@ -21,6 +21,36 @@ import TechnicalSupport from "@/pages/services/TechnicalSupport";
 import NotFound from "@/pages/NotFound";
 import Customize from "./pages/Customize";
 import SupplierRegister from "./pages/supplier/Register";
+import { supabase } from "@/integrations/supabase/client";
+
+// Protected route component
+const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
+  const [isAuthenticated, setIsAuthenticated] = React.useState<boolean | null>(null);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const checkAuth = async () => {
+      const { data } = await supabase.auth.getSession();
+      
+      if (!data.session) {
+        // Store the current path to redirect after login
+        localStorage.setItem("redirectAfterLogin", window.location.pathname);
+        setIsAuthenticated(false);
+      } else {
+        setIsAuthenticated(true);
+      }
+    };
+    
+    checkAuth();
+  }, [navigate]);
+
+  if (isAuthenticated === null) {
+    // Still loading
+    return <div className="flex justify-center items-center h-screen">Chargement...</div>;
+  }
+
+  return isAuthenticated ? <>{children}</> : <Navigate to="/pro-landing" replace />;
+};
 
 function App() {
   return (
@@ -32,7 +62,7 @@ function App() {
         <Route path="/products/detail/:productId" element={<ProductDetail />} />
         <Route path="/customize/:productId?" element={<Customize />} />
         <Route path="/customize" element={<Customize />} />
-        <Route path="/pro" element={<Pro />} />
+        <Route path="/pro" element={<ProtectedRoute><Pro /></ProtectedRoute>} />
         <Route path="/pro-landing" element={<ProLanding />} />
         <Route path="/pricing" element={<Pricing />} />
         <Route path="/cart" element={<Cart />} />
