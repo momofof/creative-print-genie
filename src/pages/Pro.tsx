@@ -4,8 +4,6 @@ import Navigation from "@/components/Navigation";
 import { useNavigate } from "react-router-dom";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
-import { Shield, Star, Settings, Briefcase, Package, LineChart, Truck, Users } from "lucide-react";
-import { ProFeature } from "@/types/dashboard";
 import { useSupplierDashboard } from "@/hooks/useSupplierDashboard";
 import { useProfileData } from "@/hooks/useProfileData";
 import LoadingSpinner from "@/components/profile/LoadingSpinner";
@@ -14,6 +12,8 @@ import ProductsTab from "@/components/supplier/ProductsTab";
 import OrdersTab from "@/components/supplier/OrdersTab";
 import AnalyticsTab from "@/components/supplier/AnalyticsTab";
 import FeaturesSection from "@/components/supplier/FeaturesSection";
+import { ProFeature } from "@/types/dashboard";
+import { Shield, Star, Settings, Briefcase, Package, LineChart, Truck, Users } from "lucide-react";
 
 const Pro = () => {
   const [activeTab, setActiveTab] = useState("overview");
@@ -23,7 +23,7 @@ const Pro = () => {
     isLoading, 
     products, 
     orders, 
-    stats, 
+    stats,
     deleteProduct
   } = useSupplierDashboard();
 
