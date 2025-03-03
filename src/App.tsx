@@ -48,8 +48,9 @@ function App() {
           <Route path="/supplier/product/new" element={<SupplierProductForm />} />
           <Route path="/supplier/product/:id/edit" element={<SupplierProductForm />} />
           
-          {/* Redirect /pro to supplier dashboard for backward compatibility */}
+          {/* Redirect both /pro and /supplier to supplier dashboard for backward compatibility */}
           <Route path="/pro" element={<Navigate to="/supplier/dashboard" replace />} />
+          <Route path="/supplier" element={<Navigate to="/supplier/dashboard" replace />} />
           
           <Route path="/help" element={<HelpCenter />} />
           <Route path="/contact" element={<Contact />} />
