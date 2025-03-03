@@ -1,3 +1,4 @@
+
 import { Link } from "react-router-dom";
 import { UserRound, LogOut } from "lucide-react";
 import { useState, useEffect, useRef } from "react";
@@ -11,9 +12,10 @@ interface NavigationLoginItemsProps {
   className?: string;
   mobile?: boolean;
   isLoggedIn?: boolean;
+  hideAuth?: boolean;
 }
 
-const NavigationLoginItems = ({ onItemClick, className = "", mobile = false, isLoggedIn: externalIsLoggedIn }: NavigationLoginItemsProps) => {
+const NavigationLoginItems = ({ onItemClick, className = "", mobile = false, isLoggedIn: externalIsLoggedIn, hideAuth = false }: NavigationLoginItemsProps) => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [showDropdown, setShowDropdown] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -70,6 +72,11 @@ const NavigationLoginItems = ({ onItemClick, className = "", mobile = false, isL
       console.log("Info déconnexion:", error);
     }
   };
+
+  // If hideAuth is true and we're on Pro page, don't render auth UI
+  if (hideAuth) {
+    return null;
+  }
 
   if (mobile) {
     return (

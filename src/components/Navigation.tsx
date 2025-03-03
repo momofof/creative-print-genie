@@ -1,6 +1,6 @@
 
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import NavigationLogo from "./navigation/NavigationLogo";
 import NavigationSearch from "./navigation/NavigationSearch";
 import NavigationItem from "./navigation/NavigationItem";
@@ -21,6 +21,10 @@ const Navigation = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const searchResults = useSearch(searchQuery);
   const navigate = useNavigate();
+  const location = useLocation();
+  
+  // Check if we're on the Pro page
+  const isProPage = location.pathname === "/pro";
 
   useEffect(() => {
     const checkUserSession = async () => {
@@ -94,6 +98,7 @@ const Navigation = () => {
                 setSearchQuery={setSearchQuery}
                 navItems={navItems}
                 isLoggedIn={isLoggedIn}
+                hideAuth={isProPage}
               />
             </div>
             
@@ -101,11 +106,11 @@ const Navigation = () => {
             
             <div className="flex items-center gap-2">
               <div className="flex items-center lg:hidden">
-                <NavigationLoginItems isLoggedIn={isLoggedIn} />
+                <NavigationLoginItems isLoggedIn={isLoggedIn} hideAuth={isProPage} />
                 <NavigationSearch onClick={handleSearchIconClick} />
                 <NavigationCart />
               </div>
-              <NavigationActions className="lg:hidden ml-2" />
+              <NavigationActions className="lg:hidden ml-2" hideAuth={isProPage} />
             </div>
           </div>
 
@@ -118,7 +123,7 @@ const Navigation = () => {
           <div className="hidden lg:flex items-center gap-4">
             <NavigationSearch onClick={handleSearchIconClick} />
             <NavigationCart />
-            <NavigationLoginItems isLoggedIn={isLoggedIn} />
+            <NavigationLoginItems isLoggedIn={isLoggedIn} hideAuth={isProPage} />
           </div>
         </div>
       </div>

@@ -19,9 +19,10 @@ interface NavigationMenuProps {
     children?: Array<{ title: string; link: string }>;
   }>;
   isLoggedIn?: boolean;
+  hideAuth?: boolean;
 }
 
-const NavigationMenu = ({ isOpen, onToggle, navItems, searchQuery, setSearchQuery, isLoggedIn }: NavigationMenuProps) => {
+const NavigationMenu = ({ isOpen, onToggle, navItems, searchQuery, setSearchQuery, isLoggedIn, hideAuth = false }: NavigationMenuProps) => {
   return (
     <>
       <button
@@ -49,9 +50,10 @@ const NavigationMenu = ({ isOpen, onToggle, navItems, searchQuery, setSearchQuer
                 className="flex items-center w-full px-3 py-2 text-sm hover:bg-gray-100 rounded-md"
                 mobile={true}
                 isLoggedIn={isLoggedIn}
+                hideAuth={hideAuth}
               />
             </div>
-            <NavigationActions mobile onActionClick={() => onToggle()} />
+            <NavigationActions mobile onActionClick={() => onToggle()} hideAuth={hideAuth} />
           </div>
         </div>
       )}

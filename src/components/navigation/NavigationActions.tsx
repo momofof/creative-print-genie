@@ -10,9 +10,10 @@ interface NavigationActionsProps {
   mobile?: boolean;
   onActionClick?: () => void;
   className?: string;
+  hideAuth?: boolean;
 }
 
-const NavigationActions = ({ mobile = false, onActionClick, className }: NavigationActionsProps) => {
+const NavigationActions = ({ mobile = false, onActionClick, className, hideAuth = false }: NavigationActionsProps) => {
   const navigate = useNavigate();
   const [isLoggedIn, setIsLoggedIn] = React.useState(false);
 
@@ -59,6 +60,11 @@ const NavigationActions = ({ mobile = false, onActionClick, className }: Navigat
       console.log("Info déconnexion:", error);
     }
   };
+
+  // If hideAuth is true and we're on Pro page, don't render auth UI
+  if (hideAuth) {
+    return null;
+  }
 
   if (mobile) {
     return (
