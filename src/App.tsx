@@ -1,3 +1,4 @@
+
 import React, { Suspense } from 'react';
 import {
   BrowserRouter,
@@ -9,8 +10,8 @@ import { Toaster } from "@/components/ui/toaster"
 
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
-import Login from "./pages/Login";
-import Signup from "./pages/Signup";
+import Login from "./pages/auth/Login";
+import Signup from "./pages/auth/Signup";
 import Profile from "./pages/Profile";
 import ForgotPassword from "./pages/ForgotPassword";
 import ResetPassword from "./pages/ResetPassword";
