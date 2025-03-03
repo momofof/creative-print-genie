@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Product, Order, Stat } from "@/types/dashboard";
@@ -57,12 +56,18 @@ export const useSupplierDashboard = () => {
         toast.error("Impossible de charger les produits");
         return [];
       } else {
-        setProducts(data || []);
+        // Cast data to ensure it has all required fields including stock
+        const typedProducts = data.map(product => ({
+          ...product,
+          stock: product.stock || 0
+        })) as Product[];
+        
+        setProducts(typedProducts);
         
         // Update stats
-        updateProductStats(data || []);
+        updateProductStats(typedProducts);
         
-        return data;
+        return typedProducts;
       }
     } catch (error) {
       console.error("Erreur:", error);
@@ -153,12 +158,16 @@ export const useSupplierDashboard = () => {
         return null;
       }
 
+      // Ensure stock is present
+      const completeProductData = {
+        ...productData,
+        supplier_id: userId,
+        stock: productData.stock || 0
+      };
+
       const { data, error } = await supabase
         .from('products')
-        .insert({
-          ...productData,
-          supplier_id: userId
-        })
+        .insert(completeProductData)
         .select();
 
       if (error) {

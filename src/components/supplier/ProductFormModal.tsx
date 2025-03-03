@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -30,10 +29,9 @@ const ProductFormModal = ({ isOpen, onClose, productId, onProductSaved }: Produc
     original_price: "",
     stock: "0",
     is_customizable: false,
-    status: "draft"
+    status: "draft" as "draft" | "published" | "archived"
   });
 
-  // Fetch product data if editing
   useEffect(() => {
     if (productId) {
       setIsLoading(true);
@@ -97,7 +95,14 @@ const ProductFormModal = ({ isOpen, onClose, productId, onProductSaved }: Produc
   };
 
   const handleSelectChange = (name: string, value: string) => {
-    setFormData(prev => ({ ...prev, [name]: value }));
+    if (name === "status") {
+      setFormData(prev => ({ 
+        ...prev, 
+        [name]: value as "draft" | "published" | "archived" 
+      }));
+    } else {
+      setFormData(prev => ({ ...prev, [name]: value }));
+    }
   };
 
   const handleCheckboxChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -143,9 +148,14 @@ const ProductFormModal = ({ isOpen, onClose, productId, onProductSaved }: Produc
       
       let imageUrlToSave = imageUrl;
       
-      // Upload image if a new one was selected
       if (uploadedImage) {
         imageUrlToSave = await uploadImageToStorage(uploadedImage);
+      }
+
+      const { data: userData } = await supabase.auth.getUser();
+      if (!userData.user) {
+        toast.error("Utilisateur non authentifié");
+        return;
       }
       
       const productData = {
@@ -159,18 +169,17 @@ const ProductFormModal = ({ isOpen, onClose, productId, onProductSaved }: Produc
         is_customizable: formData.is_customizable,
         status: formData.status,
         image: imageUrlToSave,
+        supplier_id: userData.user.id
       };
       
       let result;
       
       if (productId) {
-        // Update existing product
         result = await supabase
           .from('products')
           .update(productData)
           .eq('id', productId);
       } else {
-        // Create new product
         result = await supabase
           .from('products')
           .insert(productData);

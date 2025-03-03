@@ -1,4 +1,5 @@
 
+
 export interface Stat {
   title: string;
   value: string;
@@ -35,7 +36,7 @@ export interface Order {
 export interface ProFeature {
   title: string;
   description: string;
-  icon: React.FC<React.SVGProps<SVGSVGElement>>;
+  icon: React.ComponentType<React.SVGProps<SVGSVGElement>>;
 }
 
 export interface Customization {
@@ -59,3 +60,4 @@ export interface CustomerCustomization {
   image_path?: string;
   created_at: string;
 }
+
