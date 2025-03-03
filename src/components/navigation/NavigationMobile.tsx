@@ -69,11 +69,20 @@ const NavigationMobile = ({
         hideAuth={hideAuth}
       />
       
-      <div className="flex items-center gap-3">
-        {!isLoggedIn && <NavigationLoginItems isLoggedIn={isLoggedIn} hideAuth={hideAuth} />}
+      <div className="flex items-center space-x-2.5">
+        <NavigationSearch 
+          onClick={() => setShowSearch(!showSearch)} 
+          className="p-2.5"
+        />
+        <NavigationCart className="p-2.5" />
+        {!isLoggedIn && !hideAuth && (
+          <NavigationLoginItems 
+            isLoggedIn={isLoggedIn} 
+            hideAuth={hideAuth} 
+            className="p-2.5"
+          />
+        )}
         {isLoggedIn && <NavigationUserAvatar isSupplier={isSupplier} />}
-        <NavigationSearch onClick={() => setShowSearch(!showSearch)} />
-        <NavigationCart />
       </div>
     </div>
   );

@@ -26,10 +26,13 @@ const NavigationDesktop = ({
     <>
       <NavigationItems />
       
-      <div className="hidden lg:flex items-center gap-4">
-        <NavigationSearch onClick={() => setShowSearch(!showSearch)} />
-        <NavigationCart />
-        {!isLoggedIn && <NavigationLoginItems isLoggedIn={isLoggedIn} hideAuth={hideAuth} />}
+      <div className="hidden lg:flex items-center space-x-3">
+        <NavigationSearch 
+          onClick={() => setShowSearch(!showSearch)} 
+          className="p-2.5"
+        />
+        <NavigationCart className="p-2.5" />
+        {!isLoggedIn && <NavigationLoginItems isLoggedIn={isLoggedIn} hideAuth={hideAuth} className="p-2.5" />}
         {isLoggedIn && <NavigationUserAvatar isSupplier={isSupplier} />}
         {!isLoggedIn && <NavigationActions hideAuth={hideAuth} />}
       </div>
