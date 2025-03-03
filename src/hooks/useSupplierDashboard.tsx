@@ -3,127 +3,183 @@ import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Product, Order, Stat } from "@/types/dashboard";
 import { toast } from "sonner";
-import { useNavigate } from "react-router-dom";
-import { SupplierData, CreateProductData } from "@/types/supplier";
-import { 
-  checkSupplierStatus, 
-  fetchSupplierProducts, 
-  fetchSupplierOrders, 
-  generateSupplierStats 
-} from "@/services/supplierService";
-import { deleteProduct as deleteProductService, createProduct as createProductService } from "@/services/productService";
 
 export const useSupplierDashboard = () => {
   const [isLoading, setIsLoading] = useState(true);
-  const [isSupplier, setIsSupplier] = useState(false);
-  const [supplierData, setSupplierData] = useState<SupplierData | null>(null);
   const [products, setProducts] = useState<Product[]>([]);
   const [orders, setOrders] = useState<Order[]>([]);
-  const [error, setError] = useState<string | null>(null);
-  const [stats, setStats] = useState<Stat[]>([]);
-  const navigate = useNavigate();
+  const [stats, setStats] = useState<Stat[]>([
+    {
+      title: "Ventes Totales",
+      value: "0 €",
+      change: "+0%",
+      changeType: "positive"
+    },
+    {
+      title: "Commandes",
+      value: "0",
+      change: "+0%",
+      changeType: "positive"
+    },
+    {
+      title: "Produits Actifs",
+      value: "0",
+      change: "+0",
+      changeType: "positive"
+    },
+    {
+      title: "Taux de Conversion",
+      value: "0%",
+      change: "0%",
+      changeType: "neutral"
+    },
+  ]);
 
-  const loadSupplierData = async () => {
+  // Fetch products from Supabase
+  const fetchProducts = async () => {
     try {
-      setIsLoading(true);
-      setError(null);
+      const { data, error } = await supabase
+        .from('products')
+        .select('*')
+        .order('created_at', { ascending: false })
+        .limit(10);
 
-      // Check if user is logged in
-      const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
-      
-      if (sessionError) {
-        throw new Error("Erreur lors de la récupération de la session");
-      }
-      
-      if (!sessionData.session) {
-        setIsSupplier(false);
-        setIsLoading(false);
-        toast.error("Vous devez être connecté pour accéder à cette page");
-        navigate("/login");
-        return;
-      }
-
-      const userId = sessionData.session.user.id;
-
-      // Check if user is registered as a supplier
-      const supplierData = await checkSupplierStatus(userId);
-
-      // If supplier exists, check if they are active
-      if (supplierData) {
-        if (supplierData.status !== "active") {
-          setIsSupplier(false);
-          setIsLoading(false);
-          toast.error("Votre compte fournisseur est en attente d'approbation ou a été suspendu");
-          navigate("/");
-          return;
-        }
-
-        setIsSupplier(true);
-        setSupplierData(supplierData);
-
-        // Fetch products
-        const productsWithStock = await fetchSupplierProducts(userId);
-        setProducts(productsWithStock);
-
-        // Set mock stats data
-        setStats(generateSupplierStats(productsWithStock.length));
-
-        // Mock orders data
-        setOrders(await fetchSupplierOrders());
+      if (error) {
+        console.error("Erreur lors de la récupération des produits:", error);
+        toast.error("Impossible de charger les produits");
+        return [];
       } else {
-        setIsSupplier(false);
-        toast.error("Vous n'êtes pas enregistré comme fournisseur");
-        navigate("/supplier/register");
+        // Add stock property to products (since it's not in the database yet)
+        const productsWithStock = data.map(product => ({
+          ...product,
+          stock: Math.floor(Math.random() * 20) + 1, // Random stock for demo
+        }));
+        
+        // Update products state
+        setProducts(productsWithStock);
+        
+        // Update stats
+        updateProductStats(productsWithStock);
+        
+        return productsWithStock;
       }
-    } catch (error: any) {
-      console.error("Error loading supplier data:", error);
-      setError(error.message);
-      toast.error(error.message);
-    } finally {
-      setIsLoading(false);
+    } catch (error) {
+      console.error("Erreur:", error);
+      toast.error("Une erreur est survenue");
+      return [];
     }
   };
 
-  useEffect(() => {
-    loadSupplierData();
-  }, []);
+  // Simulate orders (to be replaced with a real API)
+  const simulateOrders = () => {
+    const mockOrders: Order[] = [
+      {
+        id: "ORD-39285",
+        customer: "Jean Dupont",
+        date: "2023-09-23",
+        total: 79.98,
+        status: "delivered",
+        items: 2
+      },
+      {
+        id: "ORD-38104",
+        customer: "Marie Lambert",
+        date: "2023-09-21",
+        total: 129.97,
+        status: "processing",
+        items: 3
+      },
+      {
+        id: "ORD-37490",
+        customer: "Thomas Martin",
+        date: "2023-09-18",
+        total: 49.99,
+        status: "shipped",
+        items: 1
+      }
+    ];
+    
+    setOrders(mockOrders);
+    updateOrderStats(mockOrders);
+    
+    return mockOrders;
+  };
 
-  // Delete product wrapper function
+  // Update product-related stats
+  const updateProductStats = (products: Product[]) => {
+    const productsCount = products.length;
+    
+    setStats(prevStats => {
+      const newStats = [...prevStats];
+      newStats[2].value = String(productsCount);
+      return newStats;
+    });
+  };
+
+  // Update order-related stats
+  const updateOrderStats = (orders: Order[]) => {
+    const totalSales = orders.reduce((sum, order) => sum + order.total, 0);
+    const ordersCount = orders.length;
+    
+    setStats(prevStats => {
+      const newStats = [...prevStats];
+      newStats[0].value = `${totalSales.toFixed(2)} €`;
+      newStats[1].value = String(ordersCount);
+      return newStats;
+    });
+  };
+
+  // Delete a product
   const deleteProduct = async (productId: string) => {
-    const success = await deleteProductService(productId);
-    if (success) {
-      // Update products list after successful deletion
-      setProducts(products.filter(product => product.id !== productId));
+    try {
+      // Display confirmation
+      if (!confirm("Êtes-vous sûr de vouloir supprimer ce produit ?")) {
+        return false;
+      }
+      
+      // Delete the product
+      const { error } = await supabase
+        .from('products')
+        .delete()
+        .eq('id', productId);
+        
+      if (error) {
+        console.error("Erreur lors de la suppression:", error);
+        toast.error("Impossible de supprimer le produit");
+        return false;
+      } else {
+        // Update products list
+        setProducts(products.filter(product => product.id !== productId));
+        toast.success("Produit supprimé avec succès");
+        return true;
+      }
+    } catch (error) {
+      console.error("Erreur:", error);
+      toast.error("Une erreur est survenue");
+      return false;
     }
   };
 
-  // Create product wrapper function
-  const createProduct = async (productData: CreateProductData) => {
-    const productId = await createProductService(productData);
-    if (productId) {
-      // Add the new product to the products state with a mock stock value
-      const newProductWithStock = {
-        ...productData,
-        id: productId,
-        stock: 0, // New product starts with 0 stock
-        supplier_id: supplierData?.id || ""
-      };
-      
-      setProducts([...products, newProductWithStock as Product]);
-    }
-    return productId;
+  // Load all data
+  const loadDashboardData = async () => {
+    setIsLoading(true);
+    await fetchProducts();
+    simulateOrders();
+    setIsLoading(false);
   };
+
+  // Initial data loading
+  useEffect(() => {
+    loadDashboardData();
+  }, []);
 
   return {
     isLoading,
-    isSupplier,
-    supplierData,
     products,
     orders,
     stats,
-    error,
+    fetchProducts,
     deleteProduct,
-    createProduct,
-    refreshData: loadSupplierData
+    loadDashboardData
   };
 };

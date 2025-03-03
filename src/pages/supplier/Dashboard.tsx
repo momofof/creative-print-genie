@@ -1,143 +1,388 @@
 
-import React, { useState } from "react";
-import Navigation from "@/components/Navigation";
-import { useNavigate } from "react-router-dom";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import React, { useEffect, useState } from "react";
+import { useNavigate, Link } from "react-router-dom";
+import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
+import { 
+  Package, 
+  PlusCircle, 
+  Store, 
+  ShoppingBag, 
+  Settings, 
+  Users, 
+  LogOut,
+  Layers,
+  Truck 
+} from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { useSupplierDashboard } from "@/hooks/useSupplierDashboard";
-import { useProfileData } from "@/hooks/useProfileData";
-import LoadingSpinner from "@/components/profile/LoadingSpinner";
-import OverviewTab from "@/components/supplier/OverviewTab";
-import ProductsTab from "@/components/supplier/ProductsTab";
-import OrdersTab from "@/components/supplier/OrdersTab";
-import AnalyticsTab from "@/components/supplier/AnalyticsTab";
-import FeaturesSection from "@/components/supplier/FeaturesSection";
 
-const Dashboard = () => {
-  const [activeTab, setActiveTab] = useState("overview");
+interface Product {
+  id: string;
+  name: string;
+  price: number;
+  category: string;
+  status: 'draft' | 'published' | 'archived';
+  created_at: string;
+}
+
+interface SupplierStats {
+  totalProducts: number;
+  productsInStock: number;
+  lowStockProducts: number;
+  outOfStockProducts: number;
+}
+
+const SupplierDashboard = () => {
+  const [isLoading, setIsLoading] = useState(true);
+  const [products, setProducts] = useState<Product[]>([]);
+  const [stats, setStats] = useState<SupplierStats>({
+    totalProducts: 0,
+    productsInStock: 0,
+    lowStockProducts: 0,
+    outOfStockProducts: 0
+  });
   const navigate = useNavigate();
-  const { profile, isLoading: profileLoading } = useProfileData();
-  const { 
-    isLoading, 
-    isSupplier,
-    products, 
-    orders, 
-    stats,
-    deleteProduct,
-    createProduct
-  } = useSupplierDashboard();
 
-  // Navigation handlers
-  const handleAddProduct = () => {
-    // Now the function will create a new product and navigate to edit page
-    createProduct({
-      name: "Nouveau produit",
-      price: 0,
-      category: "Non classé",
-      image: "", // Add required fields
-      subcategory: "", 
-      status: "draft", // Explicitly use the correct enum value
-      created_at: new Date().toISOString(), // Convert Date to string ISO format
-      description: ""
-    }).then(productId => {
-      if (productId) {
-        navigate(`/supplier/product/${productId}/edit`);
+  useEffect(() => {
+    checkAuthentication();
+    fetchProducts();
+    fetchStats();
+  }, []);
+
+  const checkAuthentication = async () => {
+    const { data } = await supabase.auth.getSession();
+    
+    if (!data.session) {
+      toast.error("Vous devez être connecté pour accéder au tableau de bord");
+      navigate("/login");
+    } else {
+      setIsLoading(false);
+    }
+  };
+
+  const fetchProducts = async () => {
+    try {
+      const { data: userData } = await supabase.auth.getUser();
+      
+      if (!userData.user) return;
+      
+      const { data, error } = await supabase
+        .from("products")
+        .select("*")
+        .eq("supplier_id", userData.user.id)
+        .order("created_at", { ascending: false })
+        .limit(5);
+      
+      if (error) throw error;
+      
+      setProducts(data || []);
+    } catch (error: any) {
+      console.error("Error fetching products:", error);
+      toast.error("Erreur lors du chargement des produits");
+    }
+  };
+
+  const fetchStats = async () => {
+    try {
+      const { data: userData } = await supabase.auth.getUser();
+      
+      if (!userData.user) return;
+      
+      // Get total products
+      const { count: totalCount, error: totalError } = await supabase
+        .from("products")
+        .select("*", { count: "exact", head: true })
+        .eq("supplier_id", userData.user.id);
+      
+      if (totalError) throw totalError;
+      
+      // Get product variants stats
+      const { data: variantsData, error: variantsError } = await supabase
+        .from("product_variants")
+        .select("status")
+        .in("product_id", products.map(p => p.id));
+      
+      if (variantsError) throw variantsError;
+      
+      // Calculate stats based on product variants
+      const inStock = variantsData?.filter(v => v.status === 'in_stock').length || 0;
+      const lowStock = variantsData?.filter(v => v.status === 'low_stock').length || 0;
+      const outOfStock = variantsData?.filter(v => v.status === 'out_of_stock').length || 0;
+      
+      setStats({
+        totalProducts: totalCount || 0,
+        productsInStock: inStock,
+        lowStockProducts: lowStock,
+        outOfStockProducts: outOfStock
+      });
+    } catch (error: any) {
+      console.error("Error fetching stats:", error);
+      toast.error("Erreur lors du chargement des statistiques");
+    }
+  };
+
+  const handleSignOut = async () => {
+    try {
+      const { error } = await supabase.auth.signOut();
+      
+      if (error) {
+        throw error;
       }
-    });
+      
+      toast.success("Déconnexion réussie");
+      navigate("/");
+    } catch (error: any) {
+      console.error("Error signing out:", error);
+      toast.error("Erreur lors de la déconnexion");
+    }
   };
 
-  const handleEditProduct = (productId: string) => {
-    navigate(`/supplier/product/${productId}/edit`);
-  };
-
-  const handleDeleteProduct = async (productId: string) => {
-    await deleteProduct(productId);
-  };
-
-  const handleViewAllOrders = () => {
-    setActiveTab("orders");
-  };
-
-  // If loading
-  if (isLoading || profileLoading) {
-    return <LoadingSpinner />;
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-accent"></div>
+      </div>
+    );
   }
 
   return (
-    <div className="min-h-screen bg-white">
-      <Navigation />
-      <div className="max-w-7xl mx-auto px-4 pt-24 pb-16">
-        <div className="flex justify-between items-center mb-8">
-          <h1 className="text-3xl font-bold">Tableau de bord Fournisseur</h1>
-          <div className="flex gap-3">
-            <Button variant="outline" onClick={() => navigate("/supplier/register")}>
-              Inscription Fournisseur
-            </Button>
-            <Button onClick={handleAddProduct}>
-              Ajouter un produit
-            </Button>
-          </div>
+    <div className="flex min-h-screen bg-gray-50">
+      {/* Sidebar */}
+      <div className="w-64 bg-white border-r border-gray-200 p-4 hidden md:block">
+        <div className="mb-8">
+          <h2 className="text-xl font-bold text-gray-800 flex items-center">
+            <Store className="mr-2 h-6 w-6" />
+            Espace Fournisseur
+          </h2>
         </div>
-
-        <Tabs defaultValue={activeTab} onValueChange={setActiveTab} className="mb-8">
-          <TabsList className="grid grid-cols-4 mb-8">
-            <TabsTrigger value="overview">Vue d'ensemble</TabsTrigger>
-            <TabsTrigger value="products">Produits</TabsTrigger>
-            <TabsTrigger value="orders">Commandes</TabsTrigger>
-            <TabsTrigger value="analytics">Analyses</TabsTrigger>
-          </TabsList>
+        
+        <nav className="space-y-1">
+          <Link to="/supplier/dashboard" className="flex items-center px-3 py-2 text-sm font-medium text-teal-700 bg-teal-50 rounded-md">
+            <Layers className="mr-3 h-5 w-5" />
+            Tableau de bord
+          </Link>
+          <Link to="/supplier/product/new" className="flex items-center px-3 py-2 text-sm font-medium text-gray-600 hover:bg-gray-50 hover:text-gray-900 rounded-md">
+            <PlusCircle className="mr-3 h-5 w-5" />
+            Ajouter un produit
+          </Link>
+          <Link to="/supplier/products" className="flex items-center px-3 py-2 text-sm font-medium text-gray-600 hover:bg-gray-50 hover:text-gray-900 rounded-md">
+            <Package className="mr-3 h-5 w-5" />
+            Mes produits
+          </Link>
+          <Link to="/supplier/orders" className="flex items-center px-3 py-2 text-sm font-medium text-gray-600 hover:bg-gray-50 hover:text-gray-900 rounded-md">
+            <ShoppingBag className="mr-3 h-5 w-5" />
+            Commandes
+          </Link>
+          <Link to="/supplier/customers" className="flex items-center px-3 py-2 text-sm font-medium text-gray-600 hover:bg-gray-50 hover:text-gray-900 rounded-md">
+            <Users className="mr-3 h-5 w-5" />
+            Clients
+          </Link>
+          <Link to="/supplier/settings" className="flex items-center px-3 py-2 text-sm font-medium text-gray-600 hover:bg-gray-50 hover:text-gray-900 rounded-md">
+            <Settings className="mr-3 h-5 w-5" />
+            Paramètres
+          </Link>
+          <button 
+            onClick={handleSignOut}
+            className="w-full flex items-center px-3 py-2 text-sm font-medium text-gray-600 hover:bg-gray-50 hover:text-gray-900 rounded-md"
+          >
+            <LogOut className="mr-3 h-5 w-5" />
+            Déconnexion
+          </button>
+        </nav>
+      </div>
+      
+      {/* Mobile header */}
+      <div className="md:hidden fixed top-0 left-0 right-0 bg-white border-b border-gray-200 p-4 z-10">
+        <div className="flex items-center justify-between">
+          <h2 className="text-lg font-bold text-gray-800 flex items-center">
+            <Store className="mr-2 h-5 w-5" />
+            Espace Fournisseur
+          </h2>
+          <button className="text-gray-500">
+            <span className="sr-only">Open menu</span>
+            <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+            </svg>
+          </button>
+        </div>
+      </div>
+      
+      {/* Main content */}
+      <div className="flex-1 p-8 md:p-10 pt-20 md:pt-10">
+        <div className="mb-8">
+          <h1 className="text-2xl font-bold text-gray-900">Tableau de bord</h1>
+          <p className="text-gray-600">Bienvenue dans votre espace fournisseur</p>
+        </div>
+        
+        {/* Stats */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+          <Card>
+            <CardContent className="p-6">
+              <div className="flex items-center">
+                <div className="p-2 bg-blue-100 rounded-full mr-4">
+                  <Package className="h-6 w-6 text-blue-600" />
+                </div>
+                <div>
+                  <p className="text-sm font-medium text-gray-500">Total produits</p>
+                  <h3 className="text-2xl font-bold">{stats.totalProducts}</h3>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
           
-          <TabsContent value="overview">
-            <OverviewTab 
-              stats={stats} 
-              orders={orders}
-              onViewAllOrders={handleViewAllOrders}
-            />
-          </TabsContent>
+          <Card>
+            <CardContent className="p-6">
+              <div className="flex items-center">
+                <div className="p-2 bg-green-100 rounded-full mr-4">
+                  <Layers className="h-6 w-6 text-green-600" />
+                </div>
+                <div>
+                  <p className="text-sm font-medium text-gray-500">En stock</p>
+                  <h3 className="text-2xl font-bold">{stats.productsInStock}</h3>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
           
-          <TabsContent value="products">
-            <ProductsTab 
-              products={products}
-              onAddProduct={handleAddProduct}
-              onEditProduct={handleEditProduct}
-              onDeleteProduct={handleDeleteProduct}
-            />
-          </TabsContent>
+          <Card>
+            <CardContent className="p-6">
+              <div className="flex items-center">
+                <div className="p-2 bg-yellow-100 rounded-full mr-4">
+                  <ShoppingBag className="h-6 w-6 text-yellow-600" />
+                </div>
+                <div>
+                  <p className="text-sm font-medium text-gray-500">Stock faible</p>
+                  <h3 className="text-2xl font-bold">{stats.lowStockProducts}</h3>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
           
-          <TabsContent value="orders">
-            <OrdersTab orders={orders} />
-          </TabsContent>
-          
-          <TabsContent value="analytics">
-            <AnalyticsTab />
-          </TabsContent>
-        </Tabs>
-
-        <FeaturesSection features={[
-          {
-            title: "Gestion des produits",
-            description: "Ajoutez, modifiez et organisez facilement vos produits en ligne",
-            icon: () => <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" /></svg>,
-          },
-          {
-            title: "Suivi des commandes",
-            description: "Suivez toutes les commandes et gérez les expéditions efficacement",
-            icon: () => <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" /></svg>,
-          },
-          {
-            title: "Analyse des ventes",
-            description: "Visualisez vos performances et identifiez les tendances commerciales",
-            icon: () => <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" /></svg>,
-          },
-          {
-            title: "Gestion des clients",
-            description: "Accédez aux informations clients et personnalisez votre approche",
-            icon: () => <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" /></svg>,
-          },
-        ]} />
+          <Card>
+            <CardContent className="p-6">
+              <div className="flex items-center">
+                <div className="p-2 bg-red-100 rounded-full mr-4">
+                  <Truck className="h-6 w-6 text-red-600" />
+                </div>
+                <div>
+                  <p className="text-sm font-medium text-gray-500">Rupture de stock</p>
+                  <h3 className="text-2xl font-bold">{stats.outOfStockProducts}</h3>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+        
+        {/* Recent products */}
+        <Card className="mb-8">
+          <CardHeader>
+            <div className="flex items-center justify-between">
+              <CardTitle>Produits récents</CardTitle>
+              <Link to="/supplier/products">
+                <Button variant="ghost" size="sm">
+                  Voir tous
+                </Button>
+              </Link>
+            </div>
+          </CardHeader>
+          <CardContent>
+            {products.length > 0 ? (
+              <div className="overflow-x-auto">
+                <table className="w-full">
+                  <thead>
+                    <tr className="text-left border-b">
+                      <th className="pb-3 font-medium text-gray-500">Nom</th>
+                      <th className="pb-3 font-medium text-gray-500">Catégorie</th>
+                      <th className="pb-3 font-medium text-gray-500">Prix</th>
+                      <th className="pb-3 font-medium text-gray-500">Statut</th>
+                      <th className="pb-3 font-medium text-gray-500">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {products.map((product) => (
+                      <tr key={product.id} className="border-b hover:bg-gray-50">
+                        <td className="py-3">{product.name}</td>
+                        <td className="py-3">{product.category}</td>
+                        <td className="py-3">{product.price} €</td>
+                        <td className="py-3">
+                          <span 
+                            className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
+                              product.status === 'published' 
+                                ? 'bg-green-100 text-green-800'
+                                : product.status === 'draft'
+                                ? 'bg-gray-100 text-gray-800'
+                                : 'bg-red-100 text-red-800'
+                            }`}
+                          >
+                            {product.status === 'published' 
+                              ? 'Publié' 
+                              : product.status === 'draft'
+                              ? 'Brouillon'
+                              : 'Archivé'
+                            }
+                          </span>
+                        </td>
+                        <td className="py-3">
+                          <div className="flex space-x-2">
+                            <Link to={`/supplier/product/${product.id}/edit`}>
+                              <Button variant="outline" size="sm">
+                                Modifier
+                              </Button>
+                            </Link>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            ) : (
+              <div className="text-center py-6">
+                <p className="text-gray-500 mb-4">Vous n'avez pas encore de produits</p>
+                <Link to="/supplier/product/new">
+                  <Button>
+                    <PlusCircle className="mr-2 h-4 w-4" />
+                    Ajouter un produit
+                  </Button>
+                </Link>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+        
+        {/* Quick actions */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Actions rapides</CardTitle>
+            <CardDescription>Les actions les plus courantes pour gérer votre boutique</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              <Link to="/supplier/product/new">
+                <Button variant="outline" className="w-full justify-start">
+                  <PlusCircle className="mr-2 h-4 w-4" />
+                  Ajouter un produit
+                </Button>
+              </Link>
+              <Link to="/supplier/orders">
+                <Button variant="outline" className="w-full justify-start">
+                  <ShoppingBag className="mr-2 h-4 w-4" />
+                  Voir les commandes
+                </Button>
+              </Link>
+              <Link to="/supplier/settings">
+                <Button variant="outline" className="w-full justify-start">
+                  <Settings className="mr-2 h-4 w-4" />
+                  Paramètres
+                </Button>
+              </Link>
+            </div>
+          </CardContent>
+        </Card>
       </div>
     </div>
   );
 };
 
-export default Dashboard;
+export default SupplierDashboard;
