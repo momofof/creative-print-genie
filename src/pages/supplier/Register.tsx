@@ -1,80 +1,99 @@
 
 import React, { useState } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
-import { Loader2, Store } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import Navigation from "@/components/Navigation";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Textarea } from "@/components/ui/textarea";
+import { Building2, Mail, Phone, MapPin, User } from "lucide-react";
 
-const SupplierRegister = () => {
+const Register = () => {
+  const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState({
+    company_name: "",
+    contact_name: "",
     email: "",
-    password: "",
-    confirmPassword: "",
-    companyName: "",
-    contactName: "",
     phone: "",
-    address: ""
+    address: "",
   });
-  const navigate = useNavigate();
+  const [errors, setErrors] = useState<Record<string, string>>({});
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value
-    }));
+    setFormData((prev) => ({ ...prev, [name]: value }));
+    
+    // Clear error when user starts typing
+    if (errors[name]) {
+      setErrors((prev) => {
+        const newErrors = { ...prev };
+        delete newErrors[name];
+        return newErrors;
+      });
+    }
+  };
+
+  const validateForm = () => {
+    const newErrors: Record<string, string> = {};
+    
+    if (!formData.company_name.trim()) {
+      newErrors.company_name = "Le nom de l'entreprise est requis";
+    }
+    
+    if (!formData.email.trim()) {
+      newErrors.email = "L'email est requis";
+    } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
+      newErrors.email = "L'email n'est pas valide";
+    }
+    
+    if (formData.phone && !/^[+]?[(]?[0-9]{3}[)]?[-\s.]?[0-9]{3}[-\s.]?[0-9]{4,6}$/.test(formData.phone)) {
+      newErrors.phone = "Le numéro de téléphone n'est pas valide";
+    }
+    
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (formData.password !== formData.confirmPassword) {
-      toast.error("Les mots de passe ne correspondent pas");
+    if (!validateForm()) {
       return;
     }
-
+    
     setIsLoading(true);
-
+    
     try {
-      // 1. Register user with Supabase Auth
-      const { data: authData, error: authError } = await supabase.auth.signUp({
-        email: formData.email,
-        password: formData.password,
-      });
-
-      if (authError) throw authError;
+      const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
       
-      if (!authData.user) {
-        throw new Error("Erreur lors de la création du compte");
+      if (sessionError) {
+        throw new Error("Vous devez être connecté pour vous inscrire en tant que fournisseur");
       }
-
-      // 2. Create supplier record
-      const { error: supplierError } = await supabase
-        .from("suppliers")
-        .insert({
-          id: authData.user.id,
-          company_name: formData.companyName,
-          contact_name: formData.contactName,
-          email: formData.email,
-          phone: formData.phone,
-          address: formData.address,
-          status: "pending"
-        });
-
-      if (supplierError) throw supplierError;
-
-      toast.success("Inscription réussie ! Votre compte est en cours de validation.");
-      setTimeout(() => {
+      
+      if (!sessionData.session) {
+        toast.error("Vous devez être connecté pour vous inscrire en tant que fournisseur");
         navigate("/login");
-      }, 2000);
+        return;
+      }
+      
+      const { error } = await supabase.from("suppliers").insert({
+        ...formData,
+        id: sessionData.session.user.id,
+        status: "pending"
+      });
+      
+      if (error) {
+        throw error;
+      }
+      
+      toast.success("Votre inscription en tant que fournisseur a été soumise avec succès!");
+      navigate("/pro");
     } catch (error: any) {
-      console.error("Error registering supplier:", error);
-      toast.error(error.message || "Erreur lors de l'inscription");
+      toast.error(error.message || "Une erreur est survenue lors de l'inscription");
+      console.error("Registration error:", error);
     } finally {
       setIsLoading(false);
     }
@@ -83,154 +102,134 @@ const SupplierRegister = () => {
   return (
     <div className="min-h-screen bg-white">
       <Navigation />
-      <div className="pt-24 pb-12 px-4">
-        <div className="max-w-2xl mx-auto">
-          <div className="flex items-center justify-center mb-8">
-            <Store className="h-8 w-8 mr-2 text-teal-600" />
-            <h1 className="text-3xl font-bold text-center">Devenir fournisseur</h1>
-          </div>
-          
-          <div className="bg-white p-8 rounded-lg shadow-sm border border-gray-200">
-            <form className="space-y-6" onSubmit={handleSubmit}>
+      <div className="pt-32 px-4 max-w-4xl mx-auto pb-20">
+        <div className="text-center mb-8">
+          <h1 className="text-3xl font-bold">Devenir fournisseur</h1>
+          <p className="text-muted-foreground mt-2">
+            Inscrivez-vous pour commencer à vendre vos produits sur notre plateforme
+          </p>
+        </div>
+        
+        <Card>
+          <CardHeader>
+            <CardTitle>Informations du fournisseur</CardTitle>
+            <CardDescription>
+              Veuillez compléter les informations ci-dessous pour créer votre compte fournisseur
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <form onSubmit={handleSubmit} className="space-y-6">
               <div className="space-y-4">
-                <h2 className="text-xl font-semibold">Informations de l'entreprise</h2>
-                
                 <div>
-                  <label htmlFor="companyName" className="block text-sm font-medium text-gray-700">
-                    Nom de l'entreprise *
-                  </label>
+                  <div className="flex items-center gap-2 mb-2">
+                    <Building2 className="h-4 w-4 text-muted-foreground" />
+                    <label htmlFor="company_name" className="font-medium">
+                      Nom de l'entreprise
+                    </label>
+                  </div>
                   <Input
-                    id="companyName"
-                    name="companyName"
-                    value={formData.companyName}
+                    id="company_name"
+                    name="company_name"
+                    value={formData.company_name}
                     onChange={handleChange}
-                    className="mt-1 block w-full"
-                    required
+                    placeholder="Entrez le nom de votre entreprise"
+                    className={errors.company_name ? "border-destructive" : ""}
                   />
+                  {errors.company_name && (
+                    <p className="text-destructive text-sm mt-1">{errors.company_name}</p>
+                  )}
                 </div>
                 
                 <div>
-                  <label htmlFor="contactName" className="block text-sm font-medium text-gray-700">
-                    Nom du contact
-                  </label>
+                  <div className="flex items-center gap-2 mb-2">
+                    <User className="h-4 w-4 text-muted-foreground" />
+                    <label htmlFor="contact_name" className="font-medium">
+                      Nom du contact
+                    </label>
+                  </div>
                   <Input
-                    id="contactName"
-                    name="contactName"
-                    value={formData.contactName}
+                    id="contact_name"
+                    name="contact_name"
+                    value={formData.contact_name}
                     onChange={handleChange}
-                    className="mt-1 block w-full"
+                    placeholder="Entrez le nom de la personne à contacter"
                   />
                 </div>
                 
                 <div>
-                  <label htmlFor="phone" className="block text-sm font-medium text-gray-700">
-                    Téléphone
-                  </label>
-                  <Input
-                    id="phone"
-                    name="phone"
-                    type="tel"
-                    value={formData.phone}
-                    onChange={handleChange}
-                    className="mt-1 block w-full"
-                  />
-                </div>
-                
-                <div>
-                  <label htmlFor="address" className="block text-sm font-medium text-gray-700">
-                    Adresse
-                  </label>
-                  <Textarea
-                    id="address"
-                    name="address"
-                    value={formData.address}
-                    onChange={handleChange}
-                    className="mt-1 block w-full"
-                    rows={3}
-                  />
-                </div>
-              </div>
-              
-              <div className="space-y-4">
-                <h2 className="text-xl font-semibold">Informations d'identification</h2>
-                
-                <div>
-                  <label htmlFor="email" className="block text-sm font-medium text-gray-700">
-                    Email *
-                  </label>
+                  <div className="flex items-center gap-2 mb-2">
+                    <Mail className="h-4 w-4 text-muted-foreground" />
+                    <label htmlFor="email" className="font-medium">
+                      Email
+                    </label>
+                  </div>
                   <Input
                     id="email"
                     name="email"
                     type="email"
                     value={formData.email}
                     onChange={handleChange}
-                    className="mt-1 block w-full"
-                    required
+                    placeholder="Entrez l'adresse email de contact"
+                    className={errors.email ? "border-destructive" : ""}
                   />
+                  {errors.email && (
+                    <p className="text-destructive text-sm mt-1">{errors.email}</p>
+                  )}
                 </div>
                 
                 <div>
-                  <label htmlFor="password" className="block text-sm font-medium text-gray-700">
-                    Mot de passe *
-                  </label>
+                  <div className="flex items-center gap-2 mb-2">
+                    <Phone className="h-4 w-4 text-muted-foreground" />
+                    <label htmlFor="phone" className="font-medium">
+                      Téléphone
+                    </label>
+                  </div>
                   <Input
-                    id="password"
-                    name="password"
-                    type="password"
-                    value={formData.password}
+                    id="phone"
+                    name="phone"
+                    value={formData.phone}
                     onChange={handleChange}
-                    className="mt-1 block w-full"
-                    required
-                    minLength={6}
+                    placeholder="Entrez le numéro de téléphone"
+                    className={errors.phone ? "border-destructive" : ""}
                   />
+                  {errors.phone && (
+                    <p className="text-destructive text-sm mt-1">{errors.phone}</p>
+                  )}
                 </div>
                 
                 <div>
-                  <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700">
-                    Confirmer le mot de passe *
-                  </label>
-                  <Input
-                    id="confirmPassword"
-                    name="confirmPassword"
-                    type="password"
-                    value={formData.confirmPassword}
+                  <div className="flex items-center gap-2 mb-2">
+                    <MapPin className="h-4 w-4 text-muted-foreground" />
+                    <label htmlFor="address" className="font-medium">
+                      Adresse
+                    </label>
+                  </div>
+                  <Textarea
+                    id="address"
+                    name="address"
+                    value={formData.address}
                     onChange={handleChange}
-                    className="mt-1 block w-full"
-                    required
-                    minLength={6}
+                    placeholder="Entrez l'adresse de votre entreprise"
+                    rows={3}
                   />
                 </div>
               </div>
               
-              <div>
+              <div className="flex justify-end pt-4">
                 <Button
                   type="submit"
-                  className="w-full bg-teal-600 hover:bg-teal-700 text-white py-2 rounded-md"
+                  className="bg-accent text-accent-foreground hover:bg-accent/90"
                   disabled={isLoading}
                 >
-                  {isLoading ? (
-                    <span className="flex items-center justify-center">
-                      <Loader2 className="h-4 w-4 animate-spin mr-2" />
-                      Inscription en cours...
-                    </span>
-                  ) : (
-                    "S'inscrire comme fournisseur"
-                  )}
+                  {isLoading ? "Soumission en cours..." : "Soumettre la demande"}
                 </Button>
               </div>
-              
-              <p className="mt-4 text-center text-sm text-gray-600">
-                Déjà inscrit ?{" "}
-                <Link to="/login" className="text-teal-600 hover:underline">
-                  Se connecter
-                </Link>
-              </p>
             </form>
-          </div>
-        </div>
+          </CardContent>
+        </Card>
       </div>
     </div>
   );
 };
 
-export default SupplierRegister;
+export default Register;
