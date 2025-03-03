@@ -59,17 +59,17 @@ const NavigationMenu = ({
   return (
     <>
       <button
-        className="p-2 rounded-md hover:bg-gray-100 active:bg-gray-200 lg:hidden"
+        className="p-2.5 rounded-md hover:bg-gray-100 active:bg-gray-200 lg:hidden"
         onClick={onToggle}
         aria-label="Menu"
       >
-        {isOpen ? <X size={24} /> : <Menu size={24} />}
+        {isOpen ? <X size={26} className="text-gray-800" /> : <Menu size={26} className="text-gray-800" />}
       </button>
       
       {isOpen && (
-        <div className="lg:hidden fixed inset-0 z-50 flex flex-col bg-white animate-fadeIn pt-16">
+        <div className="lg:hidden fixed inset-0 z-50 flex flex-col bg-white animate-fadeIn pt-20">
           <div className="flex-1 overflow-y-auto pb-safe">
-            <div className="px-4 py-2 space-y-1 max-w-md mx-auto">
+            <div className="px-5 py-3 space-y-2 max-w-md mx-auto">
               {navItems.map((item) => (
                 <NavigationItem
                   key={item.title}
@@ -80,40 +80,40 @@ const NavigationMenu = ({
               ))}
               
               {isLoggedIn && !hideAuth ? (
-                <div className="py-4 border-t border-gray-200 mt-4 space-y-0.5">
+                <div className="py-4 border-t border-gray-200 mt-5 space-y-1">
                   <Link
                     to="/profile"
-                    className="flex items-center w-full px-4 py-3 text-base font-medium hover:bg-gray-100 active:bg-gray-200 rounded-md transition-colors"
+                    className="flex items-center w-full px-5 py-3.5 text-base font-medium hover:bg-gray-100 active:bg-gray-200 rounded-md transition-colors"
                     onClick={() => onToggle()}
                   >
-                    <UserRound size={18} className="mr-3 text-gray-700" />
+                    <UserRound size={20} className="mr-3.5 text-gray-700" />
                     <span>Profil</span>
                   </Link>
                   
                   {isSupplier && (
                     <Link
                       to="/pro"
-                      className="flex items-center w-full px-4 py-3 text-base font-medium hover:bg-gray-100 active:bg-gray-200 rounded-md transition-colors"
+                      className="flex items-center w-full px-5 py-3.5 text-base font-medium hover:bg-gray-100 active:bg-gray-200 rounded-md transition-colors"
                       onClick={() => onToggle()}
                     >
-                      <Briefcase size={18} className="mr-3 text-gray-700" />
+                      <Briefcase size={20} className="mr-3.5 text-gray-700" />
                       <span>Tableau de bord</span>
                     </Link>
                   )}
                   
                   <button 
-                    className="flex items-center w-full px-4 py-3 text-base font-medium hover:bg-gray-100/90 active:bg-gray-200 rounded-md transition-colors text-red-500"
+                    className="flex items-center w-full px-5 py-3.5 text-base font-medium hover:bg-gray-100/90 active:bg-gray-200 rounded-md transition-colors text-red-500"
                     onClick={handleSignOut}
                   >
-                    <LogOut size={18} className="mr-3" />
+                    <LogOut size={20} className="mr-3.5" />
                     <span>Se déconnecter</span>
                   </button>
                 </div>
               ) : !hideAuth ? (
-                <div className="py-4 border-t border-gray-200 mt-4">
+                <div className="py-5 border-t border-gray-200 mt-5">
                   <NavigationLoginItems 
                     onItemClick={() => onToggle()} 
-                    className="px-4"
+                    className="px-5"
                     mobile={true}
                     isLoggedIn={isLoggedIn}
                     hideAuth={hideAuth}
@@ -122,7 +122,7 @@ const NavigationMenu = ({
               ) : null}
               
               {!isLoggedIn && !hideAuth && (
-                <div className="mt-4 px-4">
+                <div className="mt-5 px-4">
                   <NavigationActions mobile onActionClick={() => onToggle()} hideAuth={hideAuth} />
                 </div>
               )}

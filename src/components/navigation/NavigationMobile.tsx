@@ -57,7 +57,7 @@ const NavigationMobile = ({
   ];
 
   return (
-    <div className="flex items-center lg:hidden">
+    <div className="flex items-center justify-between w-full lg:hidden">
       <NavigationMenu
         isOpen={isMenuOpen}
         onToggle={() => setIsMenuOpen(!isMenuOpen)}
@@ -69,7 +69,7 @@ const NavigationMobile = ({
         hideAuth={hideAuth}
       />
       
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-3">
         {!isLoggedIn && <NavigationLoginItems isLoggedIn={isLoggedIn} hideAuth={hideAuth} />}
         {isLoggedIn && <NavigationUserAvatar isSupplier={isSupplier} />}
         <NavigationSearch onClick={() => setShowSearch(!showSearch)} />

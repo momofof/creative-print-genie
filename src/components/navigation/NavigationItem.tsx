@@ -28,9 +28,9 @@ const NavigationItem = ({ item, onItemClick, mobile = false }: NavigationItemPro
 
   if (mobile) {
     return (
-      <div className="mb-1.5 animate-fadeIn">
+      <div className="mb-2.5 animate-fadeIn">
         <div 
-          className="flex items-center justify-between px-4 py-3 rounded-md text-base font-medium text-gray-800 hover:bg-gray-100 active:bg-gray-200 transition-colors"
+          className="flex items-center justify-between px-4 py-3.5 rounded-md text-base font-medium text-gray-800 hover:bg-gray-100 active:bg-gray-200 transition-colors"
           onClick={handleToggleExpand}
         >
           <Link
@@ -38,22 +38,22 @@ const NavigationItem = ({ item, onItemClick, mobile = false }: NavigationItemPro
             className="flex-1 flex items-center gap-3"
             onClick={item.children ? undefined : onItemClick}
           >
-            {Icon && <Icon size={18} className="text-gray-600" />}
-            <span>{item.title}</span>
+            {Icon && <Icon size={20} className="text-gray-700" />}
+            <span className="text-base">{item.title}</span>
           </Link>
           {item.children && (
-            <button className="p-1.5 rounded-full hover:bg-gray-200 active:bg-gray-300 transition-colors">
-              {isExpanded ? <ChevronDown size={18} /> : <ChevronRight size={18} />}
+            <button className="p-2 rounded-full hover:bg-gray-200 active:bg-gray-300 transition-colors">
+              {isExpanded ? <ChevronDown size={20} /> : <ChevronRight size={20} />}
             </button>
           )}
         </div>
         {item.children && isExpanded && (
-          <div className="pl-6 mt-1 space-y-0.5 border-l-2 border-gray-200 ml-5">
+          <div className="pl-7 mt-1.5 space-y-1 border-l-2 border-gray-200 ml-6">
             {item.children.map((child) => (
               <Link
                 key={child.title}
                 to={child.link}
-                className="block px-4 py-2.5 rounded-md text-base text-gray-700 hover:bg-gray-100 active:bg-gray-200 transition-colors"
+                className="block px-4 py-3 rounded-md text-base text-gray-700 hover:bg-gray-100 active:bg-gray-200 transition-colors"
                 onClick={onItemClick}
               >
                 {child.title}

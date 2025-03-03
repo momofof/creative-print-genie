@@ -96,26 +96,36 @@
 /* Améliorations pour les boutons tactiles sur mobile */
 @media (max-width: 640px) {
   button, .btn, a.btn, [role="button"] {
-    @apply min-h-[44px] min-w-[44px];
+    @apply min-h-[48px] min-w-[48px]; /* Larger touch targets */
   }
   
   input, select, textarea {
-    @apply text-base;
+    @apply text-base py-2.5;
   }
   
   /* Meilleur espacement des éléments sur mobile */
   .mobile-space-y {
-    @apply space-y-4;
+    @apply space-y-5;
   }
   
   /* Empêcher les débordements horizontaux */
   .container {
-    @apply px-4;
+    @apply px-5;
   }
   
   /* Ajouter du padding en bas pour tenir compte de la barre de navigation mobile */
   .pb-safe {
-    padding-bottom: env(safe-area-inset-bottom, 2rem);
+    padding-bottom: calc(env(safe-area-inset-bottom, 2rem) + 1rem);
+  }
+  
+  /* Larger tap targets for navigation items */
+  nav a, nav button {
+    @apply py-2.5 px-4;
+  }
+  
+  /* Better spacing for dropdown menus */
+  .dropdown-content {
+    @apply py-2 px-1;
   }
 }
 
@@ -123,5 +133,24 @@
 @media (hover: none) {
   a:active, button:active, [role="button"]:active {
     @apply opacity-70 transition-opacity duration-150;
+  }
+  
+  /* Improved mobile menu transitions */
+  .mobile-menu-enter {
+    transform: translateX(-100%);
+  }
+  
+  .mobile-menu-enter-active {
+    transform: translateX(0%);
+    transition: transform 300ms;
+  }
+  
+  .mobile-menu-exit {
+    transform: translateX(0%);
+  }
+  
+  .mobile-menu-exit-active {
+    transform: translateX(-100%);
+    transition: transform 300ms;
   }
 }

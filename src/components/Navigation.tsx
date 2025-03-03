@@ -32,22 +32,24 @@ const Navigation = () => {
     <nav className="fixed top-0 left-0 right-0 bg-white/80 backdrop-blur-md z-50 border-b border-gray-200">
       <div className="max-w-7xl mx-auto px-4">
         <div className="flex flex-col gap-2 py-3 lg:flex-row lg:items-center lg:justify-between lg:h-16 lg:py-0">
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-between w-full lg:w-auto">
             {/* Mobile view: Menu and logo */}
-            <NavigationMobile 
-              isLoggedIn={isLoggedIn}
-              isSupplier={isSupplier}
-              showSearch={showSearch}
-              setShowSearch={setShowSearch}
-              searchQuery={searchQuery}
-              setSearchQuery={setSearchQuery}
-              hideAuth={isProPage}
-            />
+            <div className="lg:hidden flex items-center gap-2 w-1/4">
+              <NavigationMobile 
+                isLoggedIn={isLoggedIn}
+                isSupplier={isSupplier}
+                showSearch={showSearch}
+                setShowSearch={setShowSearch}
+                searchQuery={searchQuery}
+                setSearchQuery={setSearchQuery}
+                hideAuth={isProPage}
+              />
+            </div>
             
             <NavigationLogo />
             
-            <div className="flex items-center gap-2">
-              <NavigationActions className="lg:hidden ml-2" hideAuth={isProPage} />
+            <div className="lg:hidden flex items-center gap-2">
+              <NavigationActions className="ml-2" hideAuth={isProPage} />
             </div>
           </div>
 
