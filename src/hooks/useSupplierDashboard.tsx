@@ -38,30 +38,31 @@ export const useSupplierDashboard = () => {
   // Fetch products from Supabase
   const fetchProducts = async () => {
     try {
+      const { data: session } = await supabase.auth.getSession();
+      const userId = session?.session?.user?.id;
+
+      if (!userId) {
+        console.error("No user ID found");
+        return [];
+      }
+
       const { data, error } = await supabase
         .from('products')
         .select('*')
-        .order('created_at', { ascending: false })
-        .limit(10);
+        .eq('supplier_id', userId)
+        .order('created_at', { ascending: false });
 
       if (error) {
         console.error("Erreur lors de la récupération des produits:", error);
         toast.error("Impossible de charger les produits");
         return [];
       } else {
-        // Add stock property to products (since it's not in the database yet)
-        const productsWithStock = data.map(product => ({
-          ...product,
-          stock: Math.floor(Math.random() * 20) + 1, // Random stock for demo
-        }));
-        
-        // Update products state
-        setProducts(productsWithStock);
+        setProducts(data || []);
         
         // Update stats
-        updateProductStats(productsWithStock);
+        updateProductStats(data || []);
         
-        return productsWithStock;
+        return data;
       }
     } catch (error) {
       console.error("Erreur:", error);
@@ -108,12 +109,15 @@ export const useSupplierDashboard = () => {
   // Update product-related stats
   const updateProductStats = (products: Product[]) => {
     const productsCount = products.length;
+    const activeProducts = products.filter(p => p.status === "published").length;
     
     setStats(prevStats => {
       const newStats = [...prevStats];
       newStats[2] = {
         ...newStats[2],
-        value: String(productsCount)
+        value: String(activeProducts),
+        change: `+${productsCount - activeProducts}`,
+        changeType: productsCount > activeProducts ? "positive" : "neutral"
       };
       return newStats;
     });
@@ -136,6 +140,66 @@ export const useSupplierDashboard = () => {
       };
       return newStats;
     });
+  };
+
+  // Add a new product
+  const addProduct = async (productData: Partial<Product>) => {
+    try {
+      const { data: session } = await supabase.auth.getSession();
+      const userId = session?.session?.user?.id;
+
+      if (!userId) {
+        toast.error("Vous devez être connecté pour ajouter un produit");
+        return null;
+      }
+
+      const { data, error } = await supabase
+        .from('products')
+        .insert({
+          ...productData,
+          supplier_id: userId
+        })
+        .select();
+
+      if (error) {
+        console.error("Erreur lors de l'ajout du produit:", error);
+        toast.error("Impossible d'ajouter le produit");
+        return null;
+      }
+
+      toast.success("Produit ajouté avec succès");
+      await fetchProducts();
+      return data[0];
+    } catch (error) {
+      console.error("Erreur:", error);
+      toast.error("Une erreur est survenue");
+      return null;
+    }
+  };
+
+  // Update a product
+  const updateProduct = async (productId: string, productData: Partial<Product>) => {
+    try {
+      const { data, error } = await supabase
+        .from('products')
+        .update(productData)
+        .eq('id', productId)
+        .select();
+
+      if (error) {
+        console.error("Erreur lors de la mise à jour du produit:", error);
+        toast.error("Impossible de mettre à jour le produit");
+        return null;
+      }
+
+      toast.success("Produit mis à jour avec succès");
+      await fetchProducts();
+      return data[0];
+    } catch (error) {
+      console.error("Erreur:", error);
+      toast.error("Une erreur est survenue");
+      return null;
+    }
   };
 
   // Delete a product
@@ -188,6 +252,8 @@ export const useSupplierDashboard = () => {
     orders,
     stats,
     fetchProducts,
+    addProduct,
+    updateProduct,
     deleteProduct,
     loadDashboardData
   };

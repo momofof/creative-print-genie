@@ -1,104 +1,101 @@
 
-import React from 'react';
-import { Badge } from "@/components/ui/badge";
-import { Dot } from "lucide-react";
-import { formatDistanceToNow } from 'date-fns';
-import { fr } from 'date-fns/locale';
-import { Link } from 'react-router-dom';
-
-interface Product {
-  id: string;
-  name: string;
-  price: number;
-  originalPrice: number;
-  image: string;
-  rating: number;
-  reviewCount: number;
-  category: string;
-  subcategory: string;
-  // Optional fields to fix TypeScript errors
-  description?: string;
-  color?: string;
-  date?: string;
-}
+import React, { useEffect, useState } from "react";
+import ProductCard from "./ProductCard";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 
 interface ProductListProps {
-  products?: Product[];
-  layout?: 'grid' | 'list';
-  responsive?: boolean;
+  products: any[];
   categoryId?: string;
   subcategoryId?: string;
 }
 
-const ProductList = ({ products, layout = 'grid', responsive = true }: ProductListProps) => {
-  // Utiliser les données de produits fournies ou les récupérer à partir de allProducts
-  const productsToDisplay = products || [];
-  
-  if (productsToDisplay.length === 0) {
-    return (
-      <div className="text-center p-8">
-        <p className="text-gray-500">Aucun produit trouvé</p>
-      </div>
-    );
-  }
+const ProductList = ({ products, categoryId, subcategoryId }: ProductListProps) => {
+  const [databaseProducts, setDatabaseProducts] = useState<any[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
 
-  if (layout === 'list') {
+  useEffect(() => {
+    if (products && products.length > 0) {
+      // Use the passed products if available
+      return;
+    }
+    
+    fetchProducts();
+  }, [categoryId, subcategoryId]);
+
+  const fetchProducts = async () => {
+    setIsLoading(true);
+    try {
+      let query = supabase
+        .from('products')
+        .select('*')
+        .eq('status', 'published');
+      
+      if (categoryId) {
+        query = query.eq('category', categoryId);
+      }
+      
+      if (subcategoryId) {
+        query = query.eq('subcategory', subcategoryId);
+      }
+      
+      const { data, error } = await query.order('created_at', { ascending: false });
+      
+      if (error) throw error;
+      setDatabaseProducts(data || []);
+    } catch (error) {
+      console.error("Error fetching products:", error);
+      toast.error("Impossible de charger les produits");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Show loading state
+  if (isLoading) {
     return (
-      <div className="space-y-4">
-        {productsToDisplay.map(product => (
-          <Link key={product.id} to={`/products/detail/${product.id}`}>
-            <div className="flex gap-4 p-4 border rounded-lg hover:shadow-md transition-shadow">
-              <img 
-                src={product.image} 
-                alt={product.name} 
-                className="w-24 h-24 object-cover rounded-md"
-              />
-              <div className="flex-1">
-                <h3 className="font-medium">{product.name}</h3>
-                <p className="text-sm text-gray-500 mt-1 line-clamp-2">{product.description}</p>
-                <div className="mt-2 flex items-center gap-2">
-                  <span className="font-semibold">{product.price} €</span>
-                  {product.originalPrice > product.price && (
-                    <span className="text-sm text-gray-500 line-through">{product.originalPrice} €</span>
-                  )}
-                  {product.color && (
-                    <div className="flex items-center text-gray-500 text-sm">
-                      <Dot className="h-4 w-4" />
-                      <span>{product.color}</span>
-                    </div>
-                  )}
-                </div>
-              </div>
-            </div>
-          </Link>
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+        {[...Array(8)].map((_, index) => (
+          <div key={index} className="bg-gray-100 animate-pulse rounded-lg h-80"></div>
         ))}
       </div>
     );
   }
 
+  // Choose which products to display
+  const displayProducts = products.length > 0 ? products : databaseProducts;
+
+  // Show empty state if no products
+  if (displayProducts.length === 0) {
+    return (
+      <div className="text-center py-12">
+        <h3 className="text-lg font-medium text-gray-900">Aucun produit trouvé</h3>
+        <p className="mt-2 text-gray-500">
+          Essayez de modifier vos filtres ou revenez plus tard.
+        </p>
+      </div>
+    );
+  }
+
   return (
-    <div className={`${responsive ? 'grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4' : 'grid grid-cols-4'} gap-4`}>
-      {productsToDisplay.map(product => (
-        <Link key={product.id} to={`/products/detail/${product.id}`}>
-          <div className="border rounded-lg overflow-hidden hover:shadow-md transition-shadow">
-            <img 
-              src={product.image} 
-              alt={product.name} 
-              className="w-full h-48 object-cover"
-            />
-            <div className="p-4">
-              <h3 className="font-medium">{product.name}</h3>
-              <div className="mt-2 flex items-center justify-between">
-                <span className="font-semibold">{product.price} €</span>
-                {product.date && (
-                  <Badge variant="outline" className="text-xs">
-                    {formatDistanceToNow(new Date(product.date), { addSuffix: true, locale: fr })}
-                  </Badge>
-                )}
-              </div>
-            </div>
-          </div>
-        </Link>
+    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+      {displayProducts.map((product) => (
+        <ProductCard 
+          key={product.id}
+          product={{
+            id: product.id,
+            name: product.name,
+            price: product.price,
+            originalPrice: product.original_price,
+            image: product.image,
+            rating: product.rating || 0,
+            reviewCount: product.reviewCount || 0,
+            category: product.category,
+            subcategory: product.subcategory,
+            description: product.description,
+            isNew: new Date(product.created_at).getTime() > Date.now() - 7 * 24 * 60 * 60 * 1000
+          }}
+        />
       ))}
     </div>
   );

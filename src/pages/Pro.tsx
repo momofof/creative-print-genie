@@ -16,6 +16,7 @@ import AnalyticsTab from "@/components/supplier/AnalyticsTab";
 import FeaturesSection from "@/components/supplier/FeaturesSection";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import ProductFormModal from "@/components/supplier/ProductFormModal";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -25,7 +26,7 @@ import {
 
 const Pro = () => {
   const [activeTab, setActiveTab] = useState("overview");
-  const [showDropdown, setShowDropdown] = useState(false);
+  const [isProductFormOpen, setIsProductFormOpen] = useState(false);
   const navigate = useNavigate();
   const { profile, isLoading: profileLoading, handleSignOut } = useProfileData();
   const { 
@@ -33,7 +34,9 @@ const Pro = () => {
     products, 
     orders, 
     stats, 
-    deleteProduct
+    deleteProduct,
+    fetchProducts,
+    loadDashboardData
   } = useSupplierDashboard();
 
   // Dashboard features for the promo section
@@ -62,7 +65,7 @@ const Pro = () => {
 
   // Navigation handlers
   const handleAddProduct = () => {
-    navigate("/supplier/product/new");
+    setIsProductFormOpen(true);
   };
 
   const handleEditProduct = (productId: string) => {
@@ -87,6 +90,19 @@ const Pro = () => {
   if (isLoading || profileLoading) {
     return <LoadingSpinner />;
   }
+
+  // Check if user is logged in, redirect to login if not
+  useEffect(() => {
+    const checkAuth = async () => {
+      const { data } = await supabase.auth.getSession();
+      if (!data.session) {
+        navigate('/login');
+        toast.error("Veuillez vous connecter pour accéder au tableau de bord");
+      }
+    };
+
+    checkAuth();
+  }, [navigate]);
 
   return (
     <div className="min-h-screen bg-white">
@@ -144,6 +160,7 @@ const Pro = () => {
               onAddProduct={handleAddProduct}
               onEditProduct={handleEditProduct}
               onDeleteProduct={handleDeleteProduct}
+              onProductSaved={fetchProducts}
             />
           </TabsContent>
           
@@ -158,6 +175,13 @@ const Pro = () => {
 
         <FeaturesSection features={proFeatures} />
       </div>
+
+      {/* Product Form Modal */}
+      <ProductFormModal 
+        isOpen={isProductFormOpen}
+        onClose={() => setIsProductFormOpen(false)}
+        onProductSaved={fetchProducts}
+      />
     </div>
   );
 };

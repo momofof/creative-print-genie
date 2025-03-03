@@ -1,87 +1,33 @@
 
-import React, { useEffect } from 'react';
-import { BrowserRouter as Router, Route, Routes, useNavigate, Navigate } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { Toaster } from "@/components/ui/sonner";
 import Index from "@/pages/Index";
 import Products from "@/pages/Products";
 import ProductDetail from "@/pages/ProductDetail";
 import Pro from "@/pages/Pro";
 import ProLanding from "@/pages/ProLanding";
-import Pricing from "@/pages/Pricing";
-import Cart from "@/pages/Cart";
+import Customize from "@/pages/Customize";
 import Profile from "@/pages/Profile";
+import Cart from "@/pages/Cart";
 import Login from "@/pages/auth/Login";
 import Signup from "@/pages/auth/Signup";
+import ForgotPassword from "@/pages/auth/ForgotPassword";
+import ResetPassword from "@/pages/auth/ResetPassword";
 import FAQ from "@/pages/FAQ";
-import GettingStarted from "@/pages/GettingStarted";
-import Create from "@/pages/Create";
-import HelpCenter from "@/pages/support/HelpCenter";
 import Contact from "@/pages/support/Contact";
+import HelpCenter from "@/pages/support/HelpCenter";
+import NotFound from "@/pages/NotFound";
 import CustomDesign from "@/pages/services/CustomDesign";
 import TechnicalSupport from "@/pages/services/TechnicalSupport";
-import NotFound from "@/pages/NotFound";
-import Customize from "./pages/Customize";
-import SupplierRegister from "./pages/supplier/Register";
-import { supabase } from "@/integrations/supabase/client";
-import { toast } from "sonner";
+import GettingStarted from "@/pages/GettingStarted";
+import Create from "@/pages/Create";
+import Pricing from "@/pages/Pricing";
+import SupplierProductDetail from "@/pages/supplier/ProductDetail";
+import ProductForm from "@/pages/supplier/ProductForm";
+import SupplierRegister from "@/pages/supplier/Register";
+import SupplierDashboard from "@/pages/supplier/Dashboard";
 
-// Protected route component for supplier-only access
-const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
-  const [isAuthenticated, setIsAuthenticated] = React.useState<boolean | null>(null);
-  const [isLoading, setIsLoading] = React.useState(true);
-  const navigate = useNavigate();
-
-  useEffect(() => {
-    const checkAuth = async () => {
-      setIsLoading(true);
-      // Check if user is logged in
-      const { data } = await supabase.auth.getSession();
-      
-      if (!data.session) {
-        // Not logged in at all - store current path and redirect to login
-        localStorage.setItem("redirectAfterLogin", window.location.pathname);
-        setIsAuthenticated(false);
-        setIsLoading(false);
-        return;
-      }
-      
-      // User is logged in, now check if they are a supplier
-      try {
-        const { data: supplierData, error } = await supabase
-          .from('suppliers')
-          .select('*')
-          .eq('id', data.session.user.id)
-          .single();
-        
-        if (error || !supplierData) {
-          // User is logged in but not a supplier
-          toast.error("Accès réservé aux fournisseurs");
-          setIsAuthenticated(false);
-        } else if (supplierData.status !== 'active') {
-          // Supplier account exists but not approved
-          toast.error("Votre compte fournisseur est en attente d'approbation");
-          setIsAuthenticated(false);
-        } else {
-          // User is a valid, approved supplier
-          setIsAuthenticated(true);
-        }
-      } catch (error) {
-        console.error("Erreur de vérification du statut fournisseur:", error);
-        setIsAuthenticated(false);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-    
-    checkAuth();
-  }, [navigate]);
-
-  if (isLoading) {
-    // Still loading
-    return <div className="flex justify-center items-center h-screen">Chargement...</div>;
-  }
-
-  return isAuthenticated ? <>{children}</> : <Navigate to="/pro-landing" replace />;
-};
+import "./App.css";
 
 function App() {
   return (
@@ -90,26 +36,33 @@ function App() {
         <Route path="/" element={<Index />} />
         <Route path="/products" element={<Products />} />
         <Route path="/products/:categoryId" element={<Products />} />
-        <Route path="/products/detail/:productId" element={<ProductDetail />} />
-        <Route path="/customize/:productId?" element={<Customize />} />
-        <Route path="/customize" element={<Customize />} />
-        <Route path="/pro" element={<ProtectedRoute><Pro /></ProtectedRoute>} />
+        <Route path="/products/:categoryId/:subcategoryId" element={<Products />} />
+        <Route path="/product/:productId" element={<ProductDetail />} />
+        <Route path="/pro" element={<Pro />} />
+        <Route path="/supplier/product/:productId" element={<SupplierProductDetail />} />
+        <Route path="/supplier/product/:productId/edit" element={<SupplierProductDetail />} />
+        <Route path="/supplier/product/new" element={<ProductForm />} />
+        <Route path="/supplier/register" element={<SupplierRegister />} />
+        <Route path="/supplier/dashboard" element={<SupplierDashboard />} />
         <Route path="/pro-landing" element={<ProLanding />} />
-        <Route path="/pricing" element={<Pricing />} />
-        <Route path="/cart" element={<Cart />} />
+        <Route path="/customize/:productId" element={<Customize />} />
         <Route path="/profile" element={<Profile />} />
+        <Route path="/cart" element={<Cart />} />
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
+        <Route path="/forgot-password" element={<ForgotPassword />} />
+        <Route path="/reset-password" element={<ResetPassword />} />
         <Route path="/faq" element={<FAQ />} />
+        <Route path="/contact" element={<Contact />} />
+        <Route path="/help" element={<HelpCenter />} />
+        <Route path="/services/custom-design" element={<CustomDesign />} />
+        <Route path="/services/technical-support" element={<TechnicalSupport />} />
         <Route path="/getting-started" element={<GettingStarted />} />
         <Route path="/create" element={<Create />} />
-        <Route path="/help-center" element={<HelpCenter />} />
-        <Route path="/contact" element={<Contact />} />
-        <Route path="/custom-design" element={<CustomDesign />} />
-        <Route path="/technical-support" element={<TechnicalSupport />} />
-        <Route path="/supplier/register" element={<SupplierRegister />} />
+        <Route path="/pricing" element={<Pricing />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
+      <Toaster />
     </Router>
   );
 }
