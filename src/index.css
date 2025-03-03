@@ -18,6 +18,7 @@
 
   body {
     @apply bg-background text-foreground antialiased;
+    -webkit-tap-highlight-color: transparent;
   }
 
   /* Smooth scrolling */
@@ -37,6 +38,19 @@
   img.loaded {
     @apply opacity-100;
   }
+  
+  /* Amélioration du confort de lecture sur mobile */
+  @media (max-width: 640px) {
+    body {
+      @apply text-base;
+    }
+    h1 {
+      @apply text-2xl md:text-3xl;
+    }
+    h2 {
+      @apply text-xl md:text-2xl;
+    }
+  }
 }
 
 /* Masquer les barres de défilement tout en permettant le défilement */
@@ -49,3 +63,40 @@
   display: none;  /* Chrome, Safari, Opera */
 }
 
+/* Animations pour les éléments interactifs */
+.hover-scale {
+  @apply transition-transform duration-200;
+}
+
+.hover-scale:hover {
+  @apply scale-105;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slideInRight {
+  from { transform: translateX(100%); }
+  to { transform: translateX(0); }
+}
+
+.animate-fadeIn {
+  animation: fadeIn 0.5s ease-out forwards;
+}
+
+.animate-slideIn {
+  animation: slideInRight 0.5s ease-out forwards;
+}
+
+/* Améliorations pour les boutons tactiles sur mobile */
+@media (max-width: 640px) {
+  button, .btn, a.btn, [role="button"] {
+    @apply min-h-[44px] min-w-[44px];
+  }
+  
+  input, select, textarea {
+    @apply text-base;
+  }
+}

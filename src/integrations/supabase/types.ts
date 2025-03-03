@@ -54,6 +54,88 @@ export type Database = {
           },
         ]
       }
+      customer_customizations: {
+        Row: {
+          content: string | null
+          created_at: string | null
+          customization_id: string
+          id: string
+          image_path: string | null
+          user_id: string | null
+        }
+        Insert: {
+          content?: string | null
+          created_at?: string | null
+          customization_id: string
+          id?: string
+          image_path?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          content?: string | null
+          created_at?: string | null
+          customization_id?: string
+          id?: string
+          image_path?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "customer_customizations_customization_id_fkey"
+            columns: ["customization_id"]
+            isOneToOne: false
+            referencedRelation: "customizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      customizations: {
+        Row: {
+          created_at: string | null
+          description: string | null
+          id: string
+          is_required: boolean | null
+          name: string
+          position: Database["public"]["Enums"]["position_type"] | null
+          price_adjustment: number | null
+          product_id: string
+          type: Database["public"]["Enums"]["customization_type"]
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          is_required?: boolean | null
+          name: string
+          position?: Database["public"]["Enums"]["position_type"] | null
+          price_adjustment?: number | null
+          product_id: string
+          type: Database["public"]["Enums"]["customization_type"]
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          is_required?: boolean | null
+          name?: string
+          position?: Database["public"]["Enums"]["position_type"] | null
+          price_adjustment?: number | null
+          product_id?: string
+          type?: Database["public"]["Enums"]["customization_type"]
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "customizations_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       likes: {
         Row: {
           created_at: string
@@ -177,6 +259,7 @@ export type Database = {
           original_price: number | null
           price: number
           status: Database["public"]["Enums"]["product_status"] | null
+          stock: number | null
           subcategory: string | null
           supplier_id: string
           updated_at: string | null
@@ -192,6 +275,7 @@ export type Database = {
           original_price?: number | null
           price: number
           status?: Database["public"]["Enums"]["product_status"] | null
+          stock?: number | null
           subcategory?: string | null
           supplier_id: string
           updated_at?: string | null
@@ -207,6 +291,7 @@ export type Database = {
           original_price?: number | null
           price?: number
           status?: Database["public"]["Enums"]["product_status"] | null
+          stock?: number | null
           subcategory?: string | null
           supplier_id?: string
           updated_at?: string | null
@@ -324,6 +409,8 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
+      customization_type: "text" | "image"
+      position_type: "front" | "back" | "sleeve" | "collar"
       product_status: "draft" | "published" | "archived"
       supplier_status: "active" | "pending" | "suspended"
       variant_status: "in_stock" | "low_stock" | "out_of_stock"

@@ -34,8 +34,8 @@ const NavigationMenu = ({ isOpen, onToggle, navItems, searchQuery, setSearchQuer
       </button>
       
       {isOpen && (
-        <div className="lg:hidden bg-white/95 backdrop-blur-md border-t border-gray-200 animate-fadeIn absolute left-0 top-full z-50 w-3/4 max-w-xs border-r border-gray-200">
-          <div className="px-4 py-2 space-y-0.5">
+        <div className="lg:hidden bg-white/95 backdrop-blur-md border-t border-gray-200 animate-fadeIn fixed left-0 top-16 z-50 w-full h-[calc(100vh-4rem)] overflow-y-auto">
+          <div className="px-5 py-4 space-y-1 max-w-md mx-auto">
             {navItems.map((item) => (
               <NavigationItem
                 key={item.title}
@@ -44,10 +44,10 @@ const NavigationMenu = ({ isOpen, onToggle, navItems, searchQuery, setSearchQuer
                 mobile
               />
             ))}
-            <div className="py-2 border-t border-gray-100 mt-2">
+            <div className="py-4 border-t border-gray-200 mt-4">
               <NavigationLoginItems 
                 onItemClick={() => onToggle()} 
-                className="flex items-center w-full px-3 py-2 text-sm hover:bg-gray-100 rounded-md"
+                className="flex items-center w-full px-4 py-3 text-base hover:bg-gray-100 rounded-md"
                 mobile={true}
                 isLoggedIn={isLoggedIn}
                 hideAuth={hideAuth}
