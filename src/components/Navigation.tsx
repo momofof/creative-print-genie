@@ -137,6 +137,43 @@ const Navigation = () => {
     },
   ];
 
+  // Fonction de rendu de l'avatar utilisateur combiné (normal et fournisseur)
+  const renderUserAvatar = () => {
+    if (!isLoggedIn) {
+      return null;
+    }
+
+    return (
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button 
+            variant="ghost" 
+            size="icon"
+            className="w-10 h-10 rounded-full"
+          >
+            <UserRound className="h-5 w-5 text-gray-700" />
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="end">
+          <DropdownMenuItem onClick={() => navigate("/profile")}>
+            <UserRound className="mr-2 h-4 w-4" />
+            <span>Profil</span>
+          </DropdownMenuItem>
+          {isSupplier && (
+            <DropdownMenuItem onClick={() => navigate("/pro")}>
+              <Briefcase className="mr-2 h-4 w-4" />
+              <span>Tableau de bord</span>
+            </DropdownMenuItem>
+          )}
+          <DropdownMenuItem onClick={handleSignOut} className="text-red-500">
+            <LogOut className="mr-2 h-4 w-4" />
+            <span>Se déconnecter</span>
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
+    );
+  };
+
   return (
     <nav className="fixed top-0 left-0 right-0 bg-white/80 backdrop-blur-md z-50 border-b border-gray-200">
       <div className="max-w-7xl mx-auto px-4">
@@ -151,6 +188,7 @@ const Navigation = () => {
                 setSearchQuery={setSearchQuery}
                 navItems={navItems}
                 isLoggedIn={isLoggedIn}
+                isSupplier={isSupplier}
                 hideAuth={isProPage}
               />
             </div>
@@ -159,33 +197,10 @@ const Navigation = () => {
             
             <div className="flex items-center gap-2">
               <div className="flex items-center lg:hidden">
-                <NavigationLoginItems isLoggedIn={isLoggedIn} hideAuth={isProPage} />
-                {!isSupplier && <NavigationSearch onClick={handleSearchIconClick} />}
-                {!isSupplier && <NavigationCart />}
-                
-                {isSupplier && (
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button 
-                        variant="ghost" 
-                        size="icon"
-                        className="w-8 h-8 rounded-full"
-                      >
-                        <UserRound className="h-5 w-5 text-gray-700" />
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                      <DropdownMenuItem onClick={() => navigate("/profile")}>
-                        <UserRound className="mr-2 h-4 w-4" />
-                        <span>Profil</span>
-                      </DropdownMenuItem>
-                      <DropdownMenuItem onClick={handleSignOut} className="text-red-500">
-                        <LogOut className="mr-2 h-4 w-4" />
-                        <span>Se déconnecter</span>
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                )}
+                {!isLoggedIn && <NavigationLoginItems isLoggedIn={isLoggedIn} hideAuth={isProPage} />}
+                {isLoggedIn && renderUserAvatar()}
+                <NavigationSearch onClick={handleSearchIconClick} />
+                <NavigationCart />
               </div>
               <NavigationActions className="lg:hidden ml-2" hideAuth={isProPage} />
             </div>
@@ -199,36 +214,10 @@ const Navigation = () => {
 
           <div className="hidden lg:flex items-center gap-4">
             <NavigationSearch onClick={handleSearchIconClick} />
-            {!isSupplier && <NavigationCart />}
-            {!isSupplier && <NavigationLoginItems isLoggedIn={isLoggedIn} hideAuth={isProPage} />}
-            
-            {isSupplier && (
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button 
-                    variant="ghost" 
-                    size="icon"
-                    className="w-10 h-10 rounded-full"
-                  >
-                    <UserRound className="h-5 w-5 text-gray-700" />
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
-                  <DropdownMenuItem onClick={() => navigate("/profile")}>
-                    <UserRound className="mr-2 h-4 w-4" />
-                    <span>Profil</span>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => navigate("/pro")}>
-                    <Briefcase className="mr-2 h-4 w-4" />
-                    <span>Tableau de bord</span>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={handleSignOut} className="text-red-500">
-                    <LogOut className="mr-2 h-4 w-4" />
-                    <span>Se déconnecter</span>
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            )}
+            <NavigationCart />
+            {!isLoggedIn && <NavigationLoginItems isLoggedIn={isLoggedIn} hideAuth={isProPage} />}
+            {isLoggedIn && renderUserAvatar()}
+            {!isLoggedIn && <NavigationActions hideAuth={isProPage} />}
           </div>
         </div>
       </div>

@@ -1,60 +1,96 @@
 
 import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 import { Customization } from "@/types/dashboard";
 
-export const fetchCustomizations = async (supplierId: string): Promise<Customization[]> => {
-  const { data, error } = await supabase
-    .from('customizations')
-    .select('*')
-    .eq('supplier_id', supplierId);
+export const customizationService = {
+  async addCustomization(customization: Omit<Customization, "id" | "created_at">): Promise<Customization | null> {
+    try {
+      const { data, error } = await supabase
+        .from("customizations")
+        .insert({
+          name: customization.name,
+          description: customization.description,
+          product_id: customization.product_id,
+          type: customization.type,
+          position: customization.position,
+          price_adjustment: customization.price_adjustment,
+          is_required: customization.is_required
+        })
+        .select()
+        .single();
 
-  if (error) {
-    console.error("Erreur lors de la récupération des personnalisations:", error);
-    throw error;
-  }
+      if (error) {
+        throw error;
+      }
 
-  return data || [];
-};
+      return data;
+    } catch (error: any) {
+      toast.error(`Erreur lors de l'ajout de la personnalisation: ${error.message}`);
+      return null;
+    }
+  },
 
-export const createCustomization = async (customization: Omit<Customization, "id" | "created_at">): Promise<Customization> => {
-  const { data, error } = await supabase
-    .from('customizations')
-    .insert(customization)
-    .select()
-    .single();
+  async getCustomizationsForProduct(productId: string): Promise<Customization[]> {
+    try {
+      const { data, error } = await supabase
+        .from("customizations")
+        .select("*")
+        .eq("product_id", productId);
 
-  if (error) {
-    console.error("Erreur lors de la création de la personnalisation:", error);
-    throw error;
-  }
+      if (error) {
+        throw error;
+      }
 
-  return data;
-};
+      return data || [];
+    } catch (error: any) {
+      toast.error(`Erreur lors de la récupération des personnalisations: ${error.message}`);
+      return [];
+    }
+  },
 
-export const updateCustomization = async (id: string, updates: Partial<Customization>): Promise<Customization> => {
-  const { data, error } = await supabase
-    .from('customizations')
-    .update(updates)
-    .eq('id', id)
-    .select()
-    .single();
+  async updateCustomization(customization: Customization): Promise<Customization | null> {
+    try {
+      const { data, error } = await supabase
+        .from("customizations")
+        .update({
+          name: customization.name,
+          description: customization.description,
+          type: customization.type,
+          position: customization.position,
+          price_adjustment: customization.price_adjustment,
+          is_required: customization.is_required
+        })
+        .eq("id", customization.id)
+        .select()
+        .single();
 
-  if (error) {
-    console.error("Erreur lors de la mise à jour de la personnalisation:", error);
-    throw error;
-  }
+      if (error) {
+        throw error;
+      }
 
-  return data;
-};
+      return data;
+    } catch (error: any) {
+      toast.error(`Erreur lors de la mise à jour de la personnalisation: ${error.message}`);
+      return null;
+    }
+  },
 
-export const deleteCustomization = async (id: string): Promise<void> => {
-  const { error } = await supabase
-    .from('customizations')
-    .delete()
-    .eq('id', id);
+  async deleteCustomization(customizationId: string): Promise<boolean> {
+    try {
+      const { error } = await supabase
+        .from("customizations")
+        .delete()
+        .eq("id", customizationId);
 
-  if (error) {
-    console.error("Erreur lors de la suppression de la personnalisation:", error);
-    throw error;
+      if (error) {
+        throw error;
+      }
+
+      return true;
+    } catch (error: any) {
+      toast.error(`Erreur lors de la suppression de la personnalisation: ${error.message}`);
+      return false;
+    }
   }
 };

@@ -1,4 +1,3 @@
-
 // Types for the supplier dashboard
 export interface Product {
   id: string;
@@ -37,4 +36,17 @@ export interface ProFeature {
   title: string;
   description: string;
   icon: React.ElementType;
+}
+
+export interface Customization {
+  id: string;
+  name: string;
+  description?: string;
+  product_id: string;
+  type: "text" | "image";
+  position?: "front" | "back" | "sleeve" | "collar";
+  price_adjustment?: number;
+  is_required?: boolean;
+  created_at?: string;
+  updated_at?: string;
 }
