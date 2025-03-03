@@ -1,5 +1,5 @@
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
@@ -20,6 +20,7 @@ const SupplierRegister = () => {
     phone: "",
     address: ""
   });
+  const [emailExists, setEmailExists] = useState(false);
   const navigate = useNavigate();
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -28,7 +29,25 @@ const SupplierRegister = () => {
       ...prev,
       [name]: value
     }));
+    
+    // Reset email exists error when email changes
+    if (name === 'email') {
+      setEmailExists(false);
+    }
   };
+
+  useEffect(() => {
+    // Check for user session on mount
+    const checkSession = async () => {
+      const { data } = await supabase.auth.getSession();
+      if (data.session) {
+        // If user is already logged in, sign them out before registration
+        await supabase.auth.signOut();
+      }
+    };
+    
+    checkSession();
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -47,13 +66,19 @@ const SupplierRegister = () => {
         password: formData.password,
       });
 
-      if (authError) throw authError;
+      if (authError) {
+        if (authError.message === "User already registered") {
+          setEmailExists(true);
+          throw new Error("Un compte avec cet email existe déjà");
+        }
+        throw authError;
+      }
       
       if (!authData.user) {
         throw new Error("Erreur lors de la création du compte");
       }
 
-      // 2. Create supplier record with pending status (matches the enum)
+      // 2. Create supplier record with pending status
       const { error: supplierError } = await supabase
         .from("suppliers")
         .insert({
@@ -164,9 +189,14 @@ const SupplierRegister = () => {
                     type="email"
                     value={formData.email}
                     onChange={handleChange}
-                    className="mt-1 block w-full"
+                    className={`mt-1 block w-full ${emailExists ? 'border-red-500' : ''}`}
                     required
                   />
+                  {emailExists && (
+                    <p className="text-red-500 text-sm mt-1">
+                      Un compte avec cet email existe déjà. Veuillez vous connecter ou utiliser un autre email.
+                    </p>
+                  )}
                 </div>
                 
                 <div>
