@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import NavigationLogo from "./navigation/NavigationLogo";
@@ -11,13 +12,23 @@ import NavigationSearchOverlay from "./navigation/NavigationSearchOverlay";
 import { supabase } from "@/integrations/supabase/client";
 import { productCategories } from "@/data/productData";
 import { useSearch } from "@/hooks/useSearch";
-import { Briefcase } from "lucide-react";
+import { Briefcase, UserRound, LogOut } from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { useProfileData } from "@/hooks/useProfileData";
+import { toast } from "sonner";
+import { Button } from "@/components/ui/button";
 
 const Navigation = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [showSearch, setShowSearch] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [isSupplier, setIsSupplier] = useState(false);
   const searchResults = useSearch(searchQuery);
   const navigate = useNavigate();
   const location = useLocation();
@@ -29,12 +40,38 @@ const Navigation = () => {
     const checkUserSession = async () => {
       const { data } = await supabase.auth.getSession();
       setIsLoggedIn(!!data.session);
+      
+      // Check if user is a supplier
+      if (data.session) {
+        const { data: supplierData } = await supabase
+          .from('suppliers')
+          .select('id')
+          .eq('id', data.session.user.id)
+          .single();
+        
+        setIsSupplier(!!supplierData);
+      }
     };
     
     checkUserSession();
     
     const { data: authListener } = supabase.auth.onAuthStateChange((event, session) => {
       setIsLoggedIn(!!session);
+      if (session) {
+        // Check supplier status on auth change
+        const checkSupplierStatus = async () => {
+          const { data: supplierData } = await supabase
+            .from('suppliers')
+            .select('id')
+            .eq('id', session.user.id)
+            .single();
+          
+          setIsSupplier(!!supplierData);
+        };
+        checkSupplierStatus();
+      } else {
+        setIsSupplier(false);
+      }
     });
 
     return () => {
@@ -54,6 +91,23 @@ const Navigation = () => {
     setShowSearch(false);
     setSearchQuery("");
     navigate(link);
+  };
+
+  const handleSignOut = async () => {
+    try {
+      const { error } = await supabase.auth.signOut();
+      
+      if (error) {
+        console.error("Error signing out:", error);
+        toast.error("Erreur lors de la déconnexion");
+      } else {
+        toast.success("Déconnexion réussie");
+        navigate("/");
+      }
+    } catch (error) {
+      console.error("Error signing out:", error);
+      toast.error("Erreur lors de la déconnexion");
+    }
   };
 
   // Create subcategories navigation items for the Catalogue section
@@ -106,8 +160,32 @@ const Navigation = () => {
             <div className="flex items-center gap-2">
               <div className="flex items-center lg:hidden">
                 <NavigationLoginItems isLoggedIn={isLoggedIn} hideAuth={isProPage} />
-                <NavigationSearch onClick={handleSearchIconClick} />
-                <NavigationCart />
+                {!isSupplier && <NavigationSearch onClick={handleSearchIconClick} />}
+                {!isSupplier && <NavigationCart />}
+                
+                {isSupplier && (
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button 
+                        variant="ghost" 
+                        size="icon"
+                        className="w-8 h-8 rounded-full"
+                      >
+                        <UserRound className="h-5 w-5 text-gray-700" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                      <DropdownMenuItem onClick={() => navigate("/profile")}>
+                        <UserRound className="mr-2 h-4 w-4" />
+                        <span>Profil</span>
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={handleSignOut} className="text-red-500">
+                        <LogOut className="mr-2 h-4 w-4" />
+                        <span>Se déconnecter</span>
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                )}
               </div>
               <NavigationActions className="lg:hidden ml-2" hideAuth={isProPage} />
             </div>
@@ -121,8 +199,36 @@ const Navigation = () => {
 
           <div className="hidden lg:flex items-center gap-4">
             <NavigationSearch onClick={handleSearchIconClick} />
-            <NavigationCart />
-            <NavigationLoginItems isLoggedIn={isLoggedIn} hideAuth={isProPage} />
+            {!isSupplier && <NavigationCart />}
+            {!isSupplier && <NavigationLoginItems isLoggedIn={isLoggedIn} hideAuth={isProPage} />}
+            
+            {isSupplier && (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button 
+                    variant="ghost" 
+                    size="icon"
+                    className="w-10 h-10 rounded-full"
+                  >
+                    <UserRound className="h-5 w-5 text-gray-700" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuItem onClick={() => navigate("/profile")}>
+                    <UserRound className="mr-2 h-4 w-4" />
+                    <span>Profil</span>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => navigate("/pro")}>
+                    <Briefcase className="mr-2 h-4 w-4" />
+                    <span>Tableau de bord</span>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={handleSignOut} className="text-red-500">
+                    <LogOut className="mr-2 h-4 w-4" />
+                    <span>Se déconnecter</span>
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            )}
           </div>
         </div>
       </div>
