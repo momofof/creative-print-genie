@@ -1,4 +1,3 @@
-
 import { Link } from "react-router-dom";
 import { useEffect, useState } from "react";
 
@@ -77,13 +76,13 @@ const HeroSection = () => {
         </div>
       </div>
 
-      {/* Image navigation indicators - moved up slightly for better spacing */}
-      <div className="absolute bottom-6 left-1/2 transform -translate-x-1/2 z-40 flex space-x-3">
+      {/* Image navigation indicators - smaller size */}
+      <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 z-40 flex space-x-2">
         {heroImages.map((_, index) => (
           <button
             key={index}
             onClick={() => navigateToSlide(index)}
-            className={`w-2.5 h-2.5 rounded-full transition-colors ${
+            className={`w-2 h-2 rounded-full transition-colors ${
               index === currentImageIndex ? "bg-white" : "bg-white/50"
             }`}
             aria-label={`Go to slide ${index + 1}`}
