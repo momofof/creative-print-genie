@@ -15,16 +15,18 @@ interface Product {
   reviewCount: number;
   category: string;
   subcategory: string;
-  // Add optional fields to fix TypeScript errors
+  // Optional fields to fix TypeScript errors
   description?: string;
   color?: string;
   date?: string;
 }
 
 interface ProductListProps {
-  products: Product[];
+  products?: Product[];
   layout?: 'grid' | 'list';
   responsive?: boolean;
+  categoryId?: string;
+  subcategoryId?: string;
 }
 
 const ProductList = ({ products, layout = 'grid', responsive = true }: ProductListProps) => {
