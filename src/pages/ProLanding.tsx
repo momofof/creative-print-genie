@@ -1,14 +1,33 @@
 
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Navigation from "@/components/Navigation";
 import { Shield, Star, Settings, Briefcase, Package, LineChart, Truck, Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { ProFeature } from "@/types/dashboard";
+import { supabase } from "@/integrations/supabase/client";
 
 const ProLanding = () => {
   const navigate = useNavigate();
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+  useEffect(() => {
+    const checkUserSession = async () => {
+      const { data } = await supabase.auth.getSession();
+      setIsLoggedIn(!!data.session);
+    };
+    
+    checkUserSession();
+    
+    const { data: authListener } = supabase.auth.onAuthStateChange((event, session) => {
+      setIsLoggedIn(!!session);
+    });
+
+    return () => {
+      authListener.subscription.unsubscribe();
+    };
+  }, []);
 
   // Features professionnelles pour la section promo
   const proFeatures: ProFeature[] = [
@@ -42,6 +61,10 @@ const ProLanding = () => {
     navigate("/login");
   };
 
+  const navigateToDashboard = () => {
+    navigate("/pro");
+  };
+
   return (
     <div className="min-h-screen bg-white">
       <Navigation />
@@ -55,20 +78,32 @@ const ProLanding = () => {
             Accédez à des outils puissants pour gérer votre activité, suivre vos commandes et développer votre entreprise.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 mt-8">
-            <Button 
-              size="lg" 
-              onClick={navigateToSignup}
-              className="bg-green-600 hover:bg-green-700 text-white px-8"
-            >
-              S'inscrire comme fournisseur
-            </Button>
-            <Button 
-              variant="outline" 
-              size="lg" 
-              onClick={navigateToLogin}
-            >
-              Se connecter
-            </Button>
+            {isLoggedIn ? (
+              <Button 
+                size="lg" 
+                onClick={navigateToDashboard}
+                className="bg-green-600 hover:bg-green-700 text-white px-8"
+              >
+                Accéder à mon tableau de bord
+              </Button>
+            ) : (
+              <>
+                <Button 
+                  size="lg" 
+                  onClick={navigateToSignup}
+                  className="bg-green-600 hover:bg-green-700 text-white px-8"
+                >
+                  S'inscrire comme fournisseur
+                </Button>
+                <Button 
+                  variant="outline" 
+                  size="lg" 
+                  onClick={navigateToLogin}
+                >
+                  Se connecter
+                </Button>
+              </>
+            )}
           </div>
         </div>
 
@@ -108,12 +143,14 @@ const ProLanding = () => {
                   <span>Support technique et accompagnement personnalisé</span>
                 </li>
               </ul>
-              <Button 
-                className="mt-6 bg-green-600 hover:bg-green-700 text-white" 
-                onClick={navigateToSignup}
-              >
-                Devenir fournisseur
-              </Button>
+              {!isLoggedIn && (
+                <Button 
+                  className="mt-6 bg-green-600 hover:bg-green-700 text-white" 
+                  onClick={navigateToSignup}
+                >
+                  Devenir fournisseur
+                </Button>
+              )}
             </div>
             <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
               <h3 className="text-xl font-semibold mb-4">Comment ça marche ?</h3>
@@ -159,16 +196,18 @@ const ProLanding = () => {
           </div>
         </div>
 
-        <div className="text-center">
-          <h2 className="text-3xl font-bold mb-6">Prêt à commencer ?</h2>
-          <Button 
-            size="lg" 
-            onClick={navigateToSignup}
-            className="bg-green-600 hover:bg-green-700 text-white px-8"
-          >
-            Créer un compte professionnel
-          </Button>
-        </div>
+        {!isLoggedIn && (
+          <div className="text-center">
+            <h2 className="text-3xl font-bold mb-6">Prêt à commencer ?</h2>
+            <Button 
+              size="lg" 
+              onClick={navigateToSignup}
+              className="bg-green-600 hover:bg-green-700 text-white px-8"
+            >
+              Créer un compte professionnel
+            </Button>
+          </div>
+        )}
       </div>
     </div>
   );
