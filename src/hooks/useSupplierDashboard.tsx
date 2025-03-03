@@ -4,24 +4,14 @@ import { supabase } from "@/integrations/supabase/client";
 import { Product, Order, Stat } from "@/types/dashboard";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
-
-interface SupplierData {
-  id: string;
-  company_name: string;
-  contact_name: string | null;
-  email: string;
-  phone: string | null;
-  address: string | null;
-  status: "active" | "pending" | "suspended";
-}
-
-// Define product status type to match Supabase enum
-type ProductStatus = "draft" | "published" | "archived";
-
-// Define a type for the product without id, supplier_id, and stock
-type CreateProductData = Omit<Product, 'id' | 'supplier_id' | 'stock'> & {
-  status?: ProductStatus;
-};
+import { SupplierData, CreateProductData } from "@/types/supplier";
+import { 
+  checkSupplierStatus, 
+  fetchSupplierProducts, 
+  fetchSupplierOrders, 
+  generateSupplierStats 
+} from "@/services/supplierService";
+import { deleteProduct as deleteProductService, createProduct as createProductService } from "@/services/productService";
 
 export const useSupplierDashboard = () => {
   const [isLoading, setIsLoading] = useState(true);
@@ -56,15 +46,7 @@ export const useSupplierDashboard = () => {
       const userId = sessionData.session.user.id;
 
       // Check if user is registered as a supplier
-      const { data: supplierData, error: supplierError } = await supabase
-        .from("suppliers")
-        .select("*")
-        .eq("id", userId)
-        .single();
-
-      if (supplierError && supplierError.code !== "PGRST116") {
-        throw new Error(supplierError.message);
-      }
+      const supplierData = await checkSupplierStatus(userId);
 
       // If supplier exists, check if they are active
       if (supplierData) {
@@ -80,78 +62,14 @@ export const useSupplierDashboard = () => {
         setSupplierData(supplierData);
 
         // Fetch products
-        const { data: productsData, error: productsError } = await supabase
-          .from("products")
-          .select("*")
-          .eq("supplier_id", userId);
-
-        if (productsError) {
-          throw new Error("Erreur lors de la récupération des produits");
-        }
-
-        // Add stock property to products for now
-        const productsWithStock = productsData.map(product => ({
-          ...product,
-          stock: Math.floor(Math.random() * 100) // Mock stock value for now
-        }));
-
+        const productsWithStock = await fetchSupplierProducts(userId);
         setProducts(productsWithStock);
 
         // Set mock stats data
-        setStats([
-          {
-            title: "Ventes totales",
-            value: "€8,421",
-            change: "+16.2%",
-            changeType: "positive",
-          },
-          {
-            title: "Clients",
-            value: "753",
-            change: "+7.3%",
-            changeType: "positive",
-          },
-          {
-            title: "Produits actifs",
-            value: productsWithStock.length.toString(),
-            change: "+12.5%",
-            changeType: "positive",
-          },
-          {
-            title: "Taux de conversion",
-            value: "3.2%",
-            change: "-0.4%",
-            changeType: "negative",
-          }
-        ]);
+        setStats(generateSupplierStats(productsWithStock.length));
 
-        // Mock orders data (replace with real data when available)
-        setOrders([
-          {
-            id: "ORD-123456",
-            customer: "Jean Dupont",
-            date: "2023-05-12",
-            total: 89.99,
-            status: "Livré",
-            items: 2,
-          },
-          {
-            id: "ORD-123457",
-            customer: "Marie Martin",
-            date: "2023-05-10",
-            total: 129.99,
-            status: "En cours",
-            items: 3,
-          },
-          {
-            id: "ORD-123458",
-            customer: "Pierre Durand",
-            date: "2023-05-08",
-            total: 59.99,
-            status: "En attente",
-            items: 1,
-          },
-        ]);
+        // Mock orders data
+        setOrders(await fetchSupplierOrders());
       } else {
         setIsSupplier(false);
         toast.error("Vous n'êtes pas enregistré comme fournisseur");
@@ -170,65 +88,30 @@ export const useSupplierDashboard = () => {
     loadSupplierData();
   }, []);
 
-  // Add deleteProduct function
+  // Delete product wrapper function
   const deleteProduct = async (productId: string) => {
-    try {
-      const { error } = await supabase
-        .from("products")
-        .delete()
-        .eq("id", productId);
-      
-      if (error) throw error;
-      
+    const success = await deleteProductService(productId);
+    if (success) {
       // Update products list after successful deletion
       setProducts(products.filter(product => product.id !== productId));
-      toast.success("Produit supprimé avec succès.");
-    } catch (error: any) {
-      console.error("Error deleting product:", error);
-      toast.error(`Erreur lors de la suppression: ${error.message}`);
     }
   };
 
-  // Create a new product
+  // Create product wrapper function
   const createProduct = async (productData: CreateProductData) => {
-    try {
-      const { data: sessionData } = await supabase.auth.getSession();
-      if (!sessionData.session) {
-        toast.error("Vous devez être connecté pour créer un produit");
-        return null;
-      }
-
-      const userId = sessionData.session.user.id;
-      
-      // Ensure status is one of the valid enum values
-      const status = productData.status as ProductStatus || "draft";
-      
-      const { data, error } = await supabase
-        .from('products')
-        .insert({
-          ...productData,
-          status: status, // Use the properly typed status
-          supplier_id: userId
-        })
-        .select()
-        .single();
-      
-      if (error) throw error;
-      
-      toast.success("Produit créé avec succès!");
+    const productId = await createProductService(productData);
+    if (productId) {
       // Add the new product to the products state with a mock stock value
       const newProductWithStock = {
-        ...data,
-        stock: 0 // New product starts with 0 stock
+        ...productData,
+        id: productId,
+        stock: 0, // New product starts with 0 stock
+        supplier_id: supplierData?.id || ""
       };
       
-      setProducts([...products, newProductWithStock]);
-      return data.id;
-    } catch (error: any) {
-      console.error("Error creating product:", error);
-      toast.error(`Erreur lors de la création du produit: ${error.message}`);
-      return null;
+      setProducts([...products, newProductWithStock as Product]);
     }
+    return productId;
   };
 
   return {
