@@ -50,6 +50,9 @@
     h2 {
       @apply text-xl md:text-2xl;
     }
+    p {
+      @apply text-base leading-relaxed;
+    }
   }
 }
 
@@ -83,11 +86,11 @@
 }
 
 .animate-fadeIn {
-  animation: fadeIn 0.5s ease-out forwards;
+  animation: fadeIn 0.3s ease-out forwards;
 }
 
 .animate-slideIn {
-  animation: slideInRight 0.5s ease-out forwards;
+  animation: slideInRight 0.3s ease-out forwards;
 }
 
 /* Améliorations pour les boutons tactiles sur mobile */
@@ -98,5 +101,27 @@
   
   input, select, textarea {
     @apply text-base;
+  }
+  
+  /* Meilleur espacement des éléments sur mobile */
+  .mobile-space-y {
+    @apply space-y-4;
+  }
+  
+  /* Empêcher les débordements horizontaux */
+  .container {
+    @apply px-4;
+  }
+  
+  /* Ajouter du padding en bas pour tenir compte de la barre de navigation mobile */
+  .pb-safe {
+    padding-bottom: env(safe-area-inset-bottom, 2rem);
+  }
+}
+
+/* Optimisations pour les appareils tactiles */
+@media (hover: none) {
+  a:active, button:active, [role="button"]:active {
+    @apply opacity-70 transition-opacity duration-150;
   }
 }

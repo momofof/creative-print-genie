@@ -31,12 +31,12 @@ const NavigationLoginItems = ({
       <div className={className}>
         <Link
           to="/login"
-          className="flex items-center w-full"
+          className="flex items-center w-full py-2.5 px-3 rounded-md hover:bg-gray-100 active:bg-gray-200 transition-colors"
           aria-label="Login"
           onClick={onItemClick}
         >
-          <UserRound size={18} className="mr-2" />
-          <span>Connexion</span>
+          <UserRound size={18} className="mr-2.5 text-gray-700" />
+          <span className="font-medium">Connexion</span>
         </Link>
       </div>
     );
