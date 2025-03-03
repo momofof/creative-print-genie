@@ -10,10 +10,6 @@ interface ProLandingActionsProps {
 const ProLandingActions = ({ isLoggedIn }: ProLandingActionsProps) => {
   const navigate = useNavigate();
 
-  const navigateToSignup = () => {
-    navigate("/supplier/register");
-  };
-
   const navigateToLogin = () => {
     navigate("/login");
   };
@@ -33,22 +29,13 @@ const ProLandingActions = ({ isLoggedIn }: ProLandingActionsProps) => {
           Accéder à mon tableau de bord
         </Button>
       ) : (
-        <>
-          <Button 
-            size="lg" 
-            onClick={navigateToSignup}
-            className="bg-green-600 hover:bg-green-700 text-white px-8"
-          >
-            S'inscrire comme fournisseur
-          </Button>
-          <Button 
-            variant="outline" 
-            size="lg" 
-            onClick={navigateToLogin}
-          >
-            Se connecter
-          </Button>
-        </>
+        <Button 
+          variant="outline" 
+          size="lg" 
+          onClick={navigateToLogin}
+        >
+          Se connecter
+        </Button>
       )}
     </div>
   );
