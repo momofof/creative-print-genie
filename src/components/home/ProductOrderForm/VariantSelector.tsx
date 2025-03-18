@@ -57,7 +57,7 @@ const VariantSelector = ({
             <SelectTrigger>
               <SelectValue placeholder={`Choisir ${displayName.toLowerCase()}...`} />
             </SelectTrigger>
-            <SelectContent className={`${isMobile ? 'pb-10' : 'max-h-[300px]'}`}>
+            <SelectContent className={`${isMobile ? 'pb-10' : 'max-h-[300px]'} bg-white shadow-lg border border-gray-200`}>
               <div className="p-2 sticky top-0 bg-white z-10 border-b">
                 <div className="relative">
                   <Search className="absolute left-2 top-2.5 h-4 w-4 text-gray-500" />
@@ -80,10 +80,10 @@ const VariantSelector = ({
                   )}
                 </div>
               </div>
-              <div className={`overflow-y-auto pt-1 ${isMobile ? 'max-h-[30vh]' : 'max-h-[200px]'}`}>
+              <div className={`overflow-y-auto pt-1 ${isMobile ? 'max-h-[30vh]' : 'max-h-[200px]'} bg-white`}>
                 {filteredOptions.length > 0 ? (
                   filteredOptions.map((option) => (
-                    <SelectItem key={option} value={option} className="py-3">
+                    <SelectItem key={option} value={option} className="py-3 hover:bg-gray-100">
                       {option}
                     </SelectItem>
                   ))
@@ -108,7 +108,7 @@ const VariantSelector = ({
                 </svg>
               </Button>
             </PopoverTrigger>
-            <PopoverContent className="w-64 p-2">
+            <PopoverContent className="w-64 p-2 bg-white shadow-lg border border-gray-200">
               <div className="text-center">
                 <img 
                   src={getVariantIllustration(productCategory, variantType, selectedValue)}
