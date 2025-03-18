@@ -1,3 +1,7 @@
+
+// Le fichier ProductForm.tsx est très long, nous allons juste corriger les problèmes de typage
+// sans avoir à réécrire tout le fichier.
+
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
@@ -107,7 +111,13 @@ const ProductForm = () => {
         return;
       }
       
-      setProductData(product);
+      // Ensure status has the correct type
+      const typedProduct: ProductData = {
+        ...product,
+        status: product.status as 'draft' | 'published' | 'archived'
+      };
+      
+      setProductData(typedProduct);
       setImagePreview(product.image);
       
       // Fetch product variants
@@ -118,7 +128,13 @@ const ProductForm = () => {
       
       if (variantsError) throw variantsError;
       
-      setVariants(variantsData || []);
+      // Ensure each variant has the correct status type
+      const typedVariants: ProductVariant[] = variantsData?.map(variant => ({
+        ...variant,
+        status: variant.status as 'in_stock' | 'low_stock' | 'out_of_stock'
+      })) || [];
+      
+      setVariants(typedVariants);
       setIsLoading(false);
     } catch (error: any) {
       console.error("Error fetching product:", error);

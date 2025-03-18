@@ -1,170 +1,131 @@
 
-import React, { useEffect, useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { toast } from "sonner";
-import { supabase } from "@/integrations/supabase/client";
-import LoadingSpinner from "@/components/profile/LoadingSpinner";
-
-// Import dashboard components
-import DashboardHeader from "@/components/supplier/dashboard/DashboardHeader";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import StatsCards from "@/components/supplier/StatsCards";
+import AnalyticsTab from "@/components/supplier/AnalyticsTab";
+import OrdersTab from "@/components/supplier/OrdersTab";
+import { useSupplierDashboard } from "@/hooks/useSupplierDashboard";
+import ProductsTab from "@/components/supplier/ProductsTab";
 import DashboardSidebar from "@/components/supplier/dashboard/DashboardSidebar";
 import MobileHeader from "@/components/supplier/dashboard/MobileHeader";
-import StatsOverview from "@/components/supplier/dashboard/StatsOverview";
-import RecentProducts from "@/components/supplier/dashboard/RecentProducts";
-import QuickActions from "@/components/supplier/dashboard/QuickActions";
+import { toast } from "sonner";
 
-interface Product {
-  id: string;
-  name: string;
-  price: number;
-  category: string;
-  status: 'draft' | 'published' | 'archived';
-  created_at: string;
-}
-
-interface SupplierStats {
-  totalProducts: number;
-  productsInStock: number;
-  lowStockProducts: number;
-  outOfStockProducts: number;
-}
-
-const SupplierDashboard = () => {
-  const [isLoading, setIsLoading] = useState(true);
-  const [products, setProducts] = useState<Product[]>([]);
-  const [stats, setStats] = useState<SupplierStats>({
-    totalProducts: 0,
-    productsInStock: 0,
-    lowStockProducts: 0,
-    outOfStockProducts: 0
-  });
+const Dashboard = () => {
   const navigate = useNavigate();
+  const [tab, setTab] = useState("overview");
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+  
+  const { 
+    isLoading, 
+    products, 
+    orders, 
+    stats, 
+    fetchProducts, 
+    deleteProduct, 
+    loadDashboardData 
+  } = useSupplierDashboard();
 
   useEffect(() => {
     checkAuthentication();
-    fetchProducts();
-    fetchStats();
   }, []);
 
   const checkAuthentication = async () => {
-    const { data } = await supabase.auth.getSession();
-    
-    if (!data.session) {
-      toast.error("Vous devez être connecté pour accéder au tableau de bord");
-      navigate("/login");
-    } else {
-      setIsLoading(false);
-    }
-  };
-
-  const fetchProducts = async () => {
     try {
-      const { data: userData } = await supabase.auth.getUser();
-      
-      if (!userData.user) return;
-      
-      const { data, error } = await supabase
-        .from("products")
-        .select("*")
-        .eq("supplier_id", userData.user.id)
-        .order("created_at", { ascending: false })
-        .limit(5);
-      
-      if (error) throw error;
-      
-      setProducts(data || []);
-    } catch (error: any) {
-      console.error("Error fetching products:", error);
-      toast.error("Erreur lors du chargement des produits");
-    }
-  };
-
-  const fetchStats = async () => {
-    try {
-      const { data: userData } = await supabase.auth.getUser();
-      
-      if (!userData.user) return;
-      
-      // Get total products
-      const { count: totalCount, error: totalError } = await supabase
-        .from("products")
-        .select("*", { count: "exact", head: true })
-        .eq("supplier_id", userData.user.id);
-      
-      if (totalError) throw totalError;
-      
-      // Get product variants stats
-      const { data: variantsData, error: variantsError } = await supabase
-        .from("product_variants")
-        .select("status")
-        .in("product_id", products.map(p => p.id));
-      
-      if (variantsError) throw variantsError;
-      
-      // Calculate stats based on product variants
-      const inStock = variantsData?.filter(v => v.status === 'in_stock').length || 0;
-      const lowStock = variantsData?.filter(v => v.status === 'low_stock').length || 0;
-      const outOfStock = variantsData?.filter(v => v.status === 'out_of_stock').length || 0;
-      
-      setStats({
-        totalProducts: totalCount || 0,
-        productsInStock: inStock,
-        lowStockProducts: lowStock,
-        outOfStockProducts: outOfStock
-      });
-    } catch (error: any) {
-      console.error("Error fetching stats:", error);
-      toast.error("Erreur lors du chargement des statistiques");
-    }
-  };
-
-  const handleSignOut = async () => {
-    try {
-      const { error } = await supabase.auth.signOut();
-      
-      if (error) {
-        throw error;
+      const { data, error } = await fetch('/api/auth/check').then(res => res.json());
+      if (error || !data.authenticated) {
+        toast.error("Vous devez être connecté pour accéder à cette page");
+        navigate("/login");
       }
-      
-      toast.success("Déconnexion réussie");
-      navigate("/");
-    } catch (error: any) {
-      console.error("Error signing out:", error);
-      toast.error("Erreur lors de la déconnexion");
+    } catch (error) {
+      navigate("/login");
     }
+  };
+
+  const handleAddProduct = () => {
+    navigate("/supplier/product/new");
+  };
+
+  const handleEditProduct = (productId: string) => {
+    navigate(`/supplier/product/edit/${productId}`);
+  };
+
+  const handleDeleteProduct = async (productId: string) => {
+    const success = await deleteProduct(productId);
+    if (success) {
+      // Already shows a success toast in the hook
+    }
+  };
+
+  const handleRefreshProducts = () => {
+    loadDashboardData();
   };
 
   if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-accent"></div>
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-teal-500"></div>
       </div>
     );
   }
 
   return (
-    <div className="flex min-h-screen bg-gray-50">
-      {/* Sidebar */}
-      <DashboardSidebar onSignOut={handleSignOut} />
-      
-      {/* Mobile header */}
-      <MobileHeader />
+    <div className="flex h-screen bg-gray-100">
+      {/* Sidebar for desktop */}
+      <DashboardSidebar 
+        currentTab={tab} 
+        onTabChange={setTab} 
+        isOpen={sidebarOpen} 
+        onClose={() => setSidebarOpen(false)} 
+      />
       
       {/* Main content */}
-      <div className="flex-1 p-8 md:p-10 pt-20 md:pt-10">
-        <DashboardHeader />
+      <div className="flex-1 flex flex-col overflow-hidden">
+        {/* Mobile header */}
+        <MobileHeader onOpenSidebar={() => setSidebarOpen(true)} />
         
-        {/* Stats */}
-        <StatsOverview stats={stats} />
-        
-        {/* Recent products */}
-        <RecentProducts products={products} />
-        
-        {/* Quick actions */}
-        <QuickActions />
+        {/* Main content area */}
+        <main className="flex-1 overflow-y-auto p-4 md:p-6 bg-gray-50">
+          <div className="max-w-6xl mx-auto">
+            <Tabs value={tab} onValueChange={setTab} className="space-y-8">
+              <div className="hidden md:block">
+                <TabsList className="grid grid-cols-3 w-full max-w-md">
+                  <TabsTrigger value="overview">Vue d'ensemble</TabsTrigger>
+                  <TabsTrigger value="products">Produits</TabsTrigger>
+                  <TabsTrigger value="orders">Commandes</TabsTrigger>
+                </TabsList>
+              </div>
+
+              <TabsContent value="overview" className="space-y-8">
+                <StatsCards stats={stats} />
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                  {/* Add overview components here */}
+                </div>
+              </TabsContent>
+
+              <TabsContent value="products">
+                <ProductsTab 
+                  products={products} 
+                  onAddProduct={handleAddProduct}
+                  onEditProduct={handleEditProduct}
+                  onDeleteProduct={handleDeleteProduct}
+                  onRefreshProducts={handleRefreshProducts}
+                />
+              </TabsContent>
+
+              <TabsContent value="analytics">
+                <AnalyticsTab />
+              </TabsContent>
+
+              <TabsContent value="orders">
+                <OrdersTab orders={orders} />
+              </TabsContent>
+            </Tabs>
+          </div>
+        </main>
       </div>
     </div>
   );
 };
 
-export default SupplierDashboard;
+export default Dashboard;

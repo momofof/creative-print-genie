@@ -1,3 +1,4 @@
+
 // Types for the supplier dashboard
 export interface Product {
   id: string;
@@ -7,7 +8,7 @@ export interface Product {
   image: string;
   category: string;
   subcategory: string;
-  status: string;
+  status: "draft" | "published" | "archived";
   stock: number;
   created_at: string;
   description?: string;
