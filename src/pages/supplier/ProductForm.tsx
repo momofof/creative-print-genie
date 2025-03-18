@@ -22,6 +22,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Card, CardContent } from "@/components/ui/card";
+import { uploadImage } from "@/integrations/supabase/storage";
+import CsvImportDialog from "@/components/supplier/CsvImportDialog";
 
 interface ProductData {
   name: string;
@@ -49,7 +51,7 @@ interface ProductVariant {
 }
 
 const ProductForm = () => {
-  const { productId } = useParams();
+  const { productId } = useParams<{productId?: string}>();
   const navigate = useNavigate();
   const isEditing = !!productId;
   
@@ -72,6 +74,9 @@ const ProductForm = () => {
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [supplierId, setSupplierId] = useState<string | null>(null);
+  const [csvFile, setCsvFile] = useState<File | null>(null);
+  const [isImportDialogOpen, setIsImportDialogOpen] = useState(false);
+  const [importType, setImportType] = useState<"products" | "variants">("products");
 
   useEffect(() => {
     checkAuthentication();
@@ -96,7 +101,6 @@ const ProductForm = () => {
 
   const fetchProductData = async (id: string) => {
     try {
-      // Récupérer les données du produit
       const { data: productData, error: productError } = await supabase
         .from('products')
         .select('*')
@@ -110,7 +114,6 @@ const ProductForm = () => {
         return;
       }
 
-      // Récupérer les variantes du produit
       const { data: variantsData, error: variantsError } = await supabase
         .from('product_variants')
         .select('*')
@@ -121,7 +124,6 @@ const ProductForm = () => {
         toast.error("Erreur lors de la récupération des variantes");
       }
 
-      // Mettre à jour l'état
       setProductData({
         name: productData.name,
         price: productData.price,
@@ -130,8 +132,8 @@ const ProductForm = () => {
         subcategory: productData.subcategory,
         description: productData.description,
         image: productData.image,
-        status: productData.status,
-        is_customizable: productData.is_customizable,
+        status: productData.status as 'draft' | 'published' | 'archived',
+        is_customizable: productData.is_customizable || false,
         stock: productData.stock || 0
       });
 
@@ -140,15 +142,16 @@ const ProductForm = () => {
       }
 
       if (variantsData) {
-        setVariants(variantsData.map(variant => ({
+        const typedVariants: ProductVariant[] = variantsData.map(variant => ({
           id: variant.id,
           size: variant.size,
           color: variant.color,
           hex_color: variant.hex_color,
-          stock: variant.stock,
+          stock: variant.stock || 0,
           price_adjustment: variant.price_adjustment,
-          status: variant.status
-        })));
+          status: variant.status as 'in_stock' | 'low_stock' | 'out_of_stock'
+        }));
+        setVariants(typedVariants);
       }
 
       setIsLoading(false);
@@ -197,6 +200,12 @@ const ProductForm = () => {
     }
   };
 
+  const handleCsvFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      setCsvFile(e.target.files[0]);
+    }
+  };
+
   const addVariant = () => {
     setVariants(prev => [
       ...prev,
@@ -242,30 +251,125 @@ const ProductForm = () => {
     });
   };
 
-  const uploadImage = async (file: File): Promise<string | null> => {
-    try {
-      const fileExt = file.name.split('.').pop();
-      const fileName = `${Math.random().toString(36).substring(2, 15)}.${fileExt}`;
-      const filePath = `products/${fileName}`;
+  const importCsvData = async (file: File, type: "products" | "variants") => {
+    const reader = new FileReader();
+    
+    return new Promise<void>((resolve, reject) => {
+      reader.onload = async (event) => {
+        try {
+          if (!event.target || !event.target.result) {
+            toast.error("Erreur lors de la lecture du fichier");
+            reject(new Error("Erreur lors de la lecture du fichier"));
+            return;
+          }
 
-      const { error: uploadError } = await supabase.storage
-        .from('product-images')
-        .upload(filePath, file);
+          const csvText = event.target.result.toString();
+          const rows = csvText.split('\n');
+          const headers = rows[0].split(',').map(h => h.trim());
+          
+          if (type === "products") {
+            await importProducts(rows, headers);
+          } else {
+            await importVariants(rows, headers);
+          }
+          
+          resolve();
+        } catch (error) {
+          console.error("Erreur lors de l'importation:", error);
+          toast.error("Erreur lors de l'importation du fichier CSV");
+          reject(error);
+        }
+      };
+      
+      reader.readAsText(file);
+    });
+  };
 
-      if (uploadError) {
-        console.error("Erreur lors de l'upload de l'image:", uploadError);
-        return null;
-      }
-
-      const { data } = supabase.storage
-        .from('product-images')
-        .getPublicUrl(filePath);
-
-      return data.publicUrl;
-    } catch (error) {
-      console.error("Erreur d'upload:", error);
-      return null;
+  const importProducts = async (rows: string[], headers: string[]) => {
+    const products = [];
+    
+    for (let i = 1; i < rows.length; i++) {
+      if (!rows[i].trim()) continue;
+      
+      const values = rows[i].split(',').map(v => v.trim());
+      const product: any = {};
+      
+      headers.forEach((header, index) => {
+        if (header === 'price' || header === 'original_price' || header === 'stock') {
+          product[header] = parseFloat(values[index]) || 0;
+        } else if (header === 'is_customizable') {
+          product[header] = values[index].toLowerCase() === 'true';
+        } else {
+          product[header] = values[index];
+        }
+      });
+      
+      product.supplier_id = supplierId;
+      
+      products.push(product);
     }
+    
+    if (products.length === 0) {
+      toast.error("Aucun produit à importer");
+      return;
+    }
+    
+    const { data, error } = await supabase
+      .from('products')
+      .insert(products);
+      
+    if (error) {
+      console.error("Erreur lors de l'importation des produits:", error);
+      toast.error("Erreur lors de l'importation des produits");
+      return;
+    }
+    
+    toast.success(`${products.length} produits importés avec succès`);
+    navigate("/supplier/dashboard");
+  };
+
+  const importVariants = async (rows: string[], headers: string[]) => {
+    if (!productId) {
+      toast.error("L'ID du produit est requis pour importer des variantes");
+      return;
+    }
+    
+    const variants = [];
+    
+    for (let i = 1; i < rows.length; i++) {
+      if (!rows[i].trim()) continue;
+      
+      const values = rows[i].split(',').map(v => v.trim());
+      const variant: any = { product_id: productId };
+      
+      headers.forEach((header, index) => {
+        if (header === 'stock' || header === 'price_adjustment') {
+          variant[header] = parseFloat(values[index]) || 0;
+        } else {
+          variant[header] = values[index];
+        }
+      });
+      
+      variants.push(variant);
+    }
+    
+    if (variants.length === 0) {
+      toast.error("Aucune variante à importer");
+      return;
+    }
+    
+    const { data, error } = await supabase
+      .from('product_variants')
+      .insert(variants);
+      
+    if (error) {
+      console.error("Erreur lors de l'importation des variantes:", error);
+      toast.error("Erreur lors de l'importation des variantes");
+      return;
+    }
+    
+    toast.success(`${variants.length} variantes importées avec succès`);
+    fetchProductData(productId);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -279,20 +383,21 @@ const ProductForm = () => {
     setIsSaving(true);
     
     try {
-      // Traiter l'image si nécessaire
       let imageUrl = productData.image;
       if (imageFile) {
-        const uploadedUrl = await uploadImage(imageFile);
+        const fileExt = imageFile.name.split('.').pop();
+        const fileName = `${Math.random().toString(36).substring(2, 15)}.${fileExt}`;
+        const filePath = `products/${fileName}`;
+        
+        const uploadedUrl = await uploadImage('product-images', filePath, imageFile);
         if (uploadedUrl) {
           imageUrl = uploadedUrl;
         }
       }
       
-      // Créer ou mettre à jour le produit
-      let productId = isEditing ? this.productId : undefined;
+      let productIdToUse = isEditing ? productId : undefined;
       
-      if (isEditing && this.productId) {
-        // Mise à jour du produit existant
+      if (isEditing && productId) {
         const { error } = await supabase
           .from('products')
           .update({
@@ -307,13 +412,12 @@ const ProductForm = () => {
             is_customizable: productData.is_customizable,
             stock: productData.stock
           })
-          .eq('id', this.productId);
+          .eq('id', productId);
           
         if (error) {
           throw error;
         }
       } else {
-        // Création d'un nouveau produit
         const { data, error } = await supabase
           .from('products')
           .insert({
@@ -336,42 +440,44 @@ const ProductForm = () => {
           throw error;
         }
         
-        productId = data.id;
+        if (data) {
+          productIdToUse = data.id;
+        }
       }
       
-      // Traiter les variantes
-      // 1. Supprimer les variantes marquées pour suppression
-      for (const variant of variants.filter(v => v.isDeleted && v.id)) {
-        await supabase
-          .from('product_variants')
-          .delete()
-          .eq('id', variant.id);
-      }
-      
-      // 2. Mettre à jour les variantes existantes
-      for (const variant of variants.filter(v => !v.isDeleted && !v.isNew && v.id)) {
-        await supabase
-          .from('product_variants')
-          .update({
-            size: variant.size,
-            color: variant.color,
-            hex_color: variant.hex_color,
-            stock: variant.stock,
-            price_adjustment: variant.price_adjustment,
-            status: variant.status
-          })
-          .eq('id', variant.id);
-      }
-      
-      // 3. Insérer les nouvelles variantes
-      if (productId) {
+      if (productIdToUse) {
+        for (const variant of variants.filter(v => v.isDeleted && v.id)) {
+          if (variant.id) {
+            await supabase
+              .from('product_variants')
+              .delete()
+              .eq('id', variant.id);
+          }
+        }
+        
+        for (const variant of variants.filter(v => !v.isDeleted && !v.isNew && v.id)) {
+          if (variant.id) {
+            await supabase
+              .from('product_variants')
+              .update({
+                size: variant.size,
+                color: variant.color,
+                hex_color: variant.hex_color,
+                stock: variant.stock,
+                price_adjustment: variant.price_adjustment,
+                status: variant.status
+              })
+              .eq('id', variant.id);
+          }
+        }
+        
         const newVariants = variants.filter(v => !v.isDeleted && v.isNew);
         if (newVariants.length > 0) {
           await supabase
             .from('product_variants')
             .insert(
               newVariants.map(v => ({
-                product_id: productId,
+                product_id: productIdToUse,
                 size: v.size,
                 color: v.color,
                 hex_color: v.hex_color,
@@ -420,23 +526,30 @@ const ProductForm = () => {
               {isEditing ? "Modifier le produit" : "Ajouter un produit"}
             </h1>
           </div>
-          <Button
-            onClick={handleSubmit}
-            disabled={isSaving}
-            className="bg-teal-600 hover:bg-teal-700 text-white"
-          >
-            {isSaving ? (
-              <span className="flex items-center">
-                <Loader2 className="h-4 w-4 animate-spin mr-2" />
-                Enregistrement...
-              </span>
-            ) : (
-              <span className="flex items-center">
-                <Save className="h-4 w-4 mr-2" />
-                Enregistrer
-              </span>
-            )}
-          </Button>
+          <div className="flex space-x-2">
+            <CsvImportDialog 
+              onImport={importCsvData}
+              productId={productId}
+            />
+            
+            <Button
+              onClick={handleSubmit}
+              disabled={isSaving}
+              className="bg-teal-600 hover:bg-teal-700 text-white"
+            >
+              {isSaving ? (
+                <span className="flex items-center">
+                  <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                  Enregistrement...
+                </span>
+              ) : (
+                <span className="flex items-center">
+                  <Save className="h-4 w-4 mr-2" />
+                  Enregistrer
+                </span>
+              )}
+            </Button>
+          </div>
         </div>
       </div>
       
