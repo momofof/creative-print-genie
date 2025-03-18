@@ -15,7 +15,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { getVariantIllustration } from "./utils";
-import { Search, X } from "lucide-react";
+import { Search, X, Eye } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 
 interface VariantSelectorProps {
@@ -36,6 +36,7 @@ const VariantSelector = ({
   productCategory
 }: VariantSelectorProps) => {
   const [searchTerm, setSearchTerm] = useState('');
+  const [showIllustration, setShowIllustration] = useState(false);
   const isMobile = useIsMobile();
   
   // Filter options by search term
@@ -98,14 +99,11 @@ const VariantSelector = ({
         </div>
         
         {selectedValue && (
-          <Popover>
+          <Popover open={showIllustration} onOpenChange={setShowIllustration}>
             <PopoverTrigger asChild>
-              <Button variant="outline" size="icon" className="px-2 h-10">
+              <Button variant="outline" size="icon" className="px-2 h-10" onClick={() => setShowIllustration(true)}>
                 <span className="sr-only">Aperçu</span>
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z" />
-                  <circle cx="12" cy="12" r="3" />
-                </svg>
+                <Eye className="h-4 w-4" />
               </Button>
             </PopoverTrigger>
             <PopoverContent className="w-64 p-2 bg-white shadow-lg border border-gray-200">

@@ -1,7 +1,8 @@
 
+import { useState } from "react";
 import { Product } from "@/types/product";
 import { Image } from "lucide-react";
-import { getFeatureIllustration, getVariantDisplayName } from "./utils";
+import { getFeatureIllustration, getVariantDisplayName, getVariantIllustration } from "./utils";
 import {
   Sheet,
   SheetContent,
@@ -32,6 +33,20 @@ const ProductIllustration = ({
   setOpenIllustration
 }: ProductIllustrationProps) => {
   const isMobile = useIsMobile();
+  const [activeVariant, setActiveVariant] = useState<{type: string, value: string} | null>(null);
+  const [showPopover, setShowPopover] = useState<string | null>(null);
+
+  // Function to get the currently displayed illustration
+  const getCurrentIllustration = () => {
+    if (activeVariant && selectedProduct) {
+      return getVariantIllustration(
+        selectedProduct.category, 
+        activeVariant.type, 
+        activeVariant.value
+      );
+    }
+    return getFeatureIllustration(selectedProduct, variants);
+  };
 
   return (
     <>
@@ -43,19 +58,25 @@ const ProductIllustration = ({
             {selectedProduct ? (
               <div className="flex flex-col items-center p-4">
                 <img 
-                  src={getFeatureIllustration(selectedProduct, variants)} 
+                  src={activeVariant ? getCurrentIllustration() : getFeatureIllustration(selectedProduct, variants)} 
                   alt="Option aperçu" 
                   className="max-w-full max-h-52 md:max-h-64 object-contain" 
                 />
                 <div className="mt-3 md:mt-4 text-center">
                   <h4 className="font-medium">{selectedProduct.name}</h4>
-                  <div className="text-sm text-gray-600 max-w-xs mt-2">
-                    {Object.entries(variants).map(([type, value]) => (
-                      <div key={type} className="inline-block mr-2 mb-1">
-                        <span className="font-medium">{getVariantDisplayName(type)}:</span> {value}
-                      </div>
-                    ))}
-                  </div>
+                  {activeVariant ? (
+                    <p className="text-sm text-gray-600 mt-2">
+                      <span className="font-medium">{getVariantDisplayName(activeVariant.type)}:</span> {activeVariant.value}
+                    </p>
+                  ) : (
+                    <div className="text-sm text-gray-600 max-w-xs mt-2">
+                      {Object.entries(variants).map(([type, value]) => (
+                        <div key={type} className="inline-block mr-2 mb-1">
+                          <span className="font-medium">{getVariantDisplayName(type)}:</span> {value}
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
               </div>
             ) : (
@@ -70,7 +91,19 @@ const ProductIllustration = ({
           {selectedProduct && Object.keys(variants).length > 0 && (
             <div className="flex flex-wrap mt-4 gap-2 justify-center">
               {Object.entries(variants).map(([type, value]) => (
-                <Popover key={`${type}-${value}`}>
+                <Popover 
+                  key={`${type}-${value}`}
+                  open={showPopover === `${type}-${value}`}
+                  onOpenChange={(open) => {
+                    if (open) {
+                      setShowPopover(`${type}-${value}`);
+                      setActiveVariant({ type, value });
+                    } else if (showPopover === `${type}-${value}`) {
+                      setShowPopover(null);
+                      setActiveVariant(null);
+                    }
+                  }}
+                >
                   <PopoverTrigger asChild>
                     <Button variant="outline" size="sm" className="text-xs">
                       {getVariantDisplayName(type)}: {value}
@@ -79,7 +112,7 @@ const ProductIllustration = ({
                   <PopoverContent className="w-64 p-2">
                     <div className="text-center">
                       <img 
-                        src={getFeatureIllustration(selectedProduct, { [type]: value })} 
+                        src={getVariantIllustration(selectedProduct.category, type, value)} 
                         alt={`${getVariantDisplayName(type)}: ${value}`} 
                         className="max-w-full h-32 object-contain mx-auto" 
                       />
@@ -108,19 +141,25 @@ const ProductIllustration = ({
             {selectedProduct ? (
               <div className="flex flex-col items-center">
                 <img 
-                  src={getFeatureIllustration(selectedProduct, variants)} 
+                  src={activeVariant ? getCurrentIllustration() : getFeatureIllustration(selectedProduct, variants)} 
                   alt="Option aperçu" 
                   className="max-w-full max-h-[40vh] object-contain" 
                 />
                 <div className="mt-4 text-center px-4">
                   <h4 className="font-medium text-lg">{selectedProduct.name}</h4>
-                  <div className="text-sm text-gray-600 mt-2 flex flex-wrap justify-center gap-2">
-                    {Object.entries(variants).map(([type, value]) => (
-                      <div key={type} className="bg-gray-100 px-2 py-1 rounded">
-                        <span className="font-medium">{getVariantDisplayName(type)}:</span> {value}
-                      </div>
-                    ))}
-                  </div>
+                  {activeVariant ? (
+                    <p className="text-sm text-gray-600 mt-2 bg-gray-100 px-2 py-1 rounded inline-block">
+                      <span className="font-medium">{getVariantDisplayName(activeVariant.type)}:</span> {activeVariant.value}
+                    </p>
+                  ) : (
+                    <div className="text-sm text-gray-600 mt-2 flex flex-wrap justify-center gap-2">
+                      {Object.entries(variants).map(([type, value]) => (
+                        <div key={type} className="bg-gray-100 px-2 py-1 rounded">
+                          <span className="font-medium">{getVariantDisplayName(type)}:</span> {value}
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
               </div>
             ) : (
@@ -131,17 +170,27 @@ const ProductIllustration = ({
             )}
           </div>
 
-          {/* Variant illustrations on mobile - Always visible when product and variants exist */}
+          {/* Variant illustrations on mobile - Now with interactive buttons */}
           {selectedProduct && Object.keys(variants).length > 0 && (
             <div className="mt-4 border-t border-gray-200 pt-4 pb-6">
               <h4 className="font-medium text-sm mb-3 px-4">Aperçu des variantes</h4>
               <div className="px-4 grid grid-cols-2 gap-3">
                 {Object.entries(variants).map(([type, value]) => (
-                  <div key={`${type}-${value}`} className="bg-white rounded-lg border border-gray-200 p-2">
+                  <button
+                    key={`${type}-${value}`}
+                    className={`bg-white rounded-lg border ${activeVariant && activeVariant.type === type ? 'border-accent ring-1 ring-accent' : 'border-gray-200'} p-2 text-left`}
+                    onClick={() => {
+                      if (activeVariant && activeVariant.type === type && activeVariant.value === value) {
+                        setActiveVariant(null);
+                      } else {
+                        setActiveVariant({ type, value });
+                      }
+                    }}
+                  >
                     <div className="text-center">
                       <div className="h-24 flex items-center justify-center">
                         <img 
-                          src={getFeatureIllustration(selectedProduct, { [type]: value })} 
+                          src={getVariantIllustration(selectedProduct.category, type, value)} 
                           alt={`${getVariantDisplayName(type)}: ${value}`} 
                           className="max-w-full max-h-20 object-contain" 
                         />
@@ -150,7 +199,7 @@ const ProductIllustration = ({
                         {getVariantDisplayName(type)}: {value}
                       </p>
                     </div>
-                  </div>
+                  </button>
                 ))}
               </div>
             </div>
