@@ -131,7 +131,7 @@ const ProductIllustration = ({
             )}
           </div>
 
-          {/* Variant illustrations on mobile */}
+          {/* Variant illustrations on mobile - Always visible when product and variants exist */}
           {selectedProduct && Object.keys(variants).length > 0 && (
             <div className="mt-4 border-t border-gray-200 pt-4 pb-6">
               <h4 className="font-medium text-sm mb-3 px-4">Aperçu des variantes</h4>

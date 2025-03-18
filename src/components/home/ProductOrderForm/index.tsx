@@ -41,6 +41,13 @@ const ProductOrderForm = () => {
     }
   }, [selectedProduct]);
 
+  // Automatically open the illustration sheet on mobile when variants are selected
+  useEffect(() => {
+    if (isMobile && selectedProduct && Object.keys(variants).length > 0) {
+      setOpenIllustration(true);
+    }
+  }, [variants, selectedProduct, isMobile]);
+
   const handleVariantChange = (variantType: string, value: string) => {
     setVariants(prev => ({ ...prev, [variantType]: value }));
   };
