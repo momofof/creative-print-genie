@@ -1,72 +1,84 @@
 
 import React from "react";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { Order } from "@/types/dashboard";
+import { Badge } from "@/components/ui/badge";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 
 interface OrdersTableProps {
   orders: Order[];
   isCompact?: boolean;
-  onViewAllOrders?: () => void;
 }
 
-const OrdersTable = ({ orders, isCompact = false, onViewAllOrders }: OrdersTableProps) => {
+const OrdersTable: React.FC<OrdersTableProps> = ({ orders, isCompact = false }) => {
+  const statusColors = {
+    pending: "bg-yellow-100 text-yellow-800",
+    processing: "bg-blue-100 text-blue-800",
+    shipped: "bg-purple-100 text-purple-800",
+    delivered: "bg-green-100 text-green-800",
+    cancelled: "bg-red-100 text-red-800",
+  };
+
+  const statusText = {
+    pending: "En attente",
+    processing: "En traitement",
+    shipped: "Expédiée",
+    delivered: "Livrée",
+    cancelled: "Annulée",
+  };
+
   return (
-    <div className="overflow-x-auto">
-      <table className="w-full">
-        <thead>
-          <tr className="border-b text-left">
-            <th className="pb-3 font-medium">Commande</th>
-            <th className="pb-3 font-medium">Client</th>
-            <th className="pb-3 font-medium">Date</th>
-            {!isCompact && <th className="pb-3 font-medium">Articles</th>}
-            <th className="pb-3 font-medium">Montant</th>
-            <th className="pb-3 font-medium">Statut</th>
-            {!isCompact && <th className="pb-3 font-medium">Actions</th>}
-          </tr>
-        </thead>
-        <tbody>
+    <div className="overflow-auto">
+      <Table>
+        <TableHeader>
+          <TableRow>
+            <TableHead>Commande</TableHead>
+            <TableHead>Client</TableHead>
+            <TableHead>Date</TableHead>
+            <TableHead>Total</TableHead>
+            <TableHead>Statut</TableHead>
+            {!isCompact && <TableHead>Actions</TableHead>}
+          </TableRow>
+        </TableHeader>
+        <TableBody>
           {orders.length > 0 ? (
             orders.map((order) => (
-              <tr key={order.id} className="border-b">
-                <td className="py-3">{order.id}</td>
-                <td className="py-3">{order.customer}</td>
-                <td className="py-3">{order.date}</td>
-                {!isCompact && <td className="py-3">{order.items}</td>}
-                <td className="py-3">{order.total.toFixed(2)} €</td>
-                <td className="py-3">
-                  <Badge variant={
-                    order.status === "delivered" ? "default" :
-                    order.status === "processing" ? "secondary" : "outline"
-                  }>
-                    {order.status === "delivered" ? "Livré" :
-                    order.status === "processing" ? "En traitement" : "Expédié"}
+              <TableRow key={order.id}>
+                <TableCell className="font-medium">#{order.id.substring(0, 8)}</TableCell>
+                <TableCell>
+                  {order.customer ? (
+                    <div>
+                      <div>{order.customer.name}</div>
+                      <div className="text-sm text-gray-500">{order.customer.email}</div>
+                    </div>
+                  ) : (
+                    order.customerName
+                  )}
+                </TableCell>
+                <TableCell>{new Date(order.date).toLocaleDateString('fr-FR')}</TableCell>
+                <TableCell>{order.total.toFixed(2)} €</TableCell>
+                <TableCell>
+                  <Badge className={statusColors[order.status]}>
+                    {statusText[order.status]}
                   </Badge>
-                </td>
+                </TableCell>
                 {!isCompact && (
-                  <td className="py-3">
-                    <Button variant="outline" size="sm">Détails</Button>
-                  </td>
+                  <TableCell>
+                    <button className="text-blue-600 hover:text-blue-800 text-sm font-medium">
+                      Détails
+                    </button>
+                  </TableCell>
                 )}
-              </tr>
+              </TableRow>
             ))
           ) : (
-            <tr>
-              <td colSpan={isCompact ? 6 : 7} className="py-4 text-center text-gray-500">
-                Aucune commande trouvée.
-              </td>
-            </tr>
+            <TableRow>
+              <TableCell colSpan={isCompact ? 5 : 6} className="h-24 text-center text-gray-500">
+                Aucune commande à afficher
+              </TableCell>
+            </TableRow>
           )}
-        </tbody>
-      </table>
-      
-      {isCompact && onViewAllOrders && (
-        <div className="mt-4">
-          <Button variant="outline" className="w-full" onClick={onViewAllOrders}>
-            Voir toutes les commandes
-          </Button>
-        </div>
-      )}
+        </TableBody>
+      </Table>
     </div>
   );
 };

@@ -1,24 +1,41 @@
 
 import React from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { ChartPie, TrendingUp, BarChart } from "lucide-react";
 
 const AnalyticsCards = () => {
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+    <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
       <Card>
-        <CardHeader>
-          <CardTitle>Ventes mensuelles</CardTitle>
+        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+          <CardTitle className="text-sm font-medium">Taux de Conversion</CardTitle>
+          <TrendingUp className="h-4 w-4 text-teal-600" />
         </CardHeader>
-        <CardContent className="h-80 flex items-center justify-center">
-          <p className="text-center text-gray-500">Graphique d'analyse des ventes mensuelles</p>
+        <CardContent>
+          <div className="text-2xl font-bold">3.2%</div>
+          <p className="text-xs text-muted-foreground">+0.5% depuis le mois dernier</p>
         </CardContent>
       </Card>
+      
       <Card>
-        <CardHeader>
-          <CardTitle>Produits populaires</CardTitle>
+        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+          <CardTitle className="text-sm font-medium">Panier Moyen</CardTitle>
+          <BarChart className="h-4 w-4 text-blue-600" />
         </CardHeader>
-        <CardContent className="h-80 flex items-center justify-center">
-          <p className="text-center text-gray-500">Graphique des produits les plus vendus</p>
+        <CardContent>
+          <div className="text-2xl font-bold">65,40 €</div>
+          <p className="text-xs text-muted-foreground">+2.1% depuis le mois dernier</p>
+        </CardContent>
+      </Card>
+      
+      <Card>
+        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+          <CardTitle className="text-sm font-medium">Ratio de Retour</CardTitle>
+          <ChartPie className="h-4 w-4 text-indigo-600" />
+        </CardHeader>
+        <CardContent>
+          <div className="text-2xl font-bold">1.4%</div>
+          <p className="text-xs text-muted-foreground">-0.2% depuis le mois dernier</p>
         </CardContent>
       </Card>
     </div>

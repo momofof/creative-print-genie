@@ -1,244 +1,137 @@
-
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { supabase } from "@/integrations/supabase/client";
-import { toast } from "sonner";
-import { z } from "zod";
-import { useForm } from "react-hook-form";
+import { useForm, SubmitHandler } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
+import * as z from "zod";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { ArrowRight, CheckCircle2 } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { supabase } from "@/integrations/supabase/client";
+import { Link } from "react-router-dom";
 
-// Schéma de validation pour le formulaire d'inscription
 const formSchema = z.object({
-  company_name: z.string().min(2, "Le nom de l'entreprise est requis"),
-  contact_name: z.string().min(2, "Le nom du contact est requis"),
-  email: z.string().email("Email invalide"),
-  phone: z.string().min(8, "Numéro de téléphone invalide"),
-  address: z.string().min(5, "Adresse invalide"),
-  password: z.string().min(6, "Le mot de passe doit contenir au moins 6 caractères"),
-  confirm_password: z.string()
-}).refine((data) => data.password === data.confirm_password, {
+  email: z.string().email({ message: "Adresse e-mail invalide" }),
+  password: z.string().min(8, { message: "Le mot de passe doit contenir au moins 8 caractères" }),
+  confirmPassword: z.string(),
+  fullName: z.string().min(2, { message: "Le nom complet doit contenir au moins 2 caractères" }),
+  companyName: z.string().min(2, { message: "Le nom de l'entreprise doit contenir au moins 2 caractères" }),
+  phone: z.string().min(10, { message: "Numéro de téléphone invalide" }),
+}).refine((data) => data.password === data.confirmPassword, {
   message: "Les mots de passe ne correspondent pas",
-  path: ["confirm_password"],
+  path: ["confirmPassword"],
 });
 
-// Type d'inférence basé sur le schéma
 type FormValues = z.infer<typeof formSchema>;
 
 const Register = () => {
-  const [isLoading, setIsLoading] = useState(false);
-  const [step, setStep] = useState(1);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const navigate = useNavigate();
-  
-  const form = useForm<FormValues>({
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<FormValues>({
     resolver: zodResolver(formSchema),
-    defaultValues: {
-      company_name: "",
-      contact_name: "",
-      email: "",
-      phone: "",
-      address: "",
-      password: "",
-      confirm_password: "",
-    },
   });
 
-  const onSubmit = async (data: FormValues) => {
-    setIsLoading(true);
+  const onSubmit: SubmitHandler<FormValues> = async (data) => {
+    setIsSubmitting(true);
     
     try {
-      // Créer l'utilisateur Supabase
+      // Create supplier account
       const { data: authData, error: authError } = await supabase.auth.signUp({
         email: data.email,
         password: data.password,
-        options: {
-          data: {
-            company_name: data.company_name,
-            contact_name: data.contact_name,
-            role: 'supplier',
-          },
-        },
       });
-
-      if (authError) {
-        throw authError;
-      }
-
+      
+      if (authError) throw authError;
+      
       if (authData.user) {
-        // Créer l'entrée dans la table des profiles
-        await supabase
-          .from('profiles')
-          .update({
-            company_name: data.company_name,
-            contact_name: data.contact_name,
-            phone: data.phone,
-            address: data.address,
-            role: 'supplier',
-            status: 'pending',
-          })
-          .eq('id', authData.user.id);
+        // Instead of using profiles table which is not defined in types
+        // We directly update the user metadata
+        const { error: updateError } = await supabase.auth.updateUser({
+          data: {
+            company_name: data.companyName,
+            full_name: data.fullName,
+            phone: data.phone
+          }
+        });
         
-        toast.success("Inscription réussie ! Veuillez vérifier votre email pour confirmer votre compte.");
-        setStep(2);
+        if (updateError) throw updateError;
+        
+        toast.success("Compte fournisseur créé avec succès!");
+        navigate("/login");
       }
     } catch (error: any) {
-      console.error("Erreur lors de l'inscription:", error);
-      toast.error(error.message || "Erreur lors de l'inscription");
+      console.error("Error:", error);
+      toast.error(error.message || "Erreur lors de la création du compte");
     } finally {
-      setIsLoading(false);
+      setIsSubmitting(false);
     }
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+    <div className="grid h-screen place-items-center bg-gray-100">
       <Card className="w-full max-w-md">
-        <CardHeader>
-          <CardTitle className="text-2xl font-bold text-center">
-            {step === 1 ? "Devenir fournisseur" : "Inscription réussie !"}
-          </CardTitle>
-          <CardDescription className="text-center">
-            {step === 1 ? "Créez votre compte fournisseur pour commencer à vendre vos produits" : "Vérifiez votre boîte mail pour confirmer votre compte"}
-          </CardDescription>
+        <CardHeader className="space-y-1">
+          <CardTitle className="text-2xl text-center">Créer un compte Fournisseur</CardTitle>
         </CardHeader>
-        <CardContent>
-          {step === 1 ? (
-            <Form {...form}>
-              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-                <FormField
-                  control={form.control}
-                  name="company_name"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Nom de l'entreprise</FormLabel>
-                      <FormControl>
-                        <Input {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="contact_name"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Nom du contact</FormLabel>
-                      <FormControl>
-                        <Input {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="email"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Email</FormLabel>
-                      <FormControl>
-                        <Input type="email" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="phone"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Téléphone</FormLabel>
-                      <FormControl>
-                        <Input type="tel" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="address"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Adresse</FormLabel>
-                      <FormControl>
-                        <Input {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="password"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Mot de passe</FormLabel>
-                      <FormControl>
-                        <Input type="password" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="confirm_password"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Confirmer le mot de passe</FormLabel>
-                      <FormControl>
-                        <Input type="password" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <Button 
-                  type="submit" 
-                  className="w-full bg-teal-600 hover:bg-teal-700"
-                  disabled={isLoading}
-                >
-                  {isLoading ? "Inscription en cours..." : "S'inscrire"}
-                </Button>
-                <div className="mt-4 text-center text-sm">
-                  <span className="text-gray-600">Déjà inscrit ?</span>
-                  <Button variant="link" onClick={() => navigate('/login')} className="p-0 h-auto text-teal-600">
-                    Se connecter
-                  </Button>
-                </div>
-              </form>
-            </Form>
-          ) : (
-            <div className="text-center py-6">
-              <div className="flex justify-center mb-4">
-                <CheckCircle2 className="h-16 w-16 text-teal-600" />
-              </div>
-              <p className="mb-6 text-gray-600">
-                Nous avons envoyé un lien de confirmation à votre adresse email.
-                Veuillez cliquer sur ce lien pour activer votre compte fournisseur.
-              </p>
-              <Button
-                onClick={() => navigate('/login')}
-                className="w-full bg-teal-600 hover:bg-teal-700 flex items-center justify-center"
-              >
-                Aller à la page de connexion
-                <ArrowRight className="ml-2 h-4 w-4" />
-              </Button>
+        <CardContent className="grid gap-4">
+          <form onSubmit={handleSubmit(onSubmit)} className="grid gap-4">
+            <div className="grid gap-2">
+              <Label htmlFor="email">Adresse e-mail</Label>
+              <Input id="email" type="email" placeholder="exemple@exemple.com" {...register("email")} />
+              {errors.email && (
+                <p className="text-sm text-red-500">{errors.email.message}</p>
+              )}
             </div>
-          )}
+            <div className="grid gap-2">
+              <Label htmlFor="password">Mot de passe</Label>
+              <Input id="password" type="password" {...register("password")} />
+              {errors.password && (
+                <p className="text-sm text-red-500">{errors.password.message}</p>
+              )}
+            </div>
+            <div className="grid gap-2">
+              <Label htmlFor="confirmPassword">Confirmer le mot de passe</Label>
+              <Input id="confirmPassword" type="password" {...register("confirmPassword")} />
+              {errors.confirmPassword && (
+                <p className="text-sm text-red-500">{errors.confirmPassword.message}</p>
+              )}
+            </div>
+            <div className="grid gap-2">
+              <Label htmlFor="fullName">Nom complet</Label>
+              <Input id="fullName" placeholder="John Doe" {...register("fullName")} />
+              {errors.fullName && (
+                <p className="text-sm text-red-500">{errors.fullName.message}</p>
+              )}
+            </div>
+            <div className="grid gap-2">
+              <Label htmlFor="companyName">Nom de l'entreprise</Label>
+              <Input id="companyName" placeholder="Acme Corp" {...register("companyName")} />
+              {errors.companyName && (
+                <p className="text-sm text-red-500">{errors.companyName.message}</p>
+              )}
+            </div>
+            <div className="grid gap-2">
+              <Label htmlFor="phone">Numéro de téléphone</Label>
+              <Input id="phone" placeholder="06XXXXXXXX" {...register("phone")} />
+              {errors.phone && (
+                <p className="text-sm text-red-500">{errors.phone.message}</p>
+              )}
+            </div>
+            <Button disabled={isSubmitting} type="submit" className="w-full">
+              {isSubmitting ? "Création du compte..." : "Créer le compte"}
+            </Button>
+          </form>
+          <div className="text-sm text-gray-500 text-center">
+            Vous avez déjà un compte ?{" "}
+            <Link to="/login" className="text-teal-500 hover:underline">
+              Se connecter
+            </Link>
+          </div>
         </CardContent>
       </Card>
     </div>

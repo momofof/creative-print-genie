@@ -27,7 +27,7 @@ export interface ProductVariant {
 export interface ProFeature {
   title: string;
   description: string;
-  icon: React.ReactNode;
+  icon: React.ComponentType<React.SVGProps<SVGSVGElement>>;
 }
 
 export interface Customization {
@@ -38,4 +38,23 @@ export interface Customization {
   position: string;
   price_adjustment: number;
   is_required: boolean;
+}
+
+// Chart data types
+export interface SalesChartData {
+  date: string;
+  sales: number;
+}
+
+export interface ProductPerformanceData {
+  name: string;
+  sales: number;
+  views: number;
+}
+
+export interface InventoryChartData {
+  name: string;
+  inStock: number;
+  lowStock: number;
+  outOfStock: number;
 }

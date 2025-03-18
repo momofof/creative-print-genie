@@ -55,7 +55,7 @@ export interface Stat {
 export interface ProFeature {
   title: string;
   description: string;
-  icon: React.ReactNode;
+  icon: React.ComponentType<React.SVGProps<SVGSVGElement>>;
 }
 
 export interface Customization {
@@ -66,4 +66,30 @@ export interface Customization {
   position: string;
   price_adjustment: number;
   is_required: boolean;
+}
+
+// New chart data interfaces
+export interface ChartData {
+  name: string;
+  value: number;
+}
+
+export interface MultiSeriesChartData {
+  name: string;
+  [key: string]: number | string;
+}
+
+export interface SalesData {
+  date: string;
+  amount: number;
+}
+
+export interface CategorySalesData {
+  category: string;
+  sales: number;
+}
+
+export interface InventoryStatusData {
+  status: string;
+  count: number;
 }
