@@ -1,78 +1,68 @@
 
-import { useState } from "react";
-import { useLocation } from "react-router-dom";
-import NavigationLogo from "./navigation/NavigationLogo";
-import NavigationSearchOverlay from "./navigation/NavigationSearchOverlay";
-import NavigationMobile from "./navigation/NavigationMobile";
-import NavigationDesktop from "./navigation/NavigationDesktop";
-import NavigationActions from "./navigation/NavigationActions";
-import { useSearch } from "@/hooks/useSearch";
-import { useNavigationAuth } from "@/hooks/useNavigationAuth";
+import React, { useState } from "react";
+import { Link } from "react-router-dom";
+import { Menu, X } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { useAuthStatus } from "@/hooks/useAuthStatus";
 
 const Navigation = () => {
-  const [searchQuery, setSearchQuery] = useState("");
-  const [showSearch, setShowSearch] = useState(false);
-  const searchResults = useSearch(searchQuery);
-  const location = useLocation();
-  const { isLoggedIn, isSupplier } = useNavigationAuth();
-  
-  // Check if we're on the Pro page or Pro Landing page
-  const isProPage = location.pathname === "/pro" || location.pathname === "/pro-landing";
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const { isLoggedIn } = useAuthStatus();
 
-  const handleSearchResultClick = (link: string) => {
-    setShowSearch(false);
-    setSearchQuery("");
-  };
-
-  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setSearchQuery(e.target.value);
+  const toggleMenu = () => {
+    setIsMenuOpen(!isMenuOpen);
   };
 
   return (
-    <nav className="fixed top-0 left-0 right-0 bg-white/80 backdrop-blur-md z-50 border-b border-gray-200">
-      <div className="max-w-7xl mx-auto px-4">
-        <div className="flex flex-col gap-2 py-3 lg:flex-row lg:items-center lg:justify-between lg:h-16 lg:py-0">
-          <div className="flex items-center justify-between w-full lg:w-auto">
-            {/* Mobile view: Menu and logo */}
-            <div className="lg:hidden flex items-center gap-2 w-1/4">
-              <NavigationMobile 
-                isLoggedIn={isLoggedIn}
-                isSupplier={isSupplier}
-                showSearch={showSearch}
-                setShowSearch={setShowSearch}
-                searchQuery={searchQuery}
-                setSearchQuery={setSearchQuery}
-                hideAuth={isProPage}
-              />
-            </div>
-            
-            <NavigationLogo />
-            
-            <div className="lg:hidden flex items-center gap-2">
-              <NavigationActions className="ml-2" hideAuth={isProPage} />
-            </div>
+    <header className="fixed w-full bg-white z-50 shadow-sm">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex justify-between items-center h-16">
+          <div className="flex items-center">
+            <Link to="/" className="flex-shrink-0">
+              <span className="text-xl font-bold text-accent">PrintGenie</span>
+            </Link>
           </div>
 
-          {/* Desktop navigation */}
-          <NavigationDesktop 
-            isLoggedIn={isLoggedIn}
-            isSupplier={isSupplier}
-            showSearch={showSearch}
-            setShowSearch={setShowSearch}
-            hideAuth={isProPage}
-          />
+          {/* Mobile menu button */}
+          <div className="md:hidden">
+            <button
+              type="button"
+              className="inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none"
+              aria-controls="mobile-menu"
+              aria-expanded="false"
+              onClick={toggleMenu}
+            >
+              <span className="sr-only">Open main menu</span>
+              {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
+            </button>
+          </div>
+
+          {/* Desktop menu */}
+          <nav className="hidden md:flex items-center space-x-8">
+            <Button variant="link" asChild>
+              <Link to="/" className="text-gray-600 hover:text-accent">
+                Accueil
+              </Link>
+            </Button>
+          </nav>
         </div>
       </div>
-      
-      {/* Search overlay when search icon is clicked */}
-      <NavigationSearchOverlay
-        showSearch={showSearch}
-        searchQuery={searchQuery}
-        searchResults={searchResults}
-        onSearchChange={handleSearchChange}
-        onSearchResultClick={handleSearchResultClick}
-      />
-    </nav>
+
+      {/* Mobile menu */}
+      {isMenuOpen && (
+        <div className="md:hidden" id="mobile-menu">
+          <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3 bg-white">
+            <Link
+              to="/"
+              className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-accent hover:bg-gray-50"
+              onClick={toggleMenu}
+            >
+              Accueil
+            </Link>
+          </div>
+        </div>
+      )}
+    </header>
   );
 };
 
