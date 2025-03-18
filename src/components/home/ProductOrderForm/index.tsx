@@ -17,7 +17,8 @@ import {
   getQuantityOptions, 
   getAvailableVariants, 
   getVariantOptions, 
-  getVariantDisplayName 
+  getVariantDisplayName,
+  getFeatureIllustration
 } from "./utils";
 
 const ProductOrderForm = () => {
@@ -74,6 +75,29 @@ const ProductOrderForm = () => {
   return (
     <div className="bg-white rounded-lg shadow-lg p-4 md:p-6 max-w-4xl mx-auto my-6 md:my-10">
       <h2 className="text-xl md:text-2xl font-bold text-gray-800 mb-4 md:mb-6">Commander vos produits</h2>
+      
+      {/* Mobile preview illustration */}
+      {isMobile && selectedProduct && Object.keys(variants).length > 0 && (
+        <div className="mb-6 p-4 bg-gray-50 rounded-lg">
+          <div className="flex flex-col items-center">
+            <img 
+              src={getFeatureIllustration(selectedProduct, variants)} 
+              alt="Aperçu produit" 
+              className="max-h-40 object-contain mb-3" 
+            />
+            <div className="text-center">
+              <h3 className="font-medium text-gray-800">{selectedProduct.name}</h3>
+              <div className="flex flex-wrap justify-center gap-1 mt-2">
+                {Object.entries(variants).map(([type, value]) => (
+                  <span key={type} className="text-xs bg-white px-2 py-1 rounded-full border">
+                    {getVariantDisplayName(type)}: {value}
+                  </span>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
       
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-8">
         {/* Product Form Column */}
@@ -155,6 +179,16 @@ const ProductOrderForm = () => {
           />
         )}
       </div>
+
+      {/* Mobile illustration sheet */}
+      {isMobile && (
+        <ProductIllustration
+          selectedProduct={selectedProduct}
+          variants={variants}
+          openIllustration={openIllustration}
+          setOpenIllustration={setOpenIllustration}
+        />
+      )}
     </div>
   );
 };
