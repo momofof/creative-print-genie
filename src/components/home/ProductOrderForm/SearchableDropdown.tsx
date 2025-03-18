@@ -6,7 +6,7 @@ import {
   DropdownMenuContent,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Search } from "lucide-react";
+import { Search, X } from "lucide-react";
 import { Product } from "@/types/product";
 import { cn } from "@/lib/utils";
 
@@ -61,10 +61,18 @@ const SearchableDropdown = ({
               <Search className="absolute left-2 top-2.5 h-4 w-4 text-gray-500" />
               <Input
                 placeholder="Rechercher..."
-                className="pl-8"
+                className="pl-8 pr-8"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
+              {searchTerm && (
+                <button 
+                  className="absolute right-2 top-2.5 text-gray-500 hover:text-gray-700"
+                  onClick={() => setSearchTerm('')}
+                >
+                  <X className="h-4 w-4" />
+                </button>
+              )}
             </div>
             <div className="max-h-[200px] overflow-auto">
               {filteredProducts.length > 0 ? (

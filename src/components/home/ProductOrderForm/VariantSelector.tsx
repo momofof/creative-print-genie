@@ -1,4 +1,5 @@
 
+import { useState } from "react";
 import {
   Select,
   SelectContent,
@@ -12,7 +13,9 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { getVariantIllustration } from "./utils";
+import { Search, X } from "lucide-react";
 
 interface VariantSelectorProps {
   variantType: string;
@@ -31,6 +34,13 @@ const VariantSelector = ({
   onChange,
   productCategory
 }: VariantSelectorProps) => {
+  const [searchTerm, setSearchTerm] = useState('');
+  
+  // Filter options by search term
+  const filteredOptions = options.filter(option => 
+    option.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
   return (
     <div>
       <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -45,12 +55,39 @@ const VariantSelector = ({
             <SelectTrigger>
               <SelectValue placeholder={`Choisir ${displayName.toLowerCase()}...`} />
             </SelectTrigger>
-            <SelectContent>
-              {options.map((option) => (
-                <SelectItem key={option} value={option}>
-                  {option}
-                </SelectItem>
-              ))}
+            <SelectContent className="max-h-[300px]">
+              <div className="p-2 sticky top-0 bg-white z-10 border-b">
+                <div className="relative">
+                  <Search className="absolute left-2 top-2.5 h-4 w-4 text-gray-500" />
+                  <Input
+                    placeholder="Rechercher..."
+                    className="pl-8 pr-8 text-sm"
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                  />
+                  {searchTerm && (
+                    <button 
+                      className="absolute right-2 top-2.5 text-gray-500 hover:text-gray-700"
+                      onClick={() => setSearchTerm('')}
+                    >
+                      <X className="h-4 w-4" />
+                    </button>
+                  )}
+                </div>
+              </div>
+              <div className="max-h-[200px] overflow-y-auto pt-1">
+                {filteredOptions.length > 0 ? (
+                  filteredOptions.map((option) => (
+                    <SelectItem key={option} value={option}>
+                      {option}
+                    </SelectItem>
+                  ))
+                ) : (
+                  <div className="py-2 px-2 text-center text-sm text-gray-500">
+                    Aucune option trouvée
+                  </div>
+                )}
+              </div>
             </SelectContent>
           </Select>
         </div>
