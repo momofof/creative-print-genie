@@ -1,3 +1,4 @@
+
 export interface Product {
   id: string;
   name: string;
@@ -26,9 +27,22 @@ export interface ProductVariant {
 export interface Order {
   id: string;
   customerName: string;
+  customer?: {
+    name: string;
+    email: string;
+  };
   date: string;
   total: number;
   status: 'pending' | 'processing' | 'shipped' | 'delivered' | 'cancelled';
+  items?: {
+    id: string;
+    product: {
+      name: string;
+      image: string;
+    };
+    quantity: number;
+    price: number;
+  }[];
 }
 
 export interface Stat {
@@ -36,4 +50,20 @@ export interface Stat {
   value: string;
   change: string;
   changeType: 'positive' | 'negative' | 'neutral';
+}
+
+export interface ProFeature {
+  title: string;
+  description: string;
+  icon: React.ReactNode;
+}
+
+export interface Customization {
+  id: string;
+  name: string;
+  description: string;
+  type: string;
+  position: string;
+  price_adjustment: number;
+  is_required: boolean;
 }
