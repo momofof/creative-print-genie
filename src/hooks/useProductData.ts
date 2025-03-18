@@ -1,9 +1,6 @@
 
 import { useState, useEffect } from 'react';
-import { 
-  fetchProducts, 
-  fetchCategories
-} from '@/services/productService';
+import { fetchProducts, fetchCategories } from '@/services/productService';
 import { Product } from '@/types/product';
 import { useQuery } from '@tanstack/react-query';
 

@@ -1,22 +1,22 @@
 import { supabase } from "@/integrations/supabase/client";
 import { productCategories, allProducts } from "@/data/productData";
-import { categoryVariants, quantityOptions, variantIllustrations } from "@/components/home/ProductOrderForm/utils";
 
 /**
  * Ce script est conçu pour être exécuté manuellement afin d'importer les données
  * existantes dans les tables Supabase.
  * 
- * NOTE IMPORTANTE: Ce script n'est pas actuellement fonctionnel car les tables
- * nécessaires n'existent pas encore dans Supabase. Il sera mis à jour une fois 
- * que les tables seront créées.
+ * NOTE IMPORTANTE: Ce script n'est que partiellement fonctionnel car certaines tables
+ * nécessaires n'existent pas encore dans Supabase. Les fonctions pour ces tables
+ * sont commentées et seront activées une fois les tables créées.
  * 
- * Pour l'exécuter (quand il sera prêt), vous pouvez l'appeler depuis la console du navigateur:
+ * Pour l'exécuter, vous pouvez l'appeler depuis la console du navigateur:
  * import { importAllData } from "./scripts/importProductData"
  * importAllData()
  */
 
 export const importCategories = async () => {
   console.log("Cette fonction sera implémentée quand la table product_categories sera créée dans Supabase.");
+  // Cette fonction est désactivée car la table n'existe pas encore
 };
 
 export const importProducts = async () => {
@@ -54,10 +54,12 @@ export const importProducts = async () => {
 
 export const importVariantTypes = async () => {
   console.log("Cette fonction sera implémentée quand la table variant_types sera créée dans Supabase.");
+  // Cette fonction est désactivée car la table n'existe pas encore
 };
 
 export const importQuantityOptions = async () => {
   console.log("Cette fonction sera implémentée quand la table quantity_options sera créée dans Supabase.");
+  // Cette fonction est désactivée car la table n'existe pas encore
 };
 
 export const importAllData = async () => {
