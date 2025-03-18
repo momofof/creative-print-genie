@@ -2,8 +2,7 @@
 import { useState, useEffect } from 'react';
 import { 
   fetchProducts, 
-  fetchCategories, 
-  fetchSubcategories
+  fetchCategories
 } from '@/services/productService';
 import { Product } from '@/types/product';
 import { useQuery } from '@tanstack/react-query';
@@ -62,8 +61,7 @@ export const useProductVariants = (categoryId: string | undefined) => {
   useEffect(() => {
     if (!categoryId) return;
 
-    // For now, we're using hardcoded variant types and options since the tables don't exist
-    // This will be replaced with actual API calls when the tables are created
+    // Since the variant tables don't exist in Supabase yet, we'll use mock data
     setIsLoading(true);
     
     try {
@@ -77,27 +75,31 @@ export const useProductVariants = (categoryId: string | undefined) => {
       setVariantTypes(mockVariantTypes);
       
       // Simulate variant options
-      const mockVariantOptions: Record<string, VariantOption[]> = {
-        'sizes': [
-          { id: '1', variant_type_id: '1', value: 'S' },
-          { id: '2', variant_type_id: '1', value: 'M' },
-          { id: '3', variant_type_id: '1', value: 'L' },
-          { id: '4', variant_type_id: '1', value: 'XL' }
-        ],
-        'colors': [
-          { id: '5', variant_type_id: '2', value: 'Rouge' },
-          { id: '6', variant_type_id: '2', value: 'Bleu' },
-          { id: '7', variant_type_id: '2', value: 'Vert' },
-          { id: '8', variant_type_id: '2', value: 'Noir' }
-        ],
-        'materials': [
-          { id: '9', variant_type_id: '3', value: 'Coton' },
-          { id: '10', variant_type_id: '3', value: 'Polyester' },
-          { id: '11', variant_type_id: '3', value: 'Laine' }
-        ]
-      };
+      const sizesOptions: VariantOption[] = [
+        { id: '1', variant_type_id: '1', value: 'S' },
+        { id: '2', variant_type_id: '1', value: 'M' },
+        { id: '3', variant_type_id: '1', value: 'L' },
+        { id: '4', variant_type_id: '1', value: 'XL' }
+      ];
       
-      setVariantOptions(mockVariantOptions);
+      const colorsOptions: VariantOption[] = [
+        { id: '5', variant_type_id: '2', value: 'Rouge' },
+        { id: '6', variant_type_id: '2', value: 'Bleu' },
+        { id: '7', variant_type_id: '2', value: 'Vert' },
+        { id: '8', variant_type_id: '2', value: 'Noir' }
+      ];
+      
+      const materialsOptions: VariantOption[] = [
+        { id: '9', variant_type_id: '3', value: 'Coton' },
+        { id: '10', variant_type_id: '3', value: 'Polyester' },
+        { id: '11', variant_type_id: '3', value: 'Laine' }
+      ];
+      
+      setVariantOptions({
+        'sizes': sizesOptions,
+        'colors': colorsOptions,
+        'materials': materialsOptions
+      });
       
       // Simulate quantity options
       setQuantityOptions([1, 5, 10, 25, 50, 100]);
