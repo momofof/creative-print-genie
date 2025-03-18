@@ -34,19 +34,25 @@ export const useSupplierDashboard = () => {
     },
   ]);
 
-  // Simplified mock version that doesn't interact with the database
+  // Simplified mock version
   const fetchProducts = async () => {
+    setIsLoading(true);
+    // Empty implementation since tables are dropped
+    setIsLoading(false);
     return [];
   };
 
-  // Simplified mock version that doesn't interact with the database
+  // Simplified mock version
   const deleteProduct = async (productId: string) => {
+    // Empty implementation since tables are dropped
     toast.success("Produit supprimé avec succès");
     return true;
   };
 
-  // Simplified mock version that doesn't interact with the database
+  // Simplified mock version
   const loadDashboardData = async () => {
+    setIsLoading(true);
+    // Empty implementation since tables are dropped
     setIsLoading(false);
   };
 

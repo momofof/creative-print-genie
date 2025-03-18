@@ -47,15 +47,7 @@ export function ProductInteractions({ productId }: ProductInteractionsProps) {
       return;
     }
 
-    addReviewMutation.mutate(
-      { rating: reviewRating, content: reviewContent },
-      {
-        onSuccess: () => {
-          setReviewContent("");
-          setReviewRating(5);
-        }
-      }
-    );
+    addReviewMutation.mutate();
   };
 
   const handleAddComment = (e: React.FormEvent, parentId?: string) => {
@@ -65,14 +57,7 @@ export function ProductInteractions({ productId }: ProductInteractionsProps) {
       return;
     }
 
-    addCommentMutation.mutate(
-      { content: commentContent, parentId },
-      {
-        onSuccess: () => {
-          setCommentContent("");
-        }
-      }
-    );
+    addCommentMutation.mutate();
   };
 
   return (
