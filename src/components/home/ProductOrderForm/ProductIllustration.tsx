@@ -94,7 +94,7 @@ const ProductIllustration = ({
       )}
 
       {/* Mobile view: Sheet component */}
-      <Sheet open={openIllustration && isMobile} onOpenChange={setOpenIllustration}>
+      <Sheet open={openIllustration} onOpenChange={setOpenIllustration}>
         <SheetContent side="bottom" className="h-[80vh] rounded-t-xl pt-6">
           <SheetHeader className="text-left pb-4">
             <SheetTitle className="text-xl">Aperçu des options</SheetTitle>
@@ -130,6 +130,31 @@ const ProductIllustration = ({
               </div>
             )}
           </div>
+
+          {/* Variant illustrations on mobile */}
+          {selectedProduct && Object.keys(variants).length > 0 && (
+            <div className="mt-4 border-t border-gray-200 pt-4 pb-6">
+              <h4 className="font-medium text-sm mb-3 px-4">Aperçu des variantes</h4>
+              <div className="px-4 grid grid-cols-2 gap-3">
+                {Object.entries(variants).map(([type, value]) => (
+                  <div key={`${type}-${value}`} className="bg-white rounded-lg border border-gray-200 p-2">
+                    <div className="text-center">
+                      <div className="h-24 flex items-center justify-center">
+                        <img 
+                          src={getFeatureIllustration(selectedProduct, { [type]: value })} 
+                          alt={`${getVariantDisplayName(type)}: ${value}`} 
+                          className="max-w-full max-h-20 object-contain" 
+                        />
+                      </div>
+                      <p className="mt-2 text-xs font-medium truncate">
+                        {getVariantDisplayName(type)}: {value}
+                      </p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
         </SheetContent>
       </Sheet>
     </>
