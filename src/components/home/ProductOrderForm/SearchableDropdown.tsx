@@ -6,7 +6,7 @@ import {
   DropdownMenuContent,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Search, Loader2 } from "lucide-react";
+import { Search } from "lucide-react";
 import { Product } from "@/types/product";
 import { cn } from "@/lib/utils";
 
@@ -16,7 +16,6 @@ interface SearchableDropdownProps {
   products: Product[];
   onSelect: (product: Product) => void;
   selectedProduct?: Product;
-  isLoading?: boolean;
 }
 
 const SearchableDropdown = ({
@@ -24,8 +23,7 @@ const SearchableDropdown = ({
   placeholder,
   products,
   onSelect,
-  selectedProduct,
-  isLoading = false
+  selectedProduct
 }: SearchableDropdownProps) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [isOpen, setIsOpen] = useState(false);
@@ -48,17 +46,9 @@ const SearchableDropdown = ({
           <button
             className="flex items-center justify-between w-full border border-gray-300 bg-white rounded-md px-3 py-2 text-left text-sm"
             aria-haspopup="listbox"
-            disabled={isLoading}
           >
             <span className={cn("block truncate", !selectedProduct && "text-gray-500")}>
-              {isLoading ? (
-                <span className="flex items-center">
-                  <Loader2 className="h-4 w-4 mr-2 animate-spin" /> 
-                  Chargement...
-                </span>
-              ) : (
-                selectedProduct ? selectedProduct.name : placeholder
-              )}
+              {selectedProduct ? selectedProduct.name : placeholder}
             </span>
             <svg className="h-5 w-5 text-gray-400" viewBox="0 0 20 20" fill="none" stroke="currentColor">
               <path d="M7 7l3 3 3-3" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
@@ -77,12 +67,7 @@ const SearchableDropdown = ({
               />
             </div>
             <div className="max-h-[200px] overflow-auto">
-              {isLoading ? (
-                <div className="text-center py-4">
-                  <Loader2 className="h-5 w-5 mx-auto animate-spin text-gray-400" />
-                  <p className="text-sm text-gray-500 mt-2">Chargement des produits...</p>
-                </div>
-              ) : filteredProducts.length > 0 ? (
+              {filteredProducts.length > 0 ? (
                 <div className="space-y-1">
                   {filteredProducts.map((product) => (
                     <button
