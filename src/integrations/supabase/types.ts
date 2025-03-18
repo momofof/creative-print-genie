@@ -9,97 +9,17 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      comments: {
-        Row: {
-          content: string
-          created_at: string
-          id: string
-          parent_id: string | null
-          product_id: string
-          updated_at: string
-          user_id: string
-        }
-        Insert: {
-          content: string
-          created_at?: string
-          id?: string
-          parent_id?: string | null
-          product_id: string
-          updated_at?: string
-          user_id: string
-        }
-        Update: {
-          content?: string
-          created_at?: string
-          id?: string
-          parent_id?: string | null
-          product_id?: string
-          updated_at?: string
-          user_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "comments_parent_id_fkey"
-            columns: ["parent_id"]
-            isOneToOne: false
-            referencedRelation: "comments"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "comments_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      customer_customizations: {
-        Row: {
-          content: string | null
-          created_at: string | null
-          customization_id: string
-          id: string
-          image_path: string | null
-          user_id: string | null
-        }
-        Insert: {
-          content?: string | null
-          created_at?: string | null
-          customization_id: string
-          id?: string
-          image_path?: string | null
-          user_id?: string | null
-        }
-        Update: {
-          content?: string | null
-          created_at?: string | null
-          customization_id?: string
-          id?: string
-          image_path?: string | null
-          user_id?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "customer_customizations_customization_id_fkey"
-            columns: ["customization_id"]
-            isOneToOne: false
-            referencedRelation: "customizations"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      customizations: {
+      product_customizations: {
         Row: {
           created_at: string | null
           description: string | null
           id: string
           is_required: boolean | null
           name: string
-          position: Database["public"]["Enums"]["position_type"] | null
+          position: string | null
           price_adjustment: number | null
-          product_id: string
-          type: Database["public"]["Enums"]["customization_type"]
+          product_id: string | null
+          type: string
           updated_at: string | null
         }
         Insert: {
@@ -108,10 +28,10 @@ export type Database = {
           id?: string
           is_required?: boolean | null
           name: string
-          position?: Database["public"]["Enums"]["position_type"] | null
+          position?: string | null
           price_adjustment?: number | null
-          product_id: string
-          type: Database["public"]["Enums"]["customization_type"]
+          product_id?: string | null
+          type: string
           updated_at?: string | null
         }
         Update: {
@@ -120,47 +40,18 @@ export type Database = {
           id?: string
           is_required?: boolean | null
           name?: string
-          position?: Database["public"]["Enums"]["position_type"] | null
+          position?: string | null
           price_adjustment?: number | null
-          product_id?: string
-          type?: Database["public"]["Enums"]["customization_type"]
+          product_id?: string | null
+          type?: string
           updated_at?: string | null
         }
         Relationships: [
           {
-            foreignKeyName: "customizations_product_id_fkey"
+            foreignKeyName: "product_customizations_product_id_fkey"
             columns: ["product_id"]
             isOneToOne: false
             referencedRelation: "products"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      likes: {
-        Row: {
-          created_at: string
-          id: string
-          product_id: string
-          user_id: string
-        }
-        Insert: {
-          created_at?: string
-          id?: string
-          product_id: string
-          user_id: string
-        }
-        Update: {
-          created_at?: string
-          id?: string
-          product_id?: string
-          user_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "likes_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
         ]
@@ -172,10 +63,10 @@ export type Database = {
           hex_color: string
           id: string
           price_adjustment: number | null
-          product_id: string
+          product_id: string | null
           size: string
-          status: Database["public"]["Enums"]["variant_status"] | null
-          stock: number
+          status: string | null
+          stock: number | null
           updated_at: string | null
         }
         Insert: {
@@ -184,10 +75,10 @@ export type Database = {
           hex_color: string
           id?: string
           price_adjustment?: number | null
-          product_id: string
+          product_id?: string | null
           size: string
-          status?: Database["public"]["Enums"]["variant_status"] | null
-          stock?: number
+          status?: string | null
+          stock?: number | null
           updated_at?: string | null
         }
         Update: {
@@ -196,50 +87,15 @@ export type Database = {
           hex_color?: string
           id?: string
           price_adjustment?: number | null
-          product_id?: string
+          product_id?: string | null
           size?: string
-          status?: Database["public"]["Enums"]["variant_status"] | null
-          stock?: number
+          status?: string | null
+          stock?: number | null
           updated_at?: string | null
         }
         Relationships: [
           {
             foreignKeyName: "product_variants_product_id_fkey"
-            columns: ["product_id"]
-            isOneToOne: false
-            referencedRelation: "products"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      product_views: {
-        Row: {
-          created_at: string | null
-          id: string
-          image: string
-          name: string
-          order: number
-          product_id: string
-        }
-        Insert: {
-          created_at?: string | null
-          id?: string
-          image: string
-          name: string
-          order: number
-          product_id: string
-        }
-        Update: {
-          created_at?: string | null
-          id?: string
-          image?: string
-          name?: string
-          order?: number
-          product_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "product_views_product_id_fkey"
             columns: ["product_id"]
             isOneToOne: false
             referencedRelation: "products"
@@ -258,10 +114,10 @@ export type Database = {
           name: string
           original_price: number | null
           price: number
-          status: Database["public"]["Enums"]["product_status"] | null
+          status: string
           stock: number | null
           subcategory: string | null
-          supplier_id: string
+          supplier_id: string | null
           updated_at: string | null
         }
         Insert: {
@@ -274,10 +130,10 @@ export type Database = {
           name: string
           original_price?: number | null
           price: number
-          status?: Database["public"]["Enums"]["product_status"] | null
+          status?: string
           stock?: number | null
           subcategory?: string | null
-          supplier_id: string
+          supplier_id?: string | null
           updated_at?: string | null
         }
         Update: {
@@ -290,114 +146,11 @@ export type Database = {
           name?: string
           original_price?: number | null
           price?: number
-          status?: Database["public"]["Enums"]["product_status"] | null
+          status?: string
           stock?: number | null
           subcategory?: string | null
-          supplier_id?: string
+          supplier_id?: string | null
           updated_at?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "products_supplier_id_fkey"
-            columns: ["supplier_id"]
-            isOneToOne: false
-            referencedRelation: "suppliers"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      profiles: {
-        Row: {
-          avatar_url: string | null
-          created_at: string | null
-          first_name: string | null
-          id: string
-          last_name: string | null
-        }
-        Insert: {
-          avatar_url?: string | null
-          created_at?: string | null
-          first_name?: string | null
-          id: string
-          last_name?: string | null
-        }
-        Update: {
-          avatar_url?: string | null
-          created_at?: string | null
-          first_name?: string | null
-          id?: string
-          last_name?: string | null
-        }
-        Relationships: []
-      }
-      reviews: {
-        Row: {
-          content: string
-          created_at: string
-          id: string
-          product_id: string
-          rating: number
-          updated_at: string
-          user_id: string
-        }
-        Insert: {
-          content: string
-          created_at?: string
-          id?: string
-          product_id: string
-          rating: number
-          updated_at?: string
-          user_id: string
-        }
-        Update: {
-          content?: string
-          created_at?: string
-          id?: string
-          product_id?: string
-          rating?: number
-          updated_at?: string
-          user_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "reviews_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      suppliers: {
-        Row: {
-          address: string | null
-          company_name: string
-          contact_name: string | null
-          created_at: string | null
-          email: string
-          id: string
-          phone: string | null
-          status: Database["public"]["Enums"]["supplier_status"] | null
-        }
-        Insert: {
-          address?: string | null
-          company_name: string
-          contact_name?: string | null
-          created_at?: string | null
-          email: string
-          id?: string
-          phone?: string | null
-          status?: Database["public"]["Enums"]["supplier_status"] | null
-        }
-        Update: {
-          address?: string | null
-          company_name?: string
-          contact_name?: string | null
-          created_at?: string | null
-          email?: string
-          id?: string
-          phone?: string | null
-          status?: Database["public"]["Enums"]["supplier_status"] | null
         }
         Relationships: []
       }
