@@ -61,14 +61,7 @@ const ProductOrderForm = () => {
       return;
     }
     
-    // Here you would typically process the order with the variants
-    console.log("Order submitted:", {
-      product: selectedProduct,
-      quantity: selectedQuantity,
-      variants: variants
-    });
-    
-    // Show success message
+    // Since we don't have a database now, just show a success message
     toast.success(`Commande de ${selectedQuantity} ${selectedProduct.name} envoyée avec succès !`);
   };
 
