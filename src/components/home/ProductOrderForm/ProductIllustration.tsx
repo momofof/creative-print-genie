@@ -18,6 +18,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 interface ProductIllustrationProps {
   selectedProduct?: Product;
@@ -137,73 +138,75 @@ const ProductIllustration = ({
                 "Sélectionnez un produit pour voir l'aperçu"}
             </SheetDescription>
           </SheetHeader>
-          <div className="flex-1 flex items-center justify-center overflow-auto py-4">
-            {selectedProduct ? (
-              <div className="flex flex-col items-center">
-                <img 
-                  src={activeVariant ? getCurrentIllustration() : getFeatureIllustration(selectedProduct, variants)} 
-                  alt="Option aperçu" 
-                  className="max-w-full max-h-[40vh] object-contain" 
-                />
-                <div className="mt-4 text-center px-4">
-                  <h4 className="font-medium text-lg">{selectedProduct.name}</h4>
-                  {activeVariant ? (
-                    <p className="text-sm text-gray-600 mt-2 bg-gray-100 px-2 py-1 rounded inline-block">
-                      <span className="font-medium">{getVariantDisplayName(activeVariant.type)}:</span> {activeVariant.value}
-                    </p>
-                  ) : (
-                    <div className="text-sm text-gray-600 mt-2 flex flex-wrap justify-center gap-2">
-                      {Object.entries(variants).map(([type, value]) => (
-                        <div key={type} className="bg-gray-100 px-2 py-1 rounded">
-                          <span className="font-medium">{getVariantDisplayName(type)}:</span> {value}
+          <ScrollArea className="flex-1 h-[calc(80vh-120px)]">
+            <div className="flex items-center justify-center overflow-visible py-4">
+              {selectedProduct ? (
+                <div className="flex flex-col items-center">
+                  <img 
+                    src={activeVariant ? getCurrentIllustration() : getFeatureIllustration(selectedProduct, variants)} 
+                    alt="Option aperçu" 
+                    className="max-w-full max-h-[40vh] object-contain" 
+                  />
+                  <div className="mt-4 text-center px-4">
+                    <h4 className="font-medium text-lg">{selectedProduct.name}</h4>
+                    {activeVariant ? (
+                      <p className="text-sm text-gray-600 mt-2 bg-gray-100 px-2 py-1 rounded inline-block">
+                        <span className="font-medium">{getVariantDisplayName(activeVariant.type)}:</span> {activeVariant.value}
+                      </p>
+                    ) : (
+                      <div className="text-sm text-gray-600 mt-2 flex flex-wrap justify-center gap-2">
+                        {Object.entries(variants).map(([type, value]) => (
+                          <div key={type} className="bg-gray-100 px-2 py-1 rounded">
+                            <span className="font-medium">{getVariantDisplayName(type)}:</span> {value}
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              ) : (
+                <div className="text-center py-8 px-4">
+                  <Image className="mx-auto h-16 w-16 text-gray-400 mb-4" />
+                  <p className="text-gray-500">Sélectionnez un produit et ses options pour visualiser l'aperçu</p>
+                </div>
+              )}
+            </div>
+
+            {/* Variant illustrations on mobile - Now with scrollable container */}
+            {selectedProduct && Object.keys(variants).length > 0 && (
+              <div className="mt-4 border-t border-gray-200 pt-4 pb-6">
+                <h4 className="font-medium text-sm mb-3 px-4">Aperçu des variantes</h4>
+                <div className="px-4 grid grid-cols-2 gap-3">
+                  {Object.entries(variants).map(([type, value]) => (
+                    <button
+                      key={`${type}-${value}`}
+                      className={`bg-white rounded-lg border ${activeVariant && activeVariant.type === type ? 'border-accent ring-1 ring-accent' : 'border-gray-200'} p-2 text-left`}
+                      onClick={() => {
+                        if (activeVariant && activeVariant.type === type && activeVariant.value === value) {
+                          setActiveVariant(null);
+                        } else {
+                          setActiveVariant({ type, value });
+                        }
+                      }}
+                    >
+                      <div className="text-center">
+                        <div className="h-24 flex items-center justify-center">
+                          <img 
+                            src={getVariantIllustration(selectedProduct.category, type, value)} 
+                            alt={`${getVariantDisplayName(type)}: ${value}`} 
+                            className="max-w-full max-h-20 object-contain" 
+                          />
                         </div>
-                      ))}
-                    </div>
-                  )}
+                        <p className="mt-2 text-xs font-medium truncate">
+                          {getVariantDisplayName(type)}: {value}
+                        </p>
+                      </div>
+                    </button>
+                  ))}
                 </div>
               </div>
-            ) : (
-              <div className="text-center py-8 px-4">
-                <Image className="mx-auto h-16 w-16 text-gray-400 mb-4" />
-                <p className="text-gray-500">Sélectionnez un produit et ses options pour visualiser l'aperçu</p>
-              </div>
             )}
-          </div>
-
-          {/* Variant illustrations on mobile - Now with interactive buttons */}
-          {selectedProduct && Object.keys(variants).length > 0 && (
-            <div className="mt-4 border-t border-gray-200 pt-4 pb-6">
-              <h4 className="font-medium text-sm mb-3 px-4">Aperçu des variantes</h4>
-              <div className="px-4 grid grid-cols-2 gap-3">
-                {Object.entries(variants).map(([type, value]) => (
-                  <button
-                    key={`${type}-${value}`}
-                    className={`bg-white rounded-lg border ${activeVariant && activeVariant.type === type ? 'border-accent ring-1 ring-accent' : 'border-gray-200'} p-2 text-left`}
-                    onClick={() => {
-                      if (activeVariant && activeVariant.type === type && activeVariant.value === value) {
-                        setActiveVariant(null);
-                      } else {
-                        setActiveVariant({ type, value });
-                      }
-                    }}
-                  >
-                    <div className="text-center">
-                      <div className="h-24 flex items-center justify-center">
-                        <img 
-                          src={getVariantIllustration(selectedProduct.category, type, value)} 
-                          alt={`${getVariantDisplayName(type)}: ${value}`} 
-                          className="max-w-full max-h-20 object-contain" 
-                        />
-                      </div>
-                      <p className="mt-2 text-xs font-medium truncate">
-                        {getVariantDisplayName(type)}: {value}
-                      </p>
-                    </div>
-                  </button>
-                ))}
-              </div>
-            </div>
-          )}
+          </ScrollArea>
         </SheetContent>
       </Sheet>
     </>
