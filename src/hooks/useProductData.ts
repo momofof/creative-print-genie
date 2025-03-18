@@ -2,9 +2,8 @@
 import { useState, useEffect } from 'react';
 import { 
   fetchProducts, 
-  fetchVariantTypes, 
-  fetchVariantOptions,
-  fetchQuantityOptions
+  fetchCategories, 
+  fetchSubcategories
 } from '@/services/productService';
 import { Product } from '@/types/product';
 import { useQuery } from '@tanstack/react-query';
@@ -33,10 +32,23 @@ export const useProductData = () => {
     queryFn: () => fetchProducts(),
   });
 
+  // Récupérer les catégories
+  const {
+    data: categories,
+    isLoading: isLoadingCategories,
+    error: categoriesError
+  } = useQuery({
+    queryKey: ['categories'],
+    queryFn: () => fetchCategories(),
+  });
+
   return {
     products: products || [],
+    categories: categories || [],
     isLoadingProducts,
+    isLoadingCategories,
     productsError,
+    categoriesError
   };
 };
 
@@ -50,35 +62,53 @@ export const useProductVariants = (categoryId: string | undefined) => {
   useEffect(() => {
     if (!categoryId) return;
 
-    const loadVariantData = async () => {
-      setIsLoading(true);
-      try {
-        // Charger les types de variantes pour cette catégorie
-        const types = await fetchVariantTypes(categoryId);
-        setVariantTypes(types);
-
-        // Pour chaque type, charger les options
-        const optionsMap: Record<string, VariantOption[]> = {};
-        for (const type of types) {
-          const options = await fetchVariantOptions(type.id);
-          optionsMap[type.name] = options;
-        }
-        setVariantOptions(optionsMap);
-
-        // Charger les options de quantité
-        const quantities = await fetchQuantityOptions(categoryId);
-        setQuantityOptions(quantities.length > 0 ? quantities : [1, 5, 10, 25, 50, 100]); // Valeurs par défaut si aucune n'est trouvée
-
-        setError(null);
-      } catch (err) {
-        console.error('Erreur lors du chargement des données de variantes:', err);
-        setError(err instanceof Error ? err : new Error('Une erreur est survenue'));
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    loadVariantData();
+    // For now, we're using hardcoded variant types and options since the tables don't exist
+    // This will be replaced with actual API calls when the tables are created
+    setIsLoading(true);
+    
+    try {
+      // Simulate variant types
+      const mockVariantTypes: VariantType[] = [
+        { id: '1', name: 'sizes', display_name: 'Taille', category_id: categoryId },
+        { id: '2', name: 'colors', display_name: 'Couleur', category_id: categoryId },
+        { id: '3', name: 'materials', display_name: 'Matériau', category_id: categoryId }
+      ];
+      
+      setVariantTypes(mockVariantTypes);
+      
+      // Simulate variant options
+      const mockVariantOptions: Record<string, VariantOption[]> = {
+        'sizes': [
+          { id: '1', variant_type_id: '1', value: 'S' },
+          { id: '2', variant_type_id: '1', value: 'M' },
+          { id: '3', variant_type_id: '1', value: 'L' },
+          { id: '4', variant_type_id: '1', value: 'XL' }
+        ],
+        'colors': [
+          { id: '5', variant_type_id: '2', value: 'Rouge' },
+          { id: '6', variant_type_id: '2', value: 'Bleu' },
+          { id: '7', variant_type_id: '2', value: 'Vert' },
+          { id: '8', variant_type_id: '2', value: 'Noir' }
+        ],
+        'materials': [
+          { id: '9', variant_type_id: '3', value: 'Coton' },
+          { id: '10', variant_type_id: '3', value: 'Polyester' },
+          { id: '11', variant_type_id: '3', value: 'Laine' }
+        ]
+      };
+      
+      setVariantOptions(mockVariantOptions);
+      
+      // Simulate quantity options
+      setQuantityOptions([1, 5, 10, 25, 50, 100]);
+      
+      setError(null);
+    } catch (err) {
+      console.error('Erreur lors du chargement des données de variantes:', err);
+      setError(err instanceof Error ? err : new Error('Une erreur est survenue'));
+    } finally {
+      setIsLoading(false);
+    }
   }, [categoryId]);
 
   return {
