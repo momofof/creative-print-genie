@@ -25,7 +25,6 @@ interface VariantSelectorProps {
   selectedValue: string;
   onChange: (value: string) => void;
   productCategory: string;
-  onViewIllustration?: (variantType: string, value: string) => void;
 }
 
 const VariantSelector = ({
@@ -34,8 +33,7 @@ const VariantSelector = ({
   options,
   selectedValue,
   onChange,
-  productCategory,
-  onViewIllustration
+  productCategory
 }: VariantSelectorProps) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [showIllustration, setShowIllustration] = useState(false);
@@ -45,13 +43,6 @@ const VariantSelector = ({
   const filteredOptions = options.filter(option => 
     option.toLowerCase().includes(searchTerm.toLowerCase())
   );
-
-  const handleViewIllustration = () => {
-    setShowIllustration(true);
-    if (isMobile && onViewIllustration && selectedValue) {
-      onViewIllustration(variantType, selectedValue);
-    }
-  };
 
   return (
     <div>
@@ -110,12 +101,7 @@ const VariantSelector = ({
         {selectedValue && (
           <Popover open={showIllustration} onOpenChange={setShowIllustration}>
             <PopoverTrigger asChild>
-              <Button 
-                variant="outline" 
-                size="icon" 
-                className="px-2 h-10" 
-                onClick={handleViewIllustration}
-              >
+              <Button variant="outline" size="icon" className="px-2 h-10" onClick={() => setShowIllustration(true)}>
                 <span className="sr-only">Aperçu</span>
                 <Eye className="h-4 w-4" />
               </Button>
