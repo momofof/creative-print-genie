@@ -3,40 +3,37 @@ import { useState, useEffect } from "react";
 import { Product } from "@/types/product";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
-import { allProducts } from "@/data/productData";
+import { useProductData, useProductVariants } from "@/hooks/useProductData";
 
-// Import our new components
+// Import our components
 import SearchableDropdown from "./SearchableDropdown";
 import QuantitySelector from "./QuantitySelector";
 import VariantSelector from "./VariantSelector";
 import ProductIllustration from "./ProductIllustration";
 
 // Import utility functions
-import { 
-  getQuantityOptions, 
-  getAvailableVariants, 
-  getVariantOptions, 
-  getVariantDisplayName 
-} from "./utils";
+import { getVariantDisplayName } from "./utils";
 
 const ProductOrderForm = () => {
+  const { products, isLoadingProducts } = useProductData();
   const [selectedProduct, setSelectedProduct] = useState<Product | undefined>(undefined);
   const [selectedQuantity, setSelectedQuantity] = useState<number | null>(null);
   const [variants, setVariants] = useState<Record<string, string>>({});
-  const [availableVariants, setAvailableVariants] = useState<string[]>([]);
   const [openIllustration, setOpenIllustration] = useState(false);
   
-  // Update available variants when product category changes
+  // Extract the category_id from the selected product for the variants hook
+  const categoryId = selectedProduct?.category;
+  const { 
+    variantTypes, 
+    variantOptions,
+    quantityOptions,
+    isLoading: isLoadingVariants 
+  } = useProductVariants(categoryId);
+
+  // Reset variant selections when product changes
   useEffect(() => {
-    if (selectedProduct) {
-      const variantTypes = getAvailableVariants(selectedProduct.category);
-      setAvailableVariants(variantTypes);
-      
-      // Reset variant selections when product changes
-      setVariants({});
-    } else {
-      setAvailableVariants([]);
-    }
+    setVariants({});
+    setSelectedQuantity(null);
   }, [selectedProduct]);
 
   const handleVariantChange = (variantType: string, value: string) => {
@@ -74,36 +71,43 @@ const ProductOrderForm = () => {
               <SearchableDropdown
                 label="Sélectionnez un produit"
                 placeholder="Choisir un produit..."
-                products={allProducts}
+                products={products || []}
                 selectedProduct={selectedProduct}
                 onSelect={setSelectedProduct}
+                isLoading={isLoadingProducts}
               />
               
               {selectedProduct && (
                 <>
                   <QuantitySelector
-                    quantityOptions={getQuantityOptions(selectedProduct.category)}
+                    quantityOptions={quantityOptions}
                     selectedQuantity={selectedQuantity}
                     setSelectedQuantity={setSelectedQuantity}
                   />
                   
                   {/* Variant selectors */}
-                  {availableVariants.length > 0 && (
+                  {variantTypes.length > 0 && (
                     <div className="space-y-4">
                       <h3 className="text-lg font-medium text-gray-800">Options spécifiques</h3>
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        {availableVariants.map((variantType) => (
+                        {variantTypes.map((variantType) => (
                           <VariantSelector
-                            key={variantType}
-                            variantType={variantType}
-                            displayName={getVariantDisplayName(variantType)}
-                            options={getVariantOptions(selectedProduct.category, variantType)}
-                            selectedValue={variants[variantType] || ""}
-                            onChange={(value) => handleVariantChange(variantType, value)}
+                            key={variantType.id}
+                            variantType={variantType.name}
+                            displayName={getVariantDisplayName(variantType.name) || variantType.display_name}
+                            options={variantOptions[variantType.name]?.map(opt => opt.value) || []}
+                            selectedValue={variants[variantType.name] || ""}
+                            onChange={(value) => handleVariantChange(variantType.name, value)}
                             productCategory={selectedProduct.category}
                           />
                         ))}
                       </div>
+                    </div>
+                  )}
+                  
+                  {isLoadingVariants && (
+                    <div className="py-4 text-center text-gray-500">
+                      Chargement des options...
                     </div>
                   )}
                 </>
