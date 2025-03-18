@@ -24,16 +24,24 @@ interface ProductIllustrationProps {
   variants: Record<string, string>;
   openIllustration: boolean;
   setOpenIllustration: (open: boolean) => void;
+  activeVariantType?: string;
+  activeVariantValue?: string;
 }
 
 const ProductIllustration = ({
   selectedProduct,
   variants,
   openIllustration,
-  setOpenIllustration
+  setOpenIllustration,
+  activeVariantType,
+  activeVariantValue
 }: ProductIllustrationProps) => {
   const isMobile = useIsMobile();
-  const [activeVariant, setActiveVariant] = useState<{type: string, value: string} | null>(null);
+  const [activeVariant, setActiveVariant] = useState<{type: string, value: string} | null>(
+    activeVariantType && activeVariantValue 
+      ? {type: activeVariantType, value: activeVariantValue} 
+      : null
+  );
   const [showPopover, setShowPopover] = useState<string | null>(null);
 
   // Function to get the currently displayed illustration
@@ -170,7 +178,7 @@ const ProductIllustration = ({
             )}
           </div>
 
-          {/* Variant illustrations on mobile - Now with interactive buttons */}
+          {/* Variant illustrations on mobile - With interactive buttons */}
           {selectedProduct && Object.keys(variants).length > 0 && (
             <div className="mt-4 border-t border-gray-200 pt-4 pb-6">
               <h4 className="font-medium text-sm mb-3 px-4">Aperçu des variantes</h4>
@@ -178,7 +186,11 @@ const ProductIllustration = ({
                 {Object.entries(variants).map(([type, value]) => (
                   <button
                     key={`${type}-${value}`}
-                    className={`bg-white rounded-lg border ${activeVariant && activeVariant.type === type ? 'border-accent ring-1 ring-accent' : 'border-gray-200'} p-2 text-left`}
+                    className={`bg-white rounded-lg border ${
+                      activeVariant && activeVariant.type === type ? 
+                      'border-accent ring-1 ring-accent' : 
+                      'border-gray-200'
+                    } p-2 text-left`}
                     onClick={() => {
                       if (activeVariant && activeVariant.type === type && activeVariant.value === value) {
                         setActiveVariant(null);

@@ -1,194 +1,242 @@
-
 import { useState, useEffect } from "react";
 import { Product } from "@/types/product";
-import { cn } from "@/lib/utils";
-import { toast } from "sonner";
-import { allProducts } from "@/data/productData";
-import { useIsMobile } from "@/hooks/use-mobile";
-
-// Import our components
-import SearchableDropdown from "./SearchableDropdown";
-import QuantitySelector from "./QuantitySelector";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Separator } from "@/components/ui/separator";
+import { useShoppingCart } from "@/hooks/use-shopping-cart";
+import { useToast } from "@/hooks/use-toast";
+import {
+  getQuantityOptions,
+  getVariantDisplayName,
+  getVariantOptions,
+  getAvailableVariants
+} from "./utils";
 import VariantSelector from "./VariantSelector";
 import ProductIllustration from "./ProductIllustration";
-
-// Import utility functions
-import { 
-  getQuantityOptions, 
-  getAvailableVariants, 
-  getVariantOptions, 
-  getVariantDisplayName,
-  getFeatureIllustration
-} from "./utils";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 const ProductOrderForm = () => {
   const [selectedProduct, setSelectedProduct] = useState<Product | undefined>(undefined);
-  const [selectedQuantity, setSelectedQuantity] = useState<number | null>(null);
-  const [variants, setVariants] = useState<Record<string, string>>({});
-  const [availableVariants, setAvailableVariants] = useState<string[]>([]);
+  const [quantity, setQuantity] = useState(1);
+  const [selectedVariants, setSelectedVariants] = useState<Record<string, string>>({});
   const [openIllustration, setOpenIllustration] = useState(false);
+  const [availableVariants, setAvailableVariants] = useState<string[]>([]);
   const isMobile = useIsMobile();
   
-  // Update available variants when product category changes
-  useEffect(() => {
-    if (selectedProduct) {
-      const variantTypes = getAvailableVariants(selectedProduct.category);
-      setAvailableVariants(variantTypes);
-      
-      // Reset variant selections when product changes
-      setVariants({});
-    } else {
-      setAvailableVariants([]);
-    }
-  }, [selectedProduct]);
+  const [activeVariantType, setActiveVariantType] = useState<string | undefined>();
+  const [activeVariantValue, setActiveVariantValue] = useState<string | undefined>();
+  
+  const { addItem } = useShoppingCart();
+  const { toast } = useToast();
 
-  // Automatically open the illustration sheet on mobile when variants are selected
-  useEffect(() => {
-    if (isMobile && selectedProduct && Object.keys(variants).length > 0) {
-      setOpenIllustration(true);
-    }
-  }, [variants, selectedProduct, isMobile]);
+  // Mock product data (replace with actual data fetching)
+  const products: Product[] = [
+    {
+      id: "1",
+      name: "T-shirt Premium Bio",
+      description: "Un t-shirt doux et confortable en coton biologique.",
+      price: 16.99,
+      category: "textile",
+      subcategory: "t-shirts",
+      variants: {
+        sizes: ["XS", "S", "M", "L", "XL"],
+        colors: ["Blanc", "Noir", "Gris"]
+      },
+      images: [
+        "/lovable-uploads/a613bb1a-34de-4d67-a4ea-8e2b4c720279.png",
+        "https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=800&auto=format&fit=crop&q=60&ixlib=rb-4.0.3",
+        "https://images.unsplash.com/photo-1503341504253-dff4815485f1?w=800&auto=format&fit=crop&q=60&ixlib=rb-4.0.3",
+        "https://images.unsplash.com/photo-1503341733017-1901578f9f1e?w=800&auto=format&fit=crop&q=60&ixlib=rb-4.0.3",
+        "https://images.unsplash.com/photo-1581655353564-df123a1eb820?w=800&auto=format&fit=crop&q=60&ixlib=rb-4.0.3",
+      ],
+    },
+    {
+      id: "2",
+      name: "Mug personnalisé",
+      description: "Un mug en céramique pour toutes vos boissons chaudes.",
+      price: 9.99,
+      category: "accessoires",
+      subcategory: "mugs",
+      variants: {
+        colors: ["Blanc", "Noir", "Rouge", "Bleu"]
+      },
+      images: [
+        "/lovable-uploads/42f681a1-997f-45a3-aaf6-b01d41e79b33.png",
+        "https://images.unsplash.com/photo-1517256064527-09c73fc73e38?w=800&auto=format&fit=crop&q=60&ixlib=rb-4.0.3",
+        "https://images.unsplash.com/photo-1555864432-95c2dca5c9ef?w=800&auto=format&fit=crop&q=60&ixlib=rb-4.0.3",
+        "https://images.unsplash.com/photo-1576566529644-4e3a570b8267?w=800&auto=format&fit=crop&q=60&ixlib=rb-4.0.3",
+        "https://images.unsplash.com/photo-1563734247033-9ca7a6cb3329?w=800&auto=format&fit=crop&q=60&ixlib=rb-4.0.3",
+      ],
+    },
+  ];
 
-  const handleVariantChange = (variantType: string, value: string) => {
-    setVariants(prev => ({ ...prev, [variantType]: value }));
+  useEffect(() => {
+    // Simulate fetching products from an API
+    const fetchedProduct = products.find(p => p.id === "1");
+    setSelectedProduct(fetchedProduct);
+
+    if (fetchedProduct) {
+      setAvailableVariants(getAvailableVariants(fetchedProduct.category));
+    }
+  }, []);
+
+  const handleProductSelect = (productId: string) => {
+    const product = products.find(p => p.id === productId);
+    setSelectedProduct(product);
+    setSelectedVariants({}); // Reset selected variants when product changes
+
+    if (product) {
+      setAvailableVariants(getAvailableVariants(product.category));
+    }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    if (!selectedProduct || !selectedQuantity) {
-      toast.error("Veuillez sélectionner un produit et une quantité");
+  const handleQuantityChange = (newQuantity: number) => {
+    setQuantity(newQuantity);
+  };
+
+  const handleVariantChange = (variantType: string, value: string) => {
+    setSelectedVariants(prev => ({ ...prev, [variantType]: value }));
+  };
+
+  const handleAddToCart = () => {
+    if (!selectedProduct) {
+      toast({
+        title: "Erreur!",
+        description: "Veuillez sélectionner un produit.",
+        variant: "destructive",
+      });
       return;
     }
-    
-    // Here you would typically process the order with the variants
-    console.log("Order submitted:", {
-      product: selectedProduct,
-      quantity: selectedQuantity,
-      variants: variants
+
+    // Basic validation: Check if all required variants are selected
+    const requiredVariants = getAvailableVariants(selectedProduct.category);
+    const missingVariants = requiredVariants.filter(variant => !selectedVariants[variant]);
+
+    if (missingVariants.length > 0) {
+      toast({
+        title: "Erreur!",
+        description: `Veuillez sélectionner toutes les options: ${missingVariants.map(getVariantDisplayName).join(', ')}.`,
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Construct the item to add to the cart
+    const item = {
+      id: selectedProduct.id,
+      name: selectedProduct.name,
+      price: selectedProduct.price,
+      quantity: quantity,
+      variants: selectedVariants,
+      images: selectedProduct.images,
+    };
+
+    addItem(item);
+    toast({
+      description: "Produit ajouté au panier!",
     });
-    
-    // Show success message
-    toast.success(`Commande de ${selectedQuantity} ${selectedProduct.name} envoyée avec succès !`);
+  };
+
+  // Handle viewing an illustration for a specific variant
+  const handleViewVariantIllustration = (variantType: string, value: string) => {
+    setActiveVariantType(variantType);
+    setActiveVariantValue(value);
+    setOpenIllustration(true);
   };
 
   return (
-    <div className="bg-white rounded-lg shadow-lg p-4 md:p-6 max-w-4xl mx-auto my-6 md:my-10">
-      <h2 className="text-xl md:text-2xl font-bold text-gray-800 mb-4 md:mb-6">Commander vos produits</h2>
+    <div className="w-full max-w-4xl mx-auto">
+      <div className="text-center mb-8">
+        <h2 className="text-2xl font-bold text-gray-800">Configurez votre produit</h2>
+        <p className="text-gray-600">Choisissez les options et quantités pour personnaliser votre commande.</p>
+      </div>
       
-      {/* Mobile preview illustration */}
-      {isMobile && selectedProduct && Object.keys(variants).length > 0 && (
-        <div className="mb-6 p-4 bg-gray-50 rounded-lg">
-          <div className="flex flex-col items-center">
-            <img 
-              src={getFeatureIllustration(selectedProduct, variants)} 
-              alt="Aperçu produit" 
-              className="max-h-40 object-contain mb-3" 
-            />
-            <div className="text-center">
-              <h3 className="font-medium text-gray-800">{selectedProduct.name}</h3>
-              <div className="flex flex-wrap justify-center gap-1 mt-2">
-                {Object.entries(variants).map(([type, value]) => (
-                  <span key={type} className="text-xs bg-white px-2 py-1 rounded-full border">
-                    {getVariantDisplayName(type)}: {value}
-                  </span>
+      {/* Preview button for mobile */}
+      {isMobile && (
+        <div className="mb-4">
+          <Button onClick={() => setOpenIllustration(true)} className="w-full">
+            Aperçu des options
+          </Button>
+        </div>
+      )}
+      
+      {/* Product illustration component */}
+      <ProductIllustration
+        selectedProduct={selectedProduct}
+        variants={selectedVariants}
+        openIllustration={openIllustration}
+        setOpenIllustration={setOpenIllustration}
+        activeVariantType={activeVariantType}
+        activeVariantValue={activeVariantValue}
+      />
+      
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+        <div className="bg-white rounded-lg border border-gray-200 p-4 shadow-sm">
+          <h3 className="font-medium text-lg mb-4">Sélection du produit</h3>
+          <Select onValueChange={handleProductSelect}>
+            <SelectTrigger className="w-full">
+              <SelectValue placeholder="Choisir un produit..." />
+            </SelectTrigger>
+            <SelectContent>
+              {products.map((product) => (
+                <SelectItem key={product.id} value={product.id}>
+                  {product.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+
+        <div className="space-y-4">
+          {/* Variants Selection */}
+          {selectedProduct && (
+            <div className="bg-white rounded-lg border border-gray-200 p-4 shadow-sm">
+              <h3 className="font-medium text-lg mb-4">Options personnalisables</h3>
+              <div className="space-y-4">
+                {availableVariants.map((variantType) => (
+                  <VariantSelector
+                    key={variantType}
+                    variantType={variantType}
+                    displayName={getVariantDisplayName(variantType)}
+                    options={getVariantOptions(selectedProduct.category, variantType)}
+                    selectedValue={selectedVariants[variantType] || ''}
+                    onChange={(value) => handleVariantChange(variantType, value)}
+                    productCategory={selectedProduct.category}
+                    onViewIllustration={handleViewVariantIllustration}
+                  />
                 ))}
               </div>
             </div>
+          )}
+          
+          <div className="bg-white rounded-lg border border-gray-200 p-4 shadow-sm">
+            <h3 className="font-medium text-lg mb-4">Quantité</h3>
+            <Select onValueChange={(value) => handleQuantityChange(parseInt(value))}>
+              <SelectTrigger className="w-full">
+                <SelectValue placeholder="Choisir une quantité..." />
+              </SelectTrigger>
+              <SelectContent>
+                {selectedProduct && getQuantityOptions(selectedProduct.category).map((qty) => (
+                  <SelectItem key={qty} value={String(qty)}>
+                    {qty}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
-        </div>
-      )}
-      
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-8">
-        {/* Product Form Column */}
-        <div>
-          <form onSubmit={handleSubmit}>
-            <div className="space-y-4 md:space-y-6">
-              <SearchableDropdown
-                label="Sélectionnez un produit"
-                placeholder="Choisir un produit..."
-                products={allProducts}
-                selectedProduct={selectedProduct}
-                onSelect={setSelectedProduct}
-              />
-              
-              {selectedProduct && (
-                <>
-                  <QuantitySelector
-                    quantityOptions={getQuantityOptions(selectedProduct.category)}
-                    selectedQuantity={selectedQuantity}
-                    setSelectedQuantity={setSelectedQuantity}
-                  />
-                  
-                  {/* Variant selectors */}
-                  {availableVariants.length > 0 && (
-                    <div className="space-y-4">
-                      <h3 className="text-lg font-medium text-gray-800">Options spécifiques</h3>
-                      <div className="grid grid-cols-1 gap-4">
-                        {availableVariants.map((variantType) => (
-                          <VariantSelector
-                            key={variantType}
-                            variantType={variantType}
-                            displayName={getVariantDisplayName(variantType)}
-                            options={getVariantOptions(selectedProduct.category, variantType)}
-                            selectedValue={variants[variantType] || ""}
-                            onChange={(value) => handleVariantChange(variantType, value)}
-                            productCategory={selectedProduct.category}
-                          />
-                        ))}
-                      </div>
-                    </div>
-                  )}
-                </>
-              )}
-            </div>
-            
-            <div className="mt-6 md:mt-8">
-              <button
-                type="submit"
-                disabled={!selectedProduct || !selectedQuantity}
-                className={cn(
-                  "w-full bg-accent text-white py-3 px-6 rounded-md font-medium transition-colors",
-                  (!selectedProduct || !selectedQuantity) ? 
-                    "opacity-50 cursor-not-allowed" : 
-                    "hover:bg-accent/90"
-                )}
-              >
-                Commander
-              </button>
-            </div>
-          </form>
-        </div>
 
-        {/* Illustration Column - Hidden on mobile, replaced with sheet/drawer */}
-        {isMobile ? (
-          <div className="md:hidden">
-            <button
-              className="w-full mt-4 py-2.5 px-4 border border-gray-300 rounded-md bg-gray-50 text-gray-700 font-medium flex items-center justify-center"
-              onClick={() => setOpenIllustration(true)}
-            >
-              <span>Voir l'aperçu du produit</span>
-            </button>
-          </div>
-        ) : (
-          <ProductIllustration
-            selectedProduct={selectedProduct}
-            variants={variants}
-            openIllustration={openIllustration}
-            setOpenIllustration={setOpenIllustration}
-          />
-        )}
+          <Button className="w-full" onClick={handleAddToCart}>
+            Ajouter au panier
+          </Button>
+        </div>
       </div>
-
-      {/* Mobile illustration sheet */}
-      {isMobile && (
-        <ProductIllustration
-          selectedProduct={selectedProduct}
-          variants={variants}
-          openIllustration={openIllustration}
-          setOpenIllustration={setOpenIllustration}
-        />
-      )}
     </div>
   );
 };
