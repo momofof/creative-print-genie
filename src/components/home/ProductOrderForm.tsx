@@ -1,5 +1,5 @@
 
-import { useState, useRef } from "react";
+import { useState } from "react";
 import { Input } from "@/components/ui/input";
 import {
   DropdownMenu,
@@ -10,11 +10,12 @@ import { Search } from "lucide-react";
 import { allProducts } from "@/data/productData";
 import { Product } from "@/types/product";
 import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
 
 interface SearchableDropdownProps {
   label: string;
   placeholder: string;
-  category: string;
+  products: Product[];
   onSelect: (product: Product) => void;
   selectedProduct?: Product;
 }
@@ -22,18 +23,18 @@ interface SearchableDropdownProps {
 const SearchableDropdown = ({
   label,
   placeholder,
-  category,
+  products,
   onSelect,
   selectedProduct
 }: SearchableDropdownProps) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [isOpen, setIsOpen] = useState(false);
   
-  // Filter products by category and search term
-  const filteredProducts = allProducts
-    .filter(product => product.category === category)
+  // Filter products by search term
+  const filteredProducts = products
     .filter(product => 
       product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      product.category.toLowerCase().includes(searchTerm.toLowerCase()) ||
       product.subcategory.toLowerCase().includes(searchTerm.toLowerCase())
     );
   
@@ -82,7 +83,10 @@ const SearchableDropdown = ({
                         setIsOpen(false);
                       }}
                     >
-                      {product.name}
+                      <span className="font-medium">{product.name}</span>
+                      <span className="ml-2 text-xs text-gray-500">
+                        {product.category}
+                      </span>
                     </button>
                   ))}
                 </div>
@@ -99,89 +103,88 @@ const SearchableDropdown = ({
   );
 };
 
+// Quantity options for different product categories
+const quantityOptions = {
+  textile: [1, 5, 10, 25, 50, 100],
+  papier: [50, 100, 250, 500, 1000, 2000],
+  vinyl: [1, 5, 10, 25, 50, 100],
+  accessoires: [1, 5, 10, 25, 50],
+  emballage: [10, 25, 50, 100, 200]
+};
+
 const ProductOrderForm = () => {
-  const [selectedProducts, setSelectedProducts] = useState<{
-    textile: Product | undefined;
-    papier: Product | undefined;
-    vinyl: Product | undefined;
-    accessoires: Product | undefined;
-    emballage: Product | undefined;
-  }>({
-    textile: undefined,
-    papier: undefined,
-    vinyl: undefined,
-    accessoires: undefined,
-    emballage: undefined
-  });
+  const [selectedProduct, setSelectedProduct] = useState<Product | undefined>(undefined);
+  const [selectedQuantity, setSelectedQuantity] = useState<number | null>(null);
   
-  const handleSelectProduct = (category: keyof typeof selectedProducts, product: Product) => {
-    setSelectedProducts(prev => ({
-      ...prev,
-      [category]: product
-    }));
+  // Get quantity options based on selected product category
+  const getQuantityOptions = (category: string) => {
+    const categoryKey = category as keyof typeof quantityOptions;
+    return quantityOptions[categoryKey] || quantityOptions.textile;
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
-    // Here you would typically process the order
-    // For demo purposes, we'll just log the selected products
-    console.log("Order submitted:", selectedProducts);
+    if (!selectedProduct || !selectedQuantity) {
+      alert("Veuillez sélectionner un produit et une quantité");
+      return;
+    }
     
-    // You could also show a success message
-    alert("Commande envoyée avec succès !");
+    // Here you would typically process the order
+    console.log("Order submitted:", {
+      product: selectedProduct,
+      quantity: selectedQuantity
+    });
+    
+    // Show success message
+    alert(`Commande de ${selectedQuantity} ${selectedProduct.name} envoyée avec succès !`);
   };
 
   return (
     <div className="bg-white rounded-lg shadow-lg p-6 max-w-3xl mx-auto my-10">
       <h2 className="text-2xl font-bold text-gray-800 mb-6">Commander vos produits</h2>
       <form onSubmit={handleSubmit}>
-        <div className="space-y-4">
+        <div className="space-y-6">
           <SearchableDropdown
-            label="Sélectionnez un produit textile"
-            placeholder="Choisir un t-shirt, sweat, casquette..."
-            category="textile"
-            selectedProduct={selectedProducts.textile}
-            onSelect={(product) => handleSelectProduct('textile', product)}
+            label="Sélectionnez un produit"
+            placeholder="Choisir un produit..."
+            products={allProducts}
+            selectedProduct={selectedProduct}
+            onSelect={setSelectedProduct}
           />
           
-          <SearchableDropdown
-            label="Sélectionnez un produit papier"
-            placeholder="Choisir une carte de visite, flyer..."
-            category="papier"
-            selectedProduct={selectedProducts.papier}
-            onSelect={(product) => handleSelectProduct('papier', product)}
-          />
-          
-          <SearchableDropdown
-            label="Sélectionnez un produit vinyl"
-            placeholder="Choisir un autocollant, vinyle adhésif..."
-            category="vinyl"
-            selectedProduct={selectedProducts.vinyl}
-            onSelect={(product) => handleSelectProduct('vinyl', product)}
-          />
-          
-          <SearchableDropdown
-            label="Sélectionnez un accessoire"
-            placeholder="Choisir un mug, badge, porte-clés..."
-            category="accessoires"
-            selectedProduct={selectedProducts.accessoires}
-            onSelect={(product) => handleSelectProduct('accessoires', product)}
-          />
-          
-          <SearchableDropdown
-            label="Sélectionnez un produit d'emballage"
-            placeholder="Choisir une boîte, papier cadeau..."
-            category="emballage"
-            selectedProduct={selectedProducts.emballage}
-            onSelect={(product) => handleSelectProduct('emballage', product)}
-          />
+          {selectedProduct && (
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Quantité
+              </label>
+              <div className="grid grid-cols-3 gap-2 sm:grid-cols-6">
+                {getQuantityOptions(selectedProduct.category).map((quantity) => (
+                  <Button
+                    key={quantity}
+                    type="button"
+                    variant={selectedQuantity === quantity ? "default" : "outline"}
+                    onClick={() => setSelectedQuantity(quantity)}
+                    className="py-2"
+                  >
+                    {quantity}
+                  </Button>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
         
         <div className="mt-8">
           <button
             type="submit"
-            className="w-full bg-accent hover:bg-accent/90 text-white py-3 px-6 rounded-md font-medium transition-colors"
+            disabled={!selectedProduct || !selectedQuantity}
+            className={cn(
+              "w-full bg-accent text-white py-3 px-6 rounded-md font-medium transition-colors",
+              (!selectedProduct || !selectedQuantity) ? 
+                "opacity-50 cursor-not-allowed" : 
+                "hover:bg-accent/90"
+            )}
           >
             Commander
           </button>
