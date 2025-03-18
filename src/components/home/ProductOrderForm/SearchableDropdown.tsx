@@ -9,6 +9,7 @@ import {
 import { Search, X } from "lucide-react";
 import { Product } from "@/types/product";
 import { cn } from "@/lib/utils";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 interface SearchableDropdownProps {
   label: string;
@@ -27,6 +28,7 @@ const SearchableDropdown = ({
 }: SearchableDropdownProps) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [isOpen, setIsOpen] = useState(false);
+  const isMobile = useIsMobile();
   
   // Filter products by search term
   const filteredProducts = products
@@ -55,7 +57,12 @@ const SearchableDropdown = ({
             </svg>
           </button>
         </DropdownMenuTrigger>
-        <DropdownMenuContent className="w-[var(--radix-dropdown-menu-trigger-width)] bg-white p-1" align="start">
+        <DropdownMenuContent 
+          className="w-[var(--radix-dropdown-menu-trigger-width)] bg-white p-1" 
+          align="start"
+          sideOffset={4}
+          style={{ maxHeight: isMobile ? '50vh' : '400px', overflowY: 'auto' }}
+        >
           <div className="p-2">
             <div className="relative mb-2">
               <Search className="absolute left-2 top-2.5 h-4 w-4 text-gray-500" />
@@ -81,7 +88,7 @@ const SearchableDropdown = ({
                     <button
                       key={product.id}
                       className={cn(
-                        "w-full text-left px-2 py-1.5 text-sm rounded hover:bg-gray-100",
+                        "w-full text-left px-2 py-2.5 text-sm rounded hover:bg-gray-100",
                         selectedProduct?.id === product.id && "bg-gray-100 font-medium"
                       )}
                       onClick={() => {
