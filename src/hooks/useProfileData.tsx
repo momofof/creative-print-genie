@@ -1,8 +1,7 @@
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
-import { supabase } from "@/integrations/supabase/client";
 
 interface ProfileData {
   id: string;
@@ -13,56 +12,13 @@ interface ProfileData {
 }
 
 export const useProfileData = () => {
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
   const [profile, setProfile] = useState<ProfileData | null>(null);
   const navigate = useNavigate();
 
-  useEffect(() => {
-    const checkUserSession = async () => {
-      setIsLoading(true);
-      const { data } = await supabase.auth.getSession();
-      
-      if (!data.session) {
-        toast.error("Vous devez être connecté pour accéder à cette page");
-        navigate("/login");
-        return;
-      }
-      
-      // Fetch profile data
-      const { data: profileData, error } = await supabase
-        .from("profiles")
-        .select("*")
-        .eq("id", data.session.user.id)
-        .single();
-      
-      if (error) {
-        console.error("Error fetching profile:", error);
-        toast.error("Erreur lors du chargement du profil");
-      } else {
-        setProfile(profileData);
-      }
-      
-      setIsLoading(false);
-    };
-    
-    checkUserSession();
-  }, [navigate]);
-
   const handleSignOut = async () => {
-    try {
-      const { error } = await supabase.auth.signOut();
-      
-      if (error) {
-        console.error("Error signing out:", error);
-        toast.error("Erreur lors de la déconnexion");
-      } else {
-        toast.success("Déconnexion réussie");
-        navigate("/");
-      }
-    } catch (error) {
-      console.error("Error signing out:", error);
-      toast.error("Erreur lors de la déconnexion");
-    }
+    toast.success("Déconnexion réussie");
+    navigate("/");
   };
 
   return { isLoading, profile, handleSignOut };
