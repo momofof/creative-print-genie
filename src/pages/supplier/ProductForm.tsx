@@ -33,6 +33,7 @@ interface ProductData {
   image: string | null;
   status: 'draft' | 'published' | 'archived';
   is_customizable: boolean;
+  stock: number;
 }
 
 interface ProductVariant {
@@ -63,41 +64,19 @@ const ProductForm = () => {
     description: null,
     image: null,
     status: "draft",
-    is_customizable: false
+    is_customizable: false,
+    stock: 0
   });
   
   const [variants, setVariants] = useState<ProductVariant[]>([]);
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [supplierId, setSupplierId] = useState<string | null>(null);
 
   useEffect(() => {
     checkAuthentication();
-    if (isEditing) {
-      setProductData({
-        name: "Sample Product",
-        price: 99.99,
-        original_price: 129.99,
-        category: "vêtements",
-        subcategory: "t-shirts",
-        description: "Sample product description",
-        image: null,
-        status: "draft",
-        is_customizable: false
-      });
-      
-      setVariants([
-        {
-          id: "1",
-          size: "M",
-          color: "Noir",
-          hex_color: "#000000",
-          stock: 10,
-          price_adjustment: 0,
-          status: "in_stock"
-        }
-      ]);
-      
-      setIsLoading(false);
+    if (isEditing && productId) {
+      fetchProductData(productId);
     } else {
       setIsLoading(false);
     }
@@ -109,6 +88,74 @@ const ProductForm = () => {
     if (!data.session) {
       toast.error("Vous devez être connecté pour accéder à cette page");
       navigate("/login");
+      return;
+    }
+    
+    setSupplierId(data.session.user.id);
+  };
+
+  const fetchProductData = async (id: string) => {
+    try {
+      // Récupérer les données du produit
+      const { data: productData, error: productError } = await supabase
+        .from('products')
+        .select('*')
+        .eq('id', id)
+        .single();
+
+      if (productError) {
+        console.error("Erreur lors de la récupération du produit:", productError);
+        toast.error("Erreur lors de la récupération du produit");
+        setIsLoading(false);
+        return;
+      }
+
+      // Récupérer les variantes du produit
+      const { data: variantsData, error: variantsError } = await supabase
+        .from('product_variants')
+        .select('*')
+        .eq('product_id', id);
+
+      if (variantsError) {
+        console.error("Erreur lors de la récupération des variantes:", variantsError);
+        toast.error("Erreur lors de la récupération des variantes");
+      }
+
+      // Mettre à jour l'état
+      setProductData({
+        name: productData.name,
+        price: productData.price,
+        original_price: productData.original_price,
+        category: productData.category,
+        subcategory: productData.subcategory,
+        description: productData.description,
+        image: productData.image,
+        status: productData.status,
+        is_customizable: productData.is_customizable,
+        stock: productData.stock || 0
+      });
+
+      if (productData.image) {
+        setImagePreview(productData.image);
+      }
+
+      if (variantsData) {
+        setVariants(variantsData.map(variant => ({
+          id: variant.id,
+          size: variant.size,
+          color: variant.color,
+          hex_color: variant.hex_color,
+          stock: variant.stock,
+          price_adjustment: variant.price_adjustment,
+          status: variant.status
+        })));
+      }
+
+      setIsLoading(false);
+    } catch (error) {
+      console.error("Erreur inattendue:", error);
+      toast.error("Une erreur inattendue s'est produite");
+      setIsLoading(false);
     }
   };
 
@@ -195,17 +242,151 @@ const ProductForm = () => {
     });
   };
 
+  const uploadImage = async (file: File): Promise<string | null> => {
+    try {
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${Math.random().toString(36).substring(2, 15)}.${fileExt}`;
+      const filePath = `products/${fileName}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from('product-images')
+        .upload(filePath, file);
+
+      if (uploadError) {
+        console.error("Erreur lors de l'upload de l'image:", uploadError);
+        return null;
+      }
+
+      const { data } = supabase.storage
+        .from('product-images')
+        .getPublicUrl(filePath);
+
+      return data.publicUrl;
+    } catch (error) {
+      console.error("Erreur d'upload:", error);
+      return null;
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    if (!supplierId) {
+      toast.error("Vous devez être connecté pour enregistrer un produit");
+      return;
+    }
+    
     setIsSaving(true);
     
     try {
-      setTimeout(() => {
-        toast.success(isEditing ? "Produit mis à jour avec succès" : "Produit créé avec succès");
-        navigate("/supplier/dashboard");
-      }, 1000);
+      // Traiter l'image si nécessaire
+      let imageUrl = productData.image;
+      if (imageFile) {
+        const uploadedUrl = await uploadImage(imageFile);
+        if (uploadedUrl) {
+          imageUrl = uploadedUrl;
+        }
+      }
+      
+      // Créer ou mettre à jour le produit
+      let productId = isEditing ? this.productId : undefined;
+      
+      if (isEditing && this.productId) {
+        // Mise à jour du produit existant
+        const { error } = await supabase
+          .from('products')
+          .update({
+            name: productData.name,
+            price: productData.price,
+            original_price: productData.original_price,
+            category: productData.category,
+            subcategory: productData.subcategory,
+            description: productData.description,
+            image: imageUrl,
+            status: productData.status,
+            is_customizable: productData.is_customizable,
+            stock: productData.stock
+          })
+          .eq('id', this.productId);
+          
+        if (error) {
+          throw error;
+        }
+      } else {
+        // Création d'un nouveau produit
+        const { data, error } = await supabase
+          .from('products')
+          .insert({
+            supplier_id: supplierId,
+            name: productData.name,
+            price: productData.price,
+            original_price: productData.original_price,
+            category: productData.category,
+            subcategory: productData.subcategory,
+            description: productData.description,
+            image: imageUrl,
+            status: productData.status,
+            is_customizable: productData.is_customizable,
+            stock: productData.stock
+          })
+          .select('id')
+          .single();
+          
+        if (error) {
+          throw error;
+        }
+        
+        productId = data.id;
+      }
+      
+      // Traiter les variantes
+      // 1. Supprimer les variantes marquées pour suppression
+      for (const variant of variants.filter(v => v.isDeleted && v.id)) {
+        await supabase
+          .from('product_variants')
+          .delete()
+          .eq('id', variant.id);
+      }
+      
+      // 2. Mettre à jour les variantes existantes
+      for (const variant of variants.filter(v => !v.isDeleted && !v.isNew && v.id)) {
+        await supabase
+          .from('product_variants')
+          .update({
+            size: variant.size,
+            color: variant.color,
+            hex_color: variant.hex_color,
+            stock: variant.stock,
+            price_adjustment: variant.price_adjustment,
+            status: variant.status
+          })
+          .eq('id', variant.id);
+      }
+      
+      // 3. Insérer les nouvelles variantes
+      if (productId) {
+        const newVariants = variants.filter(v => !v.isDeleted && v.isNew);
+        if (newVariants.length > 0) {
+          await supabase
+            .from('product_variants')
+            .insert(
+              newVariants.map(v => ({
+                product_id: productId,
+                size: v.size,
+                color: v.color,
+                hex_color: v.hex_color,
+                stock: v.stock,
+                price_adjustment: v.price_adjustment,
+                status: v.status
+              }))
+            );
+        }
+      }
+      
+      toast.success(isEditing ? "Produit mis à jour avec succès" : "Produit créé avec succès");
+      navigate("/supplier/dashboard");
     } catch (error: any) {
-      console.error("Error saving product:", error);
+      console.error("Erreur lors de l'enregistrement du produit:", error);
       toast.error(error.message || "Erreur lors de l'enregistrement du produit");
     } finally {
       setIsSaving(false);

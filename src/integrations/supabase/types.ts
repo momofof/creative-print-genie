@@ -9,7 +9,151 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      [_ in never]: never
+      product_customizations: {
+        Row: {
+          created_at: string | null
+          description: string | null
+          id: string
+          is_required: boolean | null
+          name: string
+          position: string | null
+          price_adjustment: number | null
+          product_id: string | null
+          type: string
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          is_required?: boolean | null
+          name: string
+          position?: string | null
+          price_adjustment?: number | null
+          product_id?: string | null
+          type: string
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          is_required?: boolean | null
+          name?: string
+          position?: string | null
+          price_adjustment?: number | null
+          product_id?: string | null
+          type?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "product_customizations_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      product_variants: {
+        Row: {
+          color: string
+          created_at: string | null
+          hex_color: string
+          id: string
+          price_adjustment: number | null
+          product_id: string | null
+          size: string
+          status: string | null
+          stock: number | null
+          updated_at: string | null
+        }
+        Insert: {
+          color: string
+          created_at?: string | null
+          hex_color: string
+          id?: string
+          price_adjustment?: number | null
+          product_id?: string | null
+          size: string
+          status?: string | null
+          stock?: number | null
+          updated_at?: string | null
+        }
+        Update: {
+          color?: string
+          created_at?: string | null
+          hex_color?: string
+          id?: string
+          price_adjustment?: number | null
+          product_id?: string | null
+          size?: string
+          status?: string | null
+          stock?: number | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "product_variants_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      products: {
+        Row: {
+          category: string
+          created_at: string | null
+          description: string | null
+          id: string
+          image: string | null
+          is_customizable: boolean | null
+          name: string
+          original_price: number | null
+          price: number
+          status: string
+          stock: number | null
+          subcategory: string | null
+          supplier_id: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          category: string
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          image?: string | null
+          is_customizable?: boolean | null
+          name: string
+          original_price?: number | null
+          price: number
+          status?: string
+          stock?: number | null
+          subcategory?: string | null
+          supplier_id?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          category?: string
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          image?: string | null
+          is_customizable?: boolean | null
+          name?: string
+          original_price?: number | null
+          price?: number
+          status?: string
+          stock?: number | null
+          subcategory?: string | null
+          supplier_id?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
