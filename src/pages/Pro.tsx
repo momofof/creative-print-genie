@@ -33,10 +33,6 @@ const Pro = () => {
     products, 
     orders, 
     stats, 
-    salesData,
-    categorySalesData,
-    inventoryStatusData,
-    productPerformanceData,
     deleteProduct
   } = useSupplierDashboard();
 
@@ -156,12 +152,7 @@ const Pro = () => {
           </TabsContent>
           
           <TabsContent value="analytics">
-            <AnalyticsTab 
-              salesData={salesData}
-              categorySalesData={categorySalesData}
-              inventoryStatusData={inventoryStatusData}
-              productPerformanceData={productPerformanceData}
-            />
+            <AnalyticsTab />
           </TabsContent>
         </Tabs>
 

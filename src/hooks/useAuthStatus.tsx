@@ -6,20 +6,16 @@ export const useAuthStatus = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
 
   useEffect(() => {
-    // Check if the user is logged in
-    const checkAuth = async () => {
+    const checkUserSession = async () => {
       const { data } = await supabase.auth.getSession();
       setIsLoggedIn(!!data.session);
     };
-
-    checkAuth();
-
-    // Set up auth state change listener
-    const { data: authListener } = supabase.auth.onAuthStateChange(
-      (event, session) => {
-        setIsLoggedIn(!!session);
-      }
-    );
+    
+    checkUserSession();
+    
+    const { data: authListener } = supabase.auth.onAuthStateChange((event, session) => {
+      setIsLoggedIn(!!session);
+    });
 
     return () => {
       authListener.subscription.unsubscribe();

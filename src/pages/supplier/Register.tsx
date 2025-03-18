@@ -1,141 +1,266 @@
-import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { useForm, SubmitHandler } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import * as z from "zod";
+
+import React, { useState, useEffect } from "react";
+import { useNavigate, Link } from "react-router-dom";
 import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
+import { Loader2, Store } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { supabase } from "@/integrations/supabase/client";
-import { Link } from "react-router-dom";
+import { Textarea } from "@/components/ui/textarea";
+import Navigation from "@/components/Navigation";
 
-const formSchema = z.object({
-  email: z.string().email({ message: "Adresse e-mail invalide" }),
-  password: z.string().min(8, { message: "Le mot de passe doit contenir au moins 8 caractères" }),
-  confirmPassword: z.string(),
-  fullName: z.string().min(2, { message: "Le nom complet doit contenir au moins 2 caractères" }),
-  companyName: z.string().min(2, { message: "Le nom de l'entreprise doit contenir au moins 2 caractères" }),
-  phone: z.string().min(10, { message: "Numéro de téléphone invalide" }),
-}).refine((data) => data.password === data.confirmPassword, {
-  message: "Les mots de passe ne correspondent pas",
-  path: ["confirmPassword"],
-});
-
-type FormValues = z.infer<typeof formSchema>;
-
-const Register = () => {
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const navigate = useNavigate();
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-  } = useForm<FormValues>({
-    resolver: zodResolver(formSchema),
+const SupplierRegister = () => {
+  const [isLoading, setIsLoading] = useState(false);
+  const [formData, setFormData] = useState({
+    email: "",
+    password: "",
+    confirmPassword: "",
+    companyName: "",
+    contactName: "",
+    phone: "",
+    address: ""
   });
+  const [emailExists, setEmailExists] = useState(false);
+  const navigate = useNavigate();
 
-  const onSubmit: SubmitHandler<FormValues> = async (data) => {
-    setIsSubmitting(true);
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value
+    }));
     
-    try {
-      // Create supplier account
-      const { data: authData, error: authError } = await supabase.auth.signUp({
-        email: data.email,
-        password: data.password,
-      });
-      
-      if (authError) throw authError;
-      
-      if (authData.user) {
-        // Instead of using profiles table which is not defined in types
-        // We directly update the user metadata
-        const { error: updateError } = await supabase.auth.updateUser({
-          data: {
-            company_name: data.companyName,
-            full_name: data.fullName,
-            phone: data.phone
-          }
-        });
-        
-        if (updateError) throw updateError;
-        
-        toast.success("Compte fournisseur créé avec succès!");
-        navigate("/login");
+    // Reset email exists error when email changes
+    if (name === 'email') {
+      setEmailExists(false);
+    }
+  };
+
+  useEffect(() => {
+    // Check for user session on mount
+    const checkSession = async () => {
+      const { data } = await supabase.auth.getSession();
+      if (data.session) {
+        // If user is already logged in, sign them out before registration
+        await supabase.auth.signOut();
       }
+    };
+    
+    checkSession();
+  }, []);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (formData.password !== formData.confirmPassword) {
+      toast.error("Les mots de passe ne correspondent pas");
+      return;
+    }
+
+    setIsLoading(true);
+
+    try {
+      // 1. Register user with Supabase Auth
+      const { data: authData, error: authError } = await supabase.auth.signUp({
+        email: formData.email,
+        password: formData.password,
+      });
+
+      if (authError) {
+        if (authError.message === "User already registered") {
+          setEmailExists(true);
+          throw new Error("Un compte avec cet email existe déjà");
+        }
+        throw authError;
+      }
+      
+      if (!authData.user) {
+        throw new Error("Erreur lors de la création du compte");
+      }
+
+      // 2. Create supplier record with pending status
+      const { error: supplierError } = await supabase
+        .from("suppliers")
+        .insert({
+          id: authData.user.id,
+          company_name: formData.companyName,
+          contact_name: formData.contactName,
+          email: formData.email,
+          phone: formData.phone,
+          address: formData.address,
+          status: "pending"
+        });
+
+      if (supplierError) throw supplierError;
+
+      toast.success("Inscription réussie ! Votre compte est en cours de validation.");
+      setTimeout(() => {
+        navigate("/login");
+      }, 2000);
     } catch (error: any) {
-      console.error("Error:", error);
-      toast.error(error.message || "Erreur lors de la création du compte");
+      console.error("Error registering supplier:", error);
+      toast.error(error.message || "Erreur lors de l'inscription");
     } finally {
-      setIsSubmitting(false);
+      setIsLoading(false);
     }
   };
 
   return (
-    <div className="grid h-screen place-items-center bg-gray-100">
-      <Card className="w-full max-w-md">
-        <CardHeader className="space-y-1">
-          <CardTitle className="text-2xl text-center">Créer un compte Fournisseur</CardTitle>
-        </CardHeader>
-        <CardContent className="grid gap-4">
-          <form onSubmit={handleSubmit(onSubmit)} className="grid gap-4">
-            <div className="grid gap-2">
-              <Label htmlFor="email">Adresse e-mail</Label>
-              <Input id="email" type="email" placeholder="exemple@exemple.com" {...register("email")} />
-              {errors.email && (
-                <p className="text-sm text-red-500">{errors.email.message}</p>
-              )}
-            </div>
-            <div className="grid gap-2">
-              <Label htmlFor="password">Mot de passe</Label>
-              <Input id="password" type="password" {...register("password")} />
-              {errors.password && (
-                <p className="text-sm text-red-500">{errors.password.message}</p>
-              )}
-            </div>
-            <div className="grid gap-2">
-              <Label htmlFor="confirmPassword">Confirmer le mot de passe</Label>
-              <Input id="confirmPassword" type="password" {...register("confirmPassword")} />
-              {errors.confirmPassword && (
-                <p className="text-sm text-red-500">{errors.confirmPassword.message}</p>
-              )}
-            </div>
-            <div className="grid gap-2">
-              <Label htmlFor="fullName">Nom complet</Label>
-              <Input id="fullName" placeholder="John Doe" {...register("fullName")} />
-              {errors.fullName && (
-                <p className="text-sm text-red-500">{errors.fullName.message}</p>
-              )}
-            </div>
-            <div className="grid gap-2">
-              <Label htmlFor="companyName">Nom de l'entreprise</Label>
-              <Input id="companyName" placeholder="Acme Corp" {...register("companyName")} />
-              {errors.companyName && (
-                <p className="text-sm text-red-500">{errors.companyName.message}</p>
-              )}
-            </div>
-            <div className="grid gap-2">
-              <Label htmlFor="phone">Numéro de téléphone</Label>
-              <Input id="phone" placeholder="06XXXXXXXX" {...register("phone")} />
-              {errors.phone && (
-                <p className="text-sm text-red-500">{errors.phone.message}</p>
-              )}
-            </div>
-            <Button disabled={isSubmitting} type="submit" className="w-full">
-              {isSubmitting ? "Création du compte..." : "Créer le compte"}
-            </Button>
-          </form>
-          <div className="text-sm text-gray-500 text-center">
-            Vous avez déjà un compte ?{" "}
-            <Link to="/login" className="text-teal-500 hover:underline">
-              Se connecter
-            </Link>
+    <div className="min-h-screen bg-white">
+      <Navigation />
+      <div className="pt-24 pb-12 px-4">
+        <div className="max-w-2xl mx-auto">
+          <div className="flex items-center justify-center mb-8">
+            <Store className="h-8 w-8 mr-2 text-teal-600" />
+            <h1 className="text-3xl font-bold text-center">Devenir fournisseur</h1>
           </div>
-        </CardContent>
-      </Card>
+          
+          <div className="bg-white p-8 rounded-lg shadow-sm border border-gray-200">
+            <form className="space-y-6" onSubmit={handleSubmit}>
+              <div className="space-y-4">
+                <h2 className="text-xl font-semibold">Informations de l'entreprise</h2>
+                
+                <div>
+                  <label htmlFor="companyName" className="block text-sm font-medium text-gray-700">
+                    Nom de l'entreprise *
+                  </label>
+                  <Input
+                    id="companyName"
+                    name="companyName"
+                    value={formData.companyName}
+                    onChange={handleChange}
+                    className="mt-1 block w-full"
+                    required
+                  />
+                </div>
+                
+                <div>
+                  <label htmlFor="contactName" className="block text-sm font-medium text-gray-700">
+                    Nom du contact
+                  </label>
+                  <Input
+                    id="contactName"
+                    name="contactName"
+                    value={formData.contactName}
+                    onChange={handleChange}
+                    className="mt-1 block w-full"
+                  />
+                </div>
+                
+                <div>
+                  <label htmlFor="phone" className="block text-sm font-medium text-gray-700">
+                    Téléphone
+                  </label>
+                  <Input
+                    id="phone"
+                    name="phone"
+                    type="tel"
+                    value={formData.phone}
+                    onChange={handleChange}
+                    className="mt-1 block w-full"
+                  />
+                </div>
+                
+                <div>
+                  <label htmlFor="address" className="block text-sm font-medium text-gray-700">
+                    Adresse
+                  </label>
+                  <Textarea
+                    id="address"
+                    name="address"
+                    value={formData.address}
+                    onChange={handleChange}
+                    className="mt-1 block w-full"
+                    rows={3}
+                  />
+                </div>
+              </div>
+              
+              <div className="space-y-4">
+                <h2 className="text-xl font-semibold">Informations d'identification</h2>
+                
+                <div>
+                  <label htmlFor="email" className="block text-sm font-medium text-gray-700">
+                    Email *
+                  </label>
+                  <Input
+                    id="email"
+                    name="email"
+                    type="email"
+                    value={formData.email}
+                    onChange={handleChange}
+                    className={`mt-1 block w-full ${emailExists ? 'border-red-500' : ''}`}
+                    required
+                  />
+                  {emailExists && (
+                    <p className="text-red-500 text-sm mt-1">
+                      Un compte avec cet email existe déjà. Veuillez vous connecter ou utiliser un autre email.
+                    </p>
+                  )}
+                </div>
+                
+                <div>
+                  <label htmlFor="password" className="block text-sm font-medium text-gray-700">
+                    Mot de passe *
+                  </label>
+                  <Input
+                    id="password"
+                    name="password"
+                    type="password"
+                    value={formData.password}
+                    onChange={handleChange}
+                    className="mt-1 block w-full"
+                    required
+                    minLength={6}
+                  />
+                </div>
+                
+                <div>
+                  <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700">
+                    Confirmer le mot de passe *
+                  </label>
+                  <Input
+                    id="confirmPassword"
+                    name="confirmPassword"
+                    type="password"
+                    value={formData.confirmPassword}
+                    onChange={handleChange}
+                    className="mt-1 block w-full"
+                    required
+                    minLength={6}
+                  />
+                </div>
+              </div>
+              
+              <div>
+                <Button
+                  type="submit"
+                  className="w-full bg-teal-600 hover:bg-teal-700 text-white py-2 rounded-md"
+                  disabled={isLoading}
+                >
+                  {isLoading ? (
+                    <span className="flex items-center justify-center">
+                      <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                      Inscription en cours...
+                    </span>
+                  ) : (
+                    "S'inscrire comme fournisseur"
+                  )}
+                </Button>
+              </div>
+              
+              <p className="mt-4 text-center text-sm text-gray-600">
+                Déjà inscrit ?{" "}
+                <Link to="/login" className="text-teal-600 hover:underline">
+                  Se connecter
+                </Link>
+              </p>
+            </form>
+          </div>
+        </div>
+      </div>
     </div>
   );
 };
 
-export default Register;
+export default SupplierRegister;

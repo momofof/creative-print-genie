@@ -1,48 +1,28 @@
-
+// Types for the supplier dashboard
 export interface Product {
   id: string;
   name: string;
-  category: string;
-  subcategory: string;
   price: number;
   original_price?: number;
   image: string;
+  category: string;
+  subcategory: string;
+  status: string;
   stock: number;
-  status: 'published' | 'draft' | 'archived';
-  date: string;
-}
-
-export interface ProductVariant {
-  id?: string;
-  size: string;
-  color: string;
-  hex_color: string;
-  stock: number;
-  price_adjustment: number | null;
-  status: 'in_stock' | 'low_stock' | 'out_of_stock';
-  isNew?: boolean;
-  isDeleted?: boolean;
+  created_at: string;
+  description?: string;
+  is_customizable?: boolean;
+  supplier_id?: string;
+  updated_at?: string;
 }
 
 export interface Order {
   id: string;
-  customerName: string;
-  customer?: {
-    name: string;
-    email: string;
-  };
+  customer: string;
   date: string;
   total: number;
-  status: 'pending' | 'processing' | 'shipped' | 'delivered' | 'cancelled';
-  items?: {
-    id: string;
-    product: {
-      name: string;
-      image: string;
-    };
-    quantity: number;
-    price: number;
-  }[];
+  status: string;
+  items: number;
 }
 
 export interface Stat {
@@ -55,41 +35,18 @@ export interface Stat {
 export interface ProFeature {
   title: string;
   description: string;
-  icon: React.ComponentType<React.SVGProps<SVGSVGElement>>;
+  icon: React.ElementType;
 }
 
 export interface Customization {
   id: string;
   name: string;
-  description: string;
-  type: string;
-  position: string;
-  price_adjustment: number;
-  is_required: boolean;
-}
-
-// New chart data interfaces
-export interface ChartData {
-  name: string;
-  value: number;
-}
-
-export interface MultiSeriesChartData {
-  name: string;
-  [key: string]: number | string;
-}
-
-export interface SalesData {
-  date: string;
-  amount: number;
-}
-
-export interface CategorySalesData {
-  category: string;
-  sales: number;
-}
-
-export interface InventoryStatusData {
-  status: string;
-  count: number;
+  description?: string;
+  product_id: string;
+  type: "text" | "image";
+  position?: "front" | "back" | "sleeve" | "collar";
+  price_adjustment?: number;
+  is_required?: boolean;
+  created_at?: string;
+  updated_at?: string;
 }

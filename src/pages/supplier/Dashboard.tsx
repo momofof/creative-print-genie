@@ -2,6 +2,7 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
 import { 
   Package, 
   PlusCircle, 
@@ -15,24 +16,38 @@ import {
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { supabase } from "@/integrations/supabase/client";
+
+interface Product {
+  id: string;
+  name: string;
+  price: number;
+  category: string;
+  status: 'draft' | 'published' | 'archived';
+  created_at: string;
+}
+
+interface SupplierStats {
+  totalProducts: number;
+  productsInStock: number;
+  lowStockProducts: number;
+  outOfStockProducts: number;
+}
 
 const SupplierDashboard = () => {
   const [isLoading, setIsLoading] = useState(true);
-  const navigate = useNavigate();
-  
-  // Sample mock data
-  const stats = {
+  const [products, setProducts] = useState<Product[]>([]);
+  const [stats, setStats] = useState<SupplierStats>({
     totalProducts: 0,
     productsInStock: 0,
     lowStockProducts: 0,
     outOfStockProducts: 0
-  };
-  
-  const products = [];
+  });
+  const navigate = useNavigate();
 
   useEffect(() => {
     checkAuthentication();
+    fetchProducts();
+    fetchStats();
   }, []);
 
   const checkAuthentication = async () => {
@@ -43,6 +58,67 @@ const SupplierDashboard = () => {
       navigate("/login");
     } else {
       setIsLoading(false);
+    }
+  };
+
+  const fetchProducts = async () => {
+    try {
+      const { data: userData } = await supabase.auth.getUser();
+      
+      if (!userData.user) return;
+      
+      const { data, error } = await supabase
+        .from("products")
+        .select("*")
+        .eq("supplier_id", userData.user.id)
+        .order("created_at", { ascending: false })
+        .limit(5);
+      
+      if (error) throw error;
+      
+      setProducts(data || []);
+    } catch (error: any) {
+      console.error("Error fetching products:", error);
+      toast.error("Erreur lors du chargement des produits");
+    }
+  };
+
+  const fetchStats = async () => {
+    try {
+      const { data: userData } = await supabase.auth.getUser();
+      
+      if (!userData.user) return;
+      
+      // Get total products
+      const { count: totalCount, error: totalError } = await supabase
+        .from("products")
+        .select("*", { count: "exact", head: true })
+        .eq("supplier_id", userData.user.id);
+      
+      if (totalError) throw totalError;
+      
+      // Get product variants stats
+      const { data: variantsData, error: variantsError } = await supabase
+        .from("product_variants")
+        .select("status")
+        .in("product_id", products.map(p => p.id));
+      
+      if (variantsError) throw variantsError;
+      
+      // Calculate stats based on product variants
+      const inStock = variantsData?.filter(v => v.status === 'in_stock').length || 0;
+      const lowStock = variantsData?.filter(v => v.status === 'low_stock').length || 0;
+      const outOfStock = variantsData?.filter(v => v.status === 'out_of_stock').length || 0;
+      
+      setStats({
+        totalProducts: totalCount || 0,
+        productsInStock: inStock,
+        lowStockProducts: lowStock,
+        outOfStockProducts: outOfStock
+      });
+    } catch (error: any) {
+      console.error("Error fetching stats:", error);
+      toast.error("Erreur lors du chargement des statistiques");
     }
   };
 
@@ -224,7 +300,40 @@ const SupplierDashboard = () => {
                     </tr>
                   </thead>
                   <tbody>
-                    {/* No products since tables were dropped */}
+                    {products.map((product) => (
+                      <tr key={product.id} className="border-b hover:bg-gray-50">
+                        <td className="py-3">{product.name}</td>
+                        <td className="py-3">{product.category}</td>
+                        <td className="py-3">{product.price} €</td>
+                        <td className="py-3">
+                          <span 
+                            className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
+                              product.status === 'published' 
+                                ? 'bg-green-100 text-green-800'
+                                : product.status === 'draft'
+                                ? 'bg-gray-100 text-gray-800'
+                                : 'bg-red-100 text-red-800'
+                            }`}
+                          >
+                            {product.status === 'published' 
+                              ? 'Publié' 
+                              : product.status === 'draft'
+                              ? 'Brouillon'
+                              : 'Archivé'
+                            }
+                          </span>
+                        </td>
+                        <td className="py-3">
+                          <div className="flex space-x-2">
+                            <Link to={`/supplier/product/${product.id}/edit`}>
+                              <Button variant="outline" size="sm">
+                                Modifier
+                              </Button>
+                            </Link>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
                   </tbody>
                 </table>
               </div>

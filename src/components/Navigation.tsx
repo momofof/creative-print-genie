@@ -3,9 +3,11 @@ import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useAuthStatus } from "@/hooks/useAuthStatus";
 
 const Navigation = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const { isLoggedIn } = useAuthStatus();
 
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);

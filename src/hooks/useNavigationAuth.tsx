@@ -7,20 +7,42 @@ export const useNavigationAuth = () => {
   const [isSupplier, setIsSupplier] = useState(false);
 
   useEffect(() => {
-    // Check if the user is logged in
-    const checkAuth = async () => {
+    const checkUserSession = async () => {
       const { data } = await supabase.auth.getSession();
       setIsLoggedIn(!!data.session);
-    };
-
-    checkAuth();
-
-    // Set up auth state change listener
-    const { data: authListener } = supabase.auth.onAuthStateChange(
-      (event, session) => {
-        setIsLoggedIn(!!session);
+      
+      // Check if user is a supplier
+      if (data.session) {
+        const { data: supplierData } = await supabase
+          .from('suppliers')
+          .select('id')
+          .eq('id', data.session.user.id)
+          .single();
+        
+        setIsSupplier(!!supplierData);
       }
-    );
+    };
+    
+    checkUserSession();
+    
+    const { data: authListener } = supabase.auth.onAuthStateChange((event, session) => {
+      setIsLoggedIn(!!session);
+      if (session) {
+        // Check supplier status on auth change
+        const checkSupplierStatus = async () => {
+          const { data: supplierData } = await supabase
+            .from('suppliers')
+            .select('id')
+            .eq('id', session.user.id)
+            .single();
+          
+          setIsSupplier(!!supplierData);
+        };
+        checkSupplierStatus();
+      } else {
+        setIsSupplier(false);
+      }
+    });
 
     return () => {
       authListener.subscription.unsubscribe();

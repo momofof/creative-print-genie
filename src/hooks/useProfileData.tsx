@@ -13,42 +13,52 @@ interface ProfileData {
 }
 
 export const useProfileData = () => {
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const [profile, setProfile] = useState<ProfileData | null>(null);
   const navigate = useNavigate();
 
   useEffect(() => {
-    const getProfile = async () => {
+    const checkUserSession = async () => {
       setIsLoading(true);
+      const { data } = await supabase.auth.getSession();
       
-      try {
-        const { data: userData } = await supabase.auth.getUser();
-        
-        if (userData.user) {
-          // Since profile table is dropped, we use user metadata
-          setProfile({
-            id: userData.user.id,
-            first_name: userData.user.user_metadata.first_name || null,
-            last_name: userData.user.user_metadata.last_name || null,
-            avatar_url: null,
-            created_at: userData.user.created_at
-          });
-        }
-      } catch (error) {
-        console.error("Error fetching profile:", error);
-      } finally {
-        setIsLoading(false);
+      if (!data.session) {
+        toast.error("Vous devez être connecté pour accéder à cette page");
+        navigate("/login");
+        return;
       }
+      
+      // Fetch profile data
+      const { data: profileData, error } = await supabase
+        .from("profiles")
+        .select("*")
+        .eq("id", data.session.user.id)
+        .single();
+      
+      if (error) {
+        console.error("Error fetching profile:", error);
+        toast.error("Erreur lors du chargement du profil");
+      } else {
+        setProfile(profileData);
+      }
+      
+      setIsLoading(false);
     };
     
-    getProfile();
-  }, []);
+    checkUserSession();
+  }, [navigate]);
 
   const handleSignOut = async () => {
     try {
-      await supabase.auth.signOut();
-      toast.success("Déconnexion réussie");
-      navigate("/");
+      const { error } = await supabase.auth.signOut();
+      
+      if (error) {
+        console.error("Error signing out:", error);
+        toast.error("Erreur lors de la déconnexion");
+      } else {
+        toast.success("Déconnexion réussie");
+        navigate("/");
+      }
     } catch (error) {
       console.error("Error signing out:", error);
       toast.error("Erreur lors de la déconnexion");
