@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Input } from "@/components/ui/input";
 import {
   DropdownMenu,
@@ -11,6 +11,14 @@ import { allProducts } from "@/data/productData";
 import { Product } from "@/types/product";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { toast } from "sonner";
 
 interface SearchableDropdownProps {
   label: string;
@@ -112,9 +120,49 @@ const quantityOptions = {
   emballage: [10, 25, 50, 100, 200]
 };
 
+// Category-specific variants
+const categoryVariants = {
+  textile: {
+    sizes: ["XS", "S", "M", "L", "XL", "XXL", "3XL"],
+    colors: ["Blanc", "Noir", "Bleu", "Rouge", "Vert", "Jaune", "Gris"],
+    materials: ["Coton", "Polyester", "Coton Bio", "Mélange", "Lycra", "Lin"],
+    styles: ["T-shirt", "Polo", "Sweat", "Hoodie", "Débardeur", "Chemise"]
+  },
+  papier: {
+    sizes: ["A6", "A5", "A4", "A3", "A2", "A1", "Carte de visite", "Flyer"],
+    colors: ["Blanc", "Ivoire", "Recyclé", "Coloré", "Kraft"],
+    thickness: ["80g", "100g", "120g", "170g", "250g", "300g", "350g"],
+    printDetails: ["Recto", "Recto-Verso", "Quadri", "Pantone", "Vernis"],
+    paperTypes: ["Standard", "Recyclé", "Créatif", "Couché Mat", "Couché Brillant", "Texturé"],
+    folding: ["Sans pli", "Pli simple", "Pli accordéon", "Pli roulé", "Pli fenêtre"],
+    foldingStyles: ["2 volets", "3 volets", "4 volets", "Dépliant", "Livret", "Z-fold"]
+  },
+  vinyl: {
+    sizes: ["Petit (10x10cm)", "Moyen (30x30cm)", "Grand (50x50cm)", "XL (100x100cm)", "Sur mesure"],
+    colors: ["Transparent", "Blanc", "Noir", "Couleur unie", "Multicolore"],
+    materials: ["PVC", "Vinyle monomère", "Vinyle polymère", "Microperforé", "Adhésif"],
+    finishes: ["Mat", "Brillant", "Satiné", "Anti-UV", "Anti-rayures"]
+  },
+  accessoires: {
+    colors: ["Blanc", "Noir", "Bleu", "Rouge", "Vert", "Multicolore", "Naturel"],
+    materials: ["Céramique", "Plastique", "Métal", "Verre", "Bois", "Silicone", "Textile"],
+    sizes: ["Standard", "Mini", "Maxi", "Voyage", "XL"],
+    styles: ["Classique", "Moderne", "Vintage", "Sport", "Luxe", "Minimaliste"]
+  },
+  emballage: {
+    sizes: ["XS", "S", "M", "L", "XL", "Sur mesure"],
+    materials: ["Carton", "Kraft", "Recyclé", "Papier", "Plastique biodégradable"],
+    colors: ["Blanc", "Kraft", "Noir", "Coloré", "Transparent"],
+    finishes: ["Mat", "Brillant", "Satiné", "Soft-touch", "Métallisé"],
+    techniques: ["Impression quadri", "Dorure", "Gaufrage", "Vernis sélectif", "Découpe forme"]
+  }
+};
+
 const ProductOrderForm = () => {
   const [selectedProduct, setSelectedProduct] = useState<Product | undefined>(undefined);
   const [selectedQuantity, setSelectedQuantity] = useState<number | null>(null);
+  const [variants, setVariants] = useState<Record<string, string>>({});
+  const [availableVariants, setAvailableVariants] = useState<string[]>([]);
   
   // Get quantity options based on selected product category
   const getQuantityOptions = (category: string) => {
@@ -122,22 +170,69 @@ const ProductOrderForm = () => {
     return quantityOptions[categoryKey] || quantityOptions.textile;
   };
 
+  // Update available variants when product category changes
+  useEffect(() => {
+    if (selectedProduct) {
+      const category = selectedProduct.category as keyof typeof categoryVariants;
+      const variantKeys = categoryVariants[category] ? Object.keys(categoryVariants[category]) : [];
+      setAvailableVariants(variantKeys);
+      
+      // Reset variant selections when product changes
+      setVariants({});
+    } else {
+      setAvailableVariants([]);
+    }
+  }, [selectedProduct]);
+
+  const handleVariantChange = (variantType: string, value: string) => {
+    setVariants(prev => ({ ...prev, [variantType]: value }));
+  };
+
+  const getVariantOptions = (variantType: string) => {
+    if (!selectedProduct) return [];
+    
+    const category = selectedProduct.category as keyof typeof categoryVariants;
+    if (!categoryVariants[category]) return [];
+    
+    // TypeScript needs this type assertion to access the dynamic property
+    return (categoryVariants[category] as any)[variantType] || [];
+  };
+
+  const getVariantDisplayName = (variantType: string): string => {
+    const displayNames: Record<string, string> = {
+      sizes: "Taille",
+      colors: "Couleur",
+      materials: "Matériau",
+      styles: "Style",
+      thickness: "Épaisseur",
+      printDetails: "Détails d'impression",
+      paperTypes: "Type de papier",
+      folding: "Pliage",
+      foldingStyles: "Style de pliage",
+      finishes: "Finition",
+      techniques: "Technique"
+    };
+    
+    return displayNames[variantType] || variantType;
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
     if (!selectedProduct || !selectedQuantity) {
-      alert("Veuillez sélectionner un produit et une quantité");
+      toast.error("Veuillez sélectionner un produit et une quantité");
       return;
     }
     
-    // Here you would typically process the order
+    // Here you would typically process the order with the variants
     console.log("Order submitted:", {
       product: selectedProduct,
-      quantity: selectedQuantity
+      quantity: selectedQuantity,
+      variants: variants
     });
     
     // Show success message
-    alert(`Commande de ${selectedQuantity} ${selectedProduct.name} envoyée avec succès !`);
+    toast.success(`Commande de ${selectedQuantity} ${selectedProduct.name} envoyée avec succès !`);
   };
 
   return (
@@ -154,24 +249,57 @@ const ProductOrderForm = () => {
           />
           
           {selectedProduct && (
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Quantité
-              </label>
-              <div className="grid grid-cols-3 gap-2 sm:grid-cols-6">
-                {getQuantityOptions(selectedProduct.category).map((quantity) => (
-                  <Button
-                    key={quantity}
-                    type="button"
-                    variant={selectedQuantity === quantity ? "default" : "outline"}
-                    onClick={() => setSelectedQuantity(quantity)}
-                    className="py-2"
-                  >
-                    {quantity}
-                  </Button>
-                ))}
+            <>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Quantité
+                </label>
+                <div className="grid grid-cols-3 gap-2 sm:grid-cols-6">
+                  {getQuantityOptions(selectedProduct.category).map((quantity) => (
+                    <Button
+                      key={quantity}
+                      type="button"
+                      variant={selectedQuantity === quantity ? "default" : "outline"}
+                      onClick={() => setSelectedQuantity(quantity)}
+                      className="py-2"
+                    >
+                      {quantity}
+                    </Button>
+                  ))}
+                </div>
               </div>
-            </div>
+              
+              {/* Variant selectors */}
+              {availableVariants.length > 0 && (
+                <div className="space-y-4">
+                  <h3 className="text-lg font-medium text-gray-800">Options spécifiques</h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {availableVariants.map((variantType) => (
+                      <div key={variantType}>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                          {getVariantDisplayName(variantType)}
+                        </label>
+                        <Select
+                          onValueChange={(value) => handleVariantChange(variantType, value)}
+                          value={variants[variantType] || ""}
+                        >
+                          <SelectTrigger>
+                            <SelectValue placeholder={`Choisir ${getVariantDisplayName(variantType).toLowerCase()}...`} />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {getVariantOptions(variantType).map((option: string) => (
+                              <SelectItem key={option} value={option}>
+                                {option}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </>
           )}
         </div>
         
