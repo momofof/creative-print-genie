@@ -6,7 +6,7 @@ import {
   DropdownMenuContent,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Search } from "lucide-react";
+import { Search, Image } from "lucide-react";
 import { allProducts } from "@/data/productData";
 import { Product } from "@/types/product";
 import { cn } from "@/lib/utils";
@@ -19,6 +19,19 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { toast } from "sonner";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet";
 
 interface SearchableDropdownProps {
   label: string;
@@ -158,11 +171,69 @@ const categoryVariants = {
   }
 };
 
+// Illustration images for variants
+const variantIllustrations = {
+  textile: {
+    sizes: {
+      "XS": "/lovable-uploads/37a81eff-34b6-47cc-b819-69f72dfebbde.png",
+      "S": "/lovable-uploads/37a81eff-34b6-47cc-b819-69f72dfebbde.png",
+      "M": "/lovable-uploads/37a81eff-34b6-47cc-b819-69f72dfebbde.png",
+      "L": "/lovable-uploads/37a81eff-34b6-47cc-b819-69f72dfebbde.png",
+      "XL": "/lovable-uploads/37a81eff-34b6-47cc-b819-69f72dfebbde.png",
+      "XXL": "/lovable-uploads/37a81eff-34b6-47cc-b819-69f72dfebbde.png",
+      "3XL": "/lovable-uploads/37a81eff-34b6-47cc-b819-69f72dfebbde.png",
+    },
+    colors: {
+      "Blanc": "/lovable-uploads/5c3e6357-3bff-4033-85a4-fc23513fc793.png",
+      "Noir": "/lovable-uploads/83279871-e720-4ac6-9c14-23e50fecfa8d.png",
+      "Bleu": "/lovable-uploads/1365a433-cc0b-4382-8d64-0402ccf2eccd.png",
+      "Rouge": "/lovable-uploads/9c50297c-4e85-4eba-92cf-1786dbe7853d.png",
+      "Vert": "/lovable-uploads/65ec5eab-d704-46ee-823c-35a148087669.png",
+      "Jaune": "/lovable-uploads/65ec5eab-d704-46ee-823c-35a148087669.png",
+      "Gris": "/lovable-uploads/83279871-e720-4ac6-9c14-23e50fecfa8d.png",
+    },
+    materials: {
+      "Coton": "/lovable-uploads/d28240cb-3480-4969-9eaf-7e5a3db73a93.png",
+      "Polyester": "/lovable-uploads/a613bb1a-34de-4d67-a4ea-8e2b4c720279.png",
+      "Coton Bio": "/lovable-uploads/d28240cb-3480-4969-9eaf-7e5a3db73a93.png",
+      "Mélange": "/lovable-uploads/a613bb1a-34de-4d67-a4ea-8e2b4c720279.png",
+      "Lycra": "/lovable-uploads/a613bb1a-34de-4d67-a4ea-8e2b4c720279.png",
+      "Lin": "/lovable-uploads/d28240cb-3480-4969-9eaf-7e5a3db73a93.png",
+    },
+    styles: {
+      "T-shirt": "/lovable-uploads/9850efb4-ef57-4de7-8707-ef1e82277265.png",
+      "Polo": "/lovable-uploads/694400ee-4ddd-4bce-8e5e-3941e06b6777.png",
+      "Sweat": "/lovable-uploads/c00742ed-9c77-47e2-97c4-41a9401e0f18.png",
+      "Hoodie": "/lovable-uploads/c00742ed-9c77-47e2-97c4-41a9401e0f18.png",
+      "Débardeur": "/lovable-uploads/9850efb4-ef57-4de7-8707-ef1e82277265.png",
+      "Chemise": "/lovable-uploads/694400ee-4ddd-4bce-8e5e-3941e06b6777.png",
+    }
+  },
+  papier: {
+    sizes: {
+      "A6": "/lovable-uploads/d3ae8f29-2c71-4cc2-8d20-f6b99685c61c.png",
+      "A5": "/lovable-uploads/d3ae8f29-2c71-4cc2-8d20-f6b99685c61c.png",
+      "A4": "/lovable-uploads/d3ae8f29-2c71-4cc2-8d20-f6b99685c61c.png",
+      "A3": "/lovable-uploads/d3ae8f29-2c71-4cc2-8d20-f6b99685c61c.png",
+      "A2": "/lovable-uploads/d3ae8f29-2c71-4cc2-8d20-f6b99685c61c.png",
+      "A1": "/lovable-uploads/d3ae8f29-2c71-4cc2-8d20-f6b99685c61c.png",
+      "Carte de visite": "/lovable-uploads/d3ae8f29-2c71-4cc2-8d20-f6b99685c61c.png",
+      "Flyer": "/lovable-uploads/d3ae8f29-2c71-4cc2-8d20-f6b99685c61c.png",
+    },
+    // Add other papier variant illustrations
+  },
+  // Add other category illustrations
+};
+
+// Default fallback image
+const defaultIllustration = "/lovable-uploads/42f681a1-997f-45a3-aaf6-b01d41e79b33.png";
+
 const ProductOrderForm = () => {
   const [selectedProduct, setSelectedProduct] = useState<Product | undefined>(undefined);
   const [selectedQuantity, setSelectedQuantity] = useState<number | null>(null);
   const [variants, setVariants] = useState<Record<string, string>>({});
   const [availableVariants, setAvailableVariants] = useState<string[]>([]);
+  const [openIllustration, setOpenIllustration] = useState(false);
   
   // Get quantity options based on selected product category
   const getQuantityOptions = (category: string) => {
@@ -216,6 +287,38 @@ const ProductOrderForm = () => {
     return displayNames[variantType] || variantType;
   };
 
+  // Get illustration image for a specific variant
+  const getVariantIllustration = (variantType: string, variantValue: string): string => {
+    if (!selectedProduct) return defaultIllustration;
+    
+    const category = selectedProduct.category as keyof typeof variantIllustrations;
+    
+    if (
+      variantIllustrations[category] && 
+      (variantIllustrations[category] as any)[variantType] && 
+      (variantIllustrations[category] as any)[variantType][variantValue]
+    ) {
+      return (variantIllustrations[category] as any)[variantType][variantValue];
+    }
+    
+    return defaultIllustration;
+  };
+
+  // Get the currently featured illustration based on most recently selected variant
+  const getFeatureIllustration = (): string => {
+    if (!selectedProduct || Object.keys(variants).length === 0) return defaultIllustration;
+    
+    // Get the last selected variant for illustration
+    const variantKeys = Object.keys(variants);
+    if (variantKeys.length > 0) {
+      const lastVariantType = variantKeys[variantKeys.length - 1];
+      const lastVariantValue = variants[lastVariantType];
+      return getVariantIllustration(lastVariantType, lastVariantValue);
+    }
+    
+    return defaultIllustration;
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
@@ -236,88 +339,197 @@ const ProductOrderForm = () => {
   };
 
   return (
-    <div className="bg-white rounded-lg shadow-lg p-6 max-w-3xl mx-auto my-10">
+    <div className="bg-white rounded-lg shadow-lg p-6 max-w-4xl mx-auto my-10">
       <h2 className="text-2xl font-bold text-gray-800 mb-6">Commander vos produits</h2>
-      <form onSubmit={handleSubmit}>
-        <div className="space-y-6">
-          <SearchableDropdown
-            label="Sélectionnez un produit"
-            placeholder="Choisir un produit..."
-            products={allProducts}
-            selectedProduct={selectedProduct}
-            onSelect={setSelectedProduct}
-          />
-          
-          {selectedProduct && (
-            <>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Quantité
-                </label>
-                <div className="grid grid-cols-3 gap-2 sm:grid-cols-6">
-                  {getQuantityOptions(selectedProduct.category).map((quantity) => (
-                    <Button
-                      key={quantity}
-                      type="button"
-                      variant={selectedQuantity === quantity ? "default" : "outline"}
-                      onClick={() => setSelectedQuantity(quantity)}
-                      className="py-2"
-                    >
-                      {quantity}
-                    </Button>
-                  ))}
-                </div>
-              </div>
+      
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+        {/* Product Form Column */}
+        <div>
+          <form onSubmit={handleSubmit}>
+            <div className="space-y-6">
+              <SearchableDropdown
+                label="Sélectionnez un produit"
+                placeholder="Choisir un produit..."
+                products={allProducts}
+                selectedProduct={selectedProduct}
+                onSelect={setSelectedProduct}
+              />
               
-              {/* Variant selectors */}
-              {availableVariants.length > 0 && (
-                <div className="space-y-4">
-                  <h3 className="text-lg font-medium text-gray-800">Options spécifiques</h3>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {availableVariants.map((variantType) => (
-                      <div key={variantType}>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">
-                          {getVariantDisplayName(variantType)}
-                        </label>
-                        <Select
-                          onValueChange={(value) => handleVariantChange(variantType, value)}
-                          value={variants[variantType] || ""}
+              {selectedProduct && (
+                <>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Quantité
+                    </label>
+                    <div className="grid grid-cols-3 gap-2 sm:grid-cols-6">
+                      {getQuantityOptions(selectedProduct.category).map((quantity) => (
+                        <Button
+                          key={quantity}
+                          type="button"
+                          variant={selectedQuantity === quantity ? "default" : "outline"}
+                          onClick={() => setSelectedQuantity(quantity)}
+                          className="py-2"
                         >
-                          <SelectTrigger>
-                            <SelectValue placeholder={`Choisir ${getVariantDisplayName(variantType).toLowerCase()}...`} />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {getVariantOptions(variantType).map((option: string) => (
-                              <SelectItem key={option} value={option}>
-                                {option}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
+                          {quantity}
+                        </Button>
+                      ))}
+                    </div>
+                  </div>
+                  
+                  {/* Variant selectors */}
+                  {availableVariants.length > 0 && (
+                    <div className="space-y-4">
+                      <h3 className="text-lg font-medium text-gray-800">Options spécifiques</h3>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        {availableVariants.map((variantType) => (
+                          <div key={variantType}>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">
+                              {getVariantDisplayName(variantType)}
+                            </label>
+                            <Select
+                              onValueChange={(value) => handleVariantChange(variantType, value)}
+                              value={variants[variantType] || ""}
+                            >
+                              <SelectTrigger>
+                                <SelectValue placeholder={`Choisir ${getVariantDisplayName(variantType).toLowerCase()}...`} />
+                              </SelectTrigger>
+                              <SelectContent>
+                                {getVariantOptions(variantType).map((option: string) => (
+                                  <SelectItem key={option} value={option}>
+                                    {option}
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </>
+              )}
+            </div>
+            
+            <div className="mt-8">
+              <button
+                type="submit"
+                disabled={!selectedProduct || !selectedQuantity}
+                className={cn(
+                  "w-full bg-accent text-white py-3 px-6 rounded-md font-medium transition-colors",
+                  (!selectedProduct || !selectedQuantity) ? 
+                    "opacity-50 cursor-not-allowed" : 
+                    "hover:bg-accent/90"
+                )}
+              >
+                Commander
+              </button>
+            </div>
+          </form>
+        </div>
+
+        {/* Illustration Column */}
+        <div className="bg-gray-50 rounded-lg p-6 flex flex-col items-center justify-center relative">
+          <h3 className="text-lg font-medium text-gray-800 mb-4">Aperçu des options</h3>
+          <div className="border border-gray-200 rounded-lg w-full h-80 flex items-center justify-center overflow-hidden bg-white">
+            {selectedProduct ? (
+              <div className="flex flex-col items-center">
+                <img 
+                  src={getFeatureIllustration()} 
+                  alt="Option aperçu" 
+                  className="max-w-full max-h-64 object-contain" 
+                />
+                <div className="mt-4 text-center">
+                  <h4 className="font-medium">{selectedProduct.name}</h4>
+                  <div className="text-sm text-gray-600 max-w-xs mt-2">
+                    {Object.entries(variants).map(([type, value]) => (
+                      <div key={type} className="inline-block mr-2 mb-1">
+                        <span className="font-medium">{getVariantDisplayName(type)}:</span> {value}
                       </div>
                     ))}
                   </div>
                 </div>
-              )}
-            </>
+              </div>
+            ) : (
+              <div className="text-center p-4">
+                <Image className="mx-auto h-12 w-12 text-gray-400 mb-2" />
+                <p className="text-gray-500">Sélectionnez un produit et ses options pour visualiser l'aperçu</p>
+              </div>
+            )}
+          </div>
+
+          {/* Mobile view: show illustration in a sheet */}
+          <div className="md:hidden mt-4 w-full">
+            <Sheet open={openIllustration} onOpenChange={setOpenIllustration}>
+              <SheetTrigger asChild>
+                <Button className="w-full" variant="outline">
+                  Voir l'aperçu
+                </Button>
+              </SheetTrigger>
+              <SheetContent side="bottom" className="h-[70vh]">
+                <SheetHeader>
+                  <SheetTitle>Aperçu des options</SheetTitle>
+                  <SheetDescription>
+                    {selectedProduct ? 
+                      `${selectedProduct.name} avec vos options personnalisées` : 
+                      "Sélectionnez un produit pour voir l'aperçu"}
+                  </SheetDescription>
+                </SheetHeader>
+                <div className="flex-1 flex items-center justify-center p-6">
+                  {selectedProduct ? (
+                    <div className="flex flex-col items-center">
+                      <img 
+                        src={getFeatureIllustration()} 
+                        alt="Option aperçu" 
+                        className="max-w-full max-h-64 object-contain" 
+                      />
+                      <div className="mt-4 text-center">
+                        <h4 className="font-medium">{selectedProduct.name}</h4>
+                        <div className="text-sm text-gray-600 max-w-xs mt-2">
+                          {Object.entries(variants).map(([type, value]) => (
+                            <div key={type} className="inline-block mr-2 mb-1">
+                              <span className="font-medium">{getVariantDisplayName(type)}:</span> {value}
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="text-center">
+                      <Image className="mx-auto h-12 w-12 text-gray-400 mb-2" />
+                      <p>Sélectionnez un produit et ses options pour visualiser l'aperçu</p>
+                    </div>
+                  )}
+                </div>
+              </SheetContent>
+            </Sheet>
+          </div>
+
+          {/* Variant illustrations (hidden on mobile) */}
+          {selectedProduct && Object.keys(variants).length > 0 && (
+            <div className="hidden md:flex flex-wrap mt-4 gap-2 justify-center">
+              {Object.entries(variants).map(([type, value]) => (
+                <Popover key={`${type}-${value}`}>
+                  <PopoverTrigger asChild>
+                    <Button variant="outline" size="sm" className="text-xs">
+                      {getVariantDisplayName(type)}: {value}
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-64 p-2">
+                    <div className="text-center">
+                      <img 
+                        src={getVariantIllustration(type, value)} 
+                        alt={`${getVariantDisplayName(type)}: ${value}`} 
+                        className="max-w-full h-32 object-contain mx-auto" 
+                      />
+                      <p className="mt-2 text-sm font-medium">{getVariantDisplayName(type)}: {value}</p>
+                    </div>
+                  </PopoverContent>
+                </Popover>
+              ))}
+            </div>
           )}
         </div>
-        
-        <div className="mt-8">
-          <button
-            type="submit"
-            disabled={!selectedProduct || !selectedQuantity}
-            className={cn(
-              "w-full bg-accent text-white py-3 px-6 rounded-md font-medium transition-colors",
-              (!selectedProduct || !selectedQuantity) ? 
-                "opacity-50 cursor-not-allowed" : 
-                "hover:bg-accent/90"
-            )}
-          >
-            Commander
-          </button>
-        </div>
-      </form>
+      </div>
     </div>
   );
 };
