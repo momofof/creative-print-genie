@@ -24,7 +24,7 @@ export const customizationService = {
         throw error;
       }
 
-      return data;
+      return data as Customization;
     } catch (error: any) {
       toast.error(`Erreur lors de l'ajout de la personnalisation: ${error.message}`);
       return null;
@@ -42,7 +42,7 @@ export const customizationService = {
         throw error;
       }
 
-      return data || [];
+      return data as Customization[];
     } catch (error: any) {
       toast.error(`Erreur lors de la récupération des personnalisations: ${error.message}`);
       return [];
@@ -69,7 +69,7 @@ export const customizationService = {
         throw error;
       }
 
-      return data;
+      return data as Customization;
     } catch (error: any) {
       toast.error(`Erreur lors de la mise à jour de la personnalisation: ${error.message}`);
       return null;

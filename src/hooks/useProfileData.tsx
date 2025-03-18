@@ -4,12 +4,13 @@ import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 
-interface ProfileData {
+export interface ProfileData {
   id: string;
   first_name: string | null;
   last_name: string | null;
   avatar_url: string | null;
   created_at: string | null;
+  updated_at?: string | null;
 }
 
 export const useProfileData = () => {
@@ -29,20 +30,24 @@ export const useProfileData = () => {
       }
       
       // Fetch profile data
-      const { data: profileData, error } = await supabase
-        .from("profiles")
-        .select("*")
-        .eq("id", data.session.user.id)
-        .single();
-      
-      if (error) {
+      try {
+        const { data: profileData, error } = await supabase
+          .from("profiles")
+          .select("*")
+          .eq("id", data.session.user.id)
+          .single();
+        
+        if (error) {
+          throw error;
+        }
+        
+        setProfile(profileData as ProfileData);
+      } catch (error) {
         console.error("Error fetching profile:", error);
         toast.error("Erreur lors du chargement du profil");
-      } else {
-        setProfile(profileData);
+      } finally {
+        setIsLoading(false);
       }
-      
-      setIsLoading(false);
     };
     
     checkUserSession();

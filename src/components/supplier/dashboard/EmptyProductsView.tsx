@@ -4,14 +4,24 @@ import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { PlusCircle } from "lucide-react";
 
-const EmptyProductsView = () => {
+interface EmptyProductsViewProps {
+  message?: string;
+  buttonLabel?: string;
+  buttonLink?: string;
+}
+
+const EmptyProductsView = ({
+  message = "Vous n'avez pas encore de produits",
+  buttonLabel = "Ajouter un produit",
+  buttonLink = "/supplier/product/new"
+}: EmptyProductsViewProps) => {
   return (
     <div className="text-center py-6">
-      <p className="text-gray-500 mb-4">Vous n'avez pas encore de produits</p>
-      <Link to="/supplier/product/new">
+      <p className="text-gray-500 mb-4">{message}</p>
+      <Link to={buttonLink}>
         <Button>
           <PlusCircle className="mr-2 h-4 w-4" />
-          Ajouter un produit
+          {buttonLabel}
         </Button>
       </Link>
     </div>

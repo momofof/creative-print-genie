@@ -3,11 +3,19 @@ import React from "react";
 import { Link } from "react-router-dom";
 import { Store } from "lucide-react";
 
-const DashboardHeader = () => {
+interface DashboardHeaderProps {
+  title?: string;
+  subtitle?: string;
+}
+
+const DashboardHeader = ({ 
+  title = "Tableau de bord", 
+  subtitle = "Bienvenue dans votre espace fournisseur" 
+}: DashboardHeaderProps) => {
   return (
     <div className="mb-8">
-      <h1 className="text-2xl font-bold text-gray-900">Tableau de bord</h1>
-      <p className="text-gray-600">Bienvenue dans votre espace fournisseur</p>
+      <h1 className="text-2xl font-bold text-gray-900">{title}</h1>
+      <p className="text-gray-600">{subtitle}</p>
     </div>
   );
 };
