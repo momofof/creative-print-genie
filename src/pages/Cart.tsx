@@ -1,9 +1,9 @@
-
 import { useState, useEffect } from "react";
 import { MinusCircle, PlusCircle, Trash2 } from "lucide-react";
 import { Link } from "react-router-dom";
 import Navigation from "@/components/Navigation";
 import { useCart } from "@/hooks/useCart";
+import { toast } from "sonner";
 
 const Cart = () => {
   const { 
