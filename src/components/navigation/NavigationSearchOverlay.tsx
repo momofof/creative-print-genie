@@ -1,5 +1,6 @@
+
 import { useEffect, useRef } from "react";
-import { X } from "lucide-react";
+import { Search, X } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import {
@@ -19,7 +20,7 @@ import {
 } from "@/components/ui/dialog";
 
 interface NavigationSearchOverlayProps {
-  isOpen: boolean;  // Add the isOpen property that was missing
+  isOpen: boolean;
   onClose: () => void;
   searchQuery: string;
   setSearchQuery: React.Dispatch<React.SetStateAction<string>>;
@@ -31,13 +32,15 @@ const NavigationSearchOverlay = ({
   searchQuery,
   setSearchQuery
 }: NavigationSearchOverlayProps) => {
-  const dialogRef = useRef<HTMLDialogElement>(null);
+  // Changed the type to match DialogContent which expects a ref to HTMLDivElement
+  const dialogRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (isOpen) {
-      dialogRef.current?.showModal();
+      // Since we now have a div reference instead of dialog, we don't need to call showModal
+      // Just let the Dialog component handle the display based on the isOpen prop
     } else {
-      dialogRef.current?.close();
+      // Similarly, we don't need to call close
     }
   }, [isOpen]);
 
