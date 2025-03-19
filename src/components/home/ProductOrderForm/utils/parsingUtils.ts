@@ -18,7 +18,7 @@ export const parseVariants = (variantsJson: any): Record<string, string[]> => {
       variantsJson.forEach(variant => {
         Object.entries(variant).forEach(([key, value]) => {
           // Ignorer les propriétés qui ne sont pas des variantes
-          if (['id', 'stock', 'price_adjustment', 'status', 'hex_color', 'printable_sides', 'reception', 'shipping_time'].includes(key)) return;
+          if (['id', 'stock', 'price_adjustment', 'status', 'hex_color', 'printable_sides', 'shipping_time'].includes(key)) return;
           
           if (!result[key]) {
             result[key] = [];
@@ -61,7 +61,7 @@ export const extractVariantOptionsFromProduct = (product: Product): Record<strin
       variants.forEach(variant => {
         Object.entries(variant).forEach(([key, value]) => {
           // Ignorer les propriétés qui ne sont pas des variantes
-          if (['id', 'stock', 'price_adjustment', 'status', 'hex_color', 'printable_sides', 'reception', 'shipping_time'].includes(key)) return;
+          if (['id', 'stock', 'price_adjustment', 'status', 'hex_color', 'printable_sides', 'shipping_time'].includes(key)) return;
           
           if (!result[key]) {
             result[key] = [];
