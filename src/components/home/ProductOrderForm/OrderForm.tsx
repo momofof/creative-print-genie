@@ -1,6 +1,7 @@
 
 import { useIsMobile } from "@/hooks/use-mobile";
 import { Product } from "@/types/product";
+import { useEffect } from "react";
 
 // Import components
 import ProductIllustration from "./ProductIllustration";
@@ -29,7 +30,8 @@ const OrderForm = ({ products }: OrderFormProps) => {
     availableVariants,
     setAvailableVariants,
     openIllustration,
-    setOpenIllustration
+    setOpenIllustration,
+    resetForm
   } = useOrderFormState();
   
   // Use custom hook for order submission
@@ -38,12 +40,24 @@ const OrderForm = ({ products }: OrderFormProps) => {
     selectedQuantity,
     variants,
     onOrderSuccess: () => {
-      // Reset form
-      setSelectedProduct(undefined);
-      setSelectedQuantity(null);
-      setVariants({});
+      // Reset form when order is successful
+      resetForm();
     }
   });
+
+  // Reset form when component unmounts or products change
+  useEffect(() => {
+    if (products.length > 0) {
+      // Reset form state when products are loaded
+      resetForm();
+    }
+    
+    // Cleanup function
+    return () => {
+      // Reset form when component unmounts
+      resetForm();
+    };
+  }, [products]);
 
   return (
     <div className="bg-white rounded-lg shadow-lg p-4 md:p-6 max-w-4xl mx-auto my-6 md:my-10">

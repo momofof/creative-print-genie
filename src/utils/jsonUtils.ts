@@ -34,12 +34,12 @@ export const parseJsonArray = (data: any): any[] => {
   return [];
 };
 
-// Parse product variants from JSON or object
+// Parse product variants from JSON or object - optimized version
 export const parseProductVariants = (variants: any): any[] => {
   return parseJsonArray(variants);
 };
 
-// Parse customizations from JSON or object
+// Parse customizations from JSON or object - optimized version
 export const parseCustomizations = (customizations: any): any[] => {
   return parseJsonArray(customizations);
 };

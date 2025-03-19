@@ -15,6 +15,7 @@ interface UseOrderFormStateResult {
   setAvailableVariants: React.Dispatch<React.SetStateAction<string[]>>;
   openIllustration: boolean;
   setOpenIllustration: (open: boolean) => void;
+  resetForm: () => void;
 }
 
 export const useOrderFormState = (): UseOrderFormStateResult => {
@@ -41,6 +42,15 @@ export const useOrderFormState = (): UseOrderFormStateResult => {
     }
   }, [selectedProduct]);
 
+  // Function to reset all form state
+  const resetForm = () => {
+    setSelectedProduct(undefined);
+    setSelectedQuantity(null);
+    setVariants({});
+    setAvailableVariants([]);
+    setOpenIllustration(false);
+  };
+
   return {
     selectedProduct,
     setSelectedProduct,
@@ -51,6 +61,7 @@ export const useOrderFormState = (): UseOrderFormStateResult => {
     availableVariants,
     setAvailableVariants,
     openIllustration,
-    setOpenIllustration
+    setOpenIllustration,
+    resetForm
   };
 };
