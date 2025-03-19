@@ -1,7 +1,6 @@
 
 import Navigation from "@/components/Navigation";
 import HeroSection from "@/components/home/HeroSection";
-import CategoryPills from "@/components/home/CategoryPills";
 import ProductOrderForm from "@/components/home/ProductOrderForm";
 import AuthStateWrapper from "@/components/home/AuthStateWrapper";
 import { Button } from "@/components/ui/button";
@@ -75,7 +74,6 @@ const Index = () => {
       <div className="min-h-screen bg-white">
         <Navigation />
         <HeroSection />
-        <CategoryPills />
         
         <div className="container mx-auto px-4 py-8">
           <div className="text-center mb-8">
