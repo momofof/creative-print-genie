@@ -7,6 +7,7 @@ const variantDisplayNames: Record<string, string> = {
   "design": "Design",
   "paper_type": "Type de papier",
   "finish": "Finition",
+  "reception": "Mode de réception",
 };
 
 // Function to get display name for a variant type
