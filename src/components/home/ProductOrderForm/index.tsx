@@ -7,6 +7,7 @@ import { allProducts } from "@/data/productData";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { orderService, OrderItem } from "@/services/orderService";
 import { supabase } from "@/integrations/supabase/client";
+import { Json } from "@/integrations/supabase/types";
 
 // Import our components
 import SearchableDropdown from "./SearchableDropdown";
@@ -22,6 +23,16 @@ import {
   getVariantDisplayName,
   getFeatureIllustration
 } from "./utils";
+
+// Define a type for cart items
+interface CartItem {
+  id: string;
+  name: string;
+  price: number;
+  quantity: number;
+  image?: string;
+  variants?: Record<string, string>;
+}
 
 const ProductOrderForm = () => {
   const [selectedProduct, setSelectedProduct] = useState<Product | undefined>(undefined);
@@ -138,10 +149,11 @@ const ProductOrderForm = () => {
               .eq('user_id', userId)
               .single();
             
-            const cartItems = cartData?.cart_items || [];
+            // Ensure cart_items is an array before proceeding
+            const cartItems = Array.isArray(cartData?.cart_items) ? cartData?.cart_items as CartItem[] : [];
             
             // Add order to cart
-            const newCartItem = {
+            const newCartItem: CartItem = {
               id: selectedProduct.id,
               name: selectedProduct.name,
               price: selectedProduct.price,
@@ -151,7 +163,7 @@ const ProductOrderForm = () => {
             };
             
             // Check if product already exists in cart
-            const existingItemIndex = cartItems.findIndex((item: any) => 
+            const existingItemIndex = cartItems.findIndex((item: CartItem) => 
               item.id === selectedProduct.id && 
               JSON.stringify(item.variants || {}) === JSON.stringify(variants || {})
             );
