@@ -9,7 +9,7 @@ interface LoadingSpinnerProps {
 export const LoadingSpinner = ({ size = 5, className = "" }: LoadingSpinnerProps) => {
   return (
     <svg 
-      className={`animate-spin h-${size} w-${size} text-white ${className}`} 
+      className={`animate-spin -ml-1 mr-3 h-${size} w-${size} ${className}`} 
       xmlns="http://www.w3.org/2000/svg" 
       fill="none" 
       viewBox="0 0 24 24"
