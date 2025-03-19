@@ -28,6 +28,7 @@ const OrderForm = ({ products }: OrderFormProps) => {
     setVariants,
     availableVariants,
     setAvailableVariants,
+    userId,
     openIllustration,
     setOpenIllustration
   } = useOrderFormState();
@@ -37,6 +38,7 @@ const OrderForm = ({ products }: OrderFormProps) => {
     selectedProduct,
     selectedQuantity,
     variants,
+    userId,
     onOrderSuccess: () => {
       // Reset form
       setSelectedProduct(undefined);

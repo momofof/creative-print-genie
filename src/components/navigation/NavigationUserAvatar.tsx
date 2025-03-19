@@ -2,7 +2,7 @@
 import { UserRound, Briefcase, LogOut } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
-import { useAuth } from "@/hooks/useAuth";
+import { supabase } from "@/integrations/supabase/client";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -17,12 +17,18 @@ interface NavigationUserAvatarProps {
 
 const NavigationUserAvatar = ({ isSupplier }: NavigationUserAvatarProps) => {
   const navigate = useNavigate();
-  const { signOut } = useAuth();
 
   const handleSignOut = async () => {
     try {
-      await signOut();
-      toast.success("Déconnexion réussie");
+      const { error } = await supabase.auth.signOut();
+      
+      if (error) {
+        console.error("Error signing out:", error);
+        toast.error("Erreur lors de la déconnexion");
+      } else {
+        toast.success("Déconnexion réussie");
+        navigate("/");
+      }
     } catch (error) {
       console.error("Error signing out:", error);
       toast.error("Erreur lors de la déconnexion");

@@ -1,59 +1,67 @@
 
-import { useState } from "react";
+import React, { useState } from "react";
 import { Link } from "react-router-dom";
-import { useAuth } from "@/hooks/useAuth";
+import { Menu, X } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { useAuthStatus } from "@/hooks/useAuthStatus";
 
-import NavigationLogo from "./navigation/NavigationLogo";
-import NavigationDesktop from "./navigation/NavigationDesktop";
-import NavigationMobile from "./navigation/NavigationMobile";
-import NavigationSearchOverlay from "./navigation/NavigationSearchOverlay";
-import NavigationActions from "./navigation/NavigationActions";
+const Navigation = () => {
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const { isLoggedIn } = useAuthStatus();
 
-interface NavigationProps {
-  hideAuth?: boolean;
-}
-
-const Navigation = ({ hideAuth = false }: NavigationProps) => {
-  const [showSearch, setShowSearch] = useState(false);
-  const [searchQuery, setSearchQuery] = useState("");
-  const { isLoggedIn, isSupplier } = useAuth();
+  const toggleMenu = () => {
+    setIsMenuOpen(!isMenuOpen);
+  };
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-sm border-b border-gray-200">
-      <div className="container mx-auto px-4">
-        <div className="flex items-center justify-between h-16 lg:h-20">
+    <header className="fixed w-full bg-white z-50 shadow-sm">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex justify-between items-center h-16">
           <div className="flex items-center">
-            <Link to="/" className="mr-6 lg:mr-8">
-              <NavigationLogo />
+            <Link to="/" className="flex-shrink-0">
+              <span className="text-xl font-bold text-accent">PrintGenie</span>
             </Link>
-
-            <NavigationDesktop 
-              isLoggedIn={isLoggedIn}
-              isSupplier={isSupplier}
-              showSearch={showSearch}
-              setShowSearch={setShowSearch}
-              hideAuth={hideAuth}
-            />
           </div>
 
-          <NavigationMobile 
-            isLoggedIn={isLoggedIn}
-            isSupplier={isSupplier}
-            showSearch={showSearch}
-            setShowSearch={setShowSearch}
-            searchQuery={searchQuery}
-            setSearchQuery={setSearchQuery}
-            hideAuth={hideAuth}
-          />
+          {/* Mobile menu button */}
+          <div className="md:hidden">
+            <button
+              type="button"
+              className="inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none"
+              aria-controls="mobile-menu"
+              aria-expanded="false"
+              onClick={toggleMenu}
+            >
+              <span className="sr-only">Open main menu</span>
+              {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
+            </button>
+          </div>
+
+          {/* Desktop menu */}
+          <nav className="hidden md:flex items-center space-x-8">
+            <Button variant="link" asChild>
+              <Link to="/" className="text-gray-600 hover:text-accent">
+                Accueil
+              </Link>
+            </Button>
+          </nav>
         </div>
       </div>
 
-      <NavigationSearchOverlay 
-        isOpen={showSearch} 
-        onClose={() => setShowSearch(false)}
-        searchQuery={searchQuery}
-        setSearchQuery={setSearchQuery}
-      />
+      {/* Mobile menu */}
+      {isMenuOpen && (
+        <div className="md:hidden" id="mobile-menu">
+          <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3 bg-white">
+            <Link
+              to="/"
+              className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-accent hover:bg-gray-50"
+              onClick={toggleMenu}
+            >
+              Accueil
+            </Link>
+          </div>
+        </div>
+      )}
     </header>
   );
 };
