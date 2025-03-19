@@ -1,9 +1,10 @@
-
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
-import { Menu, X, User } from "lucide-react";
+import { Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuthStatus } from "@/hooks/useAuthStatus";
+import NavigationUserAvatar from "@/components/navigation/NavigationUserAvatar";
+import { supabase } from "@/integrations/supabase/client";
 
 const Navigation = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -35,16 +36,10 @@ const Navigation = () => {
           {/* User authentication */}
           <div className="hidden md:flex items-center space-x-4">
             {isLoggedIn ? (
-              <Link to="/profile">
-                <Button variant="ghost" size="sm" className="gap-2">
-                  <User size={18} />
-                  <span>Profil</span>
-                </Button>
-              </Link>
+              <NavigationUserAvatar isSupplier={false} />
             ) : (
               <Link to="/auth">
                 <Button variant="outline" size="sm" className="gap-2">
-                  <User size={18} />
                   <span>Connexion</span>
                 </Button>
               </Link>
@@ -80,13 +75,28 @@ const Navigation = () => {
             </Link>
             
             {isLoggedIn ? (
-              <Link
-                to="/profile"
-                className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-accent hover:bg-gray-50"
-                onClick={toggleMenu}
-              >
-                Profil
-              </Link>
+              <>
+                <Link
+                  to="/profile"
+                  className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-accent hover:bg-gray-50"
+                  onClick={toggleMenu}
+                >
+                  Profil
+                </Link>
+                <button
+                  onClick={async () => {
+                    try {
+                      await supabase.auth.signOut();
+                      toggleMenu();
+                    } catch (error) {
+                      console.error("Error signing out:", error);
+                    }
+                  }}
+                  className="block w-full text-left px-3 py-2 rounded-md text-base font-medium text-red-500 hover:bg-gray-50"
+                >
+                  Se déconnecter
+                </button>
+              </>
             ) : (
               <Link
                 to="/auth"
