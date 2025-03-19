@@ -3,7 +3,6 @@ import { useState, useEffect } from "react";
 import { Product } from "@/types/product";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { supabase } from "@/integrations/supabase/client";
-import { parseVariants, extractVariantOptionsFromProduct } from "../utils";
 
 interface UseOrderFormStateResult {
   selectedProduct: Product | undefined;
@@ -17,6 +16,7 @@ interface UseOrderFormStateResult {
   userId: string | null;
   openIllustration: boolean;
   setOpenIllustration: (open: boolean) => void;
+  resetForm: () => void;
 }
 
 export const useOrderFormState = (): UseOrderFormStateResult => {
@@ -31,9 +31,18 @@ export const useOrderFormState = (): UseOrderFormStateResult => {
   // Check if user is logged in
   useEffect(() => {
     const checkAuth = async () => {
-      const { data } = await supabase.auth.getUser();
-      if (data?.user) {
-        setUserId(data.user.id);
+      try {
+        const { data } = await supabase.auth.getSession();
+        if (data?.user) {
+          setUserId(data.user.id);
+        } else if (data?.session?.user) {
+          setUserId(data.session.user.id);
+        } else {
+          setUserId(null);
+        }
+      } catch (error) {
+        console.error("Error checking auth status:", error);
+        setUserId(null);
       }
     };
     
@@ -68,6 +77,15 @@ export const useOrderFormState = (): UseOrderFormStateResult => {
     }
   }, [selectedProduct]);
 
+  // Reset form function to clear all selections
+  const resetForm = () => {
+    setSelectedProduct(undefined);
+    setSelectedQuantity(null);
+    setVariants({});
+    setAvailableVariants([]);
+    setOpenIllustration(false);
+  };
+
   return {
     selectedProduct,
     setSelectedProduct,
@@ -79,6 +97,7 @@ export const useOrderFormState = (): UseOrderFormStateResult => {
     setAvailableVariants,
     userId,
     openIllustration,
-    setOpenIllustration
+    setOpenIllustration,
+    resetForm
   };
 };

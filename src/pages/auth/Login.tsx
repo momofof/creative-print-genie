@@ -1,8 +1,7 @@
 
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { useNavigate, Link } from "react-router-dom";
 import Navigation from "@/components/Navigation";
-import { Link } from "react-router-dom";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { Loader2 } from "lucide-react";
@@ -14,6 +13,19 @@ const Login = () => {
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
+
+  // Check if user is already logged in
+  useEffect(() => {
+    const checkSession = async () => {
+      const { data } = await supabase.auth.getSession();
+      if (data.session) {
+        // User is already logged in, redirect to home
+        navigate('/');
+      }
+    };
+    
+    checkSession();
+  }, [navigate]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -31,34 +43,10 @@ const Login = () => {
 
       toast.success("Connexion réussie");
       
-      // Check if the user was trying to access the Pro area
+      // Check if there's a redirect path saved
       const redirectPath = localStorage.getItem("redirectAfterLogin");
       
-      if (redirectPath && redirectPath === "/pro") {
-        // For Pro area, we need to check if the user is a supplier
-        const { data: supplierData, error: supplierError } = await supabase
-          .from('suppliers')
-          .select('*')
-          .eq('id', data.user.id)
-          .single();
-          
-        if (supplierError || !supplierData) {
-          // Not a supplier, redirect to pro landing instead
-          localStorage.removeItem("redirectAfterLogin");
-          toast.error("Accès réservé aux fournisseurs");
-          navigate("/pro-landing");
-        } else if (supplierData.status !== 'active') {
-          // Supplier account exists but not approved
-          localStorage.removeItem("redirectAfterLogin");
-          toast.error("Votre compte fournisseur est en attente d'approbation");
-          navigate("/pro-landing");
-        } else {
-          // Valid supplier, allow redirect to Pro
-          localStorage.removeItem("redirectAfterLogin");
-          navigate(redirectPath);
-        }
-      } else if (redirectPath) {
-        // For non-Pro protected areas, redirect normally
+      if (redirectPath) {
         localStorage.removeItem("redirectAfterLogin");
         navigate(redirectPath);
       } else {

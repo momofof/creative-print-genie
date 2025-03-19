@@ -1,10 +1,10 @@
 
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Product } from "@/types/product";
 import { supabase } from "@/integrations/supabase/client";
 import { orderService, OrderItem } from "@/services/orderService";
 import { toast } from "sonner";
-import { parseJsonArray } from "@/utils/jsonUtils";
 
 // Define a type for cart items
 interface CartItem {
@@ -32,12 +32,22 @@ export const useOrderSubmission = ({
   onOrderSuccess
 }: UseOrderSubmissionProps) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
     if (!selectedProduct || !selectedQuantity) {
       toast.error("Veuillez sélectionner un produit et une quantité");
+      return;
+    }
+
+    // Check if user is logged in - redirect to login if not
+    const { data } = await supabase.auth.getSession();
+    if (!data.session) {
+      toast.info("Veuillez vous connecter pour passer une commande");
+      localStorage.setItem("redirectAfterLogin", "/");
+      navigate("/login");
       return;
     }
     
@@ -87,18 +97,25 @@ export const useOrderSubmission = ({
               .eq('user_id', userId)
               .single();
             
-            // Use the parseJsonArray utility to safely convert the JSON data to an array
-            const rawCartItems = parseJsonArray(cartData?.cart_items);
-            
-            // Map the raw items to our CartItem type to ensure type safety
-            const cartItems: CartItem[] = rawCartItems.map(item => ({
-              id: String(item.id || ''),
-              name: String(item.name || ''),
-              price: Number(item.price || 0),
-              quantity: Number(item.quantity || 0),
-              image: item.image ? String(item.image) : undefined,
-              variants: item.variants as Record<string, string> | undefined
-            }));
+            // Parse cart items safely
+            let cartItems: CartItem[] = [];
+            try {
+              if (cartData?.cart_items) {
+                cartItems = Array.isArray(cartData.cart_items) 
+                  ? cartData.cart_items.map(item => ({
+                      id: String(item.id || ''),
+                      name: String(item.name || ''),
+                      price: Number(item.price || 0),
+                      quantity: Number(item.quantity || 0),
+                      image: item.image ? String(item.image) : undefined,
+                      variants: item.variants as Record<string, string> | undefined
+                    }))
+                  : [];
+              }
+            } catch (parseError) {
+              console.error("Error parsing cart items:", parseError);
+              cartItems = [];
+            }
             
             // Add order to cart
             const newCartItem: CartItem = {
@@ -106,7 +123,7 @@ export const useOrderSubmission = ({
               name: selectedProduct.name,
               price: selectedProduct.price,
               quantity: selectedQuantity,
-              image: "/placeholder.svg",
+              image: selectedProduct.image || "/placeholder.svg",
               ...(Object.keys(variants).length > 0 && { variants })
             };
             
