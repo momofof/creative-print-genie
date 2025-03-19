@@ -1,5 +1,6 @@
 
 import { Json } from "@/integrations/supabase/types";
+import { ProductVariant, Customization } from "@/types/dashboard";
 
 /**
  * Safely parses JSON array data from Supabase
@@ -61,9 +62,6 @@ export const toJsonValue = (value: any): Json => {
   // Fallback - convert to string
   return String(value) as Json;
 };
-
-// Add the missing functions that were referenced in the error messages
-import { ProductVariant, Customization } from "@/types/dashboard";
 
 /**
  * Parse product variants from JSONB
