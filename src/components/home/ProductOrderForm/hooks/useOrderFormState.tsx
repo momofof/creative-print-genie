@@ -1,5 +1,5 @@
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect } from "react";
 import { Product } from "@/types/product";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useAuth } from "@/hooks/useAuth";
@@ -15,7 +15,6 @@ interface UseOrderFormStateResult {
   setAvailableVariants: React.Dispatch<React.SetStateAction<string[]>>;
   openIllustration: boolean;
   setOpenIllustration: (open: boolean) => void;
-  resetForm: () => void;
 }
 
 export const useOrderFormState = (): UseOrderFormStateResult => {
@@ -37,19 +36,10 @@ export const useOrderFormState = (): UseOrderFormStateResult => {
   // Reset variants when product changes
   useEffect(() => {
     if (selectedProduct) {
-      // Reset variants when product changes
+      // Réinitialiser les variantes à chaque changement de produit
       setVariants({});
     }
   }, [selectedProduct]);
-
-  // Function to reset all form state - implemented as useCallback to avoid recreation
-  const resetForm = useCallback(() => {
-    setSelectedProduct(undefined);
-    setSelectedQuantity(null);
-    setVariants({});
-    setAvailableVariants([]);
-    setOpenIllustration(false);
-  }, []);
 
   return {
     selectedProduct,
@@ -61,7 +51,6 @@ export const useOrderFormState = (): UseOrderFormStateResult => {
     availableVariants,
     setAvailableVariants,
     openIllustration,
-    setOpenIllustration,
-    resetForm
+    setOpenIllustration
   };
 };

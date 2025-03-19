@@ -1,88 +1,70 @@
 
-import { useEffect, useRef } from "react";
-import { Search, X } from "lucide-react";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import {
-  Command,
-  CommandEmpty,
-  CommandGroup,
-  CommandInput,
-  CommandItem,
-  CommandList,
-} from "@/components/ui/command";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+import { useNavigate } from "react-router-dom";
+
+interface SearchResult {
+  id: string;
+  title: string;
+  type: string;
+  link: string;
+  parentCategory?: string;
+}
 
 interface NavigationSearchOverlayProps {
-  isOpen: boolean; // Changed from open to isOpen to match component usage
-  onClose: () => void;
+  showSearch: boolean;
   searchQuery: string;
-  setSearchQuery: React.Dispatch<React.SetStateAction<string>>;
+  searchResults: SearchResult[];
+  onSearchChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  onSearchResultClick: (link: string) => void;
 }
 
 const NavigationSearchOverlay = ({
-  isOpen,
-  onClose,
+  showSearch,
   searchQuery,
-  setSearchQuery
+  searchResults,
+  onSearchChange,
+  onSearchResultClick,
 }: NavigationSearchOverlayProps) => {
-  // Changed the type to match DialogContent which expects a ref to HTMLDivElement
-  const dialogRef = useRef<HTMLDivElement>(null);
+  if (!showSearch) return null;
 
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent
-        ref={dialogRef}
-        className="fixed inset-0 z-50 p-0 bg-white/95 backdrop-blur-sm dark:border-none dark:bg-gray-950"
-        style={{
-          display: isOpen ? "block" : "none",
-        }}
-      >
-        <DialogHeader className="pt-8 pb-6">
-          <DialogTitle className="text-2xl">Rechercher</DialogTitle>
-        </DialogHeader>
-        <Command>
-          <CommandInput
-            placeholder="Tapez quelque chose..."
-            value={searchQuery}
-            onValueChange={setSearchQuery}
-            className="outline-none border-0 h-11 focus:ring-0"
-          />
-          {searchQuery ? (
-            <Button
-              variant="ghost"
-              size="icon"
-              className="absolute top-2 right-2"
-              onClick={() => setSearchQuery("")}
-            >
-              <X className="w-4 h-4" />
-            </Button>
-          ) : null}
-          <CommandList>
-            <CommandEmpty>Aucun résultat.</CommandEmpty>
-            <CommandGroup heading="Suggestions">
-              <CommandItem>
-                <Search className="mr-2 h-4 w-4" />
-                <span>T-shirts</span>
-              </CommandItem>
-              <CommandItem>
-                <Search className="mr-2 h-4 w-4" />
-                <span>Mugs</span>
-              </CommandItem>
-              <CommandItem>
-                <Search className="mr-2 h-4 w-4" />
-                <span>Hoodies</span>
-              </CommandItem>
-            </CommandGroup>
-          </CommandList>
-        </Command>
-      </DialogContent>
-    </Dialog>
+    <div className="absolute top-full left-0 right-0 bg-white border-b border-gray-200 shadow-md p-4 animate-fadeIn">
+      <div className="max-w-3xl mx-auto">
+        <input
+          type="text"
+          placeholder="Rechercher..."
+          value={searchQuery}
+          onChange={onSearchChange}
+          className="w-full px-4 py-2 rounded-full bg-secondary/50 border border-gray-200 focus:outline-none focus:ring-2 focus:ring-accent text-sm"
+          autoFocus
+        />
+        
+        {searchResults.length > 0 && searchQuery && (
+          <div className="mt-4 bg-white rounded-lg shadow-lg border border-gray-100 max-h-96 overflow-y-auto">
+            {searchResults.map((result) => (
+              <button
+                key={`${result.type}-${result.id}`}
+                onClick={() => onSearchResultClick(result.link)}
+                className="w-full text-left px-4 py-3 hover:bg-gray-50 border-b border-gray-100 last:border-none"
+              >
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="font-medium text-gray-900">{result.title}</p>
+                    {result.parentCategory && (
+                      <p className="text-sm text-gray-500">
+                        dans {result.parentCategory}
+                      </p>
+                    )}
+                  </div>
+                  <span className="text-xs text-gray-400 capitalize">
+                    {result.type}
+                  </span>
+                </div>
+              </button>
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
   );
 };
 

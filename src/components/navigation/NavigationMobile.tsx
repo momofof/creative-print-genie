@@ -5,6 +5,8 @@ import NavigationSearch from "./NavigationSearch";
 import NavigationCart from "./NavigationCart";
 import NavigationLoginItems from "./NavigationLoginItems";
 import NavigationUserAvatar from "./NavigationUserAvatar";
+import { productCategories } from "@/data/productData";
+import { Briefcase } from "lucide-react";
 
 interface NavigationMobileProps {
   isLoggedIn: boolean;
@@ -27,8 +29,32 @@ const NavigationMobile = ({
 }: NavigationMobileProps) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
-  // Navigation items have been removed as requested
-  const navItems = [];
+  // Create subcategories navigation items for the Catalogue section
+  const catalogueSubItems = productCategories.map(category => ({
+    title: category.title,
+    link: `/products/${category.id}`
+  }));
+
+  const navItems = [
+    {
+      title: "Catalogue",
+      link: "/products",
+      children: catalogueSubItems
+    },
+    {
+      title: "Services",
+      link: "/services",
+      children: [
+        { title: "Design personnalisé", link: "/custom-design" },
+        { title: "Support technique", link: "/support" },
+      ],
+    },
+    {
+      title: "Pro",
+      link: "/pro",
+      icon: Briefcase,
+    },
+  ];
 
   return (
     <div className="flex items-center justify-between w-full lg:hidden">

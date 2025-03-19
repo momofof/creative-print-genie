@@ -1,6 +1,79 @@
 
 import { Product } from "@/types/product";
 
+// Define available variants for each product category
+const availableVariants: Record<string, string[]> = {
+  "vêtements": ["color", "size", "print_design"],
+  "t-shirts": ["color", "size", "print_design"],
+  "hoodies": ["color", "size", "print_design"],
+  "mugs": ["color", "design"],
+  "posters": ["size", "paper_type"],
+  "stickers": ["size", "finish"],
+  "accessoires": ["color", "size"],
+  "casquettes": ["color", "size"],
+};
+
+// Define variant options for each product category and variant type
+const variantOptions: Record<string, Record<string, string[]>> = {
+  "vêtements": {
+    "color": ["red", "blue", "green", "black", "white", "Noir", "Blanc", "Bleu", "Rouge", "Vert"],
+    "size": ["S", "M", "L", "XL", "XXL", "Unique"],
+    "print_design": ["logo", "abstract", "photo"],
+  },
+  "t-shirts": {
+    "color": ["red", "blue", "green", "black", "white", "Noir", "Blanc", "Bleu", "Rouge", "Vert"],
+    "size": ["S", "M", "L", "XL", "XXL"],
+    "print_design": ["logo", "abstract", "photo"],
+  },
+  "hoodies": {
+    "color": ["red", "blue", "green", "black", "white", "Noir", "Blanc", "Bleu", "Rouge", "Vert"],
+    "size": ["S", "M", "L", "XL", "XXL"],
+    "print_design": ["logo", "abstract", "photo"],
+  },
+  "mugs": {
+    "color": ["white", "black", "blue", "green", "Blanc", "Noir", "Bleu", "Vert"],
+    "design": ["funny", "motivational", "custom"],
+  },
+  "posters": {
+    "size": ["A3", "A2", "A1"],
+    "paper_type": ["glossy", "matte"],
+  },
+  "stickers": {
+    "size": ["small", "medium", "large"],
+    "finish": ["glossy", "matte", "transparent"],
+  },
+  "accessoires": {
+    "color": ["red", "blue", "green", "black", "white", "Noir", "Blanc", "Bleu", "Rouge", "Vert"],
+    "size": ["S", "M", "L", "XL", "XXL", "Unique"],
+  },
+  "casquettes": {
+    "color": ["red", "blue", "green", "black", "white", "Noir", "Blanc", "Bleu", "Rouge", "Vert"],
+    "size": ["Unique"],
+  },
+};
+
+// Define display names for each variant type
+const variantDisplayNames: Record<string, string> = {
+  "color": "Couleur",
+  "size": "Taille",
+  "print_design": "Design d'impression",
+  "design": "Design",
+  "paper_type": "Type de papier",
+  "finish": "Finition",
+};
+
+// Define quantity options for each product category
+const quantityOptions: Record<string, number[]> = {
+  "vêtements": [1, 2, 3, 4, 5, 10],
+  "t-shirts": [1, 2, 3, 4, 5, 10],
+  "hoodies": [1, 2, 3, 4, 5, 10],
+  "mugs": [1, 2, 3, 4, 5, 10, 20],
+  "posters": [1, 2, 3, 4, 5, 10, 20],
+  "stickers": [10, 20, 30, 40, 50, 100],
+  "accessoires": [1, 2, 3, 4, 5, 10],
+  "casquettes": [1, 2, 3, 4, 5, 10],
+};
+
 // Define feature illustrations for each product category
 const featureIllustrations: Record<string, string> = {
   "vêtements": "/illustrations/t-shirt.png",
@@ -99,6 +172,35 @@ const variantIllustrations: Record<string, Record<string, Record<string, string>
   },
 };
 
+// Function to get available variants for a product category
+export const getAvailableVariants = (category: string): string[] => {
+  // Vérifier d'abord la catégorie exacte, puis vérifier la subcategory si pas trouvé
+  return availableVariants[category] || 
+         availableVariants[category.toLowerCase()] || 
+         [];
+};
+
+// Function to get variant options for a product category and variant type
+export const getVariantOptions = (category: string, variantType: string): string[] => {
+  // Vérifier d'abord la catégorie exacte, puis vérifier la subcategory si pas trouvé
+  return variantOptions[category]?.[variantType] || 
+         variantOptions[category.toLowerCase()]?.[variantType] || 
+         [];
+};
+
+// Function to get display name for a variant type
+export const getVariantDisplayName = (variantType: string): string => {
+  return variantDisplayNames[variantType] || variantType;
+};
+
+// Function to get quantity options for a product category
+export const getQuantityOptions = (category: string): number[] => {
+  // Vérifier d'abord la catégorie exacte, puis vérifier la subcategory si pas trouvé
+  return quantityOptions[category] || 
+         quantityOptions[category.toLowerCase()] || 
+         [1, 2, 3, 4, 5];
+};
+
 // Function to get feature illustration for a product category
 export const getFeatureIllustration = (product: Product | undefined, variants: Record<string, string>): string => {
   if (!product) return "/placeholder.svg";
@@ -142,6 +244,45 @@ export const getVariantIllustration = (category: string, variantType: string, va
          "/placeholder.svg";
 };
 
+// Add or ensure these utility functions exist for JSON parsing
+export const parseVariants = (variantsJson: any): Record<string, string[]> => {
+  if (!variantsJson) return {};
+  
+  try {
+    if (typeof variantsJson === 'string') {
+      return JSON.parse(variantsJson);
+    }
+    
+    // Si variantsJson est un tableau d'objets avec des propriétés size, color, etc.
+    if (Array.isArray(variantsJson)) {
+      // Extraire les valeurs uniques pour chaque propriété
+      const result: Record<string, string[]> = {};
+      
+      variantsJson.forEach(variant => {
+        Object.entries(variant).forEach(([key, value]) => {
+          // Ignorer les propriétés qui ne sont pas des variantes
+          if (['stock', 'price_adjustment', 'status', 'hex_color'].includes(key)) return;
+          
+          if (!result[key]) {
+            result[key] = [];
+          }
+          
+          if (typeof value === 'string' && !result[key].includes(value)) {
+            result[key].push(value);
+          }
+        });
+      });
+      
+      return result;
+    }
+    
+    return variantsJson;
+  } catch (error) {
+    console.error("Error parsing variants:", error);
+    return {};
+  }
+};
+
 // Get a placeholder image when the product variant doesn't have a specific illustration
 export const getPlaceholderImage = (category: string): string => {
   const categoryPlaceholders: Record<string, string> = {
@@ -157,4 +298,47 @@ export const getPlaceholderImage = (category: string): string => {
   };
   
   return categoryPlaceholders[category.toLowerCase()] || '/placeholder.svg';
+};
+
+// Extract variant options from product data
+export const extractVariantOptionsFromProduct = (product: Product): Record<string, string[]> => {
+  try {
+    if (!product) return {};
+    
+    // Check if product has variants property - could be string or object
+    const productVariants = product.variants as any;
+    
+    if (!productVariants) return {};
+    
+    let variants = productVariants;
+    if (typeof variants === 'string') {
+      variants = JSON.parse(variants);
+    }
+    
+    if (Array.isArray(variants)) {
+      const result: Record<string, string[]> = {};
+      
+      variants.forEach(variant => {
+        Object.entries(variant).forEach(([key, value]) => {
+          // Ignorer les propriétés qui ne sont pas des variantes
+          if (['stock', 'price_adjustment', 'status', 'hex_color'].includes(key)) return;
+          
+          if (!result[key]) {
+            result[key] = [];
+          }
+          
+          if (typeof value === 'string' && !result[key].includes(value)) {
+            result[key].push(value as string);
+          }
+        });
+      });
+      
+      return result;
+    }
+    
+    return {};
+  } catch (error) {
+    console.error("Error extracting variant options from product:", error);
+    return {};
+  }
 };
