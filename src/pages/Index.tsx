@@ -16,9 +16,17 @@ const Index = () => {
   const [products, setProducts] = useState<Product[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [fetchError, setFetchError] = useState(false);
+  const [loadCount, setLoadCount] = useState(0); // Used to prevent infinite fetch loops
   
-  // Fetch products from Supabase - optimized with useCallback
+  // Fetch products from Supabase - optimized with useCallback and rate limiting
   const fetchProducts = useCallback(async () => {
+    // Prevent excessive fetching (no more than once every 3 seconds)
+    if (loadCount > 0 && Date.now() - loadCount < 3000) {
+      return;
+    }
+    
+    setLoadCount(Date.now());
+    
     try {
       setIsLoading(true);
       setFetchError(false);
@@ -37,7 +45,6 @@ const Index = () => {
         return;
       }
       
-      console.log("Fetched products:", data);
       console.log("Number of products fetched:", data?.length || 0);
       
       // Check if we have data before mapping
@@ -67,7 +74,6 @@ const Index = () => {
         variants: item.variants
       }));
       
-      console.log("Mapped products:", mappedProducts);
       setProducts(mappedProducts);
     } catch (error) {
       console.error("Error:", error);
@@ -76,9 +82,9 @@ const Index = () => {
     } finally {
       setIsLoading(false);
     }
-  }, []);
+  }, [loadCount]);
   
-  // Fetch products on mount and on route change
+  // Fetch products on mount and on route changes
   useEffect(() => {
     fetchProducts();
     

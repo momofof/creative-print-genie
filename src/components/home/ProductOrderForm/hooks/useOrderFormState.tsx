@@ -1,5 +1,5 @@
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Product } from "@/types/product";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useAuth } from "@/hooks/useAuth";
@@ -42,14 +42,14 @@ export const useOrderFormState = (): UseOrderFormStateResult => {
     }
   }, [selectedProduct]);
 
-  // Function to reset all form state
-  const resetForm = () => {
+  // Function to reset all form state - implemented as useCallback to avoid recreation
+  const resetForm = useCallback(() => {
     setSelectedProduct(undefined);
     setSelectedQuantity(null);
     setVariants({});
     setAvailableVariants([]);
     setOpenIllustration(false);
-  };
+  }, []);
 
   return {
     selectedProduct,

@@ -3,7 +3,7 @@ import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Product } from "@/types/dashboard";
 import { toast } from "sonner";
-import { parseProductVariants, parseCustomizations } from "@/utils/jsonUtils";
+import { parseJsonArray } from "@/utils/jsonUtils";
 
 export const useProducts = () => {
   const [products, setProducts] = useState<Product[]>([]);
@@ -26,16 +26,27 @@ export const useProducts = () => {
       } else {
         // Convert products from unified format to our interface format
         const formattedProducts: Product[] = data.map(product => {
-          return {
-            ...product,
-            // Ensure status is one of the expected values
-            status: (product.status === 'draft' || product.status === 'published' || product.status === 'archived') 
-              ? product.status 
-              : 'draft',
-            // Parse variants and customizations
-            variants: parseProductVariants(product.variants),
-            customizations: parseCustomizations(product.customizations),
-          };
+          try {
+            return {
+              ...product,
+              // Ensure status is one of the expected values
+              status: (product.status === 'draft' || product.status === 'published' || product.status === 'archived') 
+                ? product.status 
+                : 'draft',
+              // Parse variants and customizations safely
+              variants: parseJsonArray(product.variants),
+              customizations: parseJsonArray(product.customizations),
+            };
+          } catch (error) {
+            console.error("Error formatting product:", error);
+            // Return a minimally valid product to prevent complete failure
+            return {
+              ...product,
+              status: 'draft',
+              variants: [],
+              customizations: []
+            };
+          }
         });
         
         // Update products state

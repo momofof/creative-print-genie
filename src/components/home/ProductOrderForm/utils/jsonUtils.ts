@@ -1,7 +1,12 @@
 
 import { parseJsonArray } from "@/utils/jsonUtils";
 
-// Parse variants object from product data - optimized version
+// Parse variants object from product data - optimized version with error handling
 export const parseVariants = (data: any): any[] => {
-  return parseJsonArray(data);
+  try {
+    return parseJsonArray(data);
+  } catch (error) {
+    console.error("Error parsing variants:", error);
+    return [];
+  }
 };
