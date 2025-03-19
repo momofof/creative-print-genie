@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import ProductsTable from "./ProductsTable";
 import { Product } from "@/types/dashboard";
 import { Plus, FileSpreadsheet } from "lucide-react";
-import CSVImportModal from "./CSVImportModal";
+import CSVImportModal from "./csv-import/CSVImportModal";
 
 interface ProductsTabProps {
   products: Product[];
