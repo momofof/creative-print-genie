@@ -4,15 +4,7 @@ import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { PlusCircle } from "lucide-react";
-
-interface Product {
-  id: string;
-  name: string;
-  price: number;
-  category: string;
-  status: 'draft' | 'published' | 'archived';
-  created_at: string;
-}
+import { Product } from "@/types/dashboard";
 
 interface RecentProductsProps {
   products: Product[];
@@ -40,6 +32,7 @@ const RecentProducts = ({ products }: RecentProductsProps) => {
                   <th className="pb-3 font-medium text-gray-500">Nom</th>
                   <th className="pb-3 font-medium text-gray-500">Catégorie</th>
                   <th className="pb-3 font-medium text-gray-500">Prix</th>
+                  <th className="pb-3 font-medium text-gray-500">Variants</th>
                   <th className="pb-3 font-medium text-gray-500">Statut</th>
                   <th className="pb-3 font-medium text-gray-500">Actions</th>
                 </tr>
@@ -50,6 +43,7 @@ const RecentProducts = ({ products }: RecentProductsProps) => {
                     <td className="py-3">{product.name}</td>
                     <td className="py-3">{product.category}</td>
                     <td className="py-3">{product.price} €</td>
+                    <td className="py-3">{product.variants?.length || 0}</td>
                     <td className="py-3">
                       <span 
                         className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${

@@ -1,4 +1,3 @@
-
 // Types for the supplier dashboard
 export interface Product {
   id: string;
@@ -15,7 +14,7 @@ export interface Product {
   is_customizable?: boolean;
   supplier_id?: string;
   updated_at?: string;
-  variants?: ProductVariant[];
+  variants: ProductVariant[];
 }
 
 export interface ProductVariant {

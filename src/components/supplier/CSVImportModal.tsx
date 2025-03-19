@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { toast } from "sonner";
 import {
@@ -12,7 +13,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { supabase } from "@/integrations/supabase/client";
 import { Loader2, FileSpreadsheet, Upload, CheckCircle2 } from "lucide-react";
-import { Product } from "@/types/dashboard";
+import { Product, ProductVariant } from "@/types/dashboard";
 
 interface CSVImportModalProps {
   open: boolean;
@@ -169,9 +170,15 @@ const CSVImportModal = ({ open, onOpenChange, onImportSuccess }: CSVImportModalP
       
       for (const productData of products) {
         try {
-          // Create product
-          const { data: newProduct, error: productError } = await supabase
-            .from("products")
+          // Generate IDs for variants
+          const variants = productData.variants?.map(variant => ({
+            ...variant,
+            id: crypto.randomUUID()
+          })) || [];
+
+          // Create product with variants in the combined table
+          const { error: productError } = await supabase
+            .from("products_combined")
             .insert({
               name: productData.name,
               price: productData.price,
@@ -181,31 +188,11 @@ const CSVImportModal = ({ open, onOpenChange, onImportSuccess }: CSVImportModalP
               description: productData.description || null,
               status: productData.status || "draft",
               is_customizable: productData.is_customizable || false,
-              supplier_id: userData.user.id
-            })
-            .select("id")
-            .single();
+              supplier_id: userData.user.id,
+              variants: variants
+            });
           
           if (productError) throw productError;
-          
-          // Create variants if any
-          if (productData.variants && productData.variants.length > 0) {
-            const variantsToInsert = productData.variants.map(variant => ({
-              product_id: newProduct.id,
-              size: variant.size,
-              color: variant.color,
-              hex_color: variant.hex_color,
-              stock: variant.stock,
-              price_adjustment: variant.price_adjustment || 0,
-              status: variant.status || "in_stock"
-            }));
-            
-            const { error: variantsError } = await supabase
-              .from("product_variants")
-              .insert(variantsToInsert);
-            
-            if (variantsError) throw variantsError;
-          }
           
           setImportStatus(prev => ({ ...prev!, success: prev!.success + 1 }));
         } catch (error) {
@@ -242,117 +229,118 @@ const CSVImportModal = ({ open, onOpenChange, onImportSuccess }: CSVImportModalP
 
   return (
     <Dialog open={open} onOpenChange={handleClose}>
-      <DialogContent className="sm:max-w-lg">
+      <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle className="flex items-center gap-2">
-            <FileSpreadsheet className="h-5 w-5 text-teal-600" />
-            Importer des produits par CSV
-          </DialogTitle>
+          <DialogTitle>Importer des produits</DialogTitle>
           <DialogDescription>
-            Importez des produits et leurs variantes à partir d'un fichier CSV.
+            Importez vos produits et leurs variantes à partir d'un fichier CSV.
           </DialogDescription>
         </DialogHeader>
-
-        <div className="space-y-4">
+        
+        <div className="space-y-4 py-4">
           {!isComplete ? (
             <>
-              <div className="border rounded-md p-4 bg-gray-50">
-                <h3 className="text-sm font-medium mb-2">Format requis pour le CSV:</h3>
-                <p className="text-xs text-gray-500 mb-2">
-                  Le fichier doit avoir les colonnes suivantes:
-                </p>
-                <ul className="text-xs text-gray-500 space-y-1 ml-4 list-disc">
-                  <li>Pour les produits: name, price, category (obligatoires)</li>
-                  <li>Facultatif: description, original_price, subcategory, status, is_customizable</li>
-                  <li>Pour les variantes: size, color, hex_color, stock (obligatoires)</li>
-                  <li>Facultatif pour variantes: price_adjustment, variant_status</li>
-                </ul>
-                <p className="text-xs text-gray-500 mt-2">
-                  Pour les variantes d'un produit, laissez le premier champ (name) vide.
-                </p>
-                <div className="mt-3 pt-2 border-t border-gray-200">
-                  <a 
-                    href="/csv-templates/products-import-template.csv" 
-                    download
-                    className="text-xs text-teal-600 hover:text-teal-800 flex items-center gap-1"
-                  >
-                    <FileSpreadsheet className="h-3 w-3" />
-                    Télécharger un exemple de fichier CSV
-                  </a>
+              <div className="flex items-center border rounded-md p-4 bg-gray-50">
+                <FileSpreadsheet className="h-8 w-8 text-teal-600 mr-3" />
+                <div>
+                  <p className="text-sm font-medium">Format du fichier CSV</p>
+                  <p className="text-xs text-gray-500">Colonnes: name, price, category, subcategory, status, description, original_price, is_customizable, size, color, hex_color, stock, price_adjustment, variant_status</p>
                 </div>
               </div>
-
+              
               <div className="space-y-2">
-                <label className="block text-sm font-medium">
-                  Sélectionner un fichier CSV
-                </label>
-                <Input
-                  type="file"
-                  accept=".csv"
+                <label className="text-sm font-medium">Fichier CSV</label>
+                <Input 
+                  type="file" 
+                  accept=".csv" 
                   onChange={handleFileChange}
                   disabled={isLoading}
                   className="cursor-pointer"
                 />
               </div>
-
+              
               {file && (
-                <div className="bg-teal-50 text-teal-700 rounded p-2 text-sm flex items-center gap-2">
-                  <FileSpreadsheet className="h-4 w-4" />
-                  {file.name}
+                <div className="flex items-center text-sm text-gray-500">
+                  <span className="font-medium mr-1">{file.name}</span>
+                  ({Math.round(file.size / 1024)} Ko)
                 </div>
               )}
-
+              
               {importStatus && (
-                <div className="bg-gray-100 rounded-md p-3">
-                  <div className="text-sm">Progression de l'importation:</div>
-                  <div className="flex justify-between text-sm mt-1">
-                    <span>Total: {importStatus.total}</span>
-                    <span className="text-green-600">Succès: {importStatus.success}</span>
-                    <span className="text-red-600">Échecs: {importStatus.failed}</span>
+                <div className="bg-gray-50 p-4 rounded-md">
+                  <div className="flex justify-between text-sm mb-2">
+                    <span>Total:</span>
+                    <span className="font-medium">{importStatus.total}</span>
+                  </div>
+                  
+                  {importStatus.success > 0 && (
+                    <div className="flex justify-between text-sm text-green-600 mb-2">
+                      <span>Réussis:</span>
+                      <span className="font-medium">{importStatus.success}</span>
+                    </div>
+                  )}
+                  
+                  {importStatus.failed > 0 && (
+                    <div className="flex justify-between text-sm text-red-600">
+                      <span>Échecs:</span>
+                      <span className="font-medium">{importStatus.failed}</span>
+                    </div>
+                  )}
+                  
+                  <div className="h-2 bg-gray-200 rounded-full mt-2 overflow-hidden">
+                    <div
+                      className="h-full bg-teal-600 rounded-full"
+                      style={{ width: `${Math.floor((importStatus.success + importStatus.failed) / importStatus.total * 100)}%` }}
+                    ></div>
                   </div>
                 </div>
               )}
             </>
           ) : (
-            <div className="py-8 flex flex-col items-center justify-center">
-              <CheckCircle2 className="h-12 w-12 text-green-500 mb-4" />
-              <h3 className="text-lg font-medium text-center">Importation terminée</h3>
-              <p className="text-gray-500 text-center mt-1">
-                {importStatus?.success} produits importés avec succès
-                {importStatus?.failed ? `, ${importStatus.failed} échecs` : ''}
+            <div className="flex flex-col items-center justify-center py-6">
+              <div className="rounded-full bg-green-100 p-3 mb-3">
+                <CheckCircle2 className="h-8 w-8 text-green-600" />
+              </div>
+              <h3 className="text-lg font-semibold mb-1">Importation terminée</h3>
+              <p className="text-sm text-gray-500 text-center mb-4">
+                {importStatus?.success} produits importés avec succès,{' '}
+                {importStatus?.failed} échecs.
               </p>
+              <Button onClick={handleClose} className="w-full">
+                Fermer
+              </Button>
             </div>
           )}
         </div>
-
-        <DialogFooter>
-          {isComplete ? (
-            <Button onClick={handleClose}>Fermer</Button>
-          ) : (
-            <>
-              <Button variant="outline" onClick={handleClose} disabled={isLoading}>
-                Annuler
-              </Button>
-              <Button 
-                onClick={importProducts} 
-                disabled={!file || isLoading}
-                className="bg-teal-600 hover:bg-teal-700"
-              >
-                {isLoading ? (
-                  <span className="flex items-center">
-                    <Loader2 className="h-4 w-4 animate-spin mr-2" />
-                    Importation...
-                  </span>
-                ) : (
-                  <span className="flex items-center">
-                    <Upload className="h-4 w-4 mr-2" />
-                    Importer
-                  </span>
-                )}
-              </Button>
-            </>
-          )}
-        </DialogFooter>
+        
+        {!isComplete && (
+          <DialogFooter>
+            <Button 
+              variant="outline" 
+              onClick={handleClose} 
+              disabled={isLoading}
+            >
+              Annuler
+            </Button>
+            <Button
+              onClick={importProducts}
+              disabled={!file || isLoading}
+              className="bg-teal-600 hover:bg-teal-700 text-white"
+            >
+              {isLoading ? (
+                <span className="flex items-center">
+                  <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                  Importation...
+                </span>
+              ) : (
+                <span className="flex items-center">
+                  <Upload className="h-4 w-4 mr-2" />
+                  Importer
+                </span>
+              )}
+            </Button>
+          </DialogFooter>
+        )}
       </DialogContent>
     </Dialog>
   );

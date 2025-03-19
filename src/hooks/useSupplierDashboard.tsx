@@ -39,7 +39,7 @@ export const useSupplierDashboard = () => {
   const fetchProducts = async () => {
     try {
       const { data, error } = await supabase
-        .from('products')
+        .from('products_combined')
         .select('*')
         .order('created_at', { ascending: false })
         .limit(10);
@@ -49,20 +49,21 @@ export const useSupplierDashboard = () => {
         toast.error("Impossible de charger les produits");
         return [];
       } else {
-        // Add stock property to products (since it's not in the database yet)
-        const productsWithStock = data.map(product => ({
+        // Convert products from combined format to our interface format
+        const formattedProducts = data.map(product => ({
           ...product,
-          stock: Math.floor(Math.random() * 20) + 1, // Random stock for demo
-          status: product.status as "draft" | "published" | "archived" // Type assertion for safety
+          // Parse variants from JSONB if they exist
+          variants: Array.isArray(product.variants) ? product.variants : [],
+          status: product.status as "draft" | "published" | "archived"
         }));
         
         // Update products state with type assertion
-        setProducts(productsWithStock as Product[]);
+        setProducts(formattedProducts as Product[]);
         
         // Update stats
-        updateProductStats(productsWithStock as Product[]);
+        updateProductStats(formattedProducts as Product[]);
         
-        return productsWithStock as Product[];
+        return formattedProducts as Product[];
       }
     } catch (error) {
       console.error("Erreur:", error);
@@ -147,9 +148,9 @@ export const useSupplierDashboard = () => {
         return false;
       }
       
-      // Delete the product
+      // Delete the product from the combined table
       const { error } = await supabase
-        .from('products')
+        .from('products_combined')
         .delete()
         .eq('id', productId);
         
