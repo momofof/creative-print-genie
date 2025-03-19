@@ -1,10 +1,13 @@
-import { allProducts } from "@/data/productData";
-import OrderForm from "./OrderForm";
 
-const ProductOrderForm = () => {
-  // This component is now a simple wrapper that passes data to the OrderForm component
-  // We keep it to maintain the same import path for other files that use it
-  return <OrderForm />;
+import OrderForm from "./OrderForm";
+import { Product } from "@/types/product";
+
+interface ProductOrderFormProps {
+  products: Product[];
+}
+
+const ProductOrderForm = ({ products }: ProductOrderFormProps) => {
+  return <OrderForm products={products} />;
 };
 
 export default ProductOrderForm;

@@ -6,6 +6,7 @@ import ProductOrderForm from "@/components/home/ProductOrderForm";
 import AuthStateWrapper from "@/components/home/AuthStateWrapper";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
+import { allProducts } from "@/data/productData";
 
 const Index = () => {
   const navigate = useNavigate();
@@ -23,7 +24,7 @@ const Index = () => {
             <p className="mt-2 text-gray-600">Remplissez le formulaire ci-dessous pour passer votre commande</p>
           </div>
           
-          <ProductOrderForm />
+          <ProductOrderForm products={allProducts} />
           
           <div className="mt-12 text-center">
             <p className="text-gray-700 mb-4">Vous préférez parcourir notre catalogue ?</p>

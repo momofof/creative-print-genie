@@ -18,6 +18,7 @@ import {
 } from "../utils";
 
 interface ProductFormProps {
+  products: Product[];
   selectedProduct: Product | undefined;
   setSelectedProduct: (product: Product | undefined) => void;
   selectedQuantity: number | null;
@@ -31,6 +32,7 @@ interface ProductFormProps {
 }
 
 const ProductForm = ({
+  products,
   selectedProduct,
   setSelectedProduct,
   selectedQuantity,
@@ -65,7 +67,7 @@ const ProductForm = ({
         <SearchableDropdown
           label="Sélectionnez un produit"
           placeholder="Choisir un produit..."
-          products={[]}  // We'll continue to pass products through a hook in index.tsx
+          products={products} 
           selectedProduct={selectedProduct}
           onSelect={setSelectedProduct}
         />

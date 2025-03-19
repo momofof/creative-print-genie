@@ -1,5 +1,6 @@
 
 import { useIsMobile } from "@/hooks/use-mobile";
+import { Product } from "@/types/product";
 
 // Import components
 import ProductIllustration from "./ProductIllustration";
@@ -10,7 +11,11 @@ import MobilePreview from "./components/MobilePreview";
 import { useOrderFormState } from "./hooks/useOrderFormState";
 import { useOrderSubmission } from "./hooks/useOrderSubmission";
 
-const OrderForm = () => {
+interface OrderFormProps {
+  products: Product[];
+}
+
+const OrderForm = ({ products }: OrderFormProps) => {
   const isMobile = useIsMobile();
   
   // Use custom hook for form state
@@ -55,6 +60,7 @@ const OrderForm = () => {
         {/* Product Form Column */}
         <div>
           <ProductForm
+            products={products}
             selectedProduct={selectedProduct}
             setSelectedProduct={setSelectedProduct}
             selectedQuantity={selectedQuantity}
