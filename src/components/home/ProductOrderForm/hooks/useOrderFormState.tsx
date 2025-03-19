@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import { Product } from "@/types/product";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { supabase } from "@/integrations/supabase/client";
+import { parseVariants } from "../utils";
 
 interface UseOrderFormStateResult {
   selectedProduct: Product | undefined;

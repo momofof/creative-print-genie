@@ -14,7 +14,8 @@ import {
   getQuantityOptions, 
   getAvailableVariants, 
   getVariantOptions, 
-  getVariantDisplayName 
+  getVariantDisplayName,
+  parseVariants
 } from "../utils";
 
 interface ProductFormProps {
@@ -47,6 +48,7 @@ const ProductForm = ({
   // Update available variants when product category changes
   useEffect(() => {
     if (selectedProduct) {
+      console.log("Selected product:", selectedProduct);
       const variantTypes = getAvailableVariants(selectedProduct.category);
       setAvailableVariants(variantTypes);
       
