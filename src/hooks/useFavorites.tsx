@@ -30,37 +30,52 @@ export const useFavorites = () => {
         return [];
       }
 
-      const { data, error } = await supabase
+      // First, get the user's favorites from likes table
+      const { data: likesData, error: likesError } = await supabase
         .from('likes')
-        .select(`
-          *,
-          products_master(
-            name,
-            image,
-            price,
-            category
-          )
-        `)
+        .select('*')
         .eq('user_id', sessionData.session.user.id);
 
-      if (error) {
-        console.error("Erreur lors de la récupération des favoris:", error);
+      if (likesError) {
+        console.error("Erreur lors de la récupération des favoris:", likesError);
         toast.error("Impossible de charger vos favoris");
         setIsLoading(false);
         return [];
       }
 
-      // Transformer les données pour avoir une structure plus simple
-      const formattedFavorites = data.map(fav => ({
-        id: fav.id,
-        product_id: fav.product_id,
-        user_id: fav.user_id,
-        created_at: fav.created_at,
-        product_name: fav.products_master?.name,
-        product_image: fav.products_master?.image,
-        product_price: fav.products_master?.price,
-        product_category: fav.products_master?.category
-      }));
+      // Then, for each liked product, get the product details
+      const formattedFavorites: Favorite[] = [];
+      
+      if (likesData && likesData.length > 0) {
+        // Get all product ids from likes
+        const productIds = likesData.map(like => like.product_id);
+        
+        // Fetch product details for all liked products
+        const { data: productsData, error: productsError } = await supabase
+          .from('products_master')
+          .select('id, name, image, price, category')
+          .in('id', productIds);
+          
+        if (productsError) {
+          console.error("Erreur lors de la récupération des produits:", productsError);
+          toast.error("Impossible de charger les détails des produits");
+        } else if (productsData) {
+          // Map products to likes
+          for (const like of likesData) {
+            const product = productsData.find(p => p.id === like.product_id);
+            formattedFavorites.push({
+              id: like.id,
+              product_id: like.product_id,
+              user_id: like.user_id,
+              created_at: like.created_at,
+              product_name: product?.name,
+              product_image: product?.image,
+              product_price: product?.price,
+              product_category: product?.category
+            });
+          }
+        }
+      }
 
       setFavorites(formattedFavorites);
       setIsLoading(false);
@@ -177,7 +192,7 @@ export const useFavorites = () => {
   return {
     favorites,
     isLoading,
-    isAddingToFavorites: isAddingToFavorites,
+    isAddingToFavorites,
     fetchFavorites,
     addToFavorites,
     removeFromFavorites,

@@ -26,7 +26,11 @@ const ProductActions = ({
   quantity = 1
 }: ProductActionsProps) => {
   const { addToCart, isLoading } = useCart();
-  const { addToFavorites, isFavoriteLoading } = useFavorites();
+  const { 
+    addToFavorites, 
+    isAddingToFavorites, 
+    isProductInFavorites 
+  } = useFavorites();
 
   const handleAddToCart = async () => {
     await addToCart({
@@ -52,7 +56,8 @@ const ProductActions = ({
       
       <AddToFavoritesButton 
         onClick={handleAddToFavorites}
-        isLoading={isFavoriteLoading}
+        isLoading={isAddingToFavorites}
+        isFavorite={isProductInFavorites(productId)}
       />
       
       <CustomizeProductButton productId={productId} />
