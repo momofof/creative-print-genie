@@ -21,9 +21,11 @@ const Index = () => {
     const fetchProducts = async () => {
       try {
         setIsLoading(true);
+        console.log("Fetching products from Supabase...");
         const { data, error } = await supabase
           .from('products_master')
           .select('*')
+          .eq('status', 'published')
           .order('created_at', { ascending: false });
           
         if (error) {
@@ -31,6 +33,7 @@ const Index = () => {
           toast.error("Impossible de charger les produits");
         } else {
           console.log("Fetched products:", data);
+          console.log("Number of products fetched:", data?.length || 0);
           
           // Map Supabase data to Product type, adding missing required properties
           const mappedProducts: Product[] = data?.map(item => ({
@@ -51,6 +54,7 @@ const Index = () => {
             isNew: false
           })) || [];
           
+          console.log("Mapped products:", mappedProducts);
           setProducts(mappedProducts);
         }
       } catch (error) {
@@ -84,8 +88,13 @@ const Index = () => {
               </div>
               <p className="mt-2 text-gray-600">Chargement des produits...</p>
             </div>
-          ) : (
+          ) : products.length > 0 ? (
             <ProductOrderForm products={products} />
+          ) : (
+            <div className="text-center py-12 bg-gray-50 rounded-lg">
+              <p className="text-gray-700 mb-4">Aucun produit disponible actuellement.</p>
+              <p className="text-sm text-gray-500">Veuillez revenir plus tard ou contacter le support.</p>
+            </div>
           )}
           
           <div className="mt-12 text-center">
