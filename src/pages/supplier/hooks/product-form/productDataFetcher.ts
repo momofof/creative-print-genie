@@ -1,7 +1,6 @@
 
 import { supabase } from "@/integrations/supabase/client";
 import { ProductData, ProductVariant } from "./types";
-import { parseVariantsFromJson } from "./variantUtils";
 import { toast } from "sonner";
 
 export const fetchProductData = async (productId: string): Promise<{
@@ -38,7 +37,9 @@ export const fetchProductData = async (productId: string): Promise<{
     };
     
     // Parse variants from the JSONB field
-    const parsedVariants = parseVariantsFromJson(product.variants);
+    const parsedVariants: ProductVariant[] = Array.isArray(product.variants) 
+      ? product.variants 
+      : [];
     
     return {
       productData: typedProduct,
