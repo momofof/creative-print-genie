@@ -305,8 +305,12 @@ export const extractVariantOptionsFromProduct = (product: Product): Record<strin
   try {
     if (!product) return {};
     
-    // Si le produit a une propriété "variants" sous forme de chaîne JSON ou d'objet
-    let variants = product.variants;
+    // Check if product has variants property - could be string or object
+    const productVariants = product.variants as any;
+    
+    if (!productVariants) return {};
+    
+    let variants = productVariants;
     if (typeof variants === 'string') {
       variants = JSON.parse(variants);
     }
