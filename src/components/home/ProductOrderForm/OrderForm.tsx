@@ -1,11 +1,13 @@
 
 import { useIsMobile } from "@/hooks/use-mobile";
-import { Product } from "@/types/product";
+import { Product, CartItem } from "@/types/product";
+import { useState } from "react";
 
 // Import components
 import ProductIllustration from "./ProductIllustration";
 import ProductForm from "./components/ProductForm";
 import MobilePreview from "./components/MobilePreview";
+import OrderSuccessDialog from "../../cart/OrderSuccessDialog";
 
 // Import hooks
 import { useOrderFormState } from "./hooks/useOrderFormState";
@@ -17,6 +19,9 @@ interface OrderFormProps {
 
 const OrderForm = ({ products }: OrderFormProps) => {
   const isMobile = useIsMobile();
+  const [showOrderSummary, setShowOrderSummary] = useState(false);
+  const [orderSummaryItems, setOrderSummaryItems] = useState<CartItem[]>([]);
+  const [orderTotal, setOrderTotal] = useState(0);
   
   // Use custom hook for form state
   const {
@@ -33,6 +38,12 @@ const OrderForm = ({ products }: OrderFormProps) => {
     setOpenIllustration
   } = useOrderFormState();
   
+  const handleShowOrderSummary = (items: CartItem[], total: number) => {
+    setOrderSummaryItems(items);
+    setOrderTotal(total);
+    setShowOrderSummary(true);
+  };
+  
   // Use custom hook for order submission
   const { handleSubmit, isSubmitting } = useOrderSubmission({
     selectedProduct,
@@ -44,7 +55,8 @@ const OrderForm = ({ products }: OrderFormProps) => {
       setSelectedProduct(undefined);
       setSelectedQuantity(null);
       setVariants({});
-    }
+    },
+    onShowOrderSummary: handleShowOrderSummary
   });
 
   return (
@@ -103,6 +115,14 @@ const OrderForm = ({ products }: OrderFormProps) => {
           setOpenIllustration={setOpenIllustration}
         />
       )}
+      
+      {/* Order Success Dialog */}
+      <OrderSuccessDialog
+        open={showOrderSummary}
+        onOpenChange={setShowOrderSummary}
+        cartItems={orderSummaryItems}
+        totalPrice={orderTotal}
+      />
     </div>
   );
 };

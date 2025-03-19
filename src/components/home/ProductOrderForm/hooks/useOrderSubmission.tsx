@@ -12,6 +12,7 @@ interface UseOrderSubmissionProps {
   variants: Record<string, string>;
   userId: string | null;
   onOrderSuccess: () => void;
+  onShowOrderSummary: (items: CartItem[], total: number) => void;
 }
 
 export const useOrderSubmission = ({
@@ -19,7 +20,8 @@ export const useOrderSubmission = ({
   selectedQuantity,
   variants,
   userId,
-  onOrderSuccess
+  onOrderSuccess,
+  onShowOrderSummary
 }: UseOrderSubmissionProps) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -62,13 +64,26 @@ export const useOrderSubmission = ({
       });
       
       if (result.success) {
-        toast.success(`Commande de ${selectedQuantity} ${selectedProduct.name} envoyée avec succès !`);
+        // Create a CartItem to display in the summary
+        const cartItem: CartItem = {
+          id: selectedProduct.id,
+          name: selectedProduct.name,
+          price: selectedProduct.price,
+          quantity: selectedQuantity,
+          image: selectedProduct.image || "/placeholder.svg",
+          variants: Object.keys(variants).length > 0 ? variants : undefined
+        };
         
-        // Reset form via callback
-        onOrderSuccess();
+        // Show order summary dialog
+        onShowOrderSummary([cartItem], totalPrice);
+        
+        toast.success(`Commande de ${selectedQuantity} ${selectedProduct.name} envoyée avec succès !`);
         
         // Add to cart automatically
         await addToCart(selectedProduct, selectedQuantity, variants, userId);
+        
+        // Reset form via callback
+        onOrderSuccess();
       } else {
         toast.error("La commande n'a pas pu être traitée. Veuillez réessayer.");
       }
