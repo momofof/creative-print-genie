@@ -3,13 +3,8 @@ import Navigation from "@/components/Navigation";
 import { productCategories, allProducts } from "@/data/productData";
 import { useParams } from "react-router-dom";
 import CategoryDetailView from "@/components/products/CategoryDetailView";
-import CategoriesOverview from "@/components/products/CategoriesOverview";
 import ProductList from "@/components/products/ProductList";
 import ProductCatalog from "@/components/products/ProductCatalog";
-import NewArrivalsSection from "@/components/products/NewArrivalsSection";
-import PromotionalBanner from "@/components/products/PromotionalBanner";
-import DesignServiceBanner from "@/components/products/DesignServiceBanner";
-import RecentlyViewedSection from "@/components/products/RecentlyViewedSection";
 
 const Products = () => {
   const { categoryId, subcategoryId } = useParams();
@@ -49,15 +44,9 @@ const Products = () => {
           </div>
         </>
       ) : (
-        // Page principale des produits avec le catalogue
+        // Page principale simplifiée avec uniquement le catalogue
         <ProductCatalog />
       )}
-
-      {/* Sections promotionnelles placées après la liste de produits pour toutes les vues */}
-      <NewArrivalsSection categoryTitle={currentCategory?.title || "Nos produits"} />
-      <PromotionalBanner />
-      <DesignServiceBanner />
-      <RecentlyViewedSection categoryTitle={currentCategory?.title || "Nos produits"} />
     </div>
   );
 };
