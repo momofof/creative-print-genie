@@ -1,141 +1,19 @@
+
 import { useState, useEffect } from "react";
 import { MinusCircle, PlusCircle, Trash2 } from "lucide-react";
 import { Link } from "react-router-dom";
 import Navigation from "@/components/Navigation";
-import { toast } from "sonner";
-import { CartItem } from "@/types/product";
-import { supabase } from "@/integrations/supabase/client";
-import { parseJsonArray, toJsonValue } from "@/utils/jsonUtils";
+import { useCart } from "@/hooks/useCart";
 
 const Cart = () => {
-  const [cartItems, setCartItems] = useState<CartItem[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [userId, setUserId] = useState<string | null>(null);
-
-  // Check if user is logged in and get user ID
-  useEffect(() => {
-    const checkAuth = async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (user) {
-        setUserId(user.id);
-      }
-    };
-    
-    checkAuth();
-    
-    // Set up auth state listener
-    const { data: authListener } = supabase.auth.onAuthStateChange((event, session) => {
-      if (session?.user) {
-        setUserId(session.user.id);
-      } else {
-        setUserId(null);
-      }
-    });
-    
-    return () => {
-      authListener?.subscription.unsubscribe();
-    };
-  }, []);
-
-  // Load cart items (from Supabase for logged in users, otherwise from localStorage)
-  useEffect(() => {
-    const loadCart = async () => {
-      setIsLoading(true);
-      
-      try {
-        if (userId) {
-          // Get cart from Supabase for logged in users
-          const { data: cartData } = await supabase
-            .from('user_carts')
-            .select('cart_items')
-            .eq('user_id', userId)
-            .single();
-          
-          const parsedItems = parseJsonArray(cartData?.cart_items);
-          setCartItems(parsedItems);
-        } else {
-          // Get cart from localStorage for anonymous users
-          const savedCart = localStorage.getItem("cart");
-          if (savedCart) {
-            setCartItems(JSON.parse(savedCart));
-          } else {
-            setCartItems([]);
-          }
-        }
-      } catch (error) {
-        console.error("Failed to load cart data:", error);
-        toast.error("Impossible de charger votre panier");
-        setCartItems([]);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-    
-    loadCart();
-  }, [userId]);
-
-  // Save cart whenever it changes
-  useEffect(() => {
-    if (isLoading) return;
-    
-    const saveCart = async () => {
-      try {
-        if (userId) {
-          // Convert cartItems to JSON-safe format before sending to Supabase
-          const jsonSafeCartItems = toJsonValue(cartItems);
-          
-          // Save to Supabase for logged in users
-          await supabase
-            .from('user_carts')
-            .upsert({
-              user_id: userId,
-              cart_items: jsonSafeCartItems
-            }, {
-              onConflict: 'user_id'
-            });
-        } else {
-          // Save to localStorage for anonymous users
-          localStorage.setItem("cart", JSON.stringify(cartItems));
-        }
-      } catch (error) {
-        console.error("Failed to save cart:", error);
-        toast.error("Impossible de sauvegarder votre panier");
-      }
-    };
-    
-    saveCart();
-  }, [cartItems, userId, isLoading]);
-
-  // Calculate total price of all items in cart
-  const totalPrice = cartItems.reduce(
-    (total, item) => total + item.price * item.quantity,
-    0
-  );
-
-  // Update quantity of an item in the cart
-  const updateQuantity = (id: string, newQuantity: number) => {
-    if (newQuantity < 1) return;
-    
-    setCartItems(
-      cartItems.map((item) =>
-        item.id === id ? { ...item, quantity: newQuantity } : item
-      )
-    );
-    
-    toast.success("Quantité mise à jour");
-  };
-
-  // Remove an item from the cart
-  const removeItem = (id: string) => {
-    setCartItems(cartItems.filter((item) => item.id !== id));
-    toast.success("Produit retiré du panier");
-  };
-
-  // Clear the entire cart
-  const clearCart = () => {
-    setCartItems([]);
-    toast.success("Panier vidé");
-  };
+  const { 
+    cartItems, 
+    isLoading, 
+    totalPrice, 
+    updateQuantity, 
+    removeItem, 
+    clearCart 
+  } = useCart();
 
   return (
     <>
