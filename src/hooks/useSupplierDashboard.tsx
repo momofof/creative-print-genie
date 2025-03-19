@@ -39,7 +39,7 @@ export const useSupplierDashboard = () => {
   const fetchProducts = async () => {
     try {
       const { data, error } = await supabase
-        .from('products_combined')
+        .from('products_master')
         .select('*')
         .order('created_at', { ascending: false })
         .limit(10);
@@ -49,11 +49,15 @@ export const useSupplierDashboard = () => {
         toast.error("Impossible de charger les produits");
         return [];
       } else {
-        // Convert products from combined format to our interface format
+        // Convert products from new unified format to our interface format
         const formattedProducts = data.map(product => ({
           ...product,
           // Parse variants from JSONB if they exist
-          variants: Array.isArray(product.variants) ? product.variants : [],
+          variants: Array.isArray(product.variants) ? product.variants : 
+                   typeof product.variants === 'object' ? product.variants : [],
+          // Parse customizations from JSONB if they exist
+          customizations: Array.isArray(product.customizations) ? product.customizations : 
+                         typeof product.customizations === 'object' ? product.customizations : [],
           status: product.status as "draft" | "published" | "archived"
         }));
         
@@ -148,9 +152,9 @@ export const useSupplierDashboard = () => {
         return false;
       }
       
-      // Delete the product from the combined table
+      // Delete the product from the master table
       const { error } = await supabase
-        .from('products_combined')
+        .from('products_master')
         .delete()
         .eq('id', productId);
         

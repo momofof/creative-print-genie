@@ -45,13 +45,6 @@ export type Database = {
             referencedRelation: "comments"
             referencedColumns: ["id"]
           },
-          {
-            foreignKeyName: "comments_product_id_fkey"
-            columns: ["product_id"]
-            isOneToOne: false
-            referencedRelation: "products"
-            referencedColumns: ["id"]
-          },
         ]
       }
       customizations: {
@@ -91,15 +84,7 @@ export type Database = {
           type?: string
           updated_at?: string | null
         }
-        Relationships: [
-          {
-            foreignKeyName: "product_customizations_product_id_fkey"
-            columns: ["product_id"]
-            isOneToOne: false
-            referencedRelation: "products"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       likes: {
         Row: {
@@ -120,118 +105,13 @@ export type Database = {
           product_id?: string
           user_id?: string
         }
-        Relationships: [
-          {
-            foreignKeyName: "likes_product_id_fkey"
-            columns: ["product_id"]
-            isOneToOne: false
-            referencedRelation: "products"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      product_variants: {
-        Row: {
-          color: string
-          created_at: string | null
-          hex_color: string
-          id: string
-          price_adjustment: number | null
-          product_id: string | null
-          size: string
-          status: string | null
-          stock: number | null
-          updated_at: string | null
-        }
-        Insert: {
-          color: string
-          created_at?: string | null
-          hex_color: string
-          id?: string
-          price_adjustment?: number | null
-          product_id?: string | null
-          size: string
-          status?: string | null
-          stock?: number | null
-          updated_at?: string | null
-        }
-        Update: {
-          color?: string
-          created_at?: string | null
-          hex_color?: string
-          id?: string
-          price_adjustment?: number | null
-          product_id?: string | null
-          size?: string
-          status?: string | null
-          stock?: number | null
-          updated_at?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "product_variants_product_id_fkey"
-            columns: ["product_id"]
-            isOneToOne: false
-            referencedRelation: "products"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      products: {
-        Row: {
-          category: string
-          created_at: string | null
-          description: string | null
-          id: string
-          image: string | null
-          is_customizable: boolean | null
-          name: string
-          original_price: number | null
-          price: number
-          status: string
-          stock: number | null
-          subcategory: string | null
-          supplier_id: string | null
-          updated_at: string | null
-        }
-        Insert: {
-          category: string
-          created_at?: string | null
-          description?: string | null
-          id?: string
-          image?: string | null
-          is_customizable?: boolean | null
-          name: string
-          original_price?: number | null
-          price: number
-          status?: string
-          stock?: number | null
-          subcategory?: string | null
-          supplier_id?: string | null
-          updated_at?: string | null
-        }
-        Update: {
-          category?: string
-          created_at?: string | null
-          description?: string | null
-          id?: string
-          image?: string | null
-          is_customizable?: boolean | null
-          name?: string
-          original_price?: number | null
-          price?: number
-          status?: string
-          stock?: number | null
-          subcategory?: string | null
-          supplier_id?: string | null
-          updated_at?: string | null
-        }
         Relationships: []
       }
-      products_combined: {
+      products_master: {
         Row: {
           category: string
           created_at: string | null
+          customizations: Json | null
           description: string | null
           id: string
           image: string | null
@@ -249,6 +129,7 @@ export type Database = {
         Insert: {
           category: string
           created_at?: string | null
+          customizations?: Json | null
           description?: string | null
           id?: string
           image?: string | null
@@ -266,6 +147,7 @@ export type Database = {
         Update: {
           category?: string
           created_at?: string | null
+          customizations?: Json | null
           description?: string | null
           id?: string
           image?: string | null
@@ -337,15 +219,7 @@ export type Database = {
           updated_at?: string | null
           user_id?: string
         }
-        Relationships: [
-          {
-            foreignKeyName: "reviews_product_id_fkey"
-            columns: ["product_id"]
-            isOneToOne: false
-            referencedRelation: "products"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       suppliers: {
         Row: {

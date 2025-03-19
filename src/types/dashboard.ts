@@ -1,3 +1,4 @@
+
 // Types for the supplier dashboard
 export interface Product {
   id: string;
@@ -15,11 +16,12 @@ export interface Product {
   supplier_id?: string;
   updated_at?: string;
   variants: ProductVariant[];
+  customizations?: Customization[];
 }
 
 export interface ProductVariant {
   id: string;
-  product_id: string;
+  product_id?: string;
   size: string;
   color: string;
   hex_color: string;
@@ -56,7 +58,7 @@ export interface Customization {
   id: string;
   name: string;
   description?: string;
-  product_id: string;
+  product_id?: string;
   type: "text" | "image";
   position?: "front" | "back" | "sleeve" | "collar";
   price_adjustment?: number;
