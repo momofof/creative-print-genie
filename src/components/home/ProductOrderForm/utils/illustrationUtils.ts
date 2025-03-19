@@ -1,10 +1,10 @@
-
 import { Product } from "@/types/product";
+import { getPlaceholderImage } from "./variantDisplay";
 
-// Define feature illustrations for each product category
-const featureIllustrations: Record<string, string> = {
-  "vêtements": "/illustrations/t-shirt.png",
-  "t-shirts": "/illustrations/t-shirt.png",
+// Define default illustrations for each product category
+const defaultIllustrations: Record<string, string> = {
+  "vêtements": "/illustrations/clothing.png",
+  "t-shirts": "/illustrations/tshirt.png",
   "hoodies": "/illustrations/hoodie.png",
   "mugs": "/illustrations/mug.png",
   "posters": "/illustrations/poster.png",
@@ -12,36 +12,62 @@ const featureIllustrations: Record<string, string> = {
   "accessoires": "/illustrations/accessory.png",
   "casquettes": "/illustrations/cap.png",
   "velo": "/placeholder.svg",
+  "maison": "/illustrations/mug.png",  // Utiliser l'illustration du mug pour la catégorie "maison"
 };
 
 // Define variant illustrations for each product category and variant type
 const variantIllustrations: Record<string, Record<string, Record<string, string>>> = {
   "vêtements": {
     "color": {
-      "red": "/illustrations/t-shirt-red.png",
-      "blue": "/illustrations/t-shirt-blue.png",
-      "green": "/illustrations/t-shirt-green.png",
-      "black": "/illustrations/t-shirt-black.png",
-      "white": "/illustrations/t-shirt-white.png",
-      "Noir": "/illustrations/t-shirt-black.png",
-      "Blanc": "/illustrations/t-shirt-white.png",
-      "Bleu": "/illustrations/t-shirt-blue.png",
-      "Rouge": "/illustrations/t-shirt-red.png",
-      "Vert": "/illustrations/t-shirt-green.png",
+      "red": "/illustrations/clothing-red.png",
+      "blue": "/illustrations/clothing-blue.png",
+      "green": "/illustrations/clothing-green.png",
+      "black": "/illustrations/clothing-black.png",
+      "white": "/illustrations/clothing-white.png",
+      "Noir": "/illustrations/clothing-black.png",
+      "Blanc": "/illustrations/clothing-white.png",
+      "Bleu": "/illustrations/clothing-blue.png",
+      "Rouge": "/illustrations/clothing-red.png",
+      "Vert": "/illustrations/clothing-green.png",
+    },
+    "size": {
+      "S": "/illustrations/clothing-small.png",
+      "M": "/illustrations/clothing-medium.png",
+      "L": "/illustrations/clothing-large.png",
+      "XL": "/illustrations/clothing-xlarge.png",
+      "XXL": "/illustrations/clothing-xxlarge.png",
+      "Unique": "/illustrations/clothing.png",
+    },
+    "print_design": {
+      "logo": "/illustrations/clothing-logo.png",
+      "abstract": "/illustrations/clothing-abstract.png",
+      "photo": "/illustrations/clothing-photo.png",
     },
   },
   "t-shirts": {
     "color": {
-      "red": "/illustrations/t-shirt-red.png",
-      "blue": "/illustrations/t-shirt-blue.png",
-      "green": "/illustrations/t-shirt-green.png",
-      "black": "/illustrations/t-shirt-black.png",
-      "white": "/illustrations/t-shirt-white.png",
-      "Noir": "/illustrations/t-shirt-black.png",
-      "Blanc": "/illustrations/t-shirt-white.png",
-      "Bleu": "/illustrations/t-shirt-blue.png",
-      "Rouge": "/illustrations/t-shirt-red.png",
-      "Vert": "/illustrations/t-shirt-green.png",
+      "red": "/illustrations/tshirt-red.png",
+      "blue": "/illustrations/tshirt-blue.png",
+      "green": "/illustrations/tshirt-green.png",
+      "black": "/illustrations/tshirt-black.png",
+      "white": "/illustrations/tshirt-white.png",
+      "Noir": "/illustrations/tshirt-black.png",
+      "Blanc": "/illustrations/tshirt-white.png",
+      "Bleu": "/illustrations/tshirt-blue.png",
+      "Rouge": "/illustrations/tshirt-red.png",
+      "Vert": "/illustrations/tshirt-green.png",
+    },
+    "size": {
+      "S": "/illustrations/tshirt-small.png",
+      "M": "/illustrations/tshirt-medium.png",
+      "L": "/illustrations/tshirt-large.png",
+      "XL": "/illustrations/tshirt-xlarge.png",
+      "XXL": "/illustrations/tshirt-xxlarge.png",
+    },
+    "print_design": {
+      "logo": "/illustrations/tshirt-logo.png",
+      "abstract": "/illustrations/tshirt-abstract.png",
+      "photo": "/illustrations/tshirt-photo.png",
     },
   },
   "hoodies": {
@@ -57,6 +83,18 @@ const variantIllustrations: Record<string, Record<string, Record<string, string>
       "Rouge": "/illustrations/hoodie-red.png",
       "Vert": "/illustrations/hoodie-green.png",
     },
+    "size": {
+      "S": "/illustrations/hoodie-small.png",
+      "M": "/illustrations/hoodie-medium.png",
+      "L": "/illustrations/hoodie-large.png",
+      "XL": "/illustrations/hoodie-xlarge.png",
+      "XXL": "/illustrations/hoodie-xxlarge.png",
+    },
+    "print_design": {
+      "logo": "/illustrations/hoodie-logo.png",
+      "abstract": "/illustrations/hoodie-abstract.png",
+      "photo": "/illustrations/hoodie-photo.png",
+    },
   },
   "mugs": {
     "color": {
@@ -69,33 +107,72 @@ const variantIllustrations: Record<string, Record<string, Record<string, string>
       "Bleu": "/illustrations/mug-blue.png",
       "Vert": "/illustrations/mug-green.png",
     },
+    "design": {
+      "funny": "/illustrations/mug-funny.png",
+      "motivational": "/illustrations/mug-motivational.png",
+      "custom": "/illustrations/mug-custom.png",
+    },
+  },
+  "posters": {
+    "size": {
+      "A3": "/illustrations/poster-a3.png",
+      "A2": "/illustrations/poster-a2.png",
+      "A1": "/illustrations/poster-a1.png",
+    },
+    "paper_type": {
+      "glossy": "/illustrations/poster-glossy.png",
+      "matte": "/illustrations/poster-matte.png",
+    },
+  },
+  "stickers": {
+    "size": {
+      "small": "/illustrations/sticker-small.png",
+      "medium": "/illustrations/sticker-medium.png",
+      "large": "/illustrations/sticker-large.png",
+    },
+    "finish": {
+      "glossy": "/illustrations/sticker-glossy.png",
+      "matte": "/illustrations/sticker-matte.png",
+      "transparent": "/illustrations/sticker-transparent.png",
+    },
   },
   "accessoires": {
     "color": {
+      "red": "/illustrations/accessory-red.png",
+      "blue": "/illustrations/accessory-blue.png",
+      "green": "/illustrations/accessory-green.png",
       "black": "/illustrations/accessory-black.png",
       "white": "/illustrations/accessory-white.png",
-      "blue": "/illustrations/accessory-blue.png",
-      "red": "/illustrations/accessory-red.png",
-      "green": "/illustrations/accessory-green.png",
       "Noir": "/illustrations/accessory-black.png",
       "Blanc": "/illustrations/accessory-white.png",
       "Bleu": "/illustrations/accessory-blue.png",
       "Rouge": "/illustrations/accessory-red.png",
       "Vert": "/illustrations/accessory-green.png",
     },
+    "size": {
+      "S": "/illustrations/accessory-small.png",
+      "M": "/illustrations/accessory-medium.png",
+      "L": "/illustrations/accessory-large.png",
+      "XL": "/illustrations/accessory-xlarge.png",
+      "XXL": "/illustrations/accessory-xxlarge.png",
+      "Unique": "/illustrations/accessory.png",
+    },
   },
   "casquettes": {
     "color": {
+      "red": "/illustrations/cap-red.png",
+      "blue": "/illustrations/cap-blue.png",
+      "green": "/illustrations/cap-green.png",
       "black": "/illustrations/cap-black.png",
       "white": "/illustrations/cap-white.png",
-      "blue": "/illustrations/cap-blue.png",
-      "red": "/illustrations/cap-red.png",
-      "green": "/illustrations/cap-green.png",
       "Noir": "/illustrations/cap-black.png",
       "Blanc": "/illustrations/cap-white.png",
       "Bleu": "/illustrations/cap-blue.png",
       "Rouge": "/illustrations/cap-red.png",
       "Vert": "/illustrations/cap-green.png",
+    },
+    "size": {
+      "Unique": "/illustrations/cap.png",
     },
   },
   "velo": {
@@ -114,47 +191,73 @@ const variantIllustrations: Record<string, Record<string, Record<string, string>
       "Électrique": "/placeholder.svg",
     },
   },
+  "maison": {  // Ajout des illustrations pour la catégorie "maison"
+    "color": {
+      "white": "/illustrations/mug-white.png",
+      "black": "/illustrations/mug-black.png",
+      "blue": "/illustrations/mug-blue.png",
+      "green": "/illustrations/mug-green.png",
+      "Blanc": "/illustrations/mug-white.png",
+      "Noir": "/illustrations/mug-black.png",
+      "Bleu": "/illustrations/mug-blue.png",
+      "Vert": "/illustrations/mug-green.png",
+    },
+    "design": {
+      "funny": "/illustrations/mug-funny.png",
+      "motivational": "/illustrations/mug-motivational.png",
+      "custom": "/illustrations/mug-custom.png",
+    },
+  },
 };
 
 // Function to get feature illustration for a product category
 export const getFeatureIllustration = (product: Product | undefined, variants: Record<string, string>): string => {
-  if (!product) return "/placeholder.svg";
-  
-  // Si le produit a une subcategory, essayer d'abord avec celle-ci
-  const category = product.subcategory || product.category;
-  
-  // If there are variants selected, try to find a variant-specific illustration
-  if (Object.keys(variants).length > 0) {
-    if (variants.color) {
-      // Vérifier d'abord avec la subcategory
-      if (variantIllustrations[category]?.color?.[variants.color]) {
-        return variantIllustrations[category].color[variants.color];
-      }
-      // Si pas trouvé, essayer avec la category principale
-      if (variantIllustrations[product.category]?.color?.[variants.color]) {
-        return variantIllustrations[product.category].color[variants.color];
-      }
-    }
+  if (!product) {
+    return '/placeholder.svg';
   }
   
-  // Si pas d'illustration spécifique trouvée, renvoyer l'illustration générique
-  return featureIllustrations[category] || 
-         featureIllustrations[product.category] || 
-         "/placeholder.svg";
+  const category = product.subcategory || product.category;
+  
+  // Si c'est un vêtement avec couleur et taille, montrer l'illustration spécifique
+  if ((category === 't-shirts' || category === 'hoodies' || category === 'vêtements') && variants.color && variants.size) {
+    return variantIllustrations[category]?.color?.[variants.color] || defaultIllustrations[category] || getPlaceholderImage(category);
+  }
+  
+  // Pour les mugs avec couleur
+  if ((category === 'mugs' || category === 'maison') && variants.color) {
+    return variantIllustrations['mugs']?.color?.[variants.color] || defaultIllustrations['mugs'] || getPlaceholderImage(category);
+  }
+  
+  // Pour les casquettes avec couleur
+  if (category === 'casquettes' && variants.color) {
+    return variantIllustrations[category]?.color?.[variants.color] || defaultIllustrations[category] || getPlaceholderImage(category);
+  }
+  
+  // Pour les vélos avec type
+  if (category === 'velo' && variants.type) {
+    return variantIllustrations[category]?.type?.[variants.type] || defaultIllustrations[category] || getPlaceholderImage(category);
+  }
+  
+  // Default: return category illustration or placeholder
+  return defaultIllustrations[category] || getPlaceholderImage(category);
 };
 
-// Function to get variant illustration for a product category and variant type
-export const getVariantIllustration = (category: string, variantType: string, value: string): string => {
-  // Vérifier d'abord la catégorie exacte
-  const illustration = variantIllustrations[category]?.[variantType]?.[value];
-  if (illustration) return illustration;
+// Function to get variant illustration for a product feature
+export const getVariantIllustration = (category: string, variantType: string, variantValue: string): string => {
+  // Si la catégorie est "maison" et la sous-catégorie est "mugs", utiliser les illustrations de mugs
+  if (category === 'maison' && variantType === 'color') {
+    return variantIllustrations['mugs']?.color?.[variantValue] || 
+           variantIllustrations['mugs']?.color?.[variantValue.toLowerCase()] || 
+           getPlaceholderImage('mugs');
+  }
   
-  // Si pas trouvé, vérifier la catégorie en minuscules
-  const lowerCaseIllustration = variantIllustrations[category.toLowerCase()]?.[variantType]?.[value];
-  if (lowerCaseIllustration) return lowerCaseIllustration;
+  if (category === 'maison' && variantType === 'design') {
+    return variantIllustrations['mugs']?.design?.[variantValue] || 
+           variantIllustrations['mugs']?.design?.[variantValue.toLowerCase()] || 
+           getPlaceholderImage('mugs');
+  }
   
-  // Si toujours pas trouvé, renvoyer l'illustration générique
-  return featureIllustrations[category] || 
-         featureIllustrations[category.toLowerCase()] || 
-         "/placeholder.svg";
+  return variantIllustrations[category]?.[variantType]?.[variantValue] || 
+         variantIllustrations[category]?.[variantType]?.[variantValue.toLowerCase()] || 
+         getPlaceholderImage(category);
 };

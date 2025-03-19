@@ -10,6 +10,7 @@ const availableVariants: Record<string, string[]> = {
   "accessoires": ["color", "size"],
   "casquettes": ["color", "size"],
   "velo": ["color", "size", "type"],
+  "maison": ["color", "design"],  // Ajout de la catégorie "maison" pour les mugs
 };
 
 // Define variant options for each product category and variant type
@@ -54,6 +55,10 @@ const variantOptions: Record<string, Record<string, string[]>> = {
     "size": ["S", "M", "L", "XL"],
     "type": ["VTT", "Route", "Ville", "Électrique"],
   },
+  "maison": {  // Ajout des options pour la catégorie "maison"
+    "color": ["white", "black", "blue", "green", "Blanc", "Noir", "Bleu", "Vert"],
+    "design": ["funny", "motivational", "custom"],
+  },
 };
 
 // Define quantity options for each product category
@@ -67,6 +72,7 @@ const quantityOptions: Record<string, number[]> = {
   "accessoires": [1, 2, 3, 4, 5, 10],
   "casquettes": [1, 2, 3, 4, 5, 10],
   "velo": [1, 2, 3, 4, 5],
+  "maison": [1, 2, 3, 4, 5, 10, 20],  // Ajout des options de quantité pour "maison"
 };
 
 // Function to get available variants for a product category
