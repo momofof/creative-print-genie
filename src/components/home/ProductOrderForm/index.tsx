@@ -6,6 +6,7 @@ import { toast } from "sonner";
 import { allProducts } from "@/data/productData";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { orderService, OrderItem } from "@/services/orderService";
+import { supabase } from "@/integrations/supabase/client";
 
 // Import our components
 import SearchableDropdown from "./SearchableDropdown";
@@ -29,8 +30,34 @@ const ProductOrderForm = () => {
   const [availableVariants, setAvailableVariants] = useState<string[]>([]);
   const [openIllustration, setOpenIllustration] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [userId, setUserId] = useState<string | null>(null);
   const isMobile = useIsMobile();
   
+  // Check if user is logged in
+  useEffect(() => {
+    const checkAuth = async () => {
+      const { data } = await supabase.auth.getUser();
+      if (data?.user) {
+        setUserId(data.user.id);
+      }
+    };
+    
+    checkAuth();
+    
+    // Listen for auth changes
+    const { data: authListener } = supabase.auth.onAuthStateChange((event, session) => {
+      if (session?.user) {
+        setUserId(session.user.id);
+      } else {
+        setUserId(null);
+      }
+    });
+    
+    return () => {
+      authListener?.subscription.unsubscribe();
+    };
+  }, []);
+
   // Update available variants when product category changes
   useEffect(() => {
     if (selectedProduct) {
@@ -80,9 +107,17 @@ const ProductOrderForm = () => {
       
       // Create the order
       const result = await orderService.createOrder({
+        customer_id: userId || undefined,
         items: [orderItem],
         total: totalPrice,
-        status: 'pending'
+        status: 'pending',
+        shipping_address: {
+          name: "",
+          address: "",
+          city: "",
+          postal_code: "",
+          country: ""
+        }
       });
       
       if (result.success) {
@@ -92,6 +127,60 @@ const ProductOrderForm = () => {
         setSelectedProduct(undefined);
         setSelectedQuantity(null);
         setVariants({});
+        
+        // Add to cart too if user is logged in
+        if (userId) {
+          try {
+            // Get current cart
+            const { data: cartData } = await supabase
+              .from('user_carts')
+              .select('cart_items')
+              .eq('user_id', userId)
+              .single();
+            
+            const cartItems = cartData?.cart_items || [];
+            
+            // Add order to cart
+            const newCartItem = {
+              id: selectedProduct.id,
+              name: selectedProduct.name,
+              price: selectedProduct.price,
+              quantity: selectedQuantity,
+              image: "/placeholder.svg",
+              ...(Object.keys(variants).length > 0 && { variants })
+            };
+            
+            // Check if product already exists in cart
+            const existingItemIndex = cartItems.findIndex((item: any) => 
+              item.id === selectedProduct.id && 
+              JSON.stringify(item.variants || {}) === JSON.stringify(variants || {})
+            );
+            
+            let updatedCart;
+            if (existingItemIndex >= 0) {
+              // Update quantity
+              updatedCart = [...cartItems];
+              updatedCart[existingItemIndex].quantity += selectedQuantity;
+            } else {
+              // Add new item
+              updatedCart = [...cartItems, newCartItem];
+            }
+            
+            // Update cart in Supabase
+            await supabase
+              .from('user_carts')
+              .upsert({
+                user_id: userId,
+                cart_items: updatedCart
+              }, {
+                onConflict: 'user_id'
+              });
+              
+          } catch (cartError) {
+            console.error("Failed to update cart:", cartError);
+            // Don't show error since the order was successful
+          }
+        }
       } else {
         toast.error("La commande n'a pas pu être traitée. Veuillez réessayer.");
       }
