@@ -1,6 +1,7 @@
+
 import React from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { ArrowLeft, Loader2, Save } from "lucide-react";
+import { ArrowLeft, Loader2, Save, PackageOpen } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ProductGeneralInfo } from "./components/ProductFormComponents/ProductGeneralInfo";
 import { ProductVariants } from "./components/ProductFormComponents/ProductVariants";
@@ -14,6 +15,7 @@ const ProductForm = () => {
   
   const {
     isLoading,
+    isSaving,
     productData,
     variants,
     imagePreview,
@@ -51,7 +53,7 @@ const ProductForm = () => {
               Retour
             </Button>
             <h1 className="text-xl font-semibold text-gray-900 flex items-center">
-              <Store className="h-5 w-5 mr-2 text-teal-600" />
+              <PackageOpen className="h-5 w-5 mr-2 text-teal-600" />
               {isEditing ? "Modifier le produit" : "Ajouter un produit"}
             </h1>
           </div>

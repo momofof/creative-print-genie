@@ -1,5 +1,5 @@
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
@@ -9,11 +9,12 @@ import { useProductVariants, ProductVariant } from "./useProductVariants";
 import { useProductImage } from "./useProductImage";
 import { useProductData } from "./useProductData";
 
-export { ProductData, ProductVariant };
+export type { ProductData, ProductVariant };
 
 export const useProductForm = (productId?: string) => {
   const navigate = useNavigate();
   const isEditing = !!productId;
+  const [isSaving, setIsSaving] = useState(false);
   
   // Use our smaller, focused hooks
   const { productData, setProductData, handleInputChange, handleSelectChange, handleCheckboxChange } = useProductFormData();
@@ -45,7 +46,7 @@ export const useProductForm = (productId?: string) => {
   // Handle form submission
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const isSaving = true;
+    setIsSaving(true);
     
     try {
       const { data: userData } = await supabase.auth.getUser();
@@ -95,11 +96,14 @@ export const useProductForm = (productId?: string) => {
     } catch (error: any) {
       console.error("Error saving product:", error);
       toast.error(error.message || "Erreur lors de l'enregistrement du produit");
+    } finally {
+      setIsSaving(false);
     }
   };
 
   return {
     isLoading,
+    isSaving,
     productData,
     variants,
     imageFile,
