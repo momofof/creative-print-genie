@@ -13,10 +13,10 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { getVariantIllustration } from "./utils";
-import { Search, X, Eye } from "lucide-react";
+import { Eye } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { getVariantIllustration } from "./utils";
+import VariantSearch from "./components/VariantSearch";
 
 interface VariantSelectorProps {
   variantType: string;
@@ -59,28 +59,10 @@ const VariantSelector = ({
               <SelectValue placeholder={`Choisir ${displayName.toLowerCase()}...`} />
             </SelectTrigger>
             <SelectContent className={`${isMobile ? 'pb-10' : 'max-h-[300px]'} bg-white shadow-lg border border-gray-200`}>
-              <div className="p-2 sticky top-0 bg-white z-10 border-b">
-                <div className="relative">
-                  <Search className="absolute left-2 top-2.5 h-4 w-4 text-gray-500" />
-                  <Input
-                    placeholder="Rechercher..."
-                    className="pl-8 pr-8 text-sm"
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                  />
-                  {searchTerm && (
-                    <button 
-                      className="absolute right-2 top-2.5 text-gray-500 hover:text-gray-700"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setSearchTerm('');
-                      }}
-                    >
-                      <X className="h-4 w-4" />
-                    </button>
-                  )}
-                </div>
-              </div>
+              <VariantSearch 
+                searchTerm={searchTerm}
+                setSearchTerm={setSearchTerm}
+              />
               <div className={`overflow-y-auto pt-1 ${isMobile ? 'max-h-[30vh]' : 'max-h-[200px]'} bg-white`}>
                 {filteredOptions.length > 0 ? (
                   filteredOptions.map((option) => (
