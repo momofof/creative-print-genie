@@ -16,11 +16,10 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "@/components/ui/dialog";
 
 interface NavigationSearchOverlayProps {
-  isOpen: boolean;
+  isOpen: boolean; // Changed from open to isOpen to match component usage
   onClose: () => void;
   searchQuery: string;
   setSearchQuery: React.Dispatch<React.SetStateAction<string>>;
@@ -34,11 +33,6 @@ const NavigationSearchOverlay = ({
 }: NavigationSearchOverlayProps) => {
   // Changed the type to match DialogContent which expects a ref to HTMLDivElement
   const dialogRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    // The Dialog component now handles opening/closing based on the isOpen prop
-    // No need for explicit showModal() or close() calls
-  }, [isOpen]);
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
