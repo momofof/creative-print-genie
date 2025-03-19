@@ -1,5 +1,8 @@
+
 import { Link } from "react-router-dom";
 import { useEffect, useState } from "react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
+
 const HeroSection = () => {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [direction, setDirection] = useState('next');
@@ -17,11 +20,22 @@ const HeroSection = () => {
     return () => clearInterval(interval);
   }, [heroImages.length]);
 
-  // Manual navigation function
+  // Manual navigation functions
   const navigateToSlide = (index: number) => {
     setDirection(index > currentImageIndex ? 'next' : 'prev');
     setCurrentImageIndex(index);
   };
+
+  const goToPrevSlide = () => {
+    setDirection('prev');
+    setCurrentImageIndex(prevIndex => prevIndex === 0 ? heroImages.length - 1 : prevIndex - 1);
+  };
+
+  const goToNextSlide = () => {
+    setDirection('next');
+    setCurrentImageIndex(prevIndex => prevIndex === heroImages.length - 1 ? 0 : prevIndex + 1);
+  };
+
   return <section className="relative h-[60vh] sm:h-[70vh] md:h-[80vh] w-full overflow-hidden">
       {/* Full-width background image slider */}
       <div className="absolute inset-0 w-full h-full">
@@ -35,6 +49,24 @@ const HeroSection = () => {
           {/* Overlay */}
           <div className="absolute inset-0 bg-black bg-opacity-50 md:bg-opacity-40 z-20"></div>
         </div>
+      </div>
+      
+      {/* Navigation buttons */}
+      <div className="absolute inset-0 flex items-center justify-between z-30 px-2 sm:px-6">
+        <button 
+          onClick={goToPrevSlide}
+          className="bg-black/30 hover:bg-black/50 text-white rounded-full p-1 sm:p-2 transition-colors"
+          aria-label="Previous image"
+        >
+          <ChevronLeft className="h-5 w-5 sm:h-6 sm:w-6" />
+        </button>
+        <button 
+          onClick={goToNextSlide}
+          className="bg-black/30 hover:bg-black/50 text-white rounded-full p-1 sm:p-2 transition-colors"
+          aria-label="Next image"
+        >
+          <ChevronRight className="h-5 w-5 sm:h-6 sm:w-6" />
+        </button>
       </div>
       
       {/* Content container - Improved positioning for better desktop display */}
@@ -56,7 +88,18 @@ const HeroSection = () => {
 
       {/* Image navigation indicators - redesigned for mobile */}
       <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 z-40 flex space-x-1.5">
-        {heroImages.map((_, index) => {})}
+        {heroImages.map((_, index) => (
+          <button
+            key={index}
+            onClick={() => navigateToSlide(index)}
+            className={`w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full transition-all duration-300 ${
+              index === currentImageIndex 
+                ? "bg-white w-3 sm:w-4" 
+                : "bg-white/40 hover:bg-white/60"
+            }`}
+            aria-label={`Go to slide ${index + 1}`}
+          ></button>
+        ))}
       </div>
     </section>;
 };
