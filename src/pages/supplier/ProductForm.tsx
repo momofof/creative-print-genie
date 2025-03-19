@@ -5,7 +5,6 @@ import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { Store, ArrowLeft, Loader2, Save } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { ProductHeader } from "./components/ProductFormComponents/ProductHeader";
 import { ProductGeneralInfo } from "./components/ProductFormComponents/ProductGeneralInfo";
 import { ProductVariants } from "./components/ProductFormComponents/ProductVariants";
 import { ProductImageUpload } from "./components/ProductFormComponents/ProductImageUpload";
