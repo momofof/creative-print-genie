@@ -1,107 +1,84 @@
 
 import { Product } from "@/types/product";
 
-/**
- * Parse variants from a product's JSON data
- */
-export const parseVariants = (variants: any): Record<string, any[]> => {
-  if (!variants || !Array.isArray(variants)) {
-    return {};
-  }
-
-  // Group variants by properties
-  const result: Record<string, any[]> = {};
-  
-  variants.forEach(variant => {
-    // Process each property in the variant
-    Object.keys(variant).forEach(key => {
-      // Skip id and non-variant attributes
-      if (key === 'id' || key === 'stock' || key === 'price_adjustment' || key === 'status') {
-        return;
-      }
-      
-      // Initialize the array if it doesn't exist
-      if (!result[key]) {
-        result[key] = [];
-      }
-      
-      // Add value to the array if it's not already included
-      if (key === 'printable_sides') {
-        // Special handling for printable_sides as it's an array
-        if (Array.isArray(variant[key])) {
-          variant[key].forEach((side: string) => {
-            if (!result[key].includes(side)) {
-              result[key].push(side);
-            }
-          });
-        }
-      } else {
-        // Handle regular variant properties
-        if (!result[key].includes(variant[key])) {
-          result[key].push(variant[key]);
-        }
-      }
-    });
-  });
-  
-  return result;
-};
-
-/**
- * Extract variant options from a product's data
- */
-export const extractVariantOptionsFromProduct = (product: Product): Record<string, string[]> => {
-  if (!product.variants || typeof product.variants !== 'object') {
-    return {};
-  }
+// Add or ensure these utility functions exist for JSON parsing
+export const parseVariants = (variantsJson: any): Record<string, string[]> => {
+  if (!variantsJson) return {};
   
   try {
-    // If variants is a string, parse it
-    const variantsArray = typeof product.variants === 'string' 
-      ? JSON.parse(product.variants) 
-      : product.variants;
-    
-    if (!Array.isArray(variantsArray)) {
-      return {};
+    if (typeof variantsJson === 'string') {
+      return JSON.parse(variantsJson);
     }
     
-    // Extract options for each variant type
-    const options: Record<string, string[]> = {};
-    
-    variantsArray.forEach(variant => {
-      if (variant.size && !options.size) {
-        options.size = [];
-      }
-      if (variant.size && !options.size.includes(variant.size)) {
-        options.size.push(variant.size);
-      }
+    // Si variantsJson est un tableau d'objets avec des propriétés size, color, etc.
+    if (Array.isArray(variantsJson)) {
+      // Extraire les valeurs uniques pour chaque propriété
+      const result: Record<string, string[]> = {};
       
-      if (variant.color && !options.color) {
-        options.color = [];
-      }
-      if (variant.color && !options.color.includes(variant.color)) {
-        options.color.push(variant.color);
-      }
-      
-      // Handle printable_sides - convert to "printable_side" singular for the UI
-      if (variant.printable_sides && Array.isArray(variant.printable_sides)) {
-        if (!options.printable_side) {
-          options.printable_side = [];
-        }
-        
-        variant.printable_sides.forEach((side: string) => {
-          if (!options.printable_side.includes(side)) {
-            options.printable_side.push(side);
+      variantsJson.forEach(variant => {
+        Object.entries(variant).forEach(([key, value]) => {
+          // Ignorer les propriétés qui ne sont pas des variantes
+          if (['stock', 'price_adjustment', 'status', 'hex_color'].includes(key)) return;
+          
+          if (!result[key]) {
+            result[key] = [];
+          }
+          
+          if (typeof value === 'string' && !result[key].includes(value)) {
+            result[key].push(value);
           }
         });
-      }
+      });
       
-      // Add other variant types as needed
-    });
+      return result;
+    }
     
-    return options;
+    return variantsJson;
   } catch (error) {
-    console.error("Error parsing product variants:", error);
+    console.error("Error parsing variants:", error);
+    return {};
+  }
+};
+
+// Extract variant options from product data
+export const extractVariantOptionsFromProduct = (product: Product): Record<string, string[]> => {
+  try {
+    if (!product) return {};
+    
+    // Check if product has variants property - could be string or object
+    const productVariants = product.variants as any;
+    
+    if (!productVariants) return {};
+    
+    let variants = productVariants;
+    if (typeof variants === 'string') {
+      variants = JSON.parse(variants);
+    }
+    
+    if (Array.isArray(variants)) {
+      const result: Record<string, string[]> = {};
+      
+      variants.forEach(variant => {
+        Object.entries(variant).forEach(([key, value]) => {
+          // Ignorer les propriétés qui ne sont pas des variantes
+          if (['stock', 'price_adjustment', 'status', 'hex_color'].includes(key)) return;
+          
+          if (!result[key]) {
+            result[key] = [];
+          }
+          
+          if (typeof value === 'string' && !result[key].includes(value)) {
+            result[key].push(value as string);
+          }
+        });
+      });
+      
+      return result;
+    }
+    
+    return {};
+  } catch (error) {
+    console.error("Error extracting variant options from product:", error);
     return {};
   }
 };

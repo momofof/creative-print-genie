@@ -1,25 +1,32 @@
 
-// Display names for variant types
-export const getVariantDisplayName = (variantType: string): string => {
-  const displayNames: Record<string, string> = {
-    "color": "Couleur",
-    "size": "Taille",
-    "print_design": "Type d'impression",
-    "design": "Design",
-    "paper_type": "Type de papier",
-    "finish": "Finition",
-    "printable_side": "Face à personnaliser"
-  };
-  
-  return displayNames[variantType] || variantType;
+// Define display names for each variant type
+const variantDisplayNames: Record<string, string> = {
+  "color": "Couleur",
+  "size": "Taille",
+  "print_design": "Design d'impression",
+  "design": "Design",
+  "paper_type": "Type de papier",
+  "finish": "Finition",
 };
 
-// Format variant value for display
-export const formatVariantValue = (variantType: string, value: string): string => {
-  if (variantType === 'printable_side') {
-    if (value === 'face1' || value === 'face_1') return 'Face 1 (cadre)';
-    if (value === 'face2' || value === 'face_2') return 'Face 2 (roues)';
-  }
+// Function to get display name for a variant type
+export const getVariantDisplayName = (variantType: string): string => {
+  return variantDisplayNames[variantType] || variantType;
+};
+
+// Get a placeholder image when the product variant doesn't have a specific illustration
+export const getPlaceholderImage = (category: string): string => {
+  const categoryPlaceholders: Record<string, string> = {
+    't-shirts': '/placeholder.svg',
+    'hoodies': '/placeholder.svg',
+    'mugs': '/placeholder.svg',
+    'posters': '/placeholder.svg',
+    'stickers': '/placeholder.svg',
+    'vêtements': '/placeholder.svg',
+    'accessoires': '/placeholder.svg',
+    'casquettes': '/placeholder.svg',
+    // Add more categories as needed
+  };
   
-  return value;
+  return categoryPlaceholders[category.toLowerCase()] || '/placeholder.svg';
 };
