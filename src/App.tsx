@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import Index from "@/pages/Index";
@@ -8,6 +7,7 @@ import AuthLanding from "@/pages/auth/AuthLanding";
 import Profile from "@/pages/Profile";
 import Cart from "@/pages/Cart";
 import AuthStateWrapper from "@/components/home/AuthStateWrapper";
+import Favorites from "./pages/Favorites";
 
 function App() {
   return (
@@ -20,6 +20,7 @@ function App() {
           <Route path="/signup" element={<Signup />} />
           <Route path="/profile" element={<Profile />} />
           <Route path="/cart" element={<Cart />} />
+          <Route path="/favorites" element={<Favorites />} />
           <Route path="*" element={<Index />} />
         </Routes>
       </AuthStateWrapper>
