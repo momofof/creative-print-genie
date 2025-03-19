@@ -1,11 +1,22 @@
 
 import { useState, useEffect } from "react";
-import { Trash2 } from "lucide-react";
+import { Trash2, AlertTriangle } from "lucide-react";
 import { Link } from "react-router-dom";
 import { toast } from "sonner";
 import Navigation from "@/components/Navigation";
 import { useCart } from "@/hooks/useCart";
 import CartItem from "@/components/cart/CartItem";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 
 const Cart = () => {
   const { 
@@ -16,6 +27,12 @@ const Cart = () => {
     removeItem, 
     clearCart 
   } = useCart();
+  const [clearCartDialogOpen, setClearCartDialogOpen] = useState(false);
+  
+  const handleClearCart = () => {
+    clearCart();
+    setClearCartDialogOpen(false);
+  };
 
   return (
     <>
@@ -42,13 +59,38 @@ const Cart = () => {
                 <div className="p-4 border-b">
                   <div className="flex justify-between items-center">
                     <h2 className="text-lg font-medium">Articles ({cartItems.length})</h2>
-                    <button
-                      onClick={clearCart}
-                      className="text-sm text-red-600 hover:text-red-800 flex items-center gap-1"
-                    >
-                      <Trash2 size={16} />
-                      <span>Vider le panier</span>
-                    </button>
+                    
+                    <AlertDialog open={clearCartDialogOpen} onOpenChange={setClearCartDialogOpen}>
+                      <AlertDialogTrigger asChild>
+                        <button
+                          className="text-sm text-red-600 hover:text-red-800 flex items-center gap-1"
+                        >
+                          <Trash2 size={16} />
+                          <span>Vider le panier</span>
+                        </button>
+                      </AlertDialogTrigger>
+                      <AlertDialogContent>
+                        <AlertDialogHeader>
+                          <AlertDialogTitle className="flex items-center gap-2">
+                            <AlertTriangle className="h-5 w-5 text-red-500" />
+                            Vider le panier
+                          </AlertDialogTitle>
+                          <AlertDialogDescription>
+                            Êtes-vous sûr de vouloir vider votre panier ? Tous les articles seront supprimés.
+                            Cette action ne peut pas être annulée.
+                          </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                          <AlertDialogCancel>Annuler</AlertDialogCancel>
+                          <AlertDialogAction 
+                            onClick={handleClearCart}
+                            className="bg-red-600 hover:bg-red-700 text-white"
+                          >
+                            Vider le panier
+                          </AlertDialogAction>
+                        </AlertDialogFooter>
+                      </AlertDialogContent>
+                    </AlertDialog>
                   </div>
                 </div>
                 

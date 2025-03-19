@@ -1,6 +1,18 @@
 
-import { MinusCircle, PlusCircle, Trash2 } from "lucide-react";
+import { MinusCircle, PlusCircle, Trash2, AlertTriangle } from "lucide-react";
 import { CartItem as CartItemType } from "@/types/product";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+import { useState } from "react";
 
 interface CartItemProps {
   item: CartItemType;
@@ -9,6 +21,13 @@ interface CartItemProps {
 }
 
 const CartItem = ({ item, updateQuantity, removeItem }: CartItemProps) => {
+  const [open, setOpen] = useState(false);
+  
+  const handleRemove = () => {
+    removeItem(item.id);
+    setOpen(false);
+  };
+
   return (
     <div className="p-4 flex flex-col sm:flex-row gap-4">
       <div className="flex-shrink-0">
@@ -52,13 +71,38 @@ const CartItem = ({ item, updateQuantity, removeItem }: CartItemProps) => {
           >
             <PlusCircle size={20} />
           </button>
-          <button
-            onClick={() => removeItem(item.id)}
-            className="ml-auto text-red-600 hover:text-red-800"
-            aria-label="Supprimer du panier"
-          >
-            <Trash2 size={20} />
-          </button>
+          
+          <AlertDialog open={open} onOpenChange={setOpen}>
+            <AlertDialogTrigger asChild>
+              <button
+                className="ml-auto text-red-600 hover:text-red-800"
+                aria-label="Supprimer du panier"
+              >
+                <Trash2 size={20} />
+              </button>
+            </AlertDialogTrigger>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle className="flex items-center gap-2">
+                  <AlertTriangle className="h-5 w-5 text-red-500" />
+                  Confirmer la suppression
+                </AlertDialogTitle>
+                <AlertDialogDescription>
+                  Êtes-vous sûr de vouloir supprimer "{item.name}" de votre panier ?
+                  Cette action ne peut pas être annulée.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel>Annuler</AlertDialogCancel>
+                <AlertDialogAction 
+                  onClick={handleRemove}
+                  className="bg-red-600 hover:bg-red-700 text-white"
+                >
+                  Supprimer
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
         </div>
       </div>
     </div>
