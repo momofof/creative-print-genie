@@ -44,7 +44,6 @@ export interface Product {
   date?: string;
   isNew?: boolean;
   customizationViews?: ProductView[];
-  variants?: any; // Add variants property to fix the type error
 }
 
 export interface ProductView {
