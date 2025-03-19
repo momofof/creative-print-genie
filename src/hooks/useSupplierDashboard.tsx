@@ -1,8 +1,9 @@
 
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { Product, Order, Stat, ProductVariant } from "@/types/dashboard";
+import { Product, Order, Stat, ProductVariant, Customization } from "@/types/dashboard";
 import { toast } from "sonner";
+import { Json } from "@/integrations/supabase/types";
 
 export const useSupplierDashboard = () => {
   const [isLoading, setIsLoading] = useState(true);
@@ -50,30 +51,42 @@ export const useSupplierDashboard = () => {
         return [];
       } else {
         // Convert products from new unified format to our interface format
-        const formattedProducts = data.map(product => ({
-          ...product,
-          // Parse variants from JSONB if they exist
-          variants: Array.isArray(product.variants) ? product.variants : 
-                   typeof product.variants === 'object' ? product.variants : [],
-          // Parse customizations from JSONB if they exist
-          customizations: Array.isArray(product.customizations) ? product.customizations : 
-                         typeof product.customizations === 'object' ? product.customizations : [],
-          status: product.status as "draft" | "published" | "archived"
-        }));
+        const formattedProducts: Product[] = data.map(product => {
+          // Parse variants from JSONB
+          const parsedVariants = parseJsonArray(product.variants) as ProductVariant[];
+          // Parse customizations from JSONB
+          const parsedCustomizations = parseJsonArray(product.customizations) as Customization[];
+          
+          return {
+            ...product,
+            variants: parsedVariants,
+            customizations: parsedCustomizations,
+          };
+        });
         
-        // Update products state with type assertion
-        setProducts(formattedProducts as Product[]);
+        // Update products state with typed products
+        setProducts(formattedProducts);
         
         // Update stats
-        updateProductStats(formattedProducts as Product[]);
+        updateProductStats(formattedProducts);
         
-        return formattedProducts as Product[];
+        return formattedProducts;
       }
     } catch (error) {
       console.error("Erreur:", error);
       toast.error("Une erreur est survenue");
       return [];
     }
+  };
+
+  // Helper function to parse JSON arrays from Supabase
+  const parseJsonArray = (jsonData: Json): any[] => {
+    if (Array.isArray(jsonData)) {
+      return jsonData;
+    } else if (jsonData && typeof jsonData === 'object') {
+      return Object.values(jsonData);
+    }
+    return [];
   };
 
   // Simulate orders (to be replaced with a real API)

@@ -1,7 +1,3 @@
-
-// Le fichier ProductForm.tsx est très long, nous allons juste corriger les problèmes de typage
-// sans avoir à réécrire tout le fichier.
-
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
@@ -83,6 +79,18 @@ const ProductForm = () => {
     }
   }, [productId]);
 
+  const parseVariantsFromJson = (jsonVariants: any): ProductVariant[] => {
+    if (!jsonVariants) return [];
+    
+    if (Array.isArray(jsonVariants)) {
+      return jsonVariants as ProductVariant[];
+    } else if (typeof jsonVariants === 'object') {
+      return Object.values(jsonVariants) as ProductVariant[];
+    }
+    
+    return [];
+  };
+
   const checkAuthentication = async () => {
     const { data } = await supabase.auth.getSession();
     
@@ -96,9 +104,9 @@ const ProductForm = () => {
     try {
       if (!productId) return;
       
-      // Fetch product data
+      // Fetch product data from the products_master table
       const { data: product, error: productError } = await supabase
-        .from("products")
+        .from("products_master")
         .select("*")
         .eq("id", productId)
         .single();
@@ -111,30 +119,26 @@ const ProductForm = () => {
         return;
       }
       
-      // Ensure status has the correct type
+      // Extract the relevant fields for our ProductData type
       const typedProduct: ProductData = {
-        ...product,
-        status: product.status as 'draft' | 'published' | 'archived'
+        name: product.name,
+        price: product.price,
+        original_price: product.original_price,
+        category: product.category,
+        subcategory: product.subcategory,
+        description: product.description,
+        image: product.image,
+        status: product.status as 'draft' | 'published' | 'archived',
+        is_customizable: product.is_customizable || false
       };
       
       setProductData(typedProduct);
       setImagePreview(product.image);
       
-      // Fetch product variants
-      const { data: variantsData, error: variantsError } = await supabase
-        .from("product_variants")
-        .select("*")
-        .eq("product_id", productId);
+      // Parse variants from the JSONB field
+      const parsedVariants = parseVariantsFromJson(product.variants);
+      setVariants(parsedVariants);
       
-      if (variantsError) throw variantsError;
-      
-      // Ensure each variant has the correct status type
-      const typedVariants: ProductVariant[] = variantsData?.map(variant => ({
-        ...variant,
-        status: variant.status as 'in_stock' | 'low_stock' | 'out_of_stock'
-      })) || [];
-      
-      setVariants(typedVariants);
       setIsLoading(false);
     } catch (error: any) {
       console.error("Error fetching product:", error);
@@ -271,84 +275,32 @@ const ProductForm = () => {
       // 1. Upload image if there's a new one
       const imageUrl = await uploadProductImage();
       
-      // 2. Create or update product
+      // 2. Filter out deleted variants
+      const activeVariants = variants.filter(variant => !variant.isDeleted);
+      
+      // 3. Create or update product in products_master table
       const productPayload = {
         ...productData,
         supplier_id: userData.user.id,
-        image: imageUrl || productData.image
+        image: imageUrl || productData.image,
+        variants: activeVariants
       };
-      
-      let productResponseId: string;
       
       if (isEditing) {
         // Update existing product
         const { error: updateError } = await supabase
-          .from("products")
+          .from("products_master")
           .update(productPayload)
           .eq("id", productId);
         
         if (updateError) throw updateError;
-        
-        productResponseId = productId as string;
       } else {
         // Create new product
-        const { data: newProduct, error: createError } = await supabase
-          .from("products")
-          .insert(productPayload)
-          .select("id")
-          .single();
+        const { error: createError } = await supabase
+          .from("products_master")
+          .insert(productPayload);
         
         if (createError) throw createError;
-        if (!newProduct) throw new Error("Erreur lors de la création du produit");
-        
-        productResponseId = newProduct.id;
-      }
-      
-      // 3. Handle variants
-      for (const variant of variants) {
-        if (variant.isDeleted && variant.id) {
-          // Delete existing variant
-          const { error: deleteError } = await supabase
-            .from("product_variants")
-            .delete()
-            .eq("id", variant.id);
-          
-          if (deleteError) throw deleteError;
-        } else if (variant.isNew) {
-          // Create new variant
-          const { size, color, hex_color, stock, price_adjustment, status } = variant;
-          
-          const { error: insertError } = await supabase
-            .from("product_variants")
-            .insert({
-              product_id: productResponseId,
-              size,
-              color,
-              hex_color,
-              stock,
-              price_adjustment,
-              status
-            });
-          
-          if (insertError) throw insertError;
-        } else if (variant.id) {
-          // Update existing variant
-          const { id, size, color, hex_color, stock, price_adjustment, status } = variant;
-          
-          const { error: updateError } = await supabase
-            .from("product_variants")
-            .update({
-              size,
-              color,
-              hex_color,
-              stock,
-              price_adjustment,
-              status
-            })
-            .eq("id", id);
-          
-          if (updateError) throw updateError;
-        }
       }
       
       toast.success(isEditing ? "Produit mis à jour avec succès" : "Produit créé avec succès");

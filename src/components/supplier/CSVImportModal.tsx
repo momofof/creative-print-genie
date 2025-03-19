@@ -176,9 +176,9 @@ const CSVImportModal = ({ open, onOpenChange, onImportSuccess }: CSVImportModalP
             id: crypto.randomUUID()
           })) || [];
 
-          // Create product with variants in the combined table
+          // Create product with variants in the product master table
           const { error: productError } = await supabase
-            .from("products_combined")
+            .from("products_master")
             .insert({
               name: productData.name,
               price: productData.price,

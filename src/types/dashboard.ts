@@ -4,17 +4,17 @@ export interface Product {
   id: string;
   name: string;
   price: number;
-  original_price?: number;
-  image: string;
+  original_price?: number | null;
+  image: string | null;
   category: string;
-  subcategory: string;
+  subcategory?: string | null;
   status: "draft" | "published" | "archived";
-  stock: number;
-  created_at: string;
-  description?: string;
-  is_customizable?: boolean;
-  supplier_id?: string;
-  updated_at?: string;
+  stock?: number | null;
+  created_at?: string | null;
+  description?: string | null;
+  is_customizable?: boolean | null;
+  supplier_id?: string | null;
+  updated_at?: string | null;
   variants: ProductVariant[];
   customizations?: Customization[];
 }
@@ -26,7 +26,7 @@ export interface ProductVariant {
   color: string;
   hex_color: string;
   stock: number;
-  price_adjustment?: number;
+  price_adjustment?: number | null;
   status: "in_stock" | "low_stock" | "out_of_stock";
   created_at?: string;
   updated_at?: string;
@@ -57,12 +57,12 @@ export interface ProFeature {
 export interface Customization {
   id: string;
   name: string;
-  description?: string;
-  product_id?: string;
+  description?: string | null;
+  product_id?: string | null;
   type: "text" | "image";
-  position?: "front" | "back" | "sleeve" | "collar";
-  price_adjustment?: number;
-  is_required?: boolean;
-  created_at?: string;
-  updated_at?: string;
+  position?: "front" | "back" | "sleeve" | "collar" | null;
+  price_adjustment?: number | null;
+  is_required?: boolean | null;
+  created_at?: string | null;
+  updated_at?: string | null;
 }
