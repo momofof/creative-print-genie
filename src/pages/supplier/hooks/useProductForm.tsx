@@ -8,7 +8,8 @@ import { useProductSubmit } from "./useProductSubmit";
 import { useProductInputs } from "./useProductInputs";
 import { ProductData, ProductVariant } from "./types";
 
-export { ProductData, ProductVariant } from "./types";
+// Change the export statement to use "export type" syntax
+export type { ProductData, ProductVariant } from "./types";
 
 export const useProductForm = (productId?: string) => {
   const { checkAuthentication } = useProductAuth();
