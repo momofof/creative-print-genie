@@ -5,6 +5,7 @@ import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { allProducts } from "@/data/productData";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { orderService, OrderItem } from "@/services/orderService";
 
 // Import our components
 import SearchableDropdown from "./SearchableDropdown";
@@ -27,6 +28,7 @@ const ProductOrderForm = () => {
   const [variants, setVariants] = useState<Record<string, string>>({});
   const [availableVariants, setAvailableVariants] = useState<string[]>([]);
   const [openIllustration, setOpenIllustration] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const isMobile = useIsMobile();
   
   // Update available variants when product category changes
@@ -53,7 +55,7 @@ const ProductOrderForm = () => {
     setVariants(prev => ({ ...prev, [variantType]: value }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
     if (!selectedProduct || !selectedQuantity) {
@@ -61,15 +63,44 @@ const ProductOrderForm = () => {
       return;
     }
     
-    // Here you would typically process the order with the variants
-    console.log("Order submitted:", {
-      product: selectedProduct,
-      quantity: selectedQuantity,
-      variants: variants
-    });
+    setIsSubmitting(true);
     
-    // Show success message
-    toast.success(`Commande de ${selectedQuantity} ${selectedProduct.name} envoyée avec succès !`);
+    try {
+      // Create order item from the selected product
+      const orderItem: OrderItem = {
+        product_id: selectedProduct.id,
+        product_name: selectedProduct.name,
+        quantity: selectedQuantity,
+        price: selectedProduct.price,
+        variants: Object.keys(variants).length > 0 ? variants : undefined
+      };
+      
+      // Calculate total price
+      const totalPrice = orderItem.price * orderItem.quantity;
+      
+      // Create the order
+      const result = await orderService.createOrder({
+        items: [orderItem],
+        total: totalPrice,
+        status: 'pending'
+      });
+      
+      if (result.success) {
+        toast.success(`Commande de ${selectedQuantity} ${selectedProduct.name} envoyée avec succès !`);
+        
+        // Reset form
+        setSelectedProduct(undefined);
+        setSelectedQuantity(null);
+        setVariants({});
+      } else {
+        toast.error("La commande n'a pas pu être traitée. Veuillez réessayer.");
+      }
+    } catch (error) {
+      console.error("Order submission error:", error);
+      toast.error("Une erreur est survenue lors de la commande");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -146,15 +177,23 @@ const ProductOrderForm = () => {
             <div className="mt-6 md:mt-8">
               <button
                 type="submit"
-                disabled={!selectedProduct || !selectedQuantity}
+                disabled={!selectedProduct || !selectedQuantity || isSubmitting}
                 className={cn(
                   "w-full bg-accent text-white py-3 px-6 rounded-md font-medium transition-colors",
-                  (!selectedProduct || !selectedQuantity) ? 
+                  (!selectedProduct || !selectedQuantity || isSubmitting) ? 
                     "opacity-50 cursor-not-allowed" : 
                     "hover:bg-accent/90"
                 )}
               >
-                Commander
+                {isSubmitting ? (
+                  <span className="flex items-center justify-center">
+                    <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    Traitement en cours...
+                  </span>
+                ) : "Commander"}
               </button>
             </div>
           </form>

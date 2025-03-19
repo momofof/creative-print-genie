@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import Navigation from "@/components/Navigation";
@@ -66,7 +65,6 @@ const ProductDetail = () => {
   const [selectedSize, setSelectedSize] = useState("M");
   const [quantity, setQuantity] = useState(1);
 
-  // Rating distribution calculation
   const ratingCounts = { 5: 35, 4: 25, 3: 8, 2: 5, 1: 2 };
   const totalReviews = Object.values(ratingCounts).reduce((a, b) => a + b, 0);
   const averageRating = Object.entries(ratingCounts).reduce(
@@ -74,12 +72,20 @@ const ProductDetail = () => {
     0
   ) / totalReviews;
 
+  const productData = {
+    id: productId || "1",
+    name: "T-shirt manches longues Premium Homme",
+    price: 16.99,
+    originalPrice: 19.99,
+    description: "T-shirt manches longues premium de haute qualité, idéal pour toutes saisons.",
+    image: "/lovable-uploads/a613bb1a-34de-4d67-a4ea-8e2b4c720279.png"
+  };
+
   return (
     <div className="min-h-screen bg-white">
       <Navigation />
       <div className="pt-24 pb-16 px-4 lg:px-8">
         <div className="max-w-7xl mx-auto">
-          {/* Breadcrumb */}
           <div className="mb-6 text-sm breadcrumbs text-gray-500">
             <ul className="flex space-x-2">
               <li>
@@ -94,31 +100,26 @@ const ProductDetail = () => {
                 <Link to="/products/textile" className="hover:text-accent">T-shirts manches longues</Link>
               </li>
               <span>/</span>
-              <li className="text-gray-800">T-shirt manches longues Premium Homme</li>
+              <li className="text-gray-800">{productData.name}</li>
             </ul>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-12">
-            {/* Product Images */}
             <ProductGallery thumbnailImages={thumbnailImages} />
 
-            {/* Product Info */}
             <div>
-              <h1 className="text-3xl font-bold mb-2">T-shirt manches longues Premium Homme</h1>
+              <h1 className="text-3xl font-bold mb-2">{productData.name}</h1>
               <div className="flex items-center mb-4">
-                <div className="flex items-center">
-                  {[...Array(5)].map((_, i) => (
-                    <Star key={i} 
-                      className={`w-4 h-4 ${i < Math.round(averageRating) ? "text-yellow-400 fill-yellow-400" : "text-gray-300"}`} 
-                    />
-                  ))}
-                </div>
-                <span className="ml-2 text-sm text-gray-500">({totalReviews} avis)</span>
+                {[...Array(5)].map((_, i) => (
+                  <Star key={i} 
+                    className={`w-4 h-4 ${i < Math.round(averageRating) ? "text-yellow-400 fill-yellow-400" : "text-gray-300"}`} 
+                  />
+                ))}
               </div>
 
               <div className="flex items-baseline mb-6">
-                <span className="text-2xl font-bold text-gray-900">16,99 €</span>
-                <span className="ml-2 text-sm text-gray-500 line-through">19,99 €</span>
+                <span className="text-2xl font-bold text-gray-900">{productData.price} €</span>
+                <span className="ml-2 text-sm text-gray-500 line-through">{productData.originalPrice} €</span>
                 <span className="ml-2 text-sm font-medium text-green-600">-15%</span>
               </div>
 
@@ -139,7 +140,14 @@ const ProductDetail = () => {
                 setQuantity={setQuantity} 
               />
 
-              <ProductActions />
+              <ProductActions 
+                productId={productId}
+                productName={productData.name}
+                productPrice={productData.price}
+                selectedColor={selectedColor}
+                selectedSize={selectedSize}
+                quantity={quantity}
+              />
               
               <ProductBenefits />
               
@@ -153,10 +161,8 @@ const ProductDetail = () => {
             </div>
           </div>
 
-          {/* Related Products */}
           <RelatedProducts products={relatedProducts} />
           
-          {/* Sections promotionnelles ajoutées après les produits connexes */}
           <NewArrivalsSection categoryTitle="T-shirts manches longues" />
           <PromotionalBanner />
           <DesignServiceBanner />
