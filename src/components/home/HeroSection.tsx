@@ -1,8 +1,6 @@
-
 import { Link } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-
 const HeroSection = () => {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [direction, setDirection] = useState('next');
@@ -25,17 +23,14 @@ const HeroSection = () => {
     setDirection(index > currentImageIndex ? 'next' : 'prev');
     setCurrentImageIndex(index);
   };
-  
   const goToPrevSlide = () => {
     setDirection('prev');
     setCurrentImageIndex(prevIndex => prevIndex === 0 ? heroImages.length - 1 : prevIndex - 1);
   };
-  
   const goToNextSlide = () => {
     setDirection('next');
     setCurrentImageIndex(prevIndex => prevIndex === heroImages.length - 1 ? 0 : prevIndex + 1);
   };
-  
   return <section className="relative h-[60vh] sm:h-[70vh] md:h-[80vh] w-full overflow-hidden">
       {/* Full-width background image slider */}
       <div className="absolute inset-0 w-full h-full">
@@ -80,20 +75,8 @@ const HeroSection = () => {
 
       {/* Image navigation indicators - restored and improved for mobile */}
       <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 z-40 flex space-x-1.5">
-        {heroImages.map((_, index) => (
-          <button
-            key={index}
-            onClick={() => navigateToSlide(index)}
-            className={`w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full transition-all duration-300 ${
-              index === currentImageIndex 
-                ? "bg-white w-3 sm:w-4" 
-                : "bg-white/40 hover:bg-white/60"
-            }`}
-            aria-label={`Go to slide ${index + 1}`}
-          ></button>
-        ))}
+        {heroImages.map((_, index) => {})}
       </div>
     </section>;
 };
-
 export default HeroSection;
