@@ -7,10 +7,12 @@ import { useAuthStatus } from "@/hooks/useAuthStatus";
 import NavigationUserAvatar from "@/components/navigation/NavigationUserAvatar";
 import { supabase } from "@/integrations/supabase/client";
 import NavigationCart from "@/components/navigation/NavigationCart";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 const Navigation = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const { isLoggedIn } = useAuthStatus();
+  const isMobile = useIsMobile();
 
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
@@ -35,7 +37,13 @@ const Navigation = () => {
             </Button>
           </nav>
 
-          {/* User authentication */}
+          {/* Mobile icons - NEW */}
+          <div className="flex items-center space-x-2 md:hidden">
+            <NavigationCart className="p-2" />
+            {isLoggedIn && <NavigationUserAvatar isSupplier={false} />}
+          </div>
+
+          {/* Desktop authentication */}
           <div className="hidden md:flex items-center space-x-4">
             <NavigationCart className="p-2.5" />
             {isLoggedIn ? (
