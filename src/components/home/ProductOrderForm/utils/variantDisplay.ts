@@ -7,7 +7,6 @@ const variantDisplayNames: Record<string, string> = {
   "design": "Design",
   "paper_type": "Type de papier",
   "finish": "Finition",
-  "type": "Type",
 };
 
 // Function to get display name for a variant type
@@ -26,8 +25,6 @@ export const getPlaceholderImage = (category: string): string => {
     'vêtements': '/placeholder.svg',
     'accessoires': '/placeholder.svg',
     'casquettes': '/placeholder.svg',
-    'velo': '/placeholder.svg',
-    'maison': '/placeholder.svg',  // Ajout du placeholder pour la catégorie "maison"
     // Add more categories as needed
   };
   

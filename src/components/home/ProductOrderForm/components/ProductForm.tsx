@@ -14,9 +14,10 @@ import {
   getQuantityOptions, 
   getAvailableVariants, 
   getVariantOptions, 
-  getVariantDisplayName 
+  getVariantDisplayName,
+  parseVariants,
+  extractVariantOptionsFromProduct
 } from "../utils";
-import { extractVariantOptionsFromProduct } from "../utils/parsingUtils";
 
 interface ProductFormProps {
   products: Product[];
@@ -58,16 +59,14 @@ const ProductForm = ({
       // Essayer d'abord la subcategory si elle existe
       if (selectedProduct.subcategory) {
         variantTypes = getAvailableVariants(selectedProduct.subcategory);
-        console.log(`Variants for subcategory '${selectedProduct.subcategory}':`, variantTypes);
       }
       
       // Si aucune variante trouvée avec la subcategory, essayer la category
       if (variantTypes.length === 0) {
         variantTypes = getAvailableVariants(selectedProduct.category);
-        console.log(`Variants for category '${selectedProduct.category}':`, variantTypes);
       }
       
-      console.log("Final variant types for product:", variantTypes);
+      console.log("Variant types for category:", variantTypes);
       setAvailableVariants(variantTypes);
       
       // Extract variant options from product data if available

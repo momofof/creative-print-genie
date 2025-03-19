@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 import { Product } from "@/types/product";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { supabase } from "@/integrations/supabase/client";
-import { extractVariantOptionsFromProduct } from "../utils/parsingUtils";
+import { parseVariants, extractVariantOptionsFromProduct } from "../utils";
 
 interface UseOrderFormStateResult {
   selectedProduct: Product | undefined;
@@ -33,10 +33,7 @@ export const useOrderFormState = (): UseOrderFormStateResult => {
     const checkAuth = async () => {
       const { data } = await supabase.auth.getUser();
       if (data?.user) {
-        console.log("Logged in user:", data.user.id);
         setUserId(data.user.id);
-      } else {
-        console.log("No user logged in");
       }
     };
     
@@ -44,12 +41,9 @@ export const useOrderFormState = (): UseOrderFormStateResult => {
     
     // Listen for auth changes
     const { data: authListener } = supabase.auth.onAuthStateChange((event, session) => {
-      console.log("Auth state changed:", event);
       if (session?.user) {
-        console.log("User logged in:", session.user.id);
         setUserId(session.user.id);
       } else {
-        console.log("User logged out");
         setUserId(null);
       }
     });
@@ -62,7 +56,6 @@ export const useOrderFormState = (): UseOrderFormStateResult => {
   // Automatically open the illustration sheet on mobile when variants are selected
   useEffect(() => {
     if (isMobile && selectedProduct && Object.keys(variants).length > 0) {
-      console.log("Opening illustration on mobile with variants:", variants);
       setOpenIllustration(true);
     }
   }, [variants, selectedProduct, isMobile]);
@@ -70,7 +63,6 @@ export const useOrderFormState = (): UseOrderFormStateResult => {
   // Reset variants when product changes
   useEffect(() => {
     if (selectedProduct) {
-      console.log("Product changed, resetting variants. New product:", selectedProduct.name);
       // Réinitialiser les variantes à chaque changement de produit
       setVariants({});
     }
