@@ -36,12 +36,8 @@ const NavigationSearchOverlay = ({
   const dialogRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    if (isOpen) {
-      // Since we now have a div reference instead of dialog, we don't need to call showModal
-      // Just let the Dialog component handle the display based on the isOpen prop
-    } else {
-      // Similarly, we don't need to call close
-    }
+    // The Dialog component now handles opening/closing based on the isOpen prop
+    // No need for explicit showModal() or close() calls
   }, [isOpen]);
 
   return (
