@@ -15,7 +15,8 @@ import {
   getAvailableVariants, 
   getVariantOptions, 
   getVariantDisplayName,
-  parseVariants
+  parseVariants,
+  extractVariantOptionsFromProduct
 } from "../utils";
 
 interface ProductFormProps {
@@ -45,22 +46,66 @@ const ProductForm = ({
   handleSubmit,
   isSubmitting
 }: ProductFormProps) => {
-  // Update available variants when product category changes
+  const [productVariantOptions, setProductVariantOptions] = useState<Record<string, string[]>>({});
+  
+  // Update available variants when product changes
   useEffect(() => {
     if (selectedProduct) {
       console.log("Selected product:", selectedProduct);
-      const variantTypes = getAvailableVariants(selectedProduct.category);
+      
+      // Get available variant types for the product category
+      let variantTypes: string[] = [];
+      
+      // Essayer d'abord la subcategory si elle existe
+      if (selectedProduct.subcategory) {
+        variantTypes = getAvailableVariants(selectedProduct.subcategory);
+      }
+      
+      // Si aucune variante trouvée avec la subcategory, essayer la category
+      if (variantTypes.length === 0) {
+        variantTypes = getAvailableVariants(selectedProduct.category);
+      }
+      
+      console.log("Variant types for category:", variantTypes);
       setAvailableVariants(variantTypes);
+      
+      // Extract variant options from product data if available
+      const productOptions = extractVariantOptionsFromProduct(selectedProduct);
+      console.log("Extracted product variant options:", productOptions);
+      setProductVariantOptions(productOptions);
       
       // Reset variant selections when product changes
       setVariants({});
     } else {
       setAvailableVariants([]);
+      setProductVariantOptions({});
     }
   }, [selectedProduct, setAvailableVariants, setVariants]);
 
   const handleVariantChange = (variantType: string, value: string) => {
     setVariants(prev => ({ ...prev, [variantType]: value }));
+  };
+  
+  // Get variant options prioritizing product-specific options if available
+  const getOptionsForVariant = (variantType: string): string[] => {
+    if (selectedProduct) {
+      // Si des options spécifiques au produit existent pour cette variante, les utiliser
+      if (productVariantOptions[variantType] && productVariantOptions[variantType].length > 0) {
+        return productVariantOptions[variantType];
+      }
+      
+      // Sinon, utiliser les options génériques basées sur la catégorie/sous-catégorie
+      if (selectedProduct.subcategory) {
+        const subcategoryOptions = getVariantOptions(selectedProduct.subcategory, variantType);
+        if (subcategoryOptions.length > 0) {
+          return subcategoryOptions;
+        }
+      }
+      
+      return getVariantOptions(selectedProduct.category, variantType);
+    }
+    
+    return [];
   };
 
   return (
@@ -77,7 +122,7 @@ const ProductForm = ({
         {selectedProduct && (
           <>
             <QuantitySelector
-              quantityOptions={getQuantityOptions(selectedProduct.category)}
+              quantityOptions={getQuantityOptions(selectedProduct.subcategory || selectedProduct.category)}
               selectedQuantity={selectedQuantity}
               setSelectedQuantity={setSelectedQuantity}
             />
@@ -92,10 +137,10 @@ const ProductForm = ({
                       key={variantType}
                       variantType={variantType}
                       displayName={getVariantDisplayName(variantType)}
-                      options={getVariantOptions(selectedProduct.category, variantType)}
+                      options={getOptionsForVariant(variantType)}
                       selectedValue={variants[variantType] || ""}
                       onChange={(value) => handleVariantChange(variantType, value)}
-                      productCategory={selectedProduct.category}
+                      productCategory={selectedProduct.subcategory || selectedProduct.category}
                     />
                   ))}
                 </div>

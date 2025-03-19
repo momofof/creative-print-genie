@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 import { Product } from "@/types/product";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { supabase } from "@/integrations/supabase/client";
-import { parseVariants } from "../utils";
+import { parseVariants, extractVariantOptionsFromProduct } from "../utils";
 
 interface UseOrderFormStateResult {
   selectedProduct: Product | undefined;
@@ -59,6 +59,14 @@ export const useOrderFormState = (): UseOrderFormStateResult => {
       setOpenIllustration(true);
     }
   }, [variants, selectedProduct, isMobile]);
+  
+  // Reset variants when product changes
+  useEffect(() => {
+    if (selectedProduct) {
+      // Réinitialiser les variantes à chaque changement de produit
+      setVariants({});
+    }
+  }, [selectedProduct]);
 
   return {
     selectedProduct,

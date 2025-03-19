@@ -51,7 +51,9 @@ const Index = () => {
             // Optionally, include additional properties from Supabase
             color: '',
             date: item.created_at,
-            isNew: false
+            isNew: false,
+            // Inclure les variantes pour une utilisation ultérieure
+            variants: item.variants
           })) || [];
           
           console.log("Mapped products:", mappedProducts);
