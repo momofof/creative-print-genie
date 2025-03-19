@@ -94,3 +94,12 @@ export interface DesignItem {
   image: string;
   category: string;
 }
+
+export interface CartItem {
+  id: string;
+  name: string;
+  price: number;
+  quantity: number;
+  image: string;
+  variants?: Record<string, string>;
+}

@@ -77,70 +77,8 @@ export const useOrderSubmission = ({
         // Reset form via callback
         onOrderSuccess();
         
-        // Add to cart too if user is logged in
-        if (userId) {
-          try {
-            // Get current cart
-            const { data: cartData } = await supabase
-              .from('user_carts')
-              .select('cart_items')
-              .eq('user_id', userId)
-              .single();
-            
-            // Use the parseJsonArray utility to safely convert the JSON data to an array
-            const rawCartItems = parseJsonArray(cartData?.cart_items);
-            
-            // Map the raw items to our CartItem type to ensure type safety
-            const cartItems: CartItem[] = rawCartItems.map(item => ({
-              id: String(item.id || ''),
-              name: String(item.name || ''),
-              price: Number(item.price || 0),
-              quantity: Number(item.quantity || 0),
-              image: item.image ? String(item.image) : undefined,
-              variants: item.variants as Record<string, string> | undefined
-            }));
-            
-            // Add order to cart
-            const newCartItem: CartItem = {
-              id: selectedProduct.id,
-              name: selectedProduct.name,
-              price: selectedProduct.price,
-              quantity: selectedQuantity,
-              image: "/placeholder.svg",
-              ...(Object.keys(variants).length > 0 && { variants })
-            };
-            
-            // Check if product already exists in cart
-            const existingItemIndex = cartItems.findIndex((item: CartItem) => 
-              item.id === selectedProduct.id && 
-              JSON.stringify(item.variants || {}) === JSON.stringify(variants || {})
-            );
-            
-            let updatedCart;
-            if (existingItemIndex >= 0) {
-              // Update quantity
-              updatedCart = [...cartItems];
-              updatedCart[existingItemIndex].quantity += selectedQuantity;
-            } else {
-              // Add new item
-              updatedCart = [...cartItems, newCartItem];
-            }
-            
-            // Update cart in Supabase
-            await supabase
-              .from('user_carts')
-              .upsert({
-                user_id: userId,
-                cart_items: updatedCart
-              }, {
-                onConflict: 'user_id'
-              });
-              
-          } catch (cartError) {
-            console.error("Failed to update cart:", cartError);
-            // Don't show error since the order was successful
-          }
-        }
+        // Add to cart automatically
+        await addToCart(selectedProduct, selectedQuantity, variants, userId);
       } else {
         toast.error("La commande n'a pas pu être traitée. Veuillez réessayer.");
       }
@@ -149,6 +87,90 @@ export const useOrderSubmission = ({
       toast.error("Une erreur est survenue lors de la commande");
     } finally {
       setIsSubmitting(false);
+    }
+  };
+  
+  const addToCart = async (
+    product: Product,
+    quantity: number,
+    variants: Record<string, string>,
+    userId: string | null
+  ) => {
+    try {
+      const newCartItem: CartItem = {
+        id: product.id,
+        name: product.name,
+        price: product.price,
+        quantity: quantity,
+        image: product.image || "/placeholder.svg",
+        ...(Object.keys(variants).length > 0 && { variants })
+      };
+      
+      // For logged in users
+      if (userId) {
+        // Get current cart from Supabase
+        const { data: cartData } = await supabase
+          .from('user_carts')
+          .select('cart_items')
+          .eq('user_id', userId)
+          .single();
+        
+        // Parse the cart items
+        const existingCartItems = parseJsonArray(cartData?.cart_items);
+        
+        // Check if product already exists in cart
+        const existingItemIndex = existingCartItems.findIndex((item: CartItem) => 
+          item.id === product.id && 
+          JSON.stringify(item.variants || {}) === JSON.stringify(variants || {})
+        );
+        
+        let updatedCart;
+        if (existingItemIndex >= 0) {
+          // Update quantity if item exists
+          updatedCart = [...existingCartItems];
+          updatedCart[existingItemIndex].quantity += quantity;
+        } else {
+          // Add new item
+          updatedCart = [...existingCartItems, newCartItem];
+        }
+        
+        // Update cart in Supabase
+        await supabase
+          .from('user_carts')
+          .upsert({
+            user_id: userId,
+            cart_items: updatedCart
+          }, {
+            onConflict: 'user_id'
+          });
+          
+        toast.success("Produit ajouté au panier");
+      } else {
+        // For anonymous users, use localStorage
+        const savedCart = localStorage.getItem("cart");
+        const existingCartItems = savedCart ? JSON.parse(savedCart) : [];
+        
+        // Check if product already exists
+        const existingItemIndex = existingCartItems.findIndex((item: CartItem) => 
+          item.id === product.id && 
+          JSON.stringify(item.variants || {}) === JSON.stringify(variants || {})
+        );
+        
+        if (existingItemIndex >= 0) {
+          // Update quantity if item exists
+          existingCartItems[existingItemIndex].quantity += quantity;
+        } else {
+          // Add new item
+          existingCartItems.push(newCartItem);
+        }
+        
+        // Save to localStorage
+        localStorage.setItem("cart", JSON.stringify(existingCartItems));
+        toast.success("Produit ajouté au panier");
+      }
+    } catch (error) {
+      console.error("Failed to add to cart:", error);
+      toast.error("Erreur lors de l'ajout au panier");
     }
   };
 

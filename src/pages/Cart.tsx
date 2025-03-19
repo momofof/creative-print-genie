@@ -4,40 +4,105 @@ import { MinusCircle, PlusCircle, Trash2 } from "lucide-react";
 import { Link } from "react-router-dom";
 import Navigation from "@/components/Navigation";
 import { toast } from "sonner";
-
-// Basic cart item type definition
-interface CartItem {
-  id: string;
-  name: string;
-  price: number;
-  quantity: number;
-  image: string;
-}
+import { CartItem } from "@/types/product";
+import { supabase } from "@/integrations/supabase/client";
+import { parseJsonArray } from "@/utils/jsonUtils";
 
 const Cart = () => {
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [userId, setUserId] = useState<string | null>(null);
 
-  // Load cart items from localStorage on component mount
+  // Check if user is logged in and get user ID
   useEffect(() => {
-    const savedCart = localStorage.getItem("cart");
-    if (savedCart) {
-      try {
-        setCartItems(JSON.parse(savedCart));
-      } catch (error) {
-        console.error("Failed to parse cart data:", error);
-        toast.error("Impossible de charger votre panier");
+    const checkAuth = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        setUserId(user.id);
       }
-    }
-    setIsLoading(false);
+    };
+    
+    checkAuth();
+    
+    // Set up auth state listener
+    const { data: authListener } = supabase.auth.onAuthStateChange((event, session) => {
+      if (session?.user) {
+        setUserId(session.user.id);
+      } else {
+        setUserId(null);
+      }
+    });
+    
+    return () => {
+      authListener?.subscription.unsubscribe();
+    };
   }, []);
 
-  // Save cart to localStorage whenever it changes
+  // Load cart items (from Supabase for logged in users, otherwise from localStorage)
   useEffect(() => {
-    if (!isLoading) {
-      localStorage.setItem("cart", JSON.stringify(cartItems));
-    }
-  }, [cartItems, isLoading]);
+    const loadCart = async () => {
+      setIsLoading(true);
+      
+      try {
+        if (userId) {
+          // Get cart from Supabase for logged in users
+          const { data: cartData } = await supabase
+            .from('user_carts')
+            .select('cart_items')
+            .eq('user_id', userId)
+            .single();
+          
+          const parsedItems = parseJsonArray(cartData?.cart_items);
+          setCartItems(parsedItems);
+        } else {
+          // Get cart from localStorage for anonymous users
+          const savedCart = localStorage.getItem("cart");
+          if (savedCart) {
+            setCartItems(JSON.parse(savedCart));
+          } else {
+            setCartItems([]);
+          }
+        }
+      } catch (error) {
+        console.error("Failed to load cart data:", error);
+        toast.error("Impossible de charger votre panier");
+        setCartItems([]);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    
+    loadCart();
+  }, [userId]);
+
+  // Save cart whenever it changes
+  useEffect(() => {
+    if (isLoading) return;
+    
+    const saveCart = async () => {
+      try {
+        if (userId) {
+          // Save to Supabase for logged in users
+          await supabase
+            .from('user_carts')
+            .upsert({
+              user_id: userId,
+              cart_items: cartItems
+            }, {
+              onConflict: 'user_id'
+            });
+        } else {
+          // Save to localStorage for anonymous users
+          localStorage.setItem("cart", JSON.stringify(cartItems));
+        }
+      } catch (error) {
+        console.error("Failed to save cart:", error);
+        toast.error("Impossible de sauvegarder votre panier");
+      }
+    };
+    
+    saveCart();
+  }, [cartItems, userId, isLoading]);
 
   // Calculate total price of all items in cart
   const totalPrice = cartItems.reduce(
@@ -84,7 +149,7 @@ const Cart = () => {
           <div className="text-center py-12">
             <h2 className="text-2xl font-medium mb-4">Votre panier est vide</h2>
             <p className="text-gray-600 mb-8">Parcourez notre catalogue pour trouver des produits à ajouter à votre panier</p>
-            <Link to="/products" className="bg-accent text-white px-6 py-3 rounded-md font-medium hover:bg-accent/90 inline-block">
+            <Link to="/" className="bg-accent text-white px-6 py-3 rounded-md font-medium hover:bg-accent/90 inline-block">
               Voir le catalogue
             </Link>
           </div>
@@ -120,6 +185,16 @@ const Cart = () => {
                         <p className="text-accent font-medium mt-1">
                           {item.price.toLocaleString('fr-FR')} €
                         </p>
+                        
+                        {item.variants && Object.keys(item.variants).length > 0 && (
+                          <div className="mt-1 text-sm text-gray-500">
+                            {Object.entries(item.variants).map(([key, value]) => (
+                              <span key={key} className="mr-3">
+                                {key}: {value}
+                              </span>
+                            ))}
+                          </div>
+                        )}
                         
                         <div className="flex items-center mt-2 space-x-2">
                           <button
@@ -181,7 +256,7 @@ const Cart = () => {
                 </button>
                 
                 <Link
-                  to="/products"
+                  to="/"
                   className="w-full block text-center border border-gray-300 text-gray-700 py-3 rounded-md font-medium mt-3 hover:bg-gray-50"
                 >
                   Continuer vos achats

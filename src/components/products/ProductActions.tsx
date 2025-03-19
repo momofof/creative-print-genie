@@ -34,53 +34,94 @@ const ProductActions = ({
     setIsLoading(true);
     
     try {
-      // Get existing cart from localStorage
-      const existingCartJson = localStorage.getItem("cart");
-      const existingCart = existingCartJson ? JSON.parse(existingCartJson) : [];
+      // Create cart item with variants
+      const variants: Record<string, string> = {};
+      if (selectedColor) variants['couleur'] = selectedColor;
+      if (selectedSize) variants['taille'] = selectedSize;
       
-      // Create new cart item
       const newItem = {
         id: productId,
         name: productName,
         price: productPrice,
         quantity: quantity,
-        image: "/placeholder.svg", // Default image, could be passed as a prop
-        color: selectedColor,
-        size: selectedSize
+        image: "/placeholder.svg", // Default image, could be improved
+        variants: Object.keys(variants).length > 0 ? variants : undefined
       };
       
-      // Check if item already exists in cart
-      const existingItemIndex = existingCart.findIndex((item: any) => 
-        item.id === productId && item.color === selectedColor && item.size === selectedSize
-      );
-      
-      if (existingItemIndex >= 0) {
-        // Update quantity if item already exists
-        existingCart[existingItemIndex].quantity += quantity;
-      } else {
-        // Add new item if it doesn't exist
-        existingCart.push(newItem);
-      }
-      
-      // Save updated cart to localStorage
-      localStorage.setItem("cart", JSON.stringify(existingCart));
-      
-      // If user is logged in, save cart to Supabase as well
+      // Check if user is logged in
       const { data: { user } } = await supabase.auth.getUser();
+      
       if (user) {
-        // Save to user_carts table in Supabase
-        const { error } = await supabase
+        // Get current cart from Supabase
+        const { data: cartData } = await supabase
+          .from('user_carts')
+          .select('cart_items')
+          .eq('user_id', user.id)
+          .single();
+        
+        // Parse cart items
+        let existingCartItems = [];
+        try {
+          if (cartData?.cart_items) {
+            if (typeof cartData.cart_items === 'string') {
+              existingCartItems = JSON.parse(cartData.cart_items);
+            } else {
+              existingCartItems = cartData.cart_items;
+            }
+          }
+        } catch (e) {
+          console.error("Error parsing cart data:", e);
+          existingCartItems = [];
+        }
+        
+        if (!Array.isArray(existingCartItems)) {
+          existingCartItems = [];
+        }
+        
+        // Check if item already exists in cart
+        const existingItemIndex = existingCartItems.findIndex((item: any) => 
+          item.id === productId && 
+          JSON.stringify(item.variants || {}) === JSON.stringify(newItem.variants || {})
+        );
+        
+        if (existingItemIndex >= 0) {
+          // Update quantity if item exists
+          existingCartItems[existingItemIndex].quantity += quantity;
+        } else {
+          // Add new item
+          existingCartItems.push(newItem);
+        }
+        
+        // Update cart in Supabase
+        await supabase
           .from('user_carts')
           .upsert({
             user_id: user.id,
-            cart_items: existingCart
+            cart_items: existingCartItems
           }, {
             onConflict: 'user_id'
           });
-          
-        if (error) {
-          console.error("Error saving cart to Supabase:", error);
+      } else {
+        // Anonymous user, use localStorage
+        const savedCart = localStorage.getItem("cart");
+        const existingCartItems = savedCart ? JSON.parse(savedCart) : [];
+        
+        // Check if item already exists
+        const existingItemIndex = existingCartItems.findIndex((item: any) => 
+          item.id === productId && 
+          JSON.stringify(item.variants || {}) === JSON.stringify(newItem.variants || {})
+        );
+        
+        if (existingItemIndex >= 0) {
+          // Update quantity if item exists
+          existingCartItems[existingItemIndex].quantity += quantity;
+        } else {
+          // Add new item
+          existingCartItems.push(newItem);
         }
+        
+        // Save to localStorage
+        localStorage.setItem("cart", JSON.stringify(existingCartItems));
       }
       
       toast.success(`${productName} ajouté au panier`);
