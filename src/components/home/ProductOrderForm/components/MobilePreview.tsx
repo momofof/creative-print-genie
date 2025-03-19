@@ -11,7 +11,7 @@ const MobilePreview = ({ selectedProduct, variants }: MobilePreviewProps) => {
   if (!selectedProduct || Object.keys(variants).length === 0) return null;
   
   return (
-    <div className="mb-6 p-4 bg-gray-50 rounded-lg">
+    <div className="mb-6 p-4 bg-gray-50 rounded-lg -mt-2 relative z-10">
       <div className="flex flex-col items-center">
         <img 
           src={getFeatureIllustration(selectedProduct, variants)} 
