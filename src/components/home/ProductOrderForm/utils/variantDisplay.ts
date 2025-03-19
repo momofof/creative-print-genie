@@ -7,7 +7,6 @@ const variantDisplayNames: Record<string, string> = {
   "design": "Design",
   "paper_type": "Type de papier",
   "finish": "Finition",
-  "reception": "Mode de réception",
   "face_a_imprimer": "Face à imprimer",
 };
 
