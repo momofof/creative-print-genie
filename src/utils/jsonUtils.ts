@@ -25,9 +25,10 @@ export const parseJsonArray = (jsonArray: any): any[] => {
   
   try {
     if (typeof jsonArray === 'string') {
-      return JSON.parse(jsonArray);
+      const parsed = JSON.parse(jsonArray);
+      return Array.isArray(parsed) ? parsed : [];
     }
-    return Object.values(jsonArray);
+    return Array.isArray(Object.values(jsonArray)) ? Object.values(jsonArray) : [];
   } catch (e) {
     console.error('Error parsing JSON array:', e);
     return [];

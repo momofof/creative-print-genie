@@ -1,10 +1,11 @@
+
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { ShoppingCart, Heart } from "lucide-react";
 import { Link } from "react-router-dom";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
-import { toJsonValue } from "@/utils/jsonUtils";
+import { toJsonValue, parseJsonArray } from "@/utils/jsonUtils";
 
 interface ProductActionsProps {
   productId?: string;
@@ -59,24 +60,8 @@ const ProductActions = ({
           .eq('user_id', user.id)
           .single();
         
-        // Parse cart items
-        let existingCartItems = [];
-        try {
-          if (cartData?.cart_items) {
-            if (typeof cartData.cart_items === 'string') {
-              existingCartItems = JSON.parse(cartData.cart_items);
-            } else {
-              existingCartItems = cartData.cart_items;
-            }
-          }
-        } catch (e) {
-          console.error("Error parsing cart data:", e);
-          existingCartItems = [];
-        }
-        
-        if (!Array.isArray(existingCartItems)) {
-          existingCartItems = [];
-        }
+        // Parse cart items using our utility function
+        let existingCartItems = parseJsonArray(cartData?.cart_items);
         
         // Check if item already exists in cart
         const existingItemIndex = existingCartItems.findIndex((item: any) => 
