@@ -8,6 +8,7 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import { orderService, OrderItem } from "@/services/orderService";
 import { supabase } from "@/integrations/supabase/client";
 import { Json } from "@/integrations/supabase/types";
+import { parseJsonArray } from "@/utils/jsonUtils";
 
 // Import our components
 import SearchableDropdown from "./SearchableDropdown";
@@ -149,8 +150,18 @@ const ProductOrderForm = () => {
               .eq('user_id', userId)
               .single();
             
-            // Ensure cart_items is an array before proceeding
-            const cartItems = Array.isArray(cartData?.cart_items) ? cartData?.cart_items as CartItem[] : [];
+            // Use the parseJsonArray utility to safely convert the JSON data to an array
+            const rawCartItems = parseJsonArray(cartData?.cart_items);
+            
+            // Map the raw items to our CartItem type to ensure type safety
+            const cartItems: CartItem[] = rawCartItems.map(item => ({
+              id: String(item.id || ''),
+              name: String(item.name || ''),
+              price: Number(item.price || 0),
+              quantity: Number(item.quantity || 0),
+              image: item.image ? String(item.image) : undefined,
+              variants: item.variants as Record<string, string> | undefined
+            }));
             
             // Add order to cart
             const newCartItem: CartItem = {
