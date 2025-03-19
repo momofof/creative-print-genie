@@ -11,6 +11,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Checkbox } from "@/components/ui/checkbox";
 
 interface ProductVariant {
   id?: string;
@@ -20,6 +21,7 @@ interface ProductVariant {
   stock: number;
   price_adjustment: number | null;
   status: 'in_stock' | 'low_stock' | 'out_of_stock';
+  printable_sides?: string[];
   isNew?: boolean;
   isDeleted?: boolean;
 }
@@ -28,16 +30,19 @@ interface ProductVariantsProps {
   variants: ProductVariant[];
   addVariant: () => void;
   removeVariant: (index: number) => void;
-  handleVariantChange: (index: number, field: keyof ProductVariant, value: string | number) => void;
+  handleVariantChange: (index: number, field: keyof ProductVariant, value: string | number | string[]) => void;
+  productCategory?: string;
 }
 
 export const ProductVariants = ({
   variants,
   addVariant,
   removeVariant,
-  handleVariantChange
+  handleVariantChange,
+  productCategory
 }: ProductVariantsProps) => {
   const nonDeletedVariants = variants.filter(v => !v.isDeleted);
+  const isVelo = productCategory === "vélo" || productCategory === "velo";
   
   return (
     <Card>
@@ -77,6 +82,7 @@ export const ProductVariants = ({
             index={index}
             onRemove={() => removeVariant(index)}
             onChange={handleVariantChange}
+            isVelo={isVelo}
           />
         ))}
       </CardContent>
@@ -88,10 +94,24 @@ interface VariantItemProps {
   variant: ProductVariant;
   index: number;
   onRemove: () => void;
-  onChange: (index: number, field: keyof ProductVariant, value: string | number) => void;
+  onChange: (index: number, field: keyof ProductVariant, value: string | number | string[]) => void;
+  isVelo?: boolean;
 }
 
-const VariantItem = ({ variant, index, onRemove, onChange }: VariantItemProps) => {
+const VariantItem = ({ variant, index, onRemove, onChange, isVelo = false }: VariantItemProps) => {
+  const handlePrintableSideChange = (side: string) => {
+    const currentSides = variant.printable_sides || [];
+    const newSides = currentSides.includes(side)
+      ? currentSides.filter(s => s !== side)
+      : [...currentSides, side];
+    
+    onChange(index, "printable_sides", newSides);
+  };
+
+  const isSideSelected = (side: string) => {
+    return (variant.printable_sides || []).includes(side);
+  };
+
   return (
     <div className="border rounded-md p-4 mb-4 last:mb-0">
       <div className="flex justify-between items-center mb-3">
@@ -120,13 +140,24 @@ const VariantItem = ({ variant, index, onRemove, onChange }: VariantItemProps) =
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="XS">XS</SelectItem>
-              <SelectItem value="S">S</SelectItem>
-              <SelectItem value="M">M</SelectItem>
-              <SelectItem value="L">L</SelectItem>
-              <SelectItem value="XL">XL</SelectItem>
-              <SelectItem value="XXL">XXL</SelectItem>
-              <SelectItem value="Unique">Taille unique</SelectItem>
+              {isVelo ? (
+                <>
+                  <SelectItem value="S">S (16-18 pouces)</SelectItem>
+                  <SelectItem value="M">M (18-20 pouces)</SelectItem>
+                  <SelectItem value="L">L (20-22 pouces)</SelectItem>
+                  <SelectItem value="XL">XL (22-24 pouces)</SelectItem>
+                </>
+              ) : (
+                <>
+                  <SelectItem value="XS">XS</SelectItem>
+                  <SelectItem value="S">S</SelectItem>
+                  <SelectItem value="M">M</SelectItem>
+                  <SelectItem value="L">L</SelectItem>
+                  <SelectItem value="XL">XL</SelectItem>
+                  <SelectItem value="XXL">XXL</SelectItem>
+                  <SelectItem value="Unique">Taille unique</SelectItem>
+                </>
+              )}
             </SelectContent>
           </Select>
         </div>
@@ -152,7 +183,7 @@ const VariantItem = ({ variant, index, onRemove, onChange }: VariantItemProps) =
         </div>
       </div>
       
-      <div className="grid grid-cols-3 gap-4">
+      <div className="grid grid-cols-3 gap-4 mb-4">
         <div>
           <label className="block text-sm font-medium text-gray-700">
             Stock
@@ -198,6 +229,32 @@ const VariantItem = ({ variant, index, onRemove, onChange }: VariantItemProps) =
           </Select>
         </div>
       </div>
+      
+      {isVelo && (
+        <div className="border-t pt-4 mt-2">
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            Faces personnalisables
+          </label>
+          <div className="flex flex-wrap gap-4">
+            <div className="flex items-center space-x-2">
+              <Checkbox 
+                id={`face1-${index}`} 
+                checked={isSideSelected('face1')}
+                onCheckedChange={() => handlePrintableSideChange('face1')}
+              />
+              <label htmlFor={`face1-${index}`} className="text-sm">Face 1 (cadre)</label>
+            </div>
+            <div className="flex items-center space-x-2">
+              <Checkbox 
+                id={`face2-${index}`} 
+                checked={isSideSelected('face2')}
+                onCheckedChange={() => handlePrintableSideChange('face2')}
+              />
+              <label htmlFor={`face2-${index}`} className="text-sm">Face 2 (roues)</label>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

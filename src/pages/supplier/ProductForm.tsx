@@ -95,6 +95,7 @@ const ProductForm = () => {
                 addVariant={addVariant}
                 removeVariant={removeVariant}
                 handleVariantChange={handleVariantChange}
+                productCategory={productData.category}
               />
             </div>
             

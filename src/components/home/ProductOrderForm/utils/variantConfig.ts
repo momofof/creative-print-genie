@@ -1,4 +1,3 @@
-
 // Define available variants for each product category
 const availableVariants: Record<string, string[]> = {
   "vêtements": ["color", "size", "print_design"],
@@ -9,6 +8,8 @@ const availableVariants: Record<string, string[]> = {
   "stickers": ["size", "finish"],
   "accessoires": ["color", "size"],
   "casquettes": ["color", "size"],
+  "vélo": ["color", "size", "printable_side"],
+  "velo": ["color", "size", "printable_side"],
 };
 
 // Define variant options for each product category and variant type
@@ -48,6 +49,16 @@ const variantOptions: Record<string, Record<string, string[]>> = {
     "color": ["red", "blue", "green", "black", "white", "Noir", "Blanc", "Bleu", "Rouge", "Vert"],
     "size": ["Unique"],
   },
+  "vélo": {
+    "color": ["Noir", "Blanc", "Bleu", "Rouge", "Vert", "Jaune", "Orange", "Silver"],
+    "size": ["S", "M", "L", "XL"],
+    "printable_side": ["face1", "face2"],
+  },
+  "velo": {
+    "color": ["Noir", "Blanc", "Bleu", "Rouge", "Vert", "Jaune", "Orange", "Silver"],
+    "size": ["S", "M", "L", "XL"],
+    "printable_side": ["face1", "face2"],
+  },
 };
 
 // Define quantity options for each product category
@@ -60,6 +71,8 @@ const quantityOptions: Record<string, number[]> = {
   "stickers": [10, 20, 30, 40, 50, 100],
   "accessoires": [1, 2, 3, 4, 5, 10],
   "casquettes": [1, 2, 3, 4, 5, 10],
+  "vélo": [1, 2, 3, 4, 5],
+  "velo": [1, 2, 3, 4, 5],
 };
 
 // Function to get available variants for a product category

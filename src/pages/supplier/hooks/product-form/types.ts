@@ -19,6 +19,7 @@ export interface ProductVariant {
   stock: number;
   price_adjustment: number | null;
   status: 'in_stock' | 'low_stock' | 'out_of_stock';
+  printable_sides?: string[];
   isNew?: boolean;
   isDeleted?: boolean;
 }

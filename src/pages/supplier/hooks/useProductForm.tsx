@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
@@ -8,7 +7,7 @@ import { fetchProductData } from "./product-form/productDataFetcher";
 import { saveProduct } from "./product-form/productSaver";
 import { addVariant, removeVariant, updateVariant } from "./product-form/variantUtils";
 
-export { ProductData, ProductVariant } from "./product-form/types";
+export type { ProductData, ProductVariant } from "./product-form/types";
 
 export const useProductForm = (productId?: string) => {
   const navigate = useNavigate();
@@ -87,7 +86,6 @@ export const useProductForm = (productId?: string) => {
       const file = e.target.files[0];
       setImageFile(file);
       
-      // Create preview
       const reader = new FileReader();
       reader.onload = (event) => {
         setImagePreview(event.target?.result as string);
@@ -96,7 +94,7 @@ export const useProductForm = (productId?: string) => {
     }
   };
 
-  const handleVariantChange = (index: number, field: keyof ProductVariant, value: string | number) => {
+  const handleVariantChange = (index: number, field: keyof ProductVariant, value: string | number | string[]) => {
     setVariants(prev => updateVariant(prev, index, field, value));
   };
 

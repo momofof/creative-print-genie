@@ -110,6 +110,7 @@ export const ProductGeneralInfo = ({
                   <SelectItem value="maison">Maison</SelectItem>
                   <SelectItem value="électronique">Électronique</SelectItem>
                   <SelectItem value="sport">Sport & Loisirs</SelectItem>
+                  <SelectItem value="vélo">Vélo</SelectItem>
                 </SelectContent>
               </Select>
             </div>
