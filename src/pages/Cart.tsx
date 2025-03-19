@@ -6,6 +6,7 @@ import { toast } from "sonner";
 import Navigation from "@/components/Navigation";
 import { useCart } from "@/hooks/useCart";
 import CartItem from "@/components/cart/CartItem";
+import OrderSuccessDialog from "@/components/cart/OrderSuccessDialog";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -28,10 +29,19 @@ const Cart = () => {
     clearCart 
   } = useCart();
   const [clearCartDialogOpen, setClearCartDialogOpen] = useState(false);
+  const [orderSuccessDialogOpen, setOrderSuccessDialogOpen] = useState(false);
   
   const handleClearCart = () => {
     clearCart();
     setClearCartDialogOpen(false);
+  };
+
+  const handleCheckout = () => {
+    // Ici, vous pourriez ajouter la logique de commande réelle
+    // Pour l'instant, nous affichons simplement le dialogue de succès
+    setOrderSuccessDialogOpen(true);
+    // On pourrait aussi vider le panier après confirmation de commande dans un contexte réel
+    // clearCart();
   };
 
   return (
@@ -128,7 +138,7 @@ const Cart = () => {
                 
                 <button
                   className="w-full bg-accent text-white py-3 rounded-md font-medium mt-6 hover:bg-accent/90"
-                  onClick={() => toast.success("Fonctionnalité de commande à venir !")}
+                  onClick={handleCheckout}
                 >
                   Passer à la caisse
                 </button>
@@ -143,9 +153,18 @@ const Cart = () => {
             </div>
           </div>
         )}
+        
+        {/* Dialogue de confirmation de commande */}
+        <OrderSuccessDialog
+          open={orderSuccessDialogOpen}
+          onOpenChange={setOrderSuccessDialogOpen}
+          cartItems={cartItems}
+          totalPrice={totalPrice}
+        />
       </main>
     </>
   );
 };
 
 export default Cart;
+
