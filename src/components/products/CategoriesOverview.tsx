@@ -1,6 +1,6 @@
 
 import ProductCategoryGrid from "./ProductCategoryGrid";
-import { productCategories } from "@/data/productData";
+import { productCategories } from "@/data/categories";
 
 interface CategoriesOverviewProps {
   displayedCategories: typeof productCategories;

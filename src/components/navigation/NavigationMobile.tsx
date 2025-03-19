@@ -5,7 +5,7 @@ import NavigationSearch from "./NavigationSearch";
 import NavigationCart from "./NavigationCart";
 import NavigationLoginItems from "./NavigationLoginItems";
 import NavigationUserAvatar from "./NavigationUserAvatar";
-import { productCategories } from "@/data/productData";
+import { productCategories } from "@/data/categories";
 import { Briefcase } from "lucide-react";
 
 interface NavigationMobileProps {

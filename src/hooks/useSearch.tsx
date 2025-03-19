@@ -1,5 +1,6 @@
+
 import { useState, useEffect } from "react";
-import { productCategories } from "@/data";
+import { productCategories } from "@/data/categories";
 
 interface SearchResult {
   id: string;

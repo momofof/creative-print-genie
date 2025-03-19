@@ -1,6 +1,6 @@
 
 import { Link } from "react-router-dom";
-import { productCategories } from "@/data/productData";
+import { productCategories } from "@/data/categories";
 
 interface ProductCategoryGridProps {
   displayedCategories: typeof productCategories;
