@@ -2,24 +2,22 @@
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { toJsonValue, parseJsonArray } from "@/utils/jsonUtils";
 import { CartItem } from "@/types/product";
+import { AddToCartProps, UseCartReturn } from "@/types/cart";
+import { 
+  saveCartToSupabase, 
+  saveCartToLocalStorage, 
+  loadCartFromSupabase, 
+  loadCartFromLocalStorage 
+} from "@/utils/cartStorage";
+import { calculateTotalPrice, findExistingItemIndex } from "@/utils/cartCalculations";
 
-interface AddToCartProps {
-  productId: string;
-  productName: string;
-  productPrice: number;
-  quantity: number;
-  selectedColor?: string;
-  selectedSize?: string;
-}
-
-export const useCart = () => {
+export const useCart = (): UseCartReturn => {
   const [isLoading, setIsLoading] = useState(false);
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [userId, setUserId] = useState<string | null>(null);
 
-  // Vérifier si l'utilisateur est connecté et obtenir son ID
+  // Check if user is logged in and get their ID
   useEffect(() => {
     const checkAuth = async () => {
       const { data: { user } } = await supabase.auth.getUser();
@@ -30,7 +28,7 @@ export const useCart = () => {
     
     checkAuth();
     
-    // Configuration de l'écouteur d'état d'authentification
+    // Set up auth state listener
     const { data: authListener } = supabase.auth.onAuthStateChange((event, session) => {
       if (session?.user) {
         setUserId(session.user.id);
@@ -44,7 +42,7 @@ export const useCart = () => {
     };
   }, []);
 
-  // Charger les articles du panier
+  // Load cart items when user ID changes
   useEffect(() => {
     loadCart();
   }, [userId]);
@@ -53,57 +51,37 @@ export const useCart = () => {
     setIsLoading(true);
     
     try {
+      let loadedItems: CartItem[] = [];
+      
       if (userId) {
-        // Récupérer le panier depuis Supabase pour les utilisateurs connectés
-        const { data: cartData } = await supabase
-          .from('user_carts')
-          .select('cart_items')
-          .eq('user_id', userId)
-          .single();
-        
-        const parsedItems = parseJsonArray(cartData?.cart_items);
-        setCartItems(parsedItems);
+        // Load cart from Supabase for logged-in users
+        loadedItems = await loadCartFromSupabase(userId);
       } else {
-        // Récupérer le panier depuis localStorage pour les utilisateurs anonymes
-        const savedCart = localStorage.getItem("cart");
-        if (savedCart) {
-          setCartItems(JSON.parse(savedCart));
-        } else {
-          setCartItems([]);
-        }
+        // Load cart from localStorage for anonymous users
+        loadedItems = loadCartFromLocalStorage();
       }
+      
+      setCartItems(loadedItems);
     } catch (error) {
-      console.error("Échec du chargement des données du panier:", error);
-      toast.error("Impossible de charger votre panier");
+      console.error("Failed to load cart data:", error);
+      toast.error("Unable to load your cart");
       setCartItems([]);
     } finally {
       setIsLoading(false);
     }
   };
 
-  // Sauvegarder le panier
+  // Save cart items
   const saveCart = async (updatedCartItems: CartItem[]) => {
     try {
       if (userId) {
-        // Convertir les articles du panier en format JSON avant de les envoyer à Supabase
-        const jsonSafeCartItems = toJsonValue(updatedCartItems);
-        
-        // Sauvegarder dans Supabase pour les utilisateurs connectés
-        await supabase
-          .from('user_carts')
-          .upsert({
-            user_id: userId,
-            cart_items: jsonSafeCartItems
-          }, {
-            onConflict: 'user_id'
-          });
+        await saveCartToSupabase(userId, updatedCartItems);
       } else {
-        // Sauvegarder dans localStorage pour les utilisateurs anonymes
-        localStorage.setItem("cart", JSON.stringify(updatedCartItems));
+        saveCartToLocalStorage(updatedCartItems);
       }
     } catch (error) {
-      console.error("Échec de la sauvegarde du panier:", error);
-      toast.error("Impossible de sauvegarder votre panier");
+      console.error("Failed to save cart:", error);
+      toast.error("Unable to save your cart");
     }
   };
 
@@ -114,16 +92,16 @@ export const useCart = () => {
     quantity,
     selectedColor,
     selectedSize
-  }: AddToCartProps) => {
+  }: AddToCartProps): Promise<boolean> => {
     if (!productId) {
-      toast.error("Impossible d'ajouter au panier: ID du produit manquant");
-      return;
+      toast.error("Cannot add to cart: Missing product ID");
+      return false;
     }
 
     setIsLoading(true);
     
     try {
-      // Créer l'article pour le panier avec ses variantes
+      // Create variants object if color or size is selected
       const variants: Record<string, string> = {};
       if (selectedColor) variants['couleur'] = selectedColor;
       if (selectedSize) variants['taille'] = selectedSize;
@@ -133,38 +111,39 @@ export const useCart = () => {
         name: productName,
         price: productPrice,
         quantity: quantity,
-        image: "/placeholder.svg", // Image par défaut, pourrait être améliorée
+        image: "/placeholder.svg", // Default image
         variants: Object.keys(variants).length > 0 ? variants : undefined
       };
       
-      // Copier le panier actuel
+      // Copy current cart
       const currentCart = [...cartItems];
       
-      // Vérifier si l'article existe déjà dans le panier
-      const existingItemIndex = currentCart.findIndex((item) => 
-        item.id === productId && 
-        JSON.stringify(item.variants || {}) === JSON.stringify(newItem.variants || {})
+      // Check if item already exists in cart
+      const existingItemIndex = findExistingItemIndex(
+        currentCart, 
+        productId, 
+        newItem.variants
       );
       
       if (existingItemIndex >= 0) {
-        // Mettre à jour la quantité si l'article existe
+        // Update quantity if item exists
         currentCart[existingItemIndex].quantity += quantity;
       } else {
-        // Ajouter nouvel article
+        // Add new item
         currentCart.push(newItem);
       }
       
-      // Mettre à jour l'état du panier
+      // Update cart state
       setCartItems(currentCart);
       
-      // Sauvegarder le panier mis à jour
+      // Save updated cart
       await saveCart(currentCart);
       
-      toast.success(`${productName} ajouté au panier`);
+      toast.success(`${productName} added to cart`);
       return true;
     } catch (error) {
-      console.error("Erreur lors de l'ajout au panier:", error);
-      toast.error("Erreur lors de l'ajout au panier");
+      console.error("Error adding to cart:", error);
+      toast.error("Error adding to cart");
       return false;
     } finally {
       setIsLoading(false);
@@ -181,7 +160,7 @@ export const useCart = () => {
     setCartItems(updatedCart);
     saveCart(updatedCart);
     
-    toast.success("Quantité mise à jour");
+    toast.success("Quantity updated");
   };
 
   const removeItem = (id: string) => {
@@ -189,20 +168,17 @@ export const useCart = () => {
     setCartItems(updatedCart);
     saveCart(updatedCart);
     
-    toast.success("Produit retiré du panier");
+    toast.success("Product removed from cart");
   };
 
   const clearCart = () => {
     setCartItems([]);
     saveCart([]);
-    toast.success("Panier vidé");
+    toast.success("Cart cleared");
   };
 
-  // Calculer le total du panier
-  const totalPrice = cartItems.reduce(
-    (total, item) => total + item.price * item.quantity,
-    0
-  );
+  // Calculate total price
+  const totalPrice = calculateTotalPrice(cartItems);
 
   return {
     cartItems,
