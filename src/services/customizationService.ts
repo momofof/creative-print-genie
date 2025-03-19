@@ -3,7 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { Customization } from "@/types/dashboard";
 import { Json } from "@/integrations/supabase/types";
-import { parseJsonArray, parseCustomizations } from "@/utils/jsonUtils";
+import { parseJsonArray, parseCustomizations, toJsonValue } from "@/utils/jsonUtils";
 
 export const customizationService = {
   async addCustomization(customization: Omit<Customization, "id" | "created_at">, productId: string): Promise<Customization | null> {
@@ -39,7 +39,7 @@ export const customizationService = {
       // Update the product with the new customizations array
       const { error: updateError } = await supabase
         .from("products_master")
-        .update({ customizations: updatedCustomizations })
+        .update({ customizations: toJsonValue(updatedCustomizations) })
         .eq("id", productId);
         
       if (updateError) {
@@ -96,7 +96,7 @@ export const customizationService = {
       // Update the product with the modified customizations array
       const { error: updateError } = await supabase
         .from("products_master")
-        .update({ customizations: updatedCustomizations })
+        .update({ customizations: toJsonValue(updatedCustomizations) })
         .eq("id", productId);
         
       if (updateError) {
@@ -132,7 +132,7 @@ export const customizationService = {
       // Update the product with the filtered customizations array
       const { error: updateError } = await supabase
         .from("products_master")
-        .update({ customizations: updatedCustomizations })
+        .update({ customizations: toJsonValue(updatedCustomizations) })
         .eq("id", productId);
         
       if (updateError) {

@@ -22,6 +22,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Card, CardContent } from "@/components/ui/card";
+import { toJsonValue } from "@/utils/jsonUtils";
 
 interface ProductData {
   name: string;
@@ -279,11 +280,12 @@ const ProductForm = () => {
       const activeVariants = variants.filter(variant => !variant.isDeleted);
       
       // 3. Create or update product in products_master table
+      // Convert variants to Json compatible format
       const productPayload = {
         ...productData,
         supplier_id: userData.user.id,
         image: imageUrl || productData.image,
-        variants: activeVariants
+        variants: toJsonValue(activeVariants) // Convert to Json compatible format
       };
       
       if (isEditing) {

@@ -55,3 +55,10 @@ export const parseCustomizations = (jsonData: Json): Customization[] => {
     updated_at: custom.updated_at || null
   }));
 };
+
+/**
+ * Convert typed arrays to valid JSON for storage in Supabase
+ */
+export const toJsonValue = <T>(data: T[]): Json => {
+  return data as unknown as Json;
+};
