@@ -6,6 +6,7 @@ import Login from "@/pages/auth/Login";
 import Signup from "@/pages/auth/Signup";
 import AuthLanding from "@/pages/auth/AuthLanding";
 import Profile from "@/pages/Profile";
+import Cart from "@/pages/Cart";
 import AuthStateWrapper from "@/components/home/AuthStateWrapper";
 
 function App() {
@@ -18,6 +19,7 @@ function App() {
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
           <Route path="/profile" element={<Profile />} />
+          <Route path="/cart" element={<Cart />} />
           <Route path="*" element={<Index />} />
         </Routes>
       </AuthStateWrapper>

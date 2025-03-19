@@ -1,106 +1,77 @@
 
-import { Json } from "@/integrations/supabase/types";
-import { ProductVariant, Customization } from "@/types/dashboard";
+/**
+ * Convert a value to a safe JSON value for Supabase storage
+ * 
+ * @param value The value to convert
+ * @returns A JSON-safe value
+ */
+export const toJsonValue = (value: any): any => {
+  return JSON.parse(JSON.stringify(value));
+};
 
 /**
- * Safely parses JSON array data from Supabase
- * @param jsonData The JSON data from Supabase
- * @returns An array of JSON objects
+ * Parse a JSON array safely, returning an empty array if the input is invalid
+ * 
+ * @param jsonArray The JSON array string or object to parse
+ * @returns The parsed array or an empty array if parsing fails
  */
-export const parseJsonArray = (jsonData: Json | null | undefined): any[] => {
-  if (!jsonData) return [];
+export const parseJsonArray = (jsonArray: any): any[] => {
+  if (!jsonArray) return [];
   
-  if (Array.isArray(jsonData)) {
-    return jsonData;
+  if (Array.isArray(jsonArray)) {
+    return jsonArray;
   }
   
   try {
-    // If it's a string, try to parse it
-    if (typeof jsonData === 'string') {
-      const parsed = JSON.parse(jsonData);
-      return Array.isArray(parsed) ? parsed : [];
+    if (typeof jsonArray === 'string') {
+      return JSON.parse(jsonArray);
     }
-  } catch (error) {
-    console.error("Error parsing JSON array:", error);
+    return Object.values(jsonArray);
+  } catch (e) {
+    console.error('Error parsing JSON array:', e);
+    return [];
   }
-  
-  return [];
 };
 
 /**
- * Convert a value to a format suitable for Supabase JSON storage
- * @param value The value to convert to JSON
- * @returns A JSON-compatible value
+ * Parse product variants from JSON or string format
+ * 
+ * @param variants The variants in JSON, string, or object format
+ * @returns The parsed variants object or an empty object if parsing fails
  */
-export const toJsonValue = (value: any): Json => {
-  // If it's already a primitive type accepted by Supabase, return it
-  if (
-    value === null || 
-    typeof value === 'string' || 
-    typeof value === 'number' || 
-    typeof value === 'boolean'
-  ) {
-    return value as Json;
-  }
-
-  // If it's an array, convert each element
-  if (Array.isArray(value)) {
-    return value.map(item => toJsonValue(item)) as Json[];
-  }
-
-  // If it's an object, convert each property
-  if (typeof value === 'object') {
-    const result: Record<string, Json> = {};
-    for (const key in value) {
-      if (Object.prototype.hasOwnProperty.call(value, key)) {
-        result[key] = toJsonValue(value[key]);
-      }
+export const parseProductVariants = (variants: any): any => {
+  if (!variants) return {};
+  
+  try {
+    if (typeof variants === 'string') {
+      return JSON.parse(variants);
     }
-    return result;
+    return variants;
+  } catch (e) {
+    console.error('Error parsing product variants:', e);
+    return {};
   }
-
-  // Fallback - convert to string
-  return String(value) as Json;
 };
 
 /**
- * Parse product variants from JSONB
+ * Parse customizations from JSON or string format
+ * 
+ * @param customizations The customizations in JSON, string, or object format
+ * @returns The parsed customizations array or an empty array if parsing fails
  */
-export const parseProductVariants = (jsonData: Json): ProductVariant[] => {
-  const parsedVariants = parseJsonArray(jsonData);
+export const parseCustomizations = (customizations: any): any[] => {
+  if (!customizations) return [];
   
-  // Ensure proper typing of variants
-  return parsedVariants.map(variant => ({
-    id: variant.id || '',
-    product_id: variant.product_id || '',
-    size: variant.size || '',
-    color: variant.color || '',
-    hex_color: variant.hex_color || '#000000',
-    stock: variant.stock || 0,
-    price_adjustment: variant.price_adjustment || 0,
-    status: variant.status || 'in_stock',
-    created_at: variant.created_at || '',
-    updated_at: variant.updated_at || ''
-  }));
-};
-
-/**
- * Parse customizations from JSONB
- */
-export const parseCustomizations = (jsonData: Json): Customization[] => {
-  const parsedCustomizations = parseJsonArray(jsonData);
-  
-  // Ensure proper typing of customizations
-  return parsedCustomizations.map(custom => ({
-    id: custom.id || '',
-    name: custom.name || '',
-    description: custom.description || null,
-    product_id: custom.product_id || null,
-    type: custom.type || 'text',
-    position: custom.position || null,
-    price_adjustment: custom.price_adjustment || null,
-    is_required: custom.is_required || null,
-    created_at: custom.created_at || null,
-    updated_at: custom.updated_at || null
-  }));
+  try {
+    if (typeof customizations === 'string') {
+      return JSON.parse(customizations);
+    }
+    if (Array.isArray(customizations)) {
+      return customizations;
+    }
+    return Object.values(customizations);
+  } catch (e) {
+    console.error('Error parsing customizations:', e);
+    return [];
+  }
 };

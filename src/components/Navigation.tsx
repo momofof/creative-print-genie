@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { Menu, X } from "lucide-react";
@@ -5,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { useAuthStatus } from "@/hooks/useAuthStatus";
 import NavigationUserAvatar from "@/components/navigation/NavigationUserAvatar";
 import { supabase } from "@/integrations/supabase/client";
+import NavigationCart from "@/components/navigation/NavigationCart";
 
 const Navigation = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -35,6 +37,7 @@ const Navigation = () => {
 
           {/* User authentication */}
           <div className="hidden md:flex items-center space-x-4">
+            <NavigationCart className="p-2.5" />
             {isLoggedIn ? (
               <NavigationUserAvatar isSupplier={false} />
             ) : (
@@ -72,6 +75,14 @@ const Navigation = () => {
               onClick={toggleMenu}
             >
               Accueil
+            </Link>
+            
+            <Link
+              to="/cart"
+              className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-accent hover:bg-gray-50"
+              onClick={toggleMenu}
+            >
+              Panier
             </Link>
             
             {isLoggedIn ? (
