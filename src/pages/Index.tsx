@@ -31,7 +31,27 @@ const Index = () => {
           toast.error("Impossible de charger les produits");
         } else {
           console.log("Fetched products:", data);
-          setProducts(data || []);
+          
+          // Map Supabase data to Product type, adding missing required properties
+          const mappedProducts: Product[] = data?.map(item => ({
+            id: item.id,
+            name: item.name,
+            price: item.price,
+            originalPrice: item.original_price || undefined,
+            image: item.image || '/placeholder.svg',
+            category: item.category,
+            subcategory: item.subcategory || '',
+            description: item.description || '',
+            // Add the missing required properties with default values
+            rating: 5, // Default rating
+            reviewCount: 0, // Default review count
+            // Optionally, include additional properties from Supabase
+            color: '',
+            date: item.created_at,
+            isNew: false
+          })) || [];
+          
+          setProducts(mappedProducts);
         }
       } catch (error) {
         console.error("Error:", error);
