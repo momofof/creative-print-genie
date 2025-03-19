@@ -1,6 +1,6 @@
 
-// Re-export utility functions from all utility files
-export * from './variantConfig';
-export * from './variantDisplay';
+// Re-export all utility functions
 export * from './illustrationUtils';
 export * from './parsingUtils';
+export * from './variantConfig';
+export * from './variantDisplay';

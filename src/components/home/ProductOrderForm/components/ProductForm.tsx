@@ -56,12 +56,12 @@ const ProductForm = ({
       // Get available variant types for the product category
       let variantTypes: string[] = [];
       
-      // Essayer d'abord la subcategory si elle existe
+      // Try subcategory first if it exists
       if (selectedProduct.subcategory) {
         variantTypes = getAvailableVariants(selectedProduct.subcategory);
       }
       
-      // Si aucune variante trouvée avec la subcategory, essayer la category
+      // If no variants found with the subcategory, try the category
       if (variantTypes.length === 0) {
         variantTypes = getAvailableVariants(selectedProduct.category);
       }
@@ -89,7 +89,7 @@ const ProductForm = ({
   // Get variant options prioritizing product-specific options if available
   const getOptionsForVariant = (variantType: string): string[] => {
     if (selectedProduct) {
-      // Si des options spécifiques au produit existent pour cette variante, les utiliser
+      // If product-specific options exist for this variant, use them
       if (productVariantOptions[variantType] && productVariantOptions[variantType].length > 0) {
         return productVariantOptions[variantType];
       }

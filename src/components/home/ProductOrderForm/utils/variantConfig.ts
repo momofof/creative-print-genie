@@ -1,3 +1,4 @@
+
 // Define available variants for each product category
 const availableVariants: Record<string, string[]> = {
   "vêtements": ["color", "size", "print_design"],
@@ -10,6 +11,7 @@ const availableVariants: Record<string, string[]> = {
   "casquettes": ["color", "size"],
   "vélo": ["color", "size", "printable_side"],
   "velo": ["color", "size", "printable_side"],
+  "sport": ["color", "size", "printable_side"]
 };
 
 // Define variant options for each product category and variant type
@@ -52,13 +54,18 @@ const variantOptions: Record<string, Record<string, string[]>> = {
   "vélo": {
     "color": ["Noir", "Blanc", "Bleu", "Rouge", "Vert", "Jaune", "Orange", "Silver"],
     "size": ["S", "M", "L", "XL"],
-    "printable_side": ["face1", "face2"],
+    "printable_side": ["face_1", "face_2"],
   },
   "velo": {
     "color": ["Noir", "Blanc", "Bleu", "Rouge", "Vert", "Jaune", "Orange", "Silver"],
     "size": ["S", "M", "L", "XL"],
-    "printable_side": ["face1", "face2"],
+    "printable_side": ["face_1", "face_2"],
   },
+  "sport": {
+    "color": ["Noir", "Blanc", "Bleu", "Rouge", "Vert", "Jaune", "Orange", "Silver"],
+    "size": ["S", "M", "L", "XL"],
+    "printable_side": ["face_1", "face_2"],
+  }
 };
 
 // Define quantity options for each product category
@@ -73,11 +80,12 @@ const quantityOptions: Record<string, number[]> = {
   "casquettes": [1, 2, 3, 4, 5, 10],
   "vélo": [1, 2, 3, 4, 5],
   "velo": [1, 2, 3, 4, 5],
+  "sport": [1, 2, 3, 4, 5]
 };
 
 // Function to get available variants for a product category
 export const getAvailableVariants = (category: string): string[] => {
-  // Vérifier d'abord la catégorie exacte, puis vérifier la subcategory si pas trouvé
+  // Check exact category first, then check lowercase category if not found
   return availableVariants[category] || 
          availableVariants[category.toLowerCase()] || 
          [];
@@ -85,7 +93,7 @@ export const getAvailableVariants = (category: string): string[] => {
 
 // Function to get variant options for a product category and variant type
 export const getVariantOptions = (category: string, variantType: string): string[] => {
-  // Vérifier d'abord la catégorie exacte, puis vérifier la subcategory si pas trouvé
+  // Check exact category first, then check lowercase category if not found
   return variantOptions[category]?.[variantType] || 
          variantOptions[category.toLowerCase()]?.[variantType] || 
          [];
@@ -93,7 +101,7 @@ export const getVariantOptions = (category: string, variantType: string): string
 
 // Function to get quantity options for a product category
 export const getQuantityOptions = (category: string): number[] => {
-  // Vérifier d'abord la catégorie exacte, puis vérifier la subcategory si pas trouvé
+  // Check exact category first, then check lowercase category if not found
   return quantityOptions[category] || 
          quantityOptions[category.toLowerCase()] || 
          [1, 2, 3, 4, 5];
