@@ -37,7 +37,7 @@ export const useOrderFormState = (): UseOrderFormStateResult => {
   // Reset variants when product changes
   useEffect(() => {
     if (selectedProduct) {
-      // Réinitialiser les variantes à chaque changement de produit
+      // Reset variants when product changes
       setVariants({});
     }
   }, [selectedProduct]);

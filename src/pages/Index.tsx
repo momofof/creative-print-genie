@@ -4,28 +4,36 @@ import HeroSection from "@/components/home/HeroSection";
 import CategoryPills from "@/components/home/CategoryPills";
 import ProductOrderForm from "@/components/home/ProductOrderForm";
 import AuthStateWrapper from "@/components/home/AuthStateWrapper";
-import { Button } from "@/components/ui/button";
-import { useNavigate } from "react-router-dom";
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import { Product } from "@/types/product";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
 const Index = () => {
-  const navigate = useNavigate();
   const [products, setProducts] = useState<Product[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [fetchError, setFetchError] = useState(false);
-  const [loadCount, setLoadCount] = useState(0); // Used to prevent infinite fetch loops
+  const loadTimeRef = useRef<number>(0);
+  const attemptCountRef = useRef<number>(0);
   
   // Fetch products from Supabase - optimized with useCallback and rate limiting
   const fetchProducts = useCallback(async () => {
     // Prevent excessive fetching (no more than once every 3 seconds)
-    if (loadCount > 0 && Date.now() - loadCount < 3000) {
+    const now = Date.now();
+    if (loadTimeRef.current > 0 && now - loadTimeRef.current < 3000) {
       return;
     }
     
-    setLoadCount(Date.now());
+    // Limit retry attempts
+    if (attemptCountRef.current > 5) {
+      console.warn("Too many fetch attempts, stopping retries");
+      setFetchError(true);
+      setIsLoading(false);
+      return;
+    }
+    
+    loadTimeRef.current = now;
+    attemptCountRef.current += 1;
     
     try {
       setIsLoading(true);
@@ -75,6 +83,8 @@ const Index = () => {
       }));
       
       setProducts(mappedProducts);
+      // Reset attempt counter on success
+      attemptCountRef.current = 0;
     } catch (error) {
       console.error("Error:", error);
       toast.error("Une erreur est survenue lors du chargement des produits");
@@ -82,7 +92,7 @@ const Index = () => {
     } finally {
       setIsLoading(false);
     }
-  }, [loadCount]);
+  }, []);
   
   // Fetch products on mount and on route changes
   useEffect(() => {
@@ -125,9 +135,9 @@ const Index = () => {
           ) : fetchError ? (
             <div className="text-center py-12 bg-red-50 rounded-lg">
               <p className="text-red-700 mb-4">Erreur lors du chargement des produits.</p>
-              <Button onClick={fetchProducts} variant="outline" className="mt-2">
+              <button onClick={fetchProducts} className="bg-accent text-white px-4 py-2 rounded hover:bg-accent/90">
                 Réessayer
-              </Button>
+              </button>
             </div>
           ) : products.length > 0 ? (
             <ProductOrderForm products={products} />
@@ -137,18 +147,6 @@ const Index = () => {
               <p className="text-sm text-gray-500">Veuillez revenir plus tard ou contacter le support.</p>
             </div>
           )}
-          
-          <div className="mt-12 text-center">
-            <p className="text-gray-700 mb-4">Vous préférez parcourir notre catalogue ?</p>
-            <Button 
-              variant="outline" 
-              size="lg" 
-              onClick={() => navigate('/products')}
-              className="px-6"
-            >
-              Voir tous nos produits
-            </Button>
-          </div>
         </div>
       </div>
     </AuthStateWrapper>

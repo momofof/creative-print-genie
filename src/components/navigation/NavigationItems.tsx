@@ -1,4 +1,3 @@
-
 import NavigationItem from "./NavigationItem";
 import { productCategories } from "@/data/productData";
 import { Briefcase } from "lucide-react";

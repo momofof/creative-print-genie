@@ -57,7 +57,7 @@ const OrderForm = ({ products }: OrderFormProps) => {
       // Reset form when component unmounts
       resetForm();
     };
-  }, [products]);
+  }, [products, resetForm]);
 
   return (
     <div className="bg-white rounded-lg shadow-lg p-4 md:p-6 max-w-4xl mx-auto my-6 md:my-10">
