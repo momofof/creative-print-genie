@@ -11,6 +11,7 @@ const featureIllustrations: Record<string, string> = {
   "stickers": "/illustrations/sticker.png",
   "accessoires": "/illustrations/accessory.png",
   "casquettes": "/illustrations/cap.png",
+  "velo": "/placeholder.svg",
 };
 
 // Define variant illustrations for each product category and variant type
@@ -95,6 +96,22 @@ const variantIllustrations: Record<string, Record<string, Record<string, string>
       "Bleu": "/illustrations/cap-blue.png",
       "Rouge": "/illustrations/cap-red.png",
       "Vert": "/illustrations/cap-green.png",
+    },
+  },
+  "velo": {
+    "color": {
+      "Noir": "/placeholder.svg",
+      "Blanc": "/placeholder.svg",
+      "Bleu": "/placeholder.svg",
+      "Rouge": "/placeholder.svg",
+      "Vert": "/placeholder.svg",
+      "Jaune": "/placeholder.svg",
+    },
+    "type": {
+      "VTT": "/placeholder.svg",
+      "Route": "/placeholder.svg",
+      "Ville": "/placeholder.svg",
+      "Électrique": "/placeholder.svg",
     },
   },
 };
