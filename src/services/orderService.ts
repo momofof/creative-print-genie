@@ -37,6 +37,7 @@ export const orderService = {
         created_at: new Date().toISOString()
       };
       
+      // Use the new orders table we created
       const { data, error } = await supabase
         .from('orders')
         .insert(formattedOrderData)
@@ -61,6 +62,7 @@ export const orderService = {
   
   async getOrders(customerId?: string): Promise<any[]> {
     try {
+      // Use the new orders table we created
       let query = supabase
         .from('orders')
         .select('*')

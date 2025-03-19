@@ -107,6 +107,39 @@ export type Database = {
         }
         Relationships: []
       }
+      orders: {
+        Row: {
+          created_at: string
+          customer_id: string | null
+          id: string
+          items: Json
+          shipping_address: Json | null
+          status: string
+          total: number
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          customer_id?: string | null
+          id?: string
+          items: Json
+          shipping_address?: Json | null
+          status: string
+          total: number
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          customer_id?: string | null
+          id?: string
+          items?: Json
+          shipping_address?: Json | null
+          status?: string
+          total?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
       products_master: {
         Row: {
           category: string
@@ -254,6 +287,30 @@ export type Database = {
           phone?: string | null
           status?: string
           updated_at?: string | null
+        }
+        Relationships: []
+      }
+      user_carts: {
+        Row: {
+          cart_items: Json
+          created_at: string
+          id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          cart_items?: Json
+          created_at?: string
+          id?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          cart_items?: Json
+          created_at?: string
+          id?: string
+          updated_at?: string
+          user_id?: string
         }
         Relationships: []
       }

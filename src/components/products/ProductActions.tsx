@@ -68,11 +68,14 @@ const ProductActions = ({
       // If user is logged in, save cart to Supabase as well
       const { data: { user } } = await supabase.auth.getUser();
       if (user) {
-        // Save to cart table in Supabase
-        const { error } = await supabase.from('user_carts')
+        // Save to user_carts table in Supabase
+        const { error } = await supabase
+          .from('user_carts')
           .upsert({
             user_id: user.id,
             cart_items: existingCart
+          }, {
+            onConflict: 'user_id'
           });
           
         if (error) {
