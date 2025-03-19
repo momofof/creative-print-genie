@@ -30,8 +30,7 @@ const OrderForm = ({ products }: OrderFormProps) => {
     setAvailableVariants,
     userId,
     openIllustration,
-    setOpenIllustration,
-    resetForm
+    setOpenIllustration
   } = useOrderFormState();
   
   // Use custom hook for order submission
@@ -40,7 +39,12 @@ const OrderForm = ({ products }: OrderFormProps) => {
     selectedQuantity,
     variants,
     userId,
-    onOrderSuccess: resetForm
+    onOrderSuccess: () => {
+      // Reset form
+      setSelectedProduct(undefined);
+      setSelectedQuantity(null);
+      setVariants({});
+    }
   });
 
   return (

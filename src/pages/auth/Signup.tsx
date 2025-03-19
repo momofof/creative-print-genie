@@ -1,12 +1,12 @@
 
-import { useState, useEffect } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { useSupabaseClient } from "@supabase/auth-helpers-react";
 import Navigation from "@/components/Navigation";
+import { Link } from "react-router-dom";
 import { toast } from "sonner";
-import { UserPlus, Loader2 } from "lucide-react";
+import { UserPlus } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 
 const Signup = () => {
   const [email, setEmail] = useState("");
@@ -15,19 +15,6 @@ const Signup = () => {
   const [lastName, setLastName] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
-
-  // Check if user is already logged in
-  useEffect(() => {
-    const checkSession = async () => {
-      const { data } = await supabase.auth.getSession();
-      if (data.session) {
-        // User is already logged in, redirect to home
-        navigate('/');
-      }
-    };
-    
-    checkSession();
-  }, [navigate]);
 
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -74,12 +61,12 @@ const Signup = () => {
                   <label htmlFor="firstName" className="block text-sm font-medium text-gray-700">
                     Prénom
                   </label>
-                  <Input
+                  <input
                     type="text"
                     id="firstName"
                     value={firstName}
                     onChange={(e) => setFirstName(e.target.value)}
-                    className="mt-1"
+                    className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-accent focus:border-transparent"
                     required
                   />
                 </div>
@@ -87,12 +74,12 @@ const Signup = () => {
                   <label htmlFor="lastName" className="block text-sm font-medium text-gray-700">
                     Nom
                   </label>
-                  <Input
+                  <input
                     type="text"
                     id="lastName"
                     value={lastName}
                     onChange={(e) => setLastName(e.target.value)}
-                    className="mt-1"
+                    className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-accent focus:border-transparent"
                     required
                   />
                 </div>
@@ -101,12 +88,12 @@ const Signup = () => {
                 <label htmlFor="email" className="block text-sm font-medium text-gray-700">
                   Email
                 </label>
-                <Input
+                <input
                   type="email"
                   id="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="mt-1"
+                  className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-accent focus:border-transparent"
                   required
                 />
               </div>
@@ -114,29 +101,23 @@ const Signup = () => {
                 <label htmlFor="password" className="block text-sm font-medium text-gray-700">
                   Mot de passe
                 </label>
-                <Input
+                <input
                   type="password"
                   id="password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
+                  className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-accent focus:border-transparent"
                   minLength={6}
-                  className="mt-1"
                   required
                 />
               </div>
-              <Button
+              <button
                 type="submit"
                 className="w-full bg-accent text-accent-foreground rounded-full py-2 hover:bg-accent/90 disabled:opacity-50 transition-colors"
                 disabled={isLoading}
               >
-                {isLoading ? (
-                  <span className="flex items-center justify-center">
-                    <Loader2 className="h-4 w-4 animate-spin mr-2" />
-                    Inscription en cours...
-                  </span>
-                ) : "S'inscrire"
-                }
-              </Button>
+                {isLoading ? "Inscription en cours..." : "S'inscrire"}
+              </button>
             </form>
             <p className="mt-4 text-center text-sm text-gray-600">
               Déjà un compte ?{" "}
