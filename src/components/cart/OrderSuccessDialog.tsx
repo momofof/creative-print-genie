@@ -87,7 +87,7 @@ const OrderSuccessDialog = ({
             className="w-full sm:w-auto flex items-center gap-2 bg-accent hover:bg-accent/90"
             asChild
           >
-            <Link to="#checkout">
+            <Link to="/cart">
               <ShoppingCart size={16} />
               <span>Passer à la caisse</span>
             </Link>

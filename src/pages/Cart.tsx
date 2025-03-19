@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Trash2, AlertTriangle } from "lucide-react";
 import { Link } from "react-router-dom";
@@ -37,11 +36,8 @@ const Cart = () => {
   };
 
   const handleCheckout = () => {
-    // Ici, vous pourriez ajouter la logique de commande réelle
-    // Pour l'instant, nous affichons simplement le dialogue de succès
     setOrderSuccessDialogOpen(true);
-    // On pourrait aussi vider le panier après confirmation de commande dans un contexte réel
-    // clearCart();
+    toast.success("Votre commande a été traitée avec succès!");
   };
 
   return (
@@ -154,7 +150,6 @@ const Cart = () => {
           </div>
         )}
         
-        {/* Dialogue de confirmation de commande */}
         <OrderSuccessDialog
           open={orderSuccessDialogOpen}
           onOpenChange={setOrderSuccessDialogOpen}
@@ -167,4 +162,3 @@ const Cart = () => {
 };
 
 export default Cart;
-
