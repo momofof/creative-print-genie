@@ -25,6 +25,8 @@ export const getPlaceholderImage = (category: string): string => {
     'vêtements': '/placeholder.svg',
     'accessoires': '/placeholder.svg',
     'casquettes': '/placeholder.svg',
+    'sport': '/placeholder.svg',
+    'vélo': '/placeholder.svg',
     // Add more categories as needed
   };
   

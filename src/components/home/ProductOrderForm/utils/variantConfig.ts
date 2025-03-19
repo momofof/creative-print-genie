@@ -9,6 +9,8 @@ const availableVariants: Record<string, string[]> = {
   "stickers": ["size", "finish"],
   "accessoires": ["color", "size"],
   "casquettes": ["color", "size"],
+  "sport": ["color", "size"],
+  "vélo": ["color", "size"],
 };
 
 // Define variant options for each product category and variant type
@@ -48,6 +50,14 @@ const variantOptions: Record<string, Record<string, string[]>> = {
     "color": ["red", "blue", "green", "black", "white", "Noir", "Blanc", "Bleu", "Rouge", "Vert"],
     "size": ["Unique"],
   },
+  "sport": {
+    "color": ["Rouge", "Bleu", "Noir", "Blanc", "Vert"],
+    "size": ["S", "M", "L", "XL"],
+  },
+  "vélo": {
+    "color": ["Rouge", "Bleu", "Noir"],
+    "size": ["S", "M", "L"],
+  },
 };
 
 // Define quantity options for each product category
@@ -60,6 +70,8 @@ const quantityOptions: Record<string, number[]> = {
   "stickers": [10, 20, 30, 40, 50, 100],
   "accessoires": [1, 2, 3, 4, 5, 10],
   "casquettes": [1, 2, 3, 4, 5, 10],
+  "sport": [1, 2, 3, 4, 5],
+  "vélo": [1, 2, 3, 4, 5],
 };
 
 // Function to get available variants for a product category
