@@ -197,3 +197,19 @@
     flex: 0 0 auto;
   }
 }
+
+/* Ensure dropdown menus and popovers are visible on mobile */
+[role="listbox"],
+[data-radix-popper-content-wrapper],
+.SelectContent,
+.PopoverContent {
+  @apply bg-white z-50;
+}
+
+/* Fix for Safari mobile dropdown issues */
+@supports (-webkit-touch-callout: none) {
+  [role="listbox"],
+  [data-radix-popper-content-wrapper] {
+    transform: translateZ(0);
+  }
+}

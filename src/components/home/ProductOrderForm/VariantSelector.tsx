@@ -58,7 +58,12 @@ const VariantSelector = ({
             <SelectTrigger>
               <SelectValue placeholder={`Choisir ${displayName.toLowerCase()}...`} />
             </SelectTrigger>
-            <SelectContent className={`${isMobile ? 'pb-10' : 'max-h-[300px]'} bg-white shadow-lg border border-gray-200`}>
+            <SelectContent 
+              className={`${isMobile ? 'pb-10' : 'max-h-[300px]'} bg-white shadow-lg border border-gray-200`}
+              position={isMobile ? "popper" : "item-aligned"}
+              sideOffset={isMobile ? 5 : 0}
+              align={isMobile ? "start" : "center"}
+            >
               <VariantSearch 
                 searchTerm={searchTerm}
                 setSearchTerm={setSearchTerm}
@@ -88,7 +93,11 @@ const VariantSelector = ({
                 <Eye className="h-4 w-4" />
               </Button>
             </PopoverTrigger>
-            <PopoverContent className="w-64 p-2 bg-white shadow-lg border border-gray-200">
+            <PopoverContent 
+              className="w-64 p-2 bg-white shadow-lg border border-gray-200"
+              sideOffset={5}
+              align={isMobile ? "start" : "center"}
+            >
               <div className="text-center">
                 <img 
                   src={getVariantIllustration(productCategory, variantType, selectedValue)}
