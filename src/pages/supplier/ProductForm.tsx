@@ -1,9 +1,6 @@
-
-import React, { useState, useEffect } from "react";
+import React from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { toast } from "sonner";
-import { supabase } from "@/integrations/supabase/client";
-import { Store, ArrowLeft, Loader2, Save } from "lucide-react";
+import { ArrowLeft, Loader2, Save } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ProductGeneralInfo } from "./components/ProductFormComponents/ProductGeneralInfo";
 import { ProductVariants } from "./components/ProductFormComponents/ProductVariants";
@@ -17,13 +14,9 @@ const ProductForm = () => {
   
   const {
     isLoading,
-    isSaving,
     productData,
     variants,
     imagePreview,
-    imageFile,
-    setImageFile,
-    setImagePreview,
     handleInputChange,
     handleSelectChange,
     handleCheckboxChange,
