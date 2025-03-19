@@ -26,6 +26,7 @@ export const useFavorites = () => {
       const { data: sessionData } = await supabase.auth.getSession();
       if (!sessionData.session) {
         setFavorites([]);
+        setIsLoading(false);
         return [];
       }
 
@@ -79,7 +80,13 @@ export const useFavorites = () => {
 
   // Ajoute un produit aux favoris
   const addToFavorites = async (productId: string) => {
+    if (!productId) {
+      toast.error("Impossible d'ajouter aux favoris: ID du produit manquant");
+      return false;
+    }
+    
     setIsAddingToFavorites(true);
+    
     try {
       const { data: sessionData } = await supabase.auth.getSession();
       if (!sessionData.session) {
@@ -96,20 +103,22 @@ export const useFavorites = () => {
         });
 
       if (error) {
-        console.error("Erreur lors de l'ajout aux favoris:", error);
-        toast.error("Impossible d'ajouter aux favoris");
-        setIsAddingToFavorites(false);
-        return false;
+        // Check if it's a duplicate (product already in favorites)
+        if (error.code === '23505') {
+          toast.info("Ce produit est déjà dans vos favoris");
+        } else {
+          throw error;
+        }
+      } else {
+        toast.success("Produit ajouté aux favoris");
+        await fetchFavorites();
       }
-
-      // Mettre à jour la liste des favoris
-      await fetchFavorites();
-      toast.success("Produit ajouté aux favoris");
+      
       setIsAddingToFavorites(false);
       return true;
     } catch (error) {
-      console.error("Erreur:", error);
-      toast.error("Une erreur est survenue");
+      console.error("Error adding to favorites:", error);
+      toast.error("Erreur lors de l'ajout aux favoris");
       setIsAddingToFavorites(false);
       return false;
     }
@@ -168,7 +177,7 @@ export const useFavorites = () => {
   return {
     favorites,
     isLoading,
-    isAddingToFavorites,
+    isAddingToFavorites: isAddingToFavorites,
     fetchFavorites,
     addToFavorites,
     removeFromFavorites,
