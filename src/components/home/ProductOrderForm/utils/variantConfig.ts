@@ -10,7 +10,7 @@ const availableVariants: Record<string, string[]> = {
   "accessoires": ["color", "size"],
   "casquettes": ["color", "size"],
   "sport": ["color", "size", "reception"],
-  "vélo": ["color", "size", "reception"],
+  "vélo": ["color", "size", "reception", "face_a_imprimer"],
 };
 
 // Define variant options for each product category and variant type
@@ -59,6 +59,7 @@ const variantOptions: Record<string, Record<string, string[]>> = {
     "color": ["Rouge", "Bleu", "Noir"],
     "size": ["S", "M", "L"],
     "reception": ["En magasin", "Livraison à domicile", "Point relais"],
+    "face_a_imprimer": ["Avant", "Arrière", "Les deux côtés"],
   },
 };
 
