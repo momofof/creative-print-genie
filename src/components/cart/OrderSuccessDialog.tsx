@@ -11,6 +11,7 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 interface OrderSuccessDialogProps {
   open: boolean;
@@ -25,6 +26,14 @@ const OrderSuccessDialog = ({
   cartItems,
   totalPrice,
 }: OrderSuccessDialogProps) => {
+  const navigate = useNavigate();
+  
+  const handleContinueShoppingClick = () => {
+    // Fermer le dialogue et naviguer vers la page d'accueil
+    onOpenChange(false);
+    navigate('/');
+  };
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md">
@@ -76,12 +85,10 @@ const OrderSuccessDialog = ({
           <Button
             variant="outline"
             className="w-full sm:w-auto flex items-center gap-2"
-            asChild
+            onClick={handleContinueShoppingClick}
           >
-            <Link to="/">
-              <ShoppingBag size={16} />
-              <span>Continuer vos achats</span>
-            </Link>
+            <ShoppingBag size={16} />
+            <span>Continuer vos achats</span>
           </Button>
           <Button 
             className="w-full sm:w-auto flex items-center gap-2 bg-accent hover:bg-accent/90"
