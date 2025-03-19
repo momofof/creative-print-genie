@@ -37,7 +37,7 @@ const MobilePreview = ({ selectedProduct, variants }: MobilePreviewProps) => {
   };
   
   return (
-    <div className="mb-6 p-4 bg-gray-50 rounded-lg -mt-2 relative z-10">
+    <div className="mb-6 p-4 bg-gray-50 rounded-lg shadow-sm relative z-10">
       <div className="flex flex-col items-center">
         <img 
           src={getFeatureIllustration(selectedProduct, variants)} 

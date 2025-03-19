@@ -62,20 +62,17 @@ const OrderForm = ({ products }: OrderFormProps) => {
   return (
     <div className="bg-white rounded-lg shadow-lg p-4 md:p-6 max-w-4xl mx-auto my-6 md:my-10">
       <div className="relative">
-        <h2 className="text-xl md:text-2xl font-bold text-gray-800 mb-4 md:mb-6 relative z-0">Commander vos produits</h2>
+        <h2 className="text-xl md:text-2xl font-bold text-gray-800 mb-4 md:mb-6">Commander vos produits</h2>
         
-        {/* Mobile preview illustration - Positionnement modifié pour être au-dessus du titre */}
+        {/* Mobile preview illustration - Positioned inside the form below the title */}
         {isMobile && selectedProduct && Object.keys(variants).length > 0 && (
-          <div className="absolute top-0 left-0 right-0 -mt-16 z-20">
+          <div className="mb-6">
             <MobilePreview selectedProduct={selectedProduct} variants={variants} />
           </div>
         )}
       </div>
       
-      {/* Ajouter un espace supplémentaire en haut si l'aperçu est affiché */}
-      <div className={`grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-8 ${
-        isMobile && selectedProduct && Object.keys(variants).length > 0 ? 'mt-32' : ''
-      }`}>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-8">
         {/* Product Form Column */}
         <div>
           <ProductForm
