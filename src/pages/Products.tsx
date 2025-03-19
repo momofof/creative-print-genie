@@ -60,13 +60,12 @@ const Products = () => {
             category: item.category,
             subcategory: item.subcategory || '',
             description: item.description || '',
-            // Add the missing required properties with default values
             rating: 5, // Default rating
             reviewCount: 0, // Default review count
-            // Optionally, include additional properties from Supabase
             color: '',
             date: item.created_at,
             isNew: new Date(item.created_at).getTime() > Date.now() - (7 * 24 * 60 * 60 * 1000), // New if created in the last 7 days
+            variants: item.variants // Pass variants from database
           })) || [];
           
           console.log("Mapped products for Products page:", mappedProducts);

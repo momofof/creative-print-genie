@@ -70,10 +70,12 @@ export const useOrderFormState = (): UseOrderFormStateResult => {
       if (selectedProduct.variants && typeof selectedProduct.variants === 'object') {
         try {
           console.log("Product has variants:", selectedProduct.variants);
-          const variantTypes = extractVariantOptionsFromProduct(selectedProduct);
-          console.log("Extracted variant types:", variantTypes);
-          if (variantTypes.length > 0) {
-            setAvailableVariants(variantTypes);
+          const variantOptions = extractVariantOptionsFromProduct(selectedProduct);
+          console.log("Extracted variant types:", variantOptions);
+          
+          // If we extracted variant options, use their keys as available variants
+          if (Object.keys(variantOptions).length > 0) {
+            setAvailableVariants(Object.keys(variantOptions));
           } else {
             // Fallback to getting variants based on category if no variants in product
             const category = selectedProduct.category || '';
