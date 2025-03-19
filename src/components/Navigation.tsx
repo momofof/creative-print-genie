@@ -1,7 +1,7 @@
 
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
-import { Menu, X } from "lucide-react";
+import { Menu, X, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuthStatus } from "@/hooks/useAuthStatus";
 
@@ -23,6 +23,34 @@ const Navigation = () => {
             </Link>
           </div>
 
+          {/* Desktop navigation links */}
+          <nav className="hidden md:flex items-center space-x-8">
+            <Button variant="link" asChild>
+              <Link to="/" className="text-gray-600 hover:text-accent">
+                Accueil
+              </Link>
+            </Button>
+          </nav>
+
+          {/* User authentication */}
+          <div className="hidden md:flex items-center space-x-4">
+            {isLoggedIn ? (
+              <Link to="/profile">
+                <Button variant="ghost" size="sm" className="gap-2">
+                  <User size={18} />
+                  <span>Profil</span>
+                </Button>
+              </Link>
+            ) : (
+              <Link to="/auth">
+                <Button variant="outline" size="sm" className="gap-2">
+                  <User size={18} />
+                  <span>Connexion</span>
+                </Button>
+              </Link>
+            )}
+          </div>
+
           {/* Mobile menu button */}
           <div className="md:hidden">
             <button
@@ -36,15 +64,6 @@ const Navigation = () => {
               {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
             </button>
           </div>
-
-          {/* Desktop menu */}
-          <nav className="hidden md:flex items-center space-x-8">
-            <Button variant="link" asChild>
-              <Link to="/" className="text-gray-600 hover:text-accent">
-                Accueil
-              </Link>
-            </Button>
-          </nav>
         </div>
       </div>
 
@@ -59,6 +78,24 @@ const Navigation = () => {
             >
               Accueil
             </Link>
+            
+            {isLoggedIn ? (
+              <Link
+                to="/profile"
+                className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-accent hover:bg-gray-50"
+                onClick={toggleMenu}
+              >
+                Profil
+              </Link>
+            ) : (
+              <Link
+                to="/auth"
+                className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-accent hover:bg-gray-50"
+                onClick={toggleMenu}
+              >
+                Connexion
+              </Link>
+            )}
           </div>
         </div>
       )}
