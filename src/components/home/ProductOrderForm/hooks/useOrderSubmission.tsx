@@ -5,6 +5,7 @@ import { Product } from "@/types/product";
 import { supabase } from "@/integrations/supabase/client";
 import { orderService, OrderItem } from "@/services/orderService";
 import { toast } from "sonner";
+import { Json } from "@/integrations/supabase/types";
 
 // Define a type for cart items
 interface CartItem {
@@ -101,16 +102,18 @@ export const useOrderSubmission = ({
             let cartItems: CartItem[] = [];
             try {
               if (cartData?.cart_items) {
-                cartItems = Array.isArray(cartData.cart_items) 
-                  ? cartData.cart_items.map(item => ({
-                      id: String(item.id || ''),
-                      name: String(item.name || ''),
-                      price: Number(item.price || 0),
-                      quantity: Number(item.quantity || 0),
-                      image: item.image ? String(item.image) : undefined,
-                      variants: item.variants as Record<string, string> | undefined
-                    }))
+                const cartItemsData = Array.isArray(cartData.cart_items) 
+                  ? cartData.cart_items 
                   : [];
+                
+                cartItems = cartItemsData.map((item: any) => ({
+                  id: String(item.id || ''),
+                  name: String(item.name || ''),
+                  price: Number(item.price || 0),
+                  quantity: Number(item.quantity || 0),
+                  image: item.image ? String(item.image) : undefined,
+                  variants: item.variants as Record<string, string> | undefined
+                }));
               }
             } catch (parseError) {
               console.error("Error parsing cart items:", parseError);

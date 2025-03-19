@@ -33,9 +33,7 @@ export const useOrderFormState = (): UseOrderFormStateResult => {
     const checkAuth = async () => {
       try {
         const { data } = await supabase.auth.getSession();
-        if (data?.user) {
-          setUserId(data.user.id);
-        } else if (data?.session?.user) {
+        if (data?.session?.user) {
           setUserId(data.session.user.id);
         } else {
           setUserId(null);

@@ -1,4 +1,3 @@
-
 import { Product } from "@/types/product";
 
 // Define available variants for each product category
@@ -312,7 +311,12 @@ export const extractVariantOptionsFromProduct = (product: Product): Record<strin
     
     let variants = productVariants;
     if (typeof variants === 'string') {
-      variants = JSON.parse(variants);
+      try {
+        variants = JSON.parse(variants);
+      } catch (e) {
+        console.error("Failed to parse variants string:", e);
+        return {};
+      }
     }
     
     if (Array.isArray(variants)) {
