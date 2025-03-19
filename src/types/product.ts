@@ -95,11 +95,13 @@ export interface DesignItem {
   category: string;
 }
 
+// Updated CartItem interface to be compatible with Supabase's Json type
 export interface CartItem {
   id: string;
   name: string;
   price: number;
   quantity: number;
-  image: string;
+  image?: string;
   variants?: Record<string, string>;
+  [key: string]: any; // Add index signature for Json compatibility
 }

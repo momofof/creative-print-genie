@@ -1,20 +1,10 @@
 
 import { useState } from "react";
-import { Product } from "@/types/product";
+import { Product, CartItem } from "@/types/product";
 import { supabase } from "@/integrations/supabase/client";
 import { orderService, OrderItem } from "@/services/orderService";
 import { toast } from "sonner";
-import { parseJsonArray } from "@/utils/jsonUtils";
-
-// Define a type for cart items
-interface CartItem {
-  id: string;
-  name: string;
-  price: number;
-  quantity: number;
-  image?: string;
-  variants?: Record<string, string>;
-}
+import { parseJsonArray, toJsonValue } from "@/utils/jsonUtils";
 
 interface UseOrderSubmissionProps {
   selectedProduct: Product | undefined;
@@ -134,12 +124,15 @@ export const useOrderSubmission = ({
           updatedCart = [...existingCartItems, newCartItem];
         }
         
+        // Convert to JSON-safe format before sending to Supabase
+        const jsonSafeUpdatedCart = toJsonValue(updatedCart);
+        
         // Update cart in Supabase
         await supabase
           .from('user_carts')
           .upsert({
             user_id: userId,
-            cart_items: updatedCart
+            cart_items: jsonSafeUpdatedCart
           }, {
             onConflict: 'user_id'
           });

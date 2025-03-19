@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { MinusCircle, PlusCircle, Trash2 } from "lucide-react";
 import { Link } from "react-router-dom";
@@ -6,7 +5,7 @@ import Navigation from "@/components/Navigation";
 import { toast } from "sonner";
 import { CartItem } from "@/types/product";
 import { supabase } from "@/integrations/supabase/client";
-import { parseJsonArray } from "@/utils/jsonUtils";
+import { parseJsonArray, toJsonValue } from "@/utils/jsonUtils";
 
 const Cart = () => {
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
@@ -82,12 +81,15 @@ const Cart = () => {
     const saveCart = async () => {
       try {
         if (userId) {
+          // Convert cartItems to JSON-safe format before sending to Supabase
+          const jsonSafeCartItems = toJsonValue(cartItems);
+          
           // Save to Supabase for logged in users
           await supabase
             .from('user_carts')
             .upsert({
               user_id: userId,
-              cart_items: cartItems
+              cart_items: jsonSafeCartItems
             }, {
               onConflict: 'user_id'
             });

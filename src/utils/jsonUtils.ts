@@ -6,6 +6,7 @@
  * @returns A JSON-safe value
  */
 export const toJsonValue = (value: any): any => {
+  // First convert to JSON string and then parse back to ensure all values are JSON compatible
   return JSON.parse(JSON.stringify(value));
 };
 

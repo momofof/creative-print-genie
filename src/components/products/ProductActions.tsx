@@ -1,10 +1,10 @@
-
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { ShoppingCart, Heart } from "lucide-react";
 import { Link } from "react-router-dom";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
+import { toJsonValue } from "@/utils/jsonUtils";
 
 interface ProductActionsProps {
   productId?: string;
@@ -92,12 +92,15 @@ const ProductActions = ({
           existingCartItems.push(newItem);
         }
         
+        // Convert to JSON-safe format before sending to Supabase
+        const jsonSafeCartItems = toJsonValue(existingCartItems);
+        
         // Update cart in Supabase
         await supabase
           .from('user_carts')
           .upsert({
             user_id: user.id,
-            cart_items: existingCartItems
+            cart_items: jsonSafeCartItems
           }, {
             onConflict: 'user_id'
           });
