@@ -36,50 +36,10 @@ export const parseJsonArray = (data: any): any[] => {
 
 // Parse product variants from JSON or object
 export const parseProductVariants = (variants: any): any[] => {
-  if (!variants) return [];
-  
-  if (Array.isArray(variants)) {
-    return variants;
-  } else if (typeof variants === 'object') {
-    return Object.values(variants);
-  }
-  
-  try {
-    if (typeof variants === 'string') {
-      const parsed = JSON.parse(variants);
-      if (Array.isArray(parsed)) {
-        return parsed;
-      }
-      return Object.values(parsed);
-    }
-  } catch (e) {
-    console.error("Error parsing variants JSON:", e);
-  }
-  
-  return [];
+  return parseJsonArray(variants);
 };
 
 // Parse customizations from JSON or object
 export const parseCustomizations = (customizations: any): any[] => {
-  if (!customizations) return [];
-  
-  if (Array.isArray(customizations)) {
-    return customizations;
-  } else if (typeof customizations === 'object') {
-    return Object.values(customizations);
-  }
-  
-  try {
-    if (typeof customizations === 'string') {
-      const parsed = JSON.parse(customizations);
-      if (Array.isArray(parsed)) {
-        return parsed;
-      }
-      return Object.values(parsed);
-    }
-  } catch (e) {
-    console.error("Error parsing customizations JSON:", e);
-  }
-  
-  return [];
+  return parseJsonArray(customizations);
 };

@@ -1,5 +1,6 @@
 
 import { Product } from "@/types/product";
+import { parseJsonArray } from "@/utils/jsonUtils";
 
 // Extract variant options from product data
 export const extractVariantOptionsFromProduct = (product: Product): Record<string, string[]> => {
@@ -11,10 +12,8 @@ export const extractVariantOptionsFromProduct = (product: Product): Record<strin
     
     if (!productVariants) return {};
     
-    let variants = productVariants;
-    if (typeof variants === 'string') {
-      variants = JSON.parse(variants);
-    }
+    // Parse the variants to ensure we have an array to work with
+    const variants = parseJsonArray(productVariants);
     
     if (Array.isArray(variants)) {
       const result: Record<string, string[]> = {};
@@ -22,7 +21,7 @@ export const extractVariantOptionsFromProduct = (product: Product): Record<strin
       variants.forEach(variant => {
         Object.entries(variant).forEach(([key, value]) => {
           // Ignorer les propriétés qui ne sont pas des variantes
-          if (['stock', 'price_adjustment', 'status', 'hex_color'].includes(key)) return;
+          if (['stock', 'price_adjustment', 'status', 'hex_color', 'id', 'isNew', 'isDeleted'].includes(key)) return;
           
           if (!result[key]) {
             result[key] = [];
