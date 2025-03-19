@@ -15,6 +15,20 @@ export interface Product {
   is_customizable?: boolean;
   supplier_id?: string;
   updated_at?: string;
+  variants?: ProductVariant[];
+}
+
+export interface ProductVariant {
+  id: string;
+  product_id: string;
+  size: string;
+  color: string;
+  hex_color: string;
+  stock: number;
+  price_adjustment?: number;
+  status: "in_stock" | "low_stock" | "out_of_stock";
+  created_at?: string;
+  updated_at?: string;
 }
 
 export interface Order {

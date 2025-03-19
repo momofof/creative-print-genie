@@ -1,7 +1,7 @@
 
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { Product, Order, Stat } from "@/types/dashboard";
+import { Product, Order, Stat, ProductVariant } from "@/types/dashboard";
 import { toast } from "sonner";
 
 export const useSupplierDashboard = () => {
@@ -53,15 +53,16 @@ export const useSupplierDashboard = () => {
         const productsWithStock = data.map(product => ({
           ...product,
           stock: Math.floor(Math.random() * 20) + 1, // Random stock for demo
+          status: product.status as "draft" | "published" | "archived" // Type assertion for safety
         }));
         
-        // Update products state
-        setProducts(productsWithStock);
+        // Update products state with type assertion
+        setProducts(productsWithStock as Product[]);
         
         // Update stats
-        updateProductStats(productsWithStock);
+        updateProductStats(productsWithStock as Product[]);
         
-        return productsWithStock;
+        return productsWithStock as Product[];
       }
     } catch (error) {
       console.error("Erreur:", error);

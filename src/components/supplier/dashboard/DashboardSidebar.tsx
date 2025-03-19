@@ -1,65 +1,88 @@
 
 import React from "react";
-import { Link } from "react-router-dom";
-import { 
-  Store, 
-  Layers, 
-  PlusCircle, 
-  Package, 
-  ShoppingBag, 
-  Users, 
-  Settings, 
-  LogOut 
-} from "lucide-react";
+import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 
 interface DashboardSidebarProps {
-  onSignOut: () => Promise<void>;
+  currentTab: string;
+  onTabChange: (tab: string) => void;
+  isOpen: boolean;
+  onClose: () => void;
 }
 
-const DashboardSidebar = ({ onSignOut }: DashboardSidebarProps) => {
+const DashboardSidebar = ({ currentTab, onTabChange, isOpen, onClose }: DashboardSidebarProps) => {
+  const handleTabChange = (tab: string) => {
+    onTabChange(tab);
+    if (window.innerWidth < 768) {
+      onClose();
+    }
+  };
+
+  const navItems = [
+    { id: "overview", label: "Vue d'ensemble" },
+    { id: "products", label: "Produits" },
+    { id: "orders", label: "Commandes" },
+    { id: "analytics", label: "Analyses" },
+    { id: "settings", label: "Paramètres" }
+  ];
+
   return (
-    <div className="w-64 bg-white border-r border-gray-200 p-4 hidden md:block">
-      <div className="mb-8">
-        <h2 className="text-xl font-bold text-gray-800 flex items-center">
-          <Store className="mr-2 h-6 w-6" />
-          Espace Fournisseur
-        </h2>
+    <>
+      {/* Desktop sidebar */}
+      <div className="hidden md:flex w-64 flex-col bg-white border-r border-gray-200 p-4">
+        <div className="text-xl font-bold mb-6">Espace fournisseur</div>
+        <nav className="space-y-1 flex-1">
+          {navItems.map(item => (
+            <button
+              key={item.id}
+              onClick={() => handleTabChange(item.id)}
+              className={`w-full text-left px-3 py-2 rounded-md text-sm font-medium ${
+                currentTab === item.id
+                  ? "bg-teal-50 text-teal-700"
+                  : "text-gray-600 hover:bg-gray-100"
+              }`}
+            >
+              {item.label}
+            </button>
+          ))}
+        </nav>
+        <div className="mt-auto pt-4 border-t">
+          <button className="w-full text-left px-3 py-2 rounded-md text-sm font-medium text-gray-600 hover:bg-gray-100">
+            Déconnexion
+          </button>
+        </div>
       </div>
-      
-      <nav className="space-y-1">
-        <Link to="/supplier/dashboard" className="flex items-center px-3 py-2 text-sm font-medium text-teal-700 bg-teal-50 rounded-md">
-          <Layers className="mr-3 h-5 w-5" />
-          Tableau de bord
-        </Link>
-        <Link to="/supplier/product/new" className="flex items-center px-3 py-2 text-sm font-medium text-gray-600 hover:bg-gray-50 hover:text-gray-900 rounded-md">
-          <PlusCircle className="mr-3 h-5 w-5" />
-          Ajouter un produit
-        </Link>
-        <Link to="/supplier/products" className="flex items-center px-3 py-2 text-sm font-medium text-gray-600 hover:bg-gray-50 hover:text-gray-900 rounded-md">
-          <Package className="mr-3 h-5 w-5" />
-          Mes produits
-        </Link>
-        <Link to="/supplier/orders" className="flex items-center px-3 py-2 text-sm font-medium text-gray-600 hover:bg-gray-50 hover:text-gray-900 rounded-md">
-          <ShoppingBag className="mr-3 h-5 w-5" />
-          Commandes
-        </Link>
-        <Link to="/supplier/customers" className="flex items-center px-3 py-2 text-sm font-medium text-gray-600 hover:bg-gray-50 hover:text-gray-900 rounded-md">
-          <Users className="mr-3 h-5 w-5" />
-          Clients
-        </Link>
-        <Link to="/supplier/settings" className="flex items-center px-3 py-2 text-sm font-medium text-gray-600 hover:bg-gray-50 hover:text-gray-900 rounded-md">
-          <Settings className="mr-3 h-5 w-5" />
-          Paramètres
-        </Link>
-        <button 
-          onClick={onSignOut}
-          className="w-full flex items-center px-3 py-2 text-sm font-medium text-gray-600 hover:bg-gray-50 hover:text-gray-900 rounded-md"
-        >
-          <LogOut className="mr-3 h-5 w-5" />
-          Déconnexion
-        </button>
-      </nav>
-    </div>
+
+      {/* Mobile sidebar (Sheet) */}
+      <Sheet open={isOpen} onOpenChange={onClose}>
+        <SheetContent side="left" className="p-0">
+          <SheetHeader className="p-4 border-b">
+            <SheetTitle>Espace fournisseur</SheetTitle>
+          </SheetHeader>
+          <div className="p-4 pt-2">
+            <nav className="space-y-1">
+              {navItems.map(item => (
+                <button
+                  key={item.id}
+                  onClick={() => handleTabChange(item.id)}
+                  className={`w-full text-left px-3 py-2 rounded-md text-sm font-medium ${
+                    currentTab === item.id
+                      ? "bg-teal-50 text-teal-700"
+                      : "text-gray-600 hover:bg-gray-100"
+                  }`}
+                >
+                  {item.label}
+                </button>
+              ))}
+            </nav>
+            <div className="mt-6 pt-4 border-t">
+              <button className="w-full text-left px-3 py-2 rounded-md text-sm font-medium text-gray-600 hover:bg-gray-100">
+                Déconnexion
+              </button>
+            </div>
+          </div>
+        </SheetContent>
+      </Sheet>
+    </>
   );
 };
 

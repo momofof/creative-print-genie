@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Navigation from "@/components/Navigation";
@@ -144,6 +143,7 @@ const Pro = () => {
               onAddProduct={handleAddProduct}
               onEditProduct={handleEditProduct}
               onDeleteProduct={handleDeleteProduct}
+              onRefreshProducts={() => console.log("Refresh products")}
             />
           </TabsContent>
           
