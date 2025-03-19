@@ -1,3 +1,4 @@
+
 import { Link } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
@@ -75,7 +76,18 @@ const HeroSection = () => {
 
       {/* Image navigation indicators - restored and improved for mobile */}
       <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 z-40 flex space-x-1.5">
-        {heroImages.map((_, index) => {})}
+        {heroImages.map((_, index) => (
+          <button
+            key={index}
+            onClick={() => navigateToSlide(index)}
+            className={`w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full transition-all duration-300 ${
+              index === currentImageIndex 
+                ? "bg-white w-3 sm:w-4" 
+                : "bg-white/40 hover:bg-white/60"
+            }`}
+            aria-label={`Go to slide ${index + 1}`}
+          ></button>
+        ))}
       </div>
     </section>;
 };

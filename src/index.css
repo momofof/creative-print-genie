@@ -14,11 +14,14 @@
 
   * {
     @apply border-border;
+    -webkit-tap-highlight-color: transparent;
   }
 
   body {
     @apply bg-background text-foreground antialiased;
-    -webkit-tap-highlight-color: transparent;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    overscroll-behavior-y: none;
   }
 
   /* Smooth scrolling */
@@ -29,6 +32,8 @@
   /* Better image loading */
   img {
     @apply transition-opacity duration-300;
+    max-width: 100%;
+    height: auto;
   }
   
   img.loading {
@@ -53,6 +58,23 @@
     p {
       @apply text-base leading-relaxed;
     }
+  }
+  
+  /* Fix for iOS Safari bottom bar */
+  @supports (-webkit-touch-callout: none) {
+    .min-h-screen {
+      min-height: -webkit-fill-available;
+    }
+  }
+  
+  /* Ensure buttons are properly sized for touch on all devices */
+  button, a, [role="button"] {
+    @apply select-none;
+  }
+  
+  /* Prevent text size adjustment on orientation change */
+  html {
+    -webkit-text-size-adjust: 100%;
   }
 }
 
@@ -96,7 +118,7 @@
 /* Améliorations pour les boutons tactiles sur mobile */
 @media (max-width: 640px) {
   button, .btn, a.btn, [role="button"] {
-    @apply min-h-[48px] min-w-[48px]; /* Larger touch targets */
+    @apply min-h-[44px]; /* Larger touch targets */
   }
   
   input, select, textarea {
@@ -111,6 +133,8 @@
   /* Empêcher les débordements horizontaux */
   .container {
     @apply px-5;
+    width: 100%;
+    overflow-x: hidden;
   }
   
   /* Ajouter du padding en bas pour tenir compte de la barre de navigation mobile */
@@ -152,5 +176,24 @@
   .mobile-menu-exit-active {
     transform: translateX(-100%);
     transition: transform 300ms;
+  }
+}
+
+/* Cross-browser focus styles */
+:focus-visible {
+  @apply outline-none ring-2 ring-offset-2 ring-accent;
+}
+
+/* Fix for iOS smooth scrolling */
+@supports (-webkit-overflow-scrolling: touch) {
+  .overflow-y-auto, .overflow-x-auto, .overflow-auto {
+    -webkit-overflow-scrolling: touch;
+  }
+}
+
+/* Better flexbox support for older Safari */
+@supports (-webkit-touch-callout: none) {
+  .flex-row, .flex-col {
+    flex: 0 0 auto;
   }
 }
