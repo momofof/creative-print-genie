@@ -47,40 +47,6 @@ export const useCart = (): UseCartReturn => {
     loadCart();
   }, [userId]);
 
-  // Set up real-time subscription to cart changes
-  useEffect(() => {
-    if (!userId) return;
-    
-    const cartSubscription = supabase
-      .channel(`public:user_carts:user_id=eq.${userId}`)
-      .on('postgres_changes', 
-        { 
-          event: '*', 
-          schema: 'public', 
-          table: 'user_carts',
-          filter: `user_id=eq.${userId}`
-        }, 
-        async (payload) => {
-          console.log('Real-time cart update received:', payload);
-          
-          if (payload.eventType === 'UPDATE' || payload.eventType === 'INSERT') {
-            // Reload cart from database to ensure we have the latest data
-            const updatedCart = await loadCartFromSupabase(userId);
-            setCartItems(updatedCart);
-          }
-          else if (payload.eventType === 'DELETE') {
-            // Clear cart if it was deleted
-            setCartItems([]);
-          }
-        }
-      )
-      .subscribe();
-      
-    return () => {
-      cartSubscription.unsubscribe();
-    };
-  }, [userId]);
-
   const loadCart = async () => {
     setIsLoading(true);
     

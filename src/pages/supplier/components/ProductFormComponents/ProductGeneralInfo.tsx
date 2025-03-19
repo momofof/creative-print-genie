@@ -10,9 +10,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { useFormContext } from "react-hook-form";
-import { ProductFormValues } from "../../schema/productFormSchema";
-import { FormItem, FormLabel, FormControl, FormMessage } from "@/components/ui/form";
 
 interface ProductData {
   name: string;
@@ -31,98 +28,80 @@ interface ProductGeneralInfoProps {
   handleInputChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
   handleSelectChange: (name: string, value: string) => void;
   handleCheckboxChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
-  errors: any;
 }
 
 export const ProductGeneralInfo = ({
   productData,
   handleInputChange,
   handleSelectChange,
-  handleCheckboxChange,
-  errors
+  handleCheckboxChange
 }: ProductGeneralInfoProps) => {
-  const { register } = useFormContext<ProductFormValues>();
-
   return (
     <Card>
       <CardContent className="p-6">
         <h2 className="text-lg font-semibold mb-4">Informations générales</h2>
         
         <div className="space-y-4">
-          <FormItem>
-            <FormLabel htmlFor="name" className="block text-sm font-medium text-gray-700">
+          <div>
+            <label htmlFor="name" className="block text-sm font-medium text-gray-700">
               Nom du produit *
-            </FormLabel>
-            <FormControl>
-              <Input
-                id="name"
-                {...register("name", { 
-                  onChange: handleInputChange 
-                })}
-                className={`mt-1 block w-full ${errors?.name ? "border-red-500" : ""}`}
-                required
-              />
-            </FormControl>
-            {errors?.name && (
-              <FormMessage>{errors.name.message}</FormMessage>
-            )}
-          </FormItem>
-          
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <FormItem>
-              <FormLabel htmlFor="price" className="block text-sm font-medium text-gray-700">
-                Prix (€) *
-              </FormLabel>
-              <FormControl>
-                <Input
-                  id="price"
-                  type="number"
-                  step="0.01"
-                  min="0"
-                  {...register("price", { 
-                    valueAsNumber: true,
-                    onChange: handleInputChange
-                  })}
-                  className={`mt-1 block w-full ${errors?.price ? "border-red-500" : ""}`}
-                  required
-                />
-              </FormControl>
-              {errors?.price && (
-                <FormMessage>{errors.price.message}</FormMessage>
-              )}
-            </FormItem>
-            
-            <FormItem>
-              <FormLabel htmlFor="original_price" className="block text-sm font-medium text-gray-700">
-                Prix d'origine (€)
-              </FormLabel>
-              <FormControl>
-                <Input
-                  id="original_price"
-                  type="number"
-                  step="0.01"
-                  min="0"
-                  {...register("original_price", { 
-                    valueAsNumber: true,
-                    onChange: handleInputChange
-                  })}
-                  className="mt-1 block w-full"
-                  placeholder="Facultatif"
-                />
-              </FormControl>
-            </FormItem>
+            </label>
+            <Input
+              id="name"
+              name="name"
+              value={productData.name}
+              onChange={handleInputChange}
+              className="mt-1 block w-full"
+              required
+            />
           </div>
           
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <FormItem>
-              <FormLabel htmlFor="category" className="block text-sm font-medium text-gray-700">
+            <div>
+              <label htmlFor="price" className="block text-sm font-medium text-gray-700">
+                Prix (€) *
+              </label>
+              <Input
+                id="price"
+                name="price"
+                type="number"
+                step="0.01"
+                min="0"
+                value={productData.price}
+                onChange={handleInputChange}
+                className="mt-1 block w-full"
+                required
+              />
+            </div>
+            
+            <div>
+              <label htmlFor="original_price" className="block text-sm font-medium text-gray-700">
+                Prix d'origine (€)
+              </label>
+              <Input
+                id="original_price"
+                name="original_price"
+                type="number"
+                step="0.01"
+                min="0"
+                value={productData.original_price || ""}
+                onChange={handleInputChange}
+                className="mt-1 block w-full"
+                placeholder="Facultatif"
+              />
+            </div>
+          </div>
+          
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label htmlFor="category" className="block text-sm font-medium text-gray-700">
                 Catégorie *
-              </FormLabel>
+              </label>
               <Select
-                defaultValue={productData.category}
+                value={productData.category}
                 onValueChange={(value) => handleSelectChange("category", value)}
               >
-                <SelectTrigger className={`mt-1 w-full ${errors?.category ? "border-red-500" : ""}`}>
+                <SelectTrigger className="mt-1 w-full">
                   <SelectValue placeholder="Sélectionner une catégorie" />
                 </SelectTrigger>
                 <SelectContent>
@@ -133,50 +112,43 @@ export const ProductGeneralInfo = ({
                   <SelectItem value="sport">Sport & Loisirs</SelectItem>
                 </SelectContent>
               </Select>
-              {errors?.category && (
-                <FormMessage>{errors.category.message}</FormMessage>
-              )}
-            </FormItem>
+            </div>
             
-            <FormItem>
-              <FormLabel htmlFor="subcategory" className="block text-sm font-medium text-gray-700">
+            <div>
+              <label htmlFor="subcategory" className="block text-sm font-medium text-gray-700">
                 Sous-catégorie
-              </FormLabel>
-              <FormControl>
-                <Input
-                  id="subcategory"
-                  {...register("subcategory", { 
-                    onChange: handleInputChange 
-                  })}
-                  className="mt-1 block w-full"
-                  placeholder="Facultatif"
-                />
-              </FormControl>
-            </FormItem>
+              </label>
+              <Input
+                id="subcategory"
+                name="subcategory"
+                value={productData.subcategory || ""}
+                onChange={handleInputChange}
+                className="mt-1 block w-full"
+                placeholder="Facultatif"
+              />
+            </div>
           </div>
           
-          <FormItem>
-            <FormLabel htmlFor="description" className="block text-sm font-medium text-gray-700">
+          <div>
+            <label htmlFor="description" className="block text-sm font-medium text-gray-700">
               Description
-            </FormLabel>
-            <FormControl>
-              <Textarea
-                id="description"
-                {...register("description", { 
-                  onChange: handleInputChange 
-                })}
-                className="mt-1 block w-full"
-                rows={5}
-              />
-            </FormControl>
-          </FormItem>
+            </label>
+            <Textarea
+              id="description"
+              name="description"
+              value={productData.description || ""}
+              onChange={handleInputChange}
+              className="mt-1 block w-full"
+              rows={5}
+            />
+          </div>
           
-          <FormItem>
-            <FormLabel className="block text-sm font-medium text-gray-700 mb-2">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
               Statut du produit
-            </FormLabel>
+            </label>
             <Select
-              defaultValue={productData.status}
+              value={productData.status}
               onValueChange={(value) => handleSelectChange("status", value as 'draft' | 'published' | 'archived')}
             >
               <SelectTrigger className="w-full">
@@ -188,16 +160,15 @@ export const ProductGeneralInfo = ({
                 <SelectItem value="archived">Archivé</SelectItem>
               </SelectContent>
             </Select>
-          </FormItem>
+          </div>
           
           <div className="flex items-center">
             <input
               id="is_customizable"
+              name="is_customizable"
               type="checkbox"
               checked={productData.is_customizable}
-              {...register("is_customizable", { 
-                onChange: handleCheckboxChange 
-              })}
+              onChange={handleCheckboxChange}
               className="h-4 w-4 text-teal-600 focus:ring-teal-500 border-gray-300 rounded"
             />
             <label htmlFor="is_customizable" className="ml-2 block text-sm text-gray-700">

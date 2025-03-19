@@ -15,7 +15,7 @@ const Index = () => {
   const [products, setProducts] = useState<Product[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   
-  // Fetch products from Supabase and subscribe to real-time updates
+  // Fetch products from Supabase
   useEffect(() => {
     const fetchProducts = async () => {
       try {
@@ -34,7 +34,7 @@ const Index = () => {
           console.log("Fetched products:", data);
           console.log("Number of products fetched:", data?.length || 0);
           
-          // Map Supabase data to Product type
+          // Map Supabase data to Product type, adding missing required properties
           const mappedProducts: Product[] = data?.map(item => ({
             id: item.id,
             name: item.name,
@@ -44,11 +44,14 @@ const Index = () => {
             category: item.category,
             subcategory: item.subcategory || '',
             description: item.description || '',
+            // Add the missing required properties with default values
             rating: 5, // Default rating
             reviewCount: 0, // Default review count
+            // Optionally, include additional properties from Supabase
             color: '',
             date: item.created_at,
             isNew: false,
+            // Inclure les variantes pour une utilisation ultérieure
             variants: item.variants
           })) || [];
           
@@ -64,75 +67,6 @@ const Index = () => {
     };
     
     fetchProducts();
-    
-    // Set up real-time subscription for products_master table
-    const productsSubscription = supabase
-      .channel('public:products_master')
-      .on('postgres_changes', 
-        { 
-          event: '*', 
-          schema: 'public', 
-          table: 'products_master',
-          filter: 'status=published'
-        }, 
-        (payload) => {
-          console.log('Real-time update received:', payload);
-          
-          // Handle different types of changes
-          if (payload.eventType === 'INSERT') {
-            const newProduct = payload.new;
-            // Map new product to Product type
-            const mappedNewProduct: Product = {
-              id: newProduct.id,
-              name: newProduct.name,
-              price: newProduct.price,
-              originalPrice: newProduct.original_price || undefined,
-              image: newProduct.image || '/placeholder.svg',
-              category: newProduct.category,
-              subcategory: newProduct.subcategory || '',
-              description: newProduct.description || '',
-              rating: 5, // Default rating
-              reviewCount: 0, // Default review count
-              color: '',
-              date: newProduct.created_at,
-              isNew: true, // Mark as new
-              variants: newProduct.variants
-            };
-            
-            toast.success(`Nouveau produit ajouté: ${newProduct.name}`);
-            setProducts(prev => [mappedNewProduct, ...prev]);
-          } 
-          else if (payload.eventType === 'UPDATE') {
-            const updatedProduct = payload.new;
-            
-            // Update existing product
-            setProducts(prev => prev.map(product => 
-              product.id === updatedProduct.id ? 
-              {
-                ...product,
-                name: updatedProduct.name,
-                price: updatedProduct.price,
-                originalPrice: updatedProduct.original_price || undefined,
-                image: updatedProduct.image || '/placeholder.svg',
-                category: updatedProduct.category,
-                subcategory: updatedProduct.subcategory || '',
-                description: updatedProduct.description || '',
-                variants: updatedProduct.variants
-              } : product
-            ));
-          }
-          else if (payload.eventType === 'DELETE') {
-            const deletedProductId = payload.old.id;
-            setProducts(prev => prev.filter(product => product.id !== deletedProductId));
-          }
-        }
-      )
-      .subscribe();
-      
-    // Clean up subscription when component unmounts
-    return () => {
-      productsSubscription.unsubscribe();
-    };
   }, []);
   
   return (

@@ -5,15 +5,25 @@ import { Dot } from "lucide-react";
 import { formatDistanceToNow } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import { Link } from 'react-router-dom';
-import { Product as ProductType } from "@/types/product";
 
-interface Product extends ProductType {
-  // Additional properties required by ProductList but optional in ProductType
+interface Product {
+  id: string;
+  name: string;
+  price: number;
   originalPrice: number;
+  image: string;
+  rating: number;
+  reviewCount: number;
+  category: string;
+  subcategory: string;
+  // Optional fields to fix TypeScript errors
+  description?: string;
+  color?: string;
+  date?: string;
 }
 
 interface ProductListProps {
-  products?: ProductType[];
+  products?: Product[];
   layout?: 'grid' | 'list';
   responsive?: boolean;
   categoryId?: string;
@@ -48,7 +58,7 @@ const ProductList = ({ products, layout = 'grid', responsive = true }: ProductLi
                 <p className="text-sm text-gray-500 mt-1 line-clamp-2">{product.description}</p>
                 <div className="mt-2 flex items-center gap-2">
                   <span className="font-semibold">{product.price} €</span>
-                  {product.originalPrice && product.originalPrice > product.price && (
+                  {product.originalPrice > product.price && (
                     <span className="text-sm text-gray-500 line-through">{product.originalPrice} €</span>
                   )}
                   {product.color && (

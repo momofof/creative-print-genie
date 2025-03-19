@@ -1,5 +1,5 @@
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Product } from "@/types/dashboard";
 import { toast } from "sonner";
@@ -9,34 +9,6 @@ export const useProducts = () => {
   const [products, setProducts] = useState<Product[]>([]);
   const [isLoading, setIsLoading] = useState(false);
 
-  // Set up real-time subscription for products
-  useEffect(() => {
-    const productsSubscription = supabase
-      .channel('public:products_master:supplier_dashboard')
-      .on('postgres_changes', 
-        { 
-          event: '*', 
-          schema: 'public', 
-          table: 'products_master'
-        }, 
-        (payload) => {
-          console.log('Real-time supplier dashboard update received:', payload);
-          
-          // Refresh products after any change
-          fetchProducts();
-        }
-      )
-      .subscribe();
-      
-    // Initial fetch
-    fetchProducts();
-      
-    // Clean up subscription when component unmounts
-    return () => {
-      productsSubscription.unsubscribe();
-    };
-  }, []);
-
   // Fetch products from Supabase
   const fetchProducts = async () => {
     setIsLoading(true);
@@ -44,7 +16,8 @@ export const useProducts = () => {
       const { data, error } = await supabase
         .from('products_master')
         .select('*')
-        .order('created_at', { ascending: false });
+        .order('created_at', { ascending: false })
+        .limit(10);
 
       if (error) {
         console.error("Erreur lors de la récupération des produits:", error);
@@ -97,7 +70,8 @@ export const useProducts = () => {
         toast.error("Impossible de supprimer le produit");
         return false;
       } else {
-        // Update is handled by the real-time subscription now
+        // Update products list
+        setProducts(products.filter(product => product.id !== productId));
         toast.success("Produit supprimé avec succès");
         return true;
       }
