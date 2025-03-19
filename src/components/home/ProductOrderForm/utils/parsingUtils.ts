@@ -10,15 +10,15 @@ export const parseVariants = (variantsJson: any): Record<string, string[]> => {
       return JSON.parse(variantsJson);
     }
     
-    // If variantsJson is an array of objects with properties like size, color, etc.
+    // Si variantsJson est un tableau d'objets avec des propriétés size, color, etc.
     if (Array.isArray(variantsJson)) {
-      // Extract unique values for each property
+      // Extraire les valeurs uniques pour chaque propriété
       const result: Record<string, string[]> = {};
       
       variantsJson.forEach(variant => {
         Object.entries(variant).forEach(([key, value]) => {
-          // Ignore properties that are not variants
-          if (['id', 'product_id', 'stock', 'price_adjustment', 'status', 'hex_color', 'created_at', 'updated_at'].includes(key)) return;
+          // Ignorer les propriétés qui ne sont pas des variantes
+          if (['stock', 'price_adjustment', 'status', 'hex_color'].includes(key)) return;
           
           if (!result[key]) {
             result[key] = [];
@@ -46,7 +46,7 @@ export const extractVariantOptionsFromProduct = (product: Product): Record<strin
     if (!product) return {};
     
     // Check if product has variants property - could be string or object
-    const productVariants = product.variants;
+    const productVariants = product.variants as any;
     
     if (!productVariants) return {};
     
@@ -60,20 +60,19 @@ export const extractVariantOptionsFromProduct = (product: Product): Record<strin
       
       variants.forEach(variant => {
         Object.entries(variant).forEach(([key, value]) => {
-          // Ignore properties that are not variants
-          if (['id', 'product_id', 'stock', 'price_adjustment', 'status', 'hex_color', 'created_at', 'updated_at'].includes(key)) return;
+          // Ignorer les propriétés qui ne sont pas des variantes
+          if (['stock', 'price_adjustment', 'status', 'hex_color'].includes(key)) return;
           
           if (!result[key]) {
             result[key] = [];
           }
           
-          if (typeof value === 'string' && !result[key].includes(value as string)) {
+          if (typeof value === 'string' && !result[key].includes(value)) {
             result[key].push(value as string);
           }
         });
       });
       
-      console.log("Extracted variant options:", result);
       return result;
     }
     

@@ -63,49 +63,10 @@ export const useOrderFormState = (): UseOrderFormStateResult => {
   // Reset variants when product changes
   useEffect(() => {
     if (selectedProduct) {
-      // Reset variants when product changes
+      // Réinitialiser les variantes à chaque changement de produit
       setVariants({});
-      
-      // Extract available variants from the product if it has them
-      if (selectedProduct.variants && typeof selectedProduct.variants === 'object') {
-        try {
-          console.log("Product has variants:", selectedProduct.variants);
-          const variantOptions = extractVariantOptionsFromProduct(selectedProduct);
-          console.log("Extracted variant types:", variantOptions);
-          
-          // If we extracted variant options, use their keys as available variants
-          if (Object.keys(variantOptions).length > 0) {
-            setAvailableVariants(Object.keys(variantOptions));
-          } else {
-            // Fallback to getting variants based on category if no variants in product
-            const category = selectedProduct.category || '';
-            console.log("Using category for variants:", category);
-            const variantsFromCategory = getAvailableVariantsFromCategory(category);
-            setAvailableVariants(variantsFromCategory);
-          }
-        } catch (error) {
-          console.error("Error extracting variants from product:", error);
-          // Fallback to category-based variants
-          const category = selectedProduct.category || '';
-          const variantsFromCategory = getAvailableVariantsFromCategory(category);
-          setAvailableVariants(variantsFromCategory);
-        }
-      } else {
-        // Use category-based variants if product doesn't have variants
-        const category = selectedProduct.category || '';
-        console.log("Product has no variants, using category:", category);
-        const variantsFromCategory = getAvailableVariantsFromCategory(category);
-        setAvailableVariants(variantsFromCategory);
-      }
     }
   }, [selectedProduct]);
-  
-  // Helper function to get variants based on category
-  const getAvailableVariantsFromCategory = (category: string): string[] => {
-    // This is a placeholder - in real implementation you should import getAvailableVariants from your config
-    // Return common variant types as fallback
-    return ["color", "size"];
-  };
 
   return {
     selectedProduct,

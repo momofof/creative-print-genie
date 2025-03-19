@@ -9,8 +9,6 @@ const availableVariants: Record<string, string[]> = {
   "stickers": ["size", "finish"],
   "accessoires": ["color", "size"],
   "casquettes": ["color", "size"],
-  "velo": ["color", "size", "type"],
-  "maison": ["color", "design", "size"],
 };
 
 // Define variant options for each product category and variant type
@@ -50,16 +48,6 @@ const variantOptions: Record<string, Record<string, string[]>> = {
     "color": ["red", "blue", "green", "black", "white", "Noir", "Blanc", "Bleu", "Rouge", "Vert"],
     "size": ["Unique"],
   },
-  "velo": {
-    "color": ["Rouge", "Bleu", "Noir", "Blanc", "Vert", "Jaune"],
-    "size": ["S", "M", "L", "XL"],
-    "type": ["Ville", "Route", "VTT", "Électrique"],
-  },
-  "maison": {
-    "color": ["Beige", "Blanc", "Gris", "Noir", "Naturel"],
-    "design": ["Moderne", "Classique", "Rustique"],
-    "size": ["Petit", "Moyen", "Grand"],
-  },
 };
 
 // Define quantity options for each product category
@@ -72,61 +60,28 @@ const quantityOptions: Record<string, number[]> = {
   "stickers": [10, 20, 30, 40, 50, 100],
   "accessoires": [1, 2, 3, 4, 5, 10],
   "casquettes": [1, 2, 3, 4, 5, 10],
-  "velo": [1, 2, 3],
-  "maison": [1, 2, 3, 4, 5],
 };
 
 // Function to get available variants for a product category
 export const getAvailableVariants = (category: string): string[] => {
-  // First check the exact category, then check lowercase
-  const exactMatch = availableVariants[category];
-  if (exactMatch) return exactMatch;
-  
-  // Try lowercase match
-  const lowercaseMatch = availableVariants[category.toLowerCase()];
-  if (lowercaseMatch) return lowercaseMatch;
-  
-  // Default variants if no match is found - common variants that most products have
-  console.log(`No variant config found for category: ${category}, using default variants`);
-  return ["color", "size"];
+  // Vérifier d'abord la catégorie exacte, puis vérifier la subcategory si pas trouvé
+  return availableVariants[category] || 
+         availableVariants[category.toLowerCase()] || 
+         [];
 };
 
 // Function to get variant options for a product category and variant type
 export const getVariantOptions = (category: string, variantType: string): string[] => {
-  // First check for exact category match
-  if (variantOptions[category]?.[variantType]) {
-    return variantOptions[category][variantType];
-  }
-  
-  // Try lowercase match
-  if (variantOptions[category.toLowerCase()]?.[variantType]) {
-    return variantOptions[category.toLowerCase()][variantType];
-  }
-  
-  // Default options for common variant types if no match is found
-  if (variantType === "color") {
-    return ["Noir", "Blanc", "Bleu", "Rouge", "Vert"];
-  } else if (variantType === "size") {
-    return ["S", "M", "L", "XL"];
-  }
-  
-  console.log(`No options found for category: ${category}, variant type: ${variantType}, using empty array`);
-  return [];
+  // Vérifier d'abord la catégorie exacte, puis vérifier la subcategory si pas trouvé
+  return variantOptions[category]?.[variantType] || 
+         variantOptions[category.toLowerCase()]?.[variantType] || 
+         [];
 };
 
 // Function to get quantity options for a product category
 export const getQuantityOptions = (category: string): number[] => {
-  // First check for exact category match
-  if (quantityOptions[category]) {
-    return quantityOptions[category];
-  }
-  
-  // Try lowercase match
-  if (quantityOptions[category.toLowerCase()]) {
-    return quantityOptions[category.toLowerCase()];
-  }
-  
-  // Default quantity options if no match is found
-  console.log(`No quantity options found for category: ${category}, using default quantities`);
-  return [1, 2, 3, 4, 5];
+  // Vérifier d'abord la catégorie exacte, puis vérifier la subcategory si pas trouvé
+  return quantityOptions[category] || 
+         quantityOptions[category.toLowerCase()] || 
+         [1, 2, 3, 4, 5];
 };

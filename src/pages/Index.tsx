@@ -34,38 +34,29 @@ const Index = () => {
           console.log("Fetched products:", data);
           console.log("Number of products fetched:", data?.length || 0);
           
-          if (data && data.length > 0) {
-            // Log categories to debug
-            const categories = [...new Set(data.map(item => item.category))];
-            console.log("Available product categories:", categories);
-            
-            // Map Supabase data to Product type
-            const mappedProducts: Product[] = data.map(item => ({
-              id: item.id,
-              name: item.name,
-              price: item.price,
-              originalPrice: item.original_price || item.price,
-              image: item.image || '/placeholder.svg',
-              category: item.category,
-              subcategory: item.subcategory || '',
-              description: item.description || '',
-              // Add the missing required properties with default values
-              rating: 5, // Default rating
-              reviewCount: 0, // Default review count
-              // Optionally, include additional properties from Supabase
-              color: '',
-              date: item.created_at,
-              isNew: new Date(item.created_at).getTime() > Date.now() - (7 * 24 * 60 * 60 * 1000), // New if created in the last 7 days
-              // Include variants for later use
-              variants: item.variants
-            }));
-            
-            console.log("Mapped products:", mappedProducts);
-            setProducts(mappedProducts);
-          } else {
-            console.log("No products found or data is empty");
-            setProducts([]);
-          }
+          // Map Supabase data to Product type, adding missing required properties
+          const mappedProducts: Product[] = data?.map(item => ({
+            id: item.id,
+            name: item.name,
+            price: item.price,
+            originalPrice: item.original_price || undefined,
+            image: item.image || '/placeholder.svg',
+            category: item.category,
+            subcategory: item.subcategory || '',
+            description: item.description || '',
+            // Add the missing required properties with default values
+            rating: 5, // Default rating
+            reviewCount: 0, // Default review count
+            // Optionally, include additional properties from Supabase
+            color: '',
+            date: item.created_at,
+            isNew: false,
+            // Inclure les variantes pour une utilisation ultérieure
+            variants: item.variants
+          })) || [];
+          
+          console.log("Mapped products:", mappedProducts);
+          setProducts(mappedProducts);
         }
       } catch (error) {
         console.error("Error:", error);

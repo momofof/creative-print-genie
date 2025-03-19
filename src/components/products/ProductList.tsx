@@ -5,7 +5,22 @@ import { Dot } from "lucide-react";
 import { formatDistanceToNow } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import { Link } from 'react-router-dom';
-import { Product } from "@/types/product";
+
+interface Product {
+  id: string;
+  name: string;
+  price: number;
+  originalPrice: number;
+  image: string;
+  rating: number;
+  reviewCount: number;
+  category: string;
+  subcategory: string;
+  // Optional fields to fix TypeScript errors
+  description?: string;
+  color?: string;
+  date?: string;
+}
 
 interface ProductListProps {
   products?: Product[];
