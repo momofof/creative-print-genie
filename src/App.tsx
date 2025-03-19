@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import Index from "@/pages/Index";
@@ -10,8 +9,10 @@ import Cart from "@/pages/Cart";
 import Products from "@/pages/Products";
 import AuthStateWrapper from "@/components/home/AuthStateWrapper";
 import Favorites from "./pages/Favorites";
+import ForgotPassword from "./pages/auth/ForgotPassword";
+import ResetPassword from "./pages/auth/ResetPassword";
 
-function App() {
+const App = () => {
   return (
     <Router>
       <AuthStateWrapper>
@@ -26,11 +27,13 @@ function App() {
           <Route path="/products" element={<Products />} />
           <Route path="/products/:categoryId" element={<Products />} />
           <Route path="/products/:categoryId/:subcategoryId" element={<Products />} />
+          <Route path="/forgot-password" element={<ForgotPassword />} />
+          <Route path="/reset-password" element={<ResetPassword />} />
           <Route path="*" element={<Index />} />
         </Routes>
       </AuthStateWrapper>
     </Router>
   );
-}
+};
 
 export default App;
