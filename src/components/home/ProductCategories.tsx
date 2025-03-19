@@ -1,6 +1,5 @@
-
 import { Link } from "react-router-dom";
-import { productCategories } from "@/data/productData";
+import { productCategories } from "@/data";
 
 const ProductCategories = () => {
   return (

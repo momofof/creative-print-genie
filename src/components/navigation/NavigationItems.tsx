@@ -1,6 +1,6 @@
 
 import NavigationItem from "./NavigationItem";
-import { productCategories } from "@/data/productData";
+import { productCategories } from "@/data";
 import { Briefcase } from "lucide-react";
 
 interface NavigationItemsProps {

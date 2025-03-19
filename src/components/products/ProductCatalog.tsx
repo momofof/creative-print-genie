@@ -1,6 +1,6 @@
 
 import React from "react";
-import { productCategories } from "@/data/productData";
+import { productCategories } from "@/data";
 import CatalogHeader from "./CatalogHeader";
 import CategoryGrid from "./CategoryGrid";
 

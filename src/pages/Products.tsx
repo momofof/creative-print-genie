@@ -1,6 +1,6 @@
 
 import Navigation from "@/components/Navigation";
-import { productCategories, allProducts } from "@/data/productData";
+import { productCategories, allProducts } from "@/data";
 import { useParams } from "react-router-dom";
 import CategoryDetailView from "@/components/products/CategoryDetailView";
 import ProductList from "@/components/products/ProductList";

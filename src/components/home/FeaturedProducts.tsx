@@ -1,6 +1,6 @@
 
 import { Link } from "react-router-dom";
-import { featuredProducts } from "@/data/productData";
+import { featuredProducts } from "@/data";
 import { Card, CardContent } from "@/components/ui/card";
 import { Star } from "lucide-react";
 

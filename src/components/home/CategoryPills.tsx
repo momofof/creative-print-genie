@@ -1,6 +1,5 @@
-
 import { Link } from "react-router-dom";
-import { categoryPills } from "@/data/productData";
+import { categoryPills } from "@/data";
 
 const CategoryPills = () => {
   return (
