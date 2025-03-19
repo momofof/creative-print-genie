@@ -2,8 +2,7 @@
 import { useState, useEffect } from "react";
 import { Product } from "@/types/product";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { supabase } from "@/integrations/supabase/client";
-import { parseVariants, extractVariantOptionsFromProduct } from "../utils";
+import { useAuth } from "@/hooks/useAuth";
 
 interface UseOrderFormStateResult {
   selectedProduct: Product | undefined;
@@ -14,7 +13,6 @@ interface UseOrderFormStateResult {
   setVariants: React.Dispatch<React.SetStateAction<Record<string, string>>>;
   availableVariants: string[];
   setAvailableVariants: React.Dispatch<React.SetStateAction<string[]>>;
-  userId: string | null;
   openIllustration: boolean;
   setOpenIllustration: (open: boolean) => void;
 }
@@ -25,33 +23,8 @@ export const useOrderFormState = (): UseOrderFormStateResult => {
   const [variants, setVariants] = useState<Record<string, string>>({});
   const [availableVariants, setAvailableVariants] = useState<string[]>([]);
   const [openIllustration, setOpenIllustration] = useState(false);
-  const [userId, setUserId] = useState<string | null>(null);
   const isMobile = useIsMobile();
-  
-  // Check if user is logged in
-  useEffect(() => {
-    const checkAuth = async () => {
-      const { data } = await supabase.auth.getUser();
-      if (data?.user) {
-        setUserId(data.user.id);
-      }
-    };
-    
-    checkAuth();
-    
-    // Listen for auth changes
-    const { data: authListener } = supabase.auth.onAuthStateChange((event, session) => {
-      if (session?.user) {
-        setUserId(session.user.id);
-      } else {
-        setUserId(null);
-      }
-    });
-    
-    return () => {
-      authListener?.subscription.unsubscribe();
-    };
-  }, []);
+  const { userId } = useAuth();
 
   // Automatically open the illustration sheet on mobile when variants are selected
   useEffect(() => {
@@ -77,7 +50,6 @@ export const useOrderFormState = (): UseOrderFormStateResult => {
     setVariants,
     availableVariants,
     setAvailableVariants,
-    userId,
     openIllustration,
     setOpenIllustration
   };

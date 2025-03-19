@@ -5,6 +5,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { orderService, OrderItem } from "@/services/orderService";
 import { toast } from "sonner";
 import { parseJsonArray } from "@/utils/jsonUtils";
+import { useAuth } from "@/hooks/useAuth";
+import { useNavigate } from "react-router-dom";
 
 // Define a type for cart items
 interface CartItem {
@@ -20,7 +22,6 @@ interface UseOrderSubmissionProps {
   selectedProduct: Product | undefined;
   selectedQuantity: number | null;
   variants: Record<string, string>;
-  userId: string | null;
   onOrderSuccess: () => void;
 }
 
@@ -28,16 +29,24 @@ export const useOrderSubmission = ({
   selectedProduct,
   selectedQuantity,
   variants,
-  userId,
   onOrderSuccess
 }: UseOrderSubmissionProps) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const { isLoggedIn, userId } = useAuth();
+  const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
     if (!selectedProduct || !selectedQuantity) {
       toast.error("Veuillez sélectionner un produit et une quantité");
+      return;
+    }
+    
+    // Vérifier si l'utilisateur est connecté
+    if (!isLoggedIn) {
+      toast.error("Veuillez vous connecter pour passer commande");
+      navigate("/auth");
       return;
     }
     
