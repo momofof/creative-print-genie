@@ -5,6 +5,7 @@ import { useParams } from "react-router-dom";
 import CategoryDetailView from "@/components/products/CategoryDetailView";
 import CategoriesOverview from "@/components/products/CategoriesOverview";
 import ProductList from "@/components/products/ProductList";
+import ProductCatalog from "@/components/products/ProductCatalog";
 import NewArrivalsSection from "@/components/products/NewArrivalsSection";
 import PromotionalBanner from "@/components/products/PromotionalBanner";
 import DesignServiceBanner from "@/components/products/DesignServiceBanner";
@@ -37,24 +38,19 @@ const Products = () => {
     <div className="min-h-screen bg-white">
       <Navigation />
       
-      {currentCategory ? (
+      {categoryId ? (
+        // Vue détaillée de catégorie spécifique
         <>
-          <CategoryDetailView category={currentCategory} />
+          <CategoryDetailView category={currentCategory!} />
           
           <div className="max-w-7xl mx-auto px-4 py-8">
-            <h2 className="text-2xl font-bold mb-6">{subcategoryId || currentCategory.title}</h2>
+            <h2 className="text-2xl font-bold mb-6">{subcategoryId || currentCategory?.title}</h2>
             <ProductList products={filteredProducts} />
           </div>
         </>
       ) : (
-        <>
-          <CategoriesOverview displayedCategories={displayedCategories} />
-          
-          <div className="max-w-7xl mx-auto px-4 py-8">
-            <h2 className="text-2xl font-bold mb-6">Tous nos produits</h2>
-            <ProductList products={allProducts.slice(0, 8)} />
-          </div>
-        </>
+        // Page principale des produits avec le catalogue
+        <ProductCatalog />
       )}
 
       {/* Sections promotionnelles placées après la liste de produits pour toutes les vues */}
