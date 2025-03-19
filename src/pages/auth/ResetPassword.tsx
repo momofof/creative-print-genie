@@ -7,23 +7,27 @@ import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { Loader2 } from "lucide-react";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 
 const ResetPassword = () => {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [hasResetToken, setHasResetToken] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
 
   useEffect(() => {
     // Check if the URL contains a reset token
     const hash = window.location.hash.substring(1);
     const params = new URLSearchParams(hash);
+    
     if (params.get('type') === 'recovery') {
+      console.log("Recovery token found in URL");
       setHasResetToken(true);
     } else {
-      toast.error("Lien de réinitialisation invalide");
-      navigate("/login");
+      console.log("No recovery token found in URL:", hash);
+      setError("Lien de réinitialisation invalide ou expiré");
     }
   }, [navigate]);
 
@@ -35,11 +39,16 @@ const ResetPassword = () => {
       return;
     }
     
+    if (password.length < 6) {
+      toast.error("Le mot de passe doit contenir au moins 6 caractères");
+      return;
+    }
+    
     setIsLoading(true);
 
     try {
       const { error } = await supabase.auth.updateUser({
-        password: password
+        password
       });
 
       if (error) {
@@ -53,17 +62,48 @@ const ResetPassword = () => {
     } catch (error: any) {
       console.error("Erreur de réinitialisation:", error);
       toast.error(error.message || "Erreur lors de la mise à jour du mot de passe");
+      setError(error.message || "Erreur lors de la mise à jour du mot de passe");
     } finally {
       setIsLoading(false);
     }
   };
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-white">
+        <Navigation />
+        <div className="pt-32 px-4">
+          <div className="max-w-md mx-auto">
+            <h1 className="text-3xl font-bold mb-6 text-center">Réinitialiser le mot de passe</h1>
+            <div className="bg-white p-8 rounded-lg shadow-sm border border-gray-200">
+              <Alert variant="destructive">
+                <AlertDescription>{error}</AlertDescription>
+              </Alert>
+              <Button
+                className="w-full mt-4 bg-accent text-accent-foreground rounded-full py-2 hover:bg-accent/90"
+                onClick={() => navigate("/forgot-password")}
+              >
+                Demander un nouveau lien
+              </Button>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   if (!hasResetToken) {
     return (
       <div className="min-h-screen bg-white">
         <Navigation />
         <div className="pt-32 px-4 text-center">
-          <p>Redirection en cours...</p>
+          <div className="max-w-md mx-auto">
+            <h1 className="text-3xl font-bold mb-6 text-center">Réinitialiser le mot de passe</h1>
+            <div className="bg-white p-8 rounded-lg shadow-sm border border-gray-200">
+              <Loader2 className="h-8 w-8 animate-spin mx-auto mb-4" />
+              <p>Vérification du lien de réinitialisation...</p>
+            </div>
+          </div>
         </div>
       </div>
     );
