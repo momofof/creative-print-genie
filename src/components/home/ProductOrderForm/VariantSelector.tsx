@@ -54,6 +54,7 @@ const VariantSelector = ({
           <Select
             onValueChange={onChange}
             value={selectedValue || ""}
+            defaultValue={selectedValue || ""}
           >
             <SelectTrigger>
               <SelectValue placeholder={`Choisir ${displayName.toLowerCase()}...`} />
