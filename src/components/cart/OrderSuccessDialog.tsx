@@ -13,7 +13,6 @@ import {
 import { Link } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
-import { useCart } from "@/hooks/useCart";
 import { useSupplierDashboard } from "@/hooks/useSupplierDashboard";
 import ProductOrderForm from "../home/ProductOrderForm";
 import { convertDashboardToUIProducts } from "@/utils/productTypeConverter";
@@ -23,6 +22,7 @@ interface OrderSuccessDialogProps {
   onOpenChange: (open: boolean) => void;
   cartItems: CartItem[];
   totalPrice: number;
+  editCartItem?: (id: string, newQuantity: number, variants?: Record<string, string>) => void;
 }
 
 const OrderSuccessDialog = ({
@@ -30,9 +30,9 @@ const OrderSuccessDialog = ({
   onOpenChange,
   cartItems,
   totalPrice,
+  editCartItem,
 }: OrderSuccessDialogProps) => {
   const navigate = useNavigate();
-  const { editCartItem } = useCart();
   const [editMode, setEditMode] = useState(false);
   const [itemQuantities, setItemQuantities] = useState<Record<string, number>>({});
   const [editingItem, setEditingItem] = useState<CartItem | null>(null);
@@ -40,7 +40,7 @@ const OrderSuccessDialog = ({
   const { products, fetchProducts } = useSupplierDashboard();
   const [loadingProducts, setLoadingProducts] = useState(false);
   
-  // Initialiser les quantités locales quand les articles changent
+  // Initialize local quantities when items change
   useEffect(() => {
     const quantities: Record<string, number> = {};
     cartItems.forEach(item => {
@@ -51,7 +51,7 @@ const OrderSuccessDialog = ({
   }, [cartItems]);
 
   const handleContinueShoppingClick = () => {
-    // Fermer le dialogue et naviguer vers la page d'accueil
+    // Close dialog and navigate to home page
     onOpenChange(false);
     navigate('/');
   };
@@ -72,7 +72,12 @@ const OrderSuccessDialog = ({
   };
 
   const handleSaveChanges = () => {
-    // Appliquer les modifications à tous les articles
+    if (!editCartItem) {
+      onOpenChange(false);
+      return;
+    }
+    
+    // Apply modifications to all items
     cartItems.forEach(item => {
       const itemKey = getItemKey(item);
       const newQuantity = itemQuantities[itemKey];
@@ -83,11 +88,11 @@ const OrderSuccessDialog = ({
     });
     
     setEditMode(false);
-    onOpenChange(false); // Fermer la fenêtre après sauvegarde
-    navigate('/cart'); // Rediriger vers le panier pour voir les modifications
+    onOpenChange(false); // Close window after saving
+    navigate('/cart'); // Redirect to cart to see modifications
   };
 
-  // Calculer le total basé sur les quantités modifiées
+  // Calculate total based on modified quantities
   const calculateModifiedTotal = () => {
     return cartItems.reduce((sum, item) => {
       const itemKey = getItemKey(item);
@@ -97,7 +102,7 @@ const OrderSuccessDialog = ({
   };
 
   const handleOpenEditModal = async (item: CartItem) => {
-    // Charger les produits si ce n'est pas déjà fait
+    // Load products if not already done
     if (products.length === 0) {
       setLoadingProducts(true);
       await fetchProducts();
@@ -108,14 +113,14 @@ const OrderSuccessDialog = ({
   };
 
   const handleEditComplete = (productId: string, quantity: number, variants: Record<string, string>) => {
-    if (editingItem) {
+    if (editingItem && editCartItem) {
       editCartItem(editingItem.id, quantity, variants);
       
-      // Fermer le modal
+      // Close modal
       setEditModalOpen(false);
       setEditingItem(null);
       
-      // Fermer le dialog principal et rediriger vers le panier
+      // Close main dialog and redirect to cart
       onOpenChange(false);
       navigate('/cart');
     }
@@ -169,7 +174,7 @@ const OrderSuccessDialog = ({
                     <div className="flex-1">
                       <div className="flex justify-between">
                         <p className="font-medium">{item.name}</p>
-                        {!editMode && (
+                        {!editMode && editCartItem && (
                           <button
                             onClick={() => handleOpenEditModal(item)}
                             className="ml-2 text-blue-600 hover:text-blue-800"
@@ -265,7 +270,7 @@ const OrderSuccessDialog = ({
         </DialogContent>
       </Dialog>
       
-      {/* Modal d'édition du produit */}
+      {/* Product edit modal */}
       <Dialog open={editModalOpen} onOpenChange={setEditModalOpen}>
         <DialogContent className="sm:max-w-[800px]">
           <DialogHeader>
