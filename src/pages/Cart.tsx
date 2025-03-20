@@ -1,5 +1,4 @@
-
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Trash2, AlertTriangle } from "lucide-react";
 import { Link } from "react-router-dom";
 import { toast } from "sonner";
