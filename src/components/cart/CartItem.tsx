@@ -1,5 +1,5 @@
 
-import { MinusCircle, PlusCircle, Trash2, AlertTriangle } from "lucide-react";
+import { MinusCircle, PlusCircle, Trash2, AlertTriangle, Edit2 } from "lucide-react";
 import { CartItem as CartItemType } from "@/types/product";
 import {
   AlertDialog,
@@ -12,20 +12,47 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { useState } from "react";
+import ProductOrderForm from "../home/ProductOrderForm";
+import { useSupplierDashboard } from "@/hooks/useSupplierDashboard";
 
 interface CartItemProps {
   item: CartItemType;
   updateQuantity: (id: string, newQuantity: number) => void;
   removeItem: (id: string) => void;
+  editCartItem: (id: string, newQuantity: number, variants?: Record<string, string>) => void;
 }
 
-const CartItem = ({ item, updateQuantity, removeItem }: CartItemProps) => {
+const CartItem = ({ item, updateQuantity, removeItem, editCartItem }: CartItemProps) => {
   const [open, setOpen] = useState(false);
+  const [editModalOpen, setEditModalOpen] = useState(false);
+  const { products, fetchProducts } = useSupplierDashboard();
+  const [loadingProducts, setLoadingProducts] = useState(false);
   
   const handleRemove = () => {
     removeItem(item.id);
     setOpen(false);
+  };
+
+  const handleEditCartItem = (productId: string, quantity: number, variants: Record<string, string>) => {
+    editCartItem(item.id, quantity, variants);
+    setEditModalOpen(false);
+  };
+
+  const handleOpenEditModal = async () => {
+    // Charger les produits si ce n'est pas déjà fait
+    if (products.length === 0) {
+      setLoadingProducts(true);
+      await fetchProducts();
+      setLoadingProducts(false);
+    }
+    setEditModalOpen(true);
   };
 
   return (
@@ -72,6 +99,15 @@ const CartItem = ({ item, updateQuantity, removeItem }: CartItemProps) => {
             <PlusCircle size={20} />
           </button>
           
+          <button
+            onClick={handleOpenEditModal}
+            className="ml-2 text-blue-600 hover:text-blue-800 flex items-center gap-1"
+            aria-label="Modifier les options"
+          >
+            <Edit2 size={18} />
+            <span className="text-sm hidden sm:inline">Modifier</span>
+          </button>
+          
           <AlertDialog open={open} onOpenChange={setOpen}>
             <AlertDialogTrigger asChild>
               <button
@@ -105,6 +141,30 @@ const CartItem = ({ item, updateQuantity, removeItem }: CartItemProps) => {
           </AlertDialog>
         </div>
       </div>
+      
+      {/* Modal d'édition du produit */}
+      <Dialog open={editModalOpen} onOpenChange={setEditModalOpen}>
+        <DialogContent className="sm:max-w-[800px]">
+          <DialogHeader>
+            <DialogTitle>Modifier les options du produit</DialogTitle>
+          </DialogHeader>
+          
+          {loadingProducts ? (
+            <div className="flex justify-center py-8">
+              <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-accent"></div>
+            </div>
+          ) : (
+            <ProductOrderForm
+              products={products}
+              editMode={true}
+              initialProductId={item.id}
+              initialVariants={item.variants}
+              initialQuantity={item.quantity}
+              onEditComplete={handleEditCartItem}
+            />
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

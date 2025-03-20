@@ -1,7 +1,7 @@
 
 import { useIsMobile } from "@/hooks/use-mobile";
 import { Product, CartItem } from "@/types/product";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 // Import components
 import ProductIllustration from "./ProductIllustration";
@@ -15,9 +15,21 @@ import { useOrderSubmission } from "./hooks/useOrderSubmission";
 
 interface OrderFormProps {
   products: Product[];
+  editMode?: boolean;
+  initialProductId?: string;
+  initialVariants?: Record<string, string>;
+  initialQuantity?: number;
+  onEditComplete?: (productId: string, quantity: number, variants: Record<string, string>) => void;
 }
 
-const OrderForm = ({ products }: OrderFormProps) => {
+const OrderForm = ({ 
+  products, 
+  editMode = false, 
+  initialProductId, 
+  initialVariants = {}, 
+  initialQuantity,
+  onEditComplete 
+}: OrderFormProps) => {
   const isMobile = useIsMobile();
   const [showOrderSummary, setShowOrderSummary] = useState(false);
   const [orderSummaryItems, setOrderSummaryItems] = useState<CartItem[]>([]);
@@ -37,6 +49,18 @@ const OrderForm = ({ products }: OrderFormProps) => {
     openIllustration,
     setOpenIllustration
   } = useOrderFormState();
+  
+  // Set initial values if in edit mode
+  useEffect(() => {
+    if (editMode && initialProductId) {
+      const product = products.find(p => p.id === initialProductId);
+      if (product) {
+        setSelectedProduct(product);
+        if (initialQuantity) setSelectedQuantity(initialQuantity);
+        if (initialVariants) setVariants(initialVariants);
+      }
+    }
+  }, [editMode, initialProductId, initialQuantity, initialVariants, products, setSelectedProduct, setSelectedQuantity, setVariants]);
   
   const handleShowOrderSummary = (items: CartItem[], total: number) => {
     setOrderSummaryItems(items);
@@ -58,11 +82,22 @@ const OrderForm = ({ products }: OrderFormProps) => {
     },
     onShowOrderSummary: handleShowOrderSummary
   });
+  
+  // Handle edit completion
+  const handleUpdateProduct = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (onEditComplete && selectedProduct && selectedQuantity) {
+      onEditComplete(selectedProduct.id, selectedQuantity, variants);
+    }
+  };
 
   return (
     <div className="bg-white rounded-lg shadow-lg p-4 md:p-6 max-w-4xl mx-auto my-6 md:my-10">
       <div className="relative">
-        <h2 className="text-xl md:text-2xl font-bold text-gray-800 mb-4 md:mb-6">Commander vos produits</h2>
+        <h2 className="text-xl md:text-2xl font-bold text-gray-800 mb-4 md:mb-6">
+          {editMode ? "Modifier votre produit" : "Commander vos produits"}
+        </h2>
         
         {/* Mobile preview illustration - Positioned inside the form below the title */}
         {isMobile && selectedProduct && Object.keys(variants).length > 0 && (
@@ -85,8 +120,10 @@ const OrderForm = ({ products }: OrderFormProps) => {
             setVariants={setVariants}
             availableVariants={availableVariants}
             setAvailableVariants={setAvailableVariants}
-            handleSubmit={handleSubmit}
+            handleSubmit={editMode ? handleUpdateProduct : handleSubmit}
             isSubmitting={isSubmitting}
+            editMode={editMode}
+            productSelectionDisabled={editMode}
           />
         </div>
 

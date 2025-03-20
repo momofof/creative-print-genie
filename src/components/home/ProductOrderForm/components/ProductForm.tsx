@@ -31,6 +31,8 @@ interface ProductFormProps {
   setAvailableVariants: React.Dispatch<React.SetStateAction<string[]>>;
   handleSubmit: (e: React.FormEvent) => Promise<void>;
   isSubmitting: boolean;
+  editMode?: boolean;
+  productSelectionDisabled?: boolean;
 }
 
 const ProductForm = ({
@@ -44,7 +46,9 @@ const ProductForm = ({
   availableVariants,
   setAvailableVariants,
   handleSubmit,
-  isSubmitting
+  isSubmitting,
+  editMode = false,
+  productSelectionDisabled = false
 }: ProductFormProps) => {
   const [productVariantOptions, setProductVariantOptions] = useState<Record<string, string[]>>({});
   
@@ -74,13 +78,15 @@ const ProductForm = ({
       console.log("Extracted product variant options:", productOptions);
       setProductVariantOptions(productOptions);
       
-      // Reset variant selections when product changes
-      setVariants({});
+      // Only reset variant selections when product changes if not in edit mode
+      if (!editMode) {
+        setVariants({});
+      }
     } else {
       setAvailableVariants([]);
       setProductVariantOptions({});
     }
-  }, [selectedProduct, setAvailableVariants, setVariants]);
+  }, [selectedProduct, setAvailableVariants, setVariants, editMode]);
 
   const handleVariantChange = (variantType: string, value: string) => {
     setVariants(prev => ({ ...prev, [variantType]: value }));
@@ -123,6 +129,7 @@ const ProductForm = ({
           products={products} 
           selectedProduct={selectedProduct}
           onSelect={setSelectedProduct}
+          disabled={productSelectionDisabled}
         />
         
         {selectedProduct && (
@@ -136,7 +143,9 @@ const ProductForm = ({
             {/* Variant selectors */}
             {availableVariants.length > 0 && (
               <div className="space-y-4">
-                <h3 className="text-lg font-medium text-gray-800">Options spécifiques</h3>
+                <h3 className="text-lg font-medium text-gray-800">
+                  {editMode ? "Modifier les options" : "Options spécifiques"}
+                </h3>
                 <div className="grid grid-cols-1 gap-4">
                   {availableVariants.map((variantType) => (
                     <VariantSelector
@@ -196,7 +205,9 @@ const ProductForm = ({
               </svg>
               Traitement en cours...
             </span>
-          ) : "Commander"}
+          ) : (
+            editMode ? "Mettre à jour" : "Commander"
+          )}
         </button>
       </div>
     </form>

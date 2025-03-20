@@ -17,6 +17,7 @@ interface SearchableDropdownProps {
   products: Product[];
   onSelect: (product: Product) => void;
   selectedProduct?: Product;
+  disabled?: boolean;
 }
 
 const SearchableDropdown = ({
@@ -24,7 +25,8 @@ const SearchableDropdown = ({
   placeholder,
   products,
   onSelect,
-  selectedProduct
+  selectedProduct,
+  disabled = false
 }: SearchableDropdownProps) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [isOpen, setIsOpen] = useState(false);
@@ -43,10 +45,13 @@ const SearchableDropdown = ({
       <label className="block text-sm font-medium text-gray-700 mb-1">
         {label}
       </label>
-      <DropdownMenu open={isOpen} onOpenChange={setIsOpen}>
-        <DropdownMenuTrigger asChild>
+      <DropdownMenu open={disabled ? false : isOpen} onOpenChange={disabled ? undefined : setIsOpen}>
+        <DropdownMenuTrigger asChild disabled={disabled}>
           <button
-            className="flex items-center justify-between w-full border border-gray-300 bg-white rounded-md px-3 py-2 text-left text-sm"
+            className={cn(
+              "flex items-center justify-between w-full border border-gray-300 bg-white rounded-md px-3 py-2 text-left text-sm",
+              disabled && "opacity-75 cursor-not-allowed bg-gray-100"
+            )}
             aria-haspopup="listbox"
           >
             <span className={cn("block truncate", !selectedProduct && "text-gray-500")}>

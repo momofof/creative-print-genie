@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { Trash2, AlertTriangle } from "lucide-react";
 import { Link } from "react-router-dom";
@@ -25,7 +26,8 @@ const Cart = () => {
     totalPrice, 
     updateQuantity, 
     removeItem, 
-    clearCart 
+    clearCart,
+    editCartItem
   } = useCart();
   const [clearCartDialogOpen, setClearCartDialogOpen] = useState(false);
   const [orderSuccessDialogOpen, setOrderSuccessDialogOpen] = useState(false);
@@ -107,6 +109,7 @@ const Cart = () => {
                       item={item}
                       updateQuantity={updateQuantity}
                       removeItem={removeItem}
+                      editCartItem={editCartItem}
                     />
                   ))}
                 </div>
