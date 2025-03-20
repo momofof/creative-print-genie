@@ -17,6 +17,7 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
+  DialogDescription,
 } from "@/components/ui/dialog";
 import { useState } from "react";
 import ProductOrderForm from "../home/ProductOrderForm";
@@ -148,6 +149,9 @@ const CartItem = ({ item, updateQuantity, removeItem, editCartItem }: CartItemPr
         <DialogContent className="sm:max-w-[800px]">
           <DialogHeader>
             <DialogTitle>Modifier les options du produit</DialogTitle>
+            <DialogDescription className="text-sm text-gray-500">
+              Vous pouvez modifier la quantité et les options du produit ici.
+            </DialogDescription>
           </DialogHeader>
           
           {loadingProducts ? (

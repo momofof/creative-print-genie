@@ -270,6 +270,9 @@ const OrderSuccessDialog = ({
         <DialogContent className="sm:max-w-[800px]">
           <DialogHeader>
             <DialogTitle>Modifier les options du produit</DialogTitle>
+            <DialogDescription className="text-sm text-gray-500">
+              Vous pouvez modifier la quantité et les options du produit ici.
+            </DialogDescription>
           </DialogHeader>
           
           {loadingProducts ? (

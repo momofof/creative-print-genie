@@ -59,14 +59,6 @@ export const useOrderFormState = (): UseOrderFormStateResult => {
       setOpenIllustration(true);
     }
   }, [variants, selectedProduct, isMobile]);
-  
-  // Reset variants when product changes
-  useEffect(() => {
-    if (selectedProduct) {
-      // Réinitialiser les variantes à chaque changement de produit
-      setVariants({});
-    }
-  }, [selectedProduct]);
 
   return {
     selectedProduct,

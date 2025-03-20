@@ -57,7 +57,7 @@ const OrderForm = ({
       if (product) {
         setSelectedProduct(product);
         if (initialQuantity) setSelectedQuantity(initialQuantity);
-        if (initialVariants) setVariants(initialVariants);
+        if (initialVariants) setVariants({...initialVariants});
       }
     }
   }, [editMode, initialProductId, initialQuantity, initialVariants, products, setSelectedProduct, setSelectedQuantity, setVariants]);
