@@ -1,9 +1,7 @@
-
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { CartItem } from "@/types/product";
-import { AddToCartProps, UseCartReturn } from "@/types/cart";
+import { CartItem, AddToCartProps, UseCartReturn } from "@/types/cart";
 import { 
   saveCartToSupabase, 
   saveCartToLocalStorage, 
@@ -177,7 +175,7 @@ export const useCart = (): UseCartReturn => {
     toast.success("Cart cleared");
   };
 
-  // Fonction pour modifier un article existant dans le panier
+  // Function to edit an existing cart item
   const editCartItem = (id: string, newQuantity: number, variants?: Record<string, string>) => {
     const updatedCart = cartItems.map((item) => {
       if (item.id === id) {

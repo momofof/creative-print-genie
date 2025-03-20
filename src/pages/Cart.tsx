@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Trash2, AlertTriangle } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
@@ -44,7 +43,6 @@ const Cart = () => {
   };
 
   const handleCheckout = () => {
-    // Check if user is authenticated
     const isAuthenticated = Boolean(localStorage.getItem("supabase.auth.token"));
     
     if (!isAuthenticated) {
@@ -92,7 +90,6 @@ const Cart = () => {
     toast.success(`${itemsToDelete.length} article(s) supprimé(s) du panier`);
   };
   
-  // Update selectAll state when cartItems or selectedItems change
   useEffect(() => {
     if (cartItems.length === 0) {
       setSelectAll(false);
@@ -194,11 +191,8 @@ const Cart = () => {
                     <CartItem 
                       key={item.id}
                       item={item}
-                      updateQuantity={updateQuantity}
-                      removeItem={removeItem}
-                      editCartItem={editCartItem}
                       isSelected={!!selectedItems[item.id]}
-                      onSelectChange={handleSelectItem}
+                      onSelectionChange={handleSelectItem}
                     />
                   ))}
                 </div>
