@@ -1,84 +1,56 @@
 
 import { useState, useEffect } from "react";
-import { Product } from "@/types/product";
-import { useIsMobile } from "@/hooks/use-mobile";
-import { supabase } from "@/integrations/supabase/client";
-import { parseVariants, extractVariantOptionsFromProduct } from "../utils";
+import { useProducts } from "@/hooks/useProducts";
+import { Product, CartItem } from "@/types/product";
 
-interface UseOrderFormStateResult {
-  selectedProduct: Product | undefined;
-  setSelectedProduct: (product: Product | undefined) => void;
-  selectedQuantity: number | null;
-  setSelectedQuantity: (quantity: number | null) => void;
-  variants: Record<string, string>;
-  setVariants: React.Dispatch<React.SetStateAction<Record<string, string>>>;
-  availableVariants: string[];
-  setAvailableVariants: React.Dispatch<React.SetStateAction<string[]>>;
-  userId: string | null;
-  openIllustration: boolean;
-  setOpenIllustration: (open: boolean) => void;
-}
-
-export const useOrderFormState = (): UseOrderFormStateResult => {
-  const [selectedProduct, setSelectedProduct] = useState<Product | undefined>(undefined);
-  const [selectedQuantity, setSelectedQuantity] = useState<number | null>(null);
-  const [variants, setVariants] = useState<Record<string, string>>({});
+export const useOrderFormState = (
+  initialProduct?: Product, 
+  initialQuantity: number = 1,
+  initialVariants: Record<string, string> = {}
+) => {
+  // Product selection state
+  const { products, isLoading: loadingProducts } = useProducts();
+  const [selectedProduct, setSelectedProduct] = useState<Product | undefined>(initialProduct);
+  const [selectedQuantity, setSelectedQuantity] = useState<number | null>(initialQuantity);
+  const [variants, setVariants] = useState<Record<string, string>>(initialVariants);
+  
+  // UI state
   const [availableVariants, setAvailableVariants] = useState<string[]>([]);
-  const [openIllustration, setOpenIllustration] = useState(false);
-  const [userId, setUserId] = useState<string | null>(null);
-  const isMobile = useIsMobile();
+  const [orderSummaryOpen, setOrderSummaryOpen] = useState(false);
+  const [summaryItems, setSummaryItems] = useState<CartItem[]>([]);
+  const [summaryTotal, setSummaryTotal] = useState(0);
   
-  // Check if user is logged in
+  // Set initial product if provided and not already set
   useEffect(() => {
-    const checkAuth = async () => {
-      const { data } = await supabase.auth.getUser();
-      if (data?.user) {
-        setUserId(data.user.id);
-      }
-    };
-    
-    checkAuth();
-    
-    // Listen for auth changes
-    const { data: authListener } = supabase.auth.onAuthStateChange((event, session) => {
-      if (session?.user) {
-        setUserId(session.user.id);
-      } else {
-        setUserId(null);
-      }
-    });
-    
-    return () => {
-      authListener?.subscription.unsubscribe();
-    };
-  }, []);
-
-  // Automatically open the illustration sheet on mobile when variants are selected
-  useEffect(() => {
-    if (isMobile && selectedProduct && Object.keys(variants).length > 0) {
-      setOpenIllustration(true);
+    if (initialProduct && !selectedProduct) {
+      setSelectedProduct(initialProduct);
     }
-  }, [variants, selectedProduct, isMobile]);
+  }, [initialProduct, selectedProduct]);
   
-  // Reset variants when product changes
-  useEffect(() => {
-    if (selectedProduct) {
-      // Réinitialiser les variantes à chaque changement de produit
-      setVariants({});
-    }
-  }, [selectedProduct]);
+  const handleOrderSuccess = () => {
+    // Reset form state
+    setSelectedProduct(undefined);
+    setSelectedQuantity(null);
+    setVariants({});
+  };
 
   return {
-    selectedProduct,
+    products,
+    loadingProducts,
+    selectedProduct, 
     setSelectedProduct,
-    selectedQuantity,
+    selectedQuantity, 
     setSelectedQuantity,
-    variants,
+    variants, 
     setVariants,
-    availableVariants,
+    availableVariants, 
     setAvailableVariants,
-    userId,
-    openIllustration,
-    setOpenIllustration
+    orderSummaryOpen, 
+    setOrderSummaryOpen,
+    summaryItems, 
+    setSummaryItems,
+    summaryTotal, 
+    setSummaryTotal,
+    handleOrderSuccess
   };
 };
