@@ -22,6 +22,7 @@ export interface CartOperations {
   removeItem: (id: string) => void;
   clearCart: () => void;
   loadCart: () => Promise<void>;
+  editCartItem: (id: string, newQuantity: number, variants?: Record<string, string>) => void;
 }
 
 export type UseCartReturn = CartState & CartOperations;

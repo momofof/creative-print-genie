@@ -177,6 +177,25 @@ export const useCart = (): UseCartReturn => {
     toast.success("Cart cleared");
   };
 
+  // Fonction pour modifier un article existant dans le panier
+  const editCartItem = (id: string, newQuantity: number, variants?: Record<string, string>) => {
+    const updatedCart = cartItems.map((item) => {
+      if (item.id === id) {
+        return { 
+          ...item, 
+          quantity: newQuantity,
+          ...(variants && { variants })
+        };
+      }
+      return item;
+    });
+    
+    setCartItems(updatedCart);
+    saveCart(updatedCart);
+    
+    toast.success("Panier mis à jour");
+  };
+
   // Calculate total price
   const totalPrice = calculateTotalPrice(cartItems);
 
@@ -188,6 +207,7 @@ export const useCart = (): UseCartReturn => {
     updateQuantity,
     removeItem,
     clearCart,
-    loadCart
+    loadCart,
+    editCartItem
   };
 };

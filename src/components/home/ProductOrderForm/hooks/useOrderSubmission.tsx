@@ -5,6 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { orderService, OrderItem } from "@/services/orderService";
 import { toast } from "sonner";
 import { parseJsonArray, toJsonValue } from "@/utils/jsonUtils";
+import { useNavigate } from "react-router-dom";
 
 interface UseOrderSubmissionProps {
   selectedProduct: Product | undefined;
@@ -24,9 +25,17 @@ export const useOrderSubmission = ({
   onShowOrderSummary
 }: UseOrderSubmissionProps) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Rediriger vers la page de connexion si l'utilisateur n'est pas connecté
+    if (!userId) {
+      toast.info("Veuillez vous connecter pour passer une commande");
+      navigate("/login");
+      return;
+    }
     
     if (!selectedProduct || !selectedQuantity) {
       toast.error("Veuillez sélectionner un produit et une quantité");
