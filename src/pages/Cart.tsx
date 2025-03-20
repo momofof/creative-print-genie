@@ -5,6 +5,7 @@ import { toast } from "sonner";
 import { AlertDialog } from "@/components/ui/alert-dialog";
 import Navigation from "@/components/Navigation";
 import { useCart } from "@/hooks/useCart";
+import { useAuthStatus } from "@/hooks/useAuthStatus";
 import OrderSuccessDialog from "@/components/cart/OrderSuccessDialog";
 import CartHeader from "@/components/cart/CartHeader";
 import CartItemsList from "@/components/cart/CartItemsList";
@@ -22,6 +23,7 @@ const Cart = () => {
     removeItem, 
     clearCart 
   } = useCart();
+  const { isLoggedIn } = useAuthStatus();
   const [clearCartDialogOpen, setClearCartDialogOpen] = useState(false);
   const [orderSuccessDialogOpen, setOrderSuccessDialogOpen] = useState(false);
   const [selectedItems, setSelectedItems] = useState<Record<string, boolean>>({});
@@ -34,9 +36,7 @@ const Cart = () => {
   };
 
   const handleCheckout = () => {
-    const isAuthenticated = Boolean(localStorage.getItem("supabase.auth.token"));
-    
-    if (!isAuthenticated) {
+    if (!isLoggedIn) {
       toast.info("Veuillez vous connecter pour passer une commande");
       navigate("/login");
       return;
