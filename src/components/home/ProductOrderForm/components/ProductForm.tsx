@@ -31,7 +31,6 @@ interface ProductFormProps {
   setAvailableVariants: React.Dispatch<React.SetStateAction<string[]>>;
   handleSubmit: (e: React.FormEvent) => Promise<void>;
   isSubmitting: boolean;
-  isEditMode?: boolean;
 }
 
 const ProductForm = ({
@@ -45,8 +44,7 @@ const ProductForm = ({
   availableVariants,
   setAvailableVariants,
   handleSubmit,
-  isSubmitting,
-  isEditMode = false
+  isSubmitting
 }: ProductFormProps) => {
   const [productVariantOptions, setProductVariantOptions] = useState<Record<string, string[]>>({});
   
@@ -76,15 +74,13 @@ const ProductForm = ({
       console.log("Extracted product variant options:", productOptions);
       setProductVariantOptions(productOptions);
       
-      // Only reset variant selections when product changes in normal mode
-      if (!isEditMode) {
-        setVariants({});
-      }
+      // Reset variant selections when product changes
+      setVariants({});
     } else {
       setAvailableVariants([]);
       setProductVariantOptions({});
     }
-  }, [selectedProduct, setAvailableVariants, setVariants, isEditMode]);
+  }, [selectedProduct, setAvailableVariants, setVariants]);
 
   const handleVariantChange = (variantType: string, value: string) => {
     setVariants(prev => ({ ...prev, [variantType]: value }));
@@ -121,15 +117,13 @@ const ProductForm = ({
   return (
     <form onSubmit={handleSubmit}>
       <div className="space-y-4 md:space-y-6">
-        {!isEditMode && (
-          <SearchableDropdown
-            label="Sélectionnez un produit"
-            placeholder="Choisir un produit..."
-            products={products} 
-            selectedProduct={selectedProduct}
-            onSelect={setSelectedProduct}
-          />
-        )}
+        <SearchableDropdown
+          label="Sélectionnez un produit"
+          placeholder="Choisir un produit..."
+          products={products} 
+          selectedProduct={selectedProduct}
+          onSelect={setSelectedProduct}
+        />
         
         {selectedProduct && (
           <>
@@ -202,7 +196,7 @@ const ProductForm = ({
               </svg>
               Traitement en cours...
             </span>
-          ) : isEditMode ? "Mettre à jour" : "Commander"}
+          ) : "Commander"}
         </button>
       </div>
     </form>

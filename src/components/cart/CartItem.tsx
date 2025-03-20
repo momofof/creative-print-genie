@@ -1,125 +1,111 @@
 
-import React, { useState } from 'react';
-import { useCart } from '@/hooks/useCart';
-import { CartItem as CartItemType } from '@/types/cart';
-import { Product } from '@/types/product';
-import { toast } from 'sonner';
-import { Checkbox } from '@/components/ui/checkbox';
-
-import CartItemVariants from './item/CartItemVariants';
-import CartItemQuantity from './item/CartItemQuantity';
-import CartItemActions from './item/CartItemActions';
-import CartItemPrice from './item/CartItemPrice';
-import CartItemEditModal from './item/CartItemEditModal';
+import { MinusCircle, PlusCircle, Trash2, AlertTriangle } from "lucide-react";
+import { CartItem as CartItemType } from "@/types/product";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+import { useState } from "react";
 
 interface CartItemProps {
   item: CartItemType;
-  isSelected: boolean;
-  onSelectionChange: (id: string, selected: boolean) => void;
+  updateQuantity: (id: string, newQuantity: number) => void;
+  removeItem: (id: string) => void;
 }
 
-const CartItem = ({ item, isSelected, onSelectionChange }: CartItemProps) => {
-  const { updateQuantity, removeItem, editCartItem } = useCart();
-  const [quantity, setQuantity] = useState(item.quantity);
-  const [editModalOpen, setEditModalOpen] = useState(false);
+const CartItem = ({ item, updateQuantity, removeItem }: CartItemProps) => {
+  const [open, setOpen] = useState(false);
   
-  // Create a temporary product object to pass to the ProductOrderForm
-  const productForEdit: Product = {
-    id: item.id,
-    name: item.name,
-    price: item.price,
-    originalPrice: item.originalPrice,
-    image: item.image || '/placeholder.svg',
-    category: item.category || 'unknown',
-    subcategory: item.subcategory || '',
-    description: item.description || '',
-    rating: 5, // Default rating
-    reviewCount: 0, // Default review count
-    variants: item.variants || {}
-  };
-
-  const handleIncrease = () => {
-    const newQuantity = quantity + 1;
-    setQuantity(newQuantity);
-    updateQuantity(item.id, newQuantity);
-  };
-
-  const handleDecrease = () => {
-    if (quantity > 1) {
-      const newQuantity = quantity - 1;
-      setQuantity(newQuantity);
-      updateQuantity(item.id, newQuantity);
-    }
-  };
-
   const handleRemove = () => {
     removeItem(item.id);
-    toast.success("Produit retiré du panier");
-  };
-
-  const handleEdit = () => {
-    setEditModalOpen(true);
-  };
-
-  const handleEditComplete = (newQuantity: number, newVariants: Record<string, string>) => {
-    // Update the cart item with new quantity and variants
-    editCartItem(item.id, newQuantity, newVariants);
-    setQuantity(newQuantity);
-    setEditModalOpen(false);
-    toast.success("Produit modifié avec succès");
+    setOpen(false);
   };
 
   return (
-    <>
-      <div className="flex items-center gap-4 py-4 border-b last:border-0">
-        <div className="flex-shrink-0">
-          <Checkbox
-            checked={isSelected}
-            onCheckedChange={(checked) => onSelectionChange(item.id, checked === true)}
-            aria-label={`Sélectionner ${item.name}`}
-          />
-        </div>
-        <div className="w-16 h-16 bg-gray-100 rounded overflow-hidden flex-shrink-0">
-          <img 
-            src={item.image || "/placeholder.svg"} 
-            alt={item.name} 
-            className="w-full h-full object-cover"
-          />
-        </div>
-        <div className="flex-grow">
-          <div className="flex justify-between">
-            <h3 className="font-medium">{item.name}</h3>
-            <div className="font-medium">
-              <CartItemPrice 
-                price={item.price} 
-                originalPrice={item.originalPrice} 
-                quantity={quantity} 
-              />
-            </div>
+    <div className="p-4 flex flex-col sm:flex-row gap-4">
+      <div className="flex-shrink-0">
+        <img
+          src={item.image || "/placeholder.svg"}
+          alt={item.name}
+          className="w-24 h-24 object-cover rounded"
+        />
+      </div>
+      <div className="flex-grow">
+        <h3 className="font-medium">{item.name}</h3>
+        <p className="text-accent font-medium mt-1">
+          {item.price.toLocaleString('fr-FR')} €
+        </p>
+        
+        {item.variants && Object.keys(item.variants).length > 0 && (
+          <div className="mt-1 text-sm text-gray-500">
+            {Object.entries(item.variants).map(([key, value]) => (
+              <span key={key} className="mr-3">
+                {key}: {value}
+              </span>
+            ))}
           </div>
-
-          <CartItemVariants variants={item.variants} />
-
-          <div className="flex items-center justify-between mt-2">
-            <CartItemQuantity 
-              quantity={quantity} 
-              onIncrease={handleIncrease} 
-              onDecrease={handleDecrease} 
-            />
-            <CartItemActions onEdit={handleEdit} onRemove={handleRemove} />
-          </div>
+        )}
+        
+        <div className="flex items-center mt-2 space-x-2">
+          <button
+            onClick={() => updateQuantity(item.id, item.quantity - 1)}
+            className="text-gray-500 hover:text-accent"
+            aria-label="Diminuer la quantité"
+          >
+            <MinusCircle size={20} />
+          </button>
+          <span className="px-2 py-1 border rounded-md min-w-[40px] text-center">
+            {item.quantity}
+          </span>
+          <button
+            onClick={() => updateQuantity(item.id, item.quantity + 1)}
+            className="text-gray-500 hover:text-accent"
+            aria-label="Augmenter la quantité"
+          >
+            <PlusCircle size={20} />
+          </button>
+          
+          <AlertDialog open={open} onOpenChange={setOpen}>
+            <AlertDialogTrigger asChild>
+              <button
+                className="ml-auto text-red-600 hover:text-red-800"
+                aria-label="Supprimer du panier"
+              >
+                <Trash2 size={20} />
+              </button>
+            </AlertDialogTrigger>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle className="flex items-center gap-2">
+                  <AlertTriangle className="h-5 w-5 text-red-500" />
+                  Confirmer la suppression
+                </AlertDialogTitle>
+                <AlertDialogDescription>
+                  Êtes-vous sûr de vouloir supprimer "{item.name}" de votre panier ?
+                  Cette action ne peut pas être annulée.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel>Annuler</AlertDialogCancel>
+                <AlertDialogAction 
+                  onClick={handleRemove}
+                  className="bg-red-600 hover:bg-red-700 text-white"
+                >
+                  Supprimer
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
         </div>
       </div>
-
-      <CartItemEditModal 
-        isOpen={editModalOpen}
-        onOpenChange={setEditModalOpen}
-        product={productForEdit}
-        initialQuantity={quantity}
-        initialVariants={item.variants || {}}
-        onEditComplete={handleEditComplete}
-      />
-    </>
+    </div>
   );
 };
 

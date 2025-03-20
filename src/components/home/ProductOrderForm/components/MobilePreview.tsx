@@ -7,10 +7,9 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sh
 interface MobilePreviewProps {
   selectedProduct: Product;
   variants: Record<string, string>;
-  onPreviewClick: (variantName: string, variantValue: string) => void;
 }
 
-const MobilePreview = ({ selectedProduct, variants, onPreviewClick }: MobilePreviewProps) => {
+const MobilePreview = ({ selectedProduct, variants }: MobilePreviewProps) => {
   const [activeVariant, setActiveVariant] = useState<{ type: string, value: string } | null>(null);
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
   
@@ -52,7 +51,7 @@ const MobilePreview = ({ selectedProduct, variants, onPreviewClick }: MobilePrev
               <button
                 key={type}
                 className="text-xs bg-white px-2 py-1 rounded-full border hover:bg-gray-100 transition-colors"
-                onClick={() => onPreviewClick(type, value)}
+                onClick={() => handleVariantClick(type, value)}
               >
                 {getVariantDisplayName(type)}: {value}
               </button>

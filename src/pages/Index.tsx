@@ -51,7 +51,7 @@ const Index = () => {
             color: '',
             date: item.created_at,
             isNew: false,
-            // Include les variantes pour une utilisation ultérieure
+            // Inclure les variantes pour une utilisation ultérieure
             variants: item.variants
           })) || [];
           
@@ -89,7 +89,7 @@ const Index = () => {
               <p className="mt-2 text-gray-600">Chargement des produits...</p>
             </div>
           ) : products.length > 0 ? (
-            <ProductOrderForm initialProduct={products[0]} />
+            <ProductOrderForm products={products} />
           ) : (
             <div className="text-center py-12 bg-gray-50 rounded-lg">
               <p className="text-gray-700 mb-4">Aucun produit disponible actuellement.</p>
