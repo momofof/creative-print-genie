@@ -1,6 +1,6 @@
 
 import { useState, useEffect } from "react";
-import { useAuth } from "@supabase/auth-helpers-react";
+import { useSupabaseClient, useUser } from "@supabase/auth-helpers-react"; // Use correct imports
 import { Product } from "@/types/product";
 import { orderService } from "@/services/orderService";
 import { toast } from "sonner";
@@ -43,7 +43,8 @@ const ProductOrderForm = ({
     handleOrderSuccess
   } = useOrderFormState(initialProduct, initialQuantity, initialVariants);
   
-  const user = useAuth()?.user;
+  const supabaseClient = useSupabaseClient();
+  const user = useUser();
   const userId = user?.id || null;
   
   const { handleSubmit, isSubmitting } = useOrderSubmission({

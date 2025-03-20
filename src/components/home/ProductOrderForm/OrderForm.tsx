@@ -89,13 +89,17 @@ const OrderForm = ({
             {/* Desktop preview */}
             <div className="hidden md:block">
               <DesktopProductView
-                product={selectedProduct}
-                selectedVariant={activeVariant}
-                selectedValue={activeValue}
+                selectedProduct={selectedProduct}
                 variants={variants}
-                previewProduct={(variant, value) => {
-                  setActiveVariant(variant);
-                  setActiveValue(value);
+                activeVariant={activeVariant ? {type: activeVariant, value: activeValue} : null}
+                setActiveVariant={(variant) => {
+                  if (variant) {
+                    setActiveVariant(variant.type);
+                    setActiveValue(variant.value);
+                  } else {
+                    setActiveVariant("");
+                    setActiveValue("");
+                  }
                 }}
               />
             </div>
@@ -103,7 +107,7 @@ const OrderForm = ({
             {/* Mobile preview */}
             <div className="md:hidden">
               <MobilePreview
-                product={selectedProduct}
+                selectedProduct={selectedProduct}
                 variants={variants}
                 onPreviewClick={togglePreview}
               />
@@ -117,11 +121,20 @@ const OrderForm = ({
         <Sheet open={previewOpen} onOpenChange={setPreviewOpen}>
           <SheetContent side="bottom" className="h-[85vh] p-0">
             <MobileProductSheet
-              product={selectedProduct}
-              selectedVariant={activeVariant}
-              selectedValue={activeValue}
+              selectedProduct={selectedProduct}
               variants={variants}
-              onClose={() => setPreviewOpen(false)}
+              activeVariant={activeVariant ? {type: activeVariant, value: activeValue} : null}
+              setActiveVariant={(variant) => {
+                if (variant) {
+                  setActiveVariant(variant.type);
+                  setActiveValue(variant.value);
+                } else {
+                  setActiveVariant("");
+                  setActiveValue("");
+                }
+              }}
+              openIllustration={previewOpen}
+              setOpenIllustration={setPreviewOpen}
             />
           </SheetContent>
         </Sheet>

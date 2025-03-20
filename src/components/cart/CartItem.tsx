@@ -24,6 +24,7 @@ import {
 import { Button } from "@/components/ui/button";
 import ProductOrderForm from "@/components/home/ProductOrderForm";
 import { useProducts } from "@/hooks/useProducts";
+import { Product as ProductType } from "@/types/product";
 
 interface CartItemProps {
   item: CartItemType;
@@ -51,7 +52,24 @@ const CartItem = ({
     setOpen(false);
   };
 
+  // Convert the database product to our Product type
   const productToEdit = products.find(product => product.id === item.id);
+  
+  // Only if we found a product, convert it to match our Product interface
+  const convertedProduct: ProductType | undefined = productToEdit ? {
+    id: productToEdit.id,
+    name: productToEdit.name,
+    price: productToEdit.price,
+    originalPrice: productToEdit.original_price || undefined,
+    image: productToEdit.image || "/placeholder.svg",
+    category: productToEdit.category,
+    subcategory: productToEdit.subcategory || "",
+    description: productToEdit.description || "",
+    // Add default values for the required fields
+    rating: 5,
+    reviewCount: 0,
+    variants: productToEdit.variants
+  } : undefined;
 
   return (
     <div className="p-4 flex flex-col sm:flex-row gap-4">
@@ -148,7 +166,7 @@ const CartItem = ({
       </div>
       
       {/* Edit dialog */}
-      {productToEdit && (
+      {convertedProduct && (
         <Dialog open={editDialogOpen} onOpenChange={setEditDialogOpen}>
           <DialogContent className="sm:max-w-[500px]">
             <DialogHeader>
@@ -156,7 +174,7 @@ const CartItem = ({
             </DialogHeader>
             <div className="max-h-[70vh] overflow-y-auto py-4">
               <ProductOrderForm 
-                initialProduct={productToEdit} 
+                initialProduct={convertedProduct} 
                 initialQuantity={item.quantity}
                 initialVariants={item.variants}
                 onEditComplete={(updatedQuantity, updatedVariants) => {
