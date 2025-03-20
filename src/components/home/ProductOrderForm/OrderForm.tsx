@@ -6,8 +6,9 @@ import { useState, useEffect } from "react";
 // Import components
 import ProductIllustration from "./ProductIllustration";
 import ProductForm from "./components/ProductForm";
-import MobilePreview from "./components/MobilePreview";
-import OrderSuccessDialog from "../../cart/OrderSuccessDialog";
+import OrderFormHeader from "./components/OrderFormHeader";
+import MobilePreviewContainer from "./components/MobilePreviewContainer";
+import OrderSummaryHandler from "./components/OrderSummaryHandler";
 
 // Import hooks
 import { useOrderFormState } from "./hooks/useOrderFormState";
@@ -95,15 +96,15 @@ const OrderForm = ({
   return (
     <div className="bg-white rounded-lg shadow-lg p-4 md:p-6 max-w-4xl mx-auto my-6 md:my-10">
       <div className="relative">
-        <h2 className="text-xl md:text-2xl font-bold text-gray-800 mb-4 md:mb-6">
-          {editMode ? "Modifier votre produit" : "Commander vos produits"}
-        </h2>
+        <OrderFormHeader editMode={editMode} />
         
         {/* Mobile preview illustration - Positioned inside the form below the title */}
-        {isMobile && selectedProduct && Object.keys(variants).length > 0 && (
-          <div className="mb-6">
-            <MobilePreview selectedProduct={selectedProduct} variants={variants} />
-          </div>
+        {isMobile && selectedProduct && (
+          <MobilePreviewContainer 
+            selectedProduct={selectedProduct} 
+            variants={variants}
+            onShowPreview={() => setOpenIllustration(true)}
+          />
         )}
       </div>
       
@@ -128,16 +129,7 @@ const OrderForm = ({
         </div>
 
         {/* Illustration Column - Hidden on mobile, replaced with sheet/drawer */}
-        {isMobile ? (
-          <div className="md:hidden">
-            <button
-              className="w-full mt-4 py-2.5 px-4 border border-gray-300 rounded-md bg-gray-50 text-gray-700 font-medium flex items-center justify-center"
-              onClick={() => setOpenIllustration(true)}
-            >
-              <span>Voir l'aperçu du produit</span>
-            </button>
-          </div>
-        ) : (
+        {!isMobile && (
           <ProductIllustration
             selectedProduct={selectedProduct}
             variants={variants}
@@ -158,11 +150,11 @@ const OrderForm = ({
       )}
       
       {/* Order Success Dialog */}
-      <OrderSuccessDialog
-        open={showOrderSummary}
-        onOpenChange={setShowOrderSummary}
-        cartItems={orderSummaryItems}
-        totalPrice={orderTotal}
+      <OrderSummaryHandler
+        showOrderSummary={showOrderSummary}
+        setShowOrderSummary={setShowOrderSummary}
+        orderSummaryItems={orderSummaryItems}
+        orderTotal={orderTotal}
       />
     </div>
   );
