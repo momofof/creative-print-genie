@@ -16,7 +16,7 @@ interface CartItemProps {
 }
 
 const CartItem = ({ item, isSelected, onSelectionChange }: CartItemProps) => {
-  const { updateItemQuantity, removeFromCart } = useCart();
+  const { updateQuantity, removeItem, editCartItem } = useCart();
   const [quantity, setQuantity] = useState(item.quantity);
   const [editModalOpen, setEditModalOpen] = useState(false);
   
@@ -38,19 +38,19 @@ const CartItem = ({ item, isSelected, onSelectionChange }: CartItemProps) => {
   const handleIncrease = () => {
     const newQuantity = quantity + 1;
     setQuantity(newQuantity);
-    updateItemQuantity(item.id, newQuantity);
+    updateQuantity(item.id, newQuantity);
   };
 
   const handleDecrease = () => {
     if (quantity > 1) {
       const newQuantity = quantity - 1;
       setQuantity(newQuantity);
-      updateItemQuantity(item.id, newQuantity);
+      updateQuantity(item.id, newQuantity);
     }
   };
 
   const handleRemove = () => {
-    removeFromCart(item.id);
+    removeItem(item.id);
     toast.success("Produit retiré du panier");
   };
 
@@ -64,7 +64,7 @@ const CartItem = ({ item, isSelected, onSelectionChange }: CartItemProps) => {
 
   const handleEditComplete = (newQuantity: number, newVariants: Record<string, string>) => {
     // Update the cart item with new quantity and variants
-    updateItemQuantity(item.id, newQuantity, newVariants);
+    editCartItem(item.id, newQuantity, newVariants);
     setQuantity(newQuantity);
     setEditModalOpen(false);
     toast.success("Produit modifié avec succès");
