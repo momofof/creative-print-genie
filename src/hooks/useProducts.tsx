@@ -1,91 +1,60 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { Product } from "@/types/product";
 import { supabase } from "@/integrations/supabase/client";
-import { Product } from "@/types/dashboard";
 import { toast } from "sonner";
-import { parseProductVariants, parseCustomizations } from "@/utils/jsonUtils";
 
 export const useProducts = () => {
   const [products, setProducts] = useState<Product[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
-
-  // Fetch products from Supabase
-  const fetchProducts = async () => {
-    setIsLoading(true);
-    try {
-      const { data, error } = await supabase
-        .from('products_master')
-        .select('*')
-        .order('created_at', { ascending: false })
-        .limit(10);
-
-      if (error) {
-        console.error("Erreur lors de la récupération des produits:", error);
-        toast.error("Impossible de charger les produits");
-        return [];
-      } else {
-        // Convert products from unified format to our interface format
-        const formattedProducts: Product[] = data.map(product => {
-          return {
-            ...product,
-            // Ensure status is one of the expected values
-            status: (product.status === 'draft' || product.status === 'published' || product.status === 'archived') 
-              ? product.status 
-              : 'draft',
-            // Parse variants and customizations
-            variants: parseProductVariants(product.variants),
-            customizations: parseCustomizations(product.customizations),
-          };
-        });
-        
-        // Update products state
-        setProducts(formattedProducts);
+  const [isLoading, setIsLoading] = useState(true);
+  
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        setIsLoading(true);
+        const { data, error } = await supabase
+          .from('products_master')
+          .select('*')
+          .eq('status', 'published')
+          .order('created_at', { ascending: false });
+          
+        if (error) {
+          console.error("Error fetching products:", error);
+          toast.error("Impossible de charger les produits");
+        } else {
+          // Map Supabase data to Product type, ensuring all required fields are present
+          const mappedProducts: Product[] = data?.map(item => ({
+            id: item.id,
+            name: item.name,
+            price: item.price,
+            originalPrice: item.original_price || undefined,
+            image: item.image || '/placeholder.svg',
+            category: item.category,
+            subcategory: item.subcategory || '',
+            description: item.description || '',
+            // Add the required properties with default values
+            rating: 5, // Default rating
+            reviewCount: 0, // Default review count
+            // Optionally, include additional properties
+            color: '',
+            date: item.created_at,
+            isNew: false,
+            // Include variants for later use
+            variants: item.variants
+          })) || [];
+          
+          setProducts(mappedProducts);
+        }
+      } catch (error) {
+        console.error("Error:", error);
+        toast.error("Une erreur est survenue lors du chargement des produits");
+      } finally {
         setIsLoading(false);
-        return formattedProducts;
       }
-    } catch (error) {
-      console.error("Erreur:", error);
-      toast.error("Une erreur est survenue");
-      setIsLoading(false);
-      return [];
-    }
-  };
-
-  // Delete a product
-  const deleteProduct = async (productId: string) => {
-    try {
-      // Display confirmation
-      if (!confirm("Êtes-vous sûr de vouloir supprimer ce produit ?")) {
-        return false;
-      }
-      
-      // Delete the product from the master table
-      const { error } = await supabase
-        .from('products_master')
-        .delete()
-        .eq('id', productId);
-        
-      if (error) {
-        console.error("Erreur lors de la suppression:", error);
-        toast.error("Impossible de supprimer le produit");
-        return false;
-      } else {
-        // Update products list
-        setProducts(products.filter(product => product.id !== productId));
-        toast.success("Produit supprimé avec succès");
-        return true;
-      }
-    } catch (error) {
-      console.error("Erreur:", error);
-      toast.error("Une erreur est survenue");
-      return false;
-    }
-  };
-
-  return {
-    products,
-    isLoading,
-    fetchProducts,
-    deleteProduct
-  };
+    };
+    
+    fetchProducts();
+  }, []);
+  
+  return { products, isLoading };
 };
