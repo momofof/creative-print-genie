@@ -21,6 +21,7 @@ import {
 import { useState } from "react";
 import ProductOrderForm from "../home/ProductOrderForm";
 import { useSupplierDashboard } from "@/hooks/useSupplierDashboard";
+import { convertDashboardToUIProducts } from "@/utils/productTypeConverter";
 
 interface CartItemProps {
   item: CartItemType;
@@ -155,7 +156,7 @@ const CartItem = ({ item, updateQuantity, removeItem, editCartItem }: CartItemPr
             </div>
           ) : (
             <ProductOrderForm
-              products={products}
+              products={convertDashboardToUIProducts(products)}
               editMode={true}
               initialProductId={item.id}
               initialVariants={item.variants}

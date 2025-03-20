@@ -16,6 +16,7 @@ import { useState, useEffect } from "react";
 import { useCart } from "@/hooks/useCart";
 import { useSupplierDashboard } from "@/hooks/useSupplierDashboard";
 import ProductOrderForm from "../home/ProductOrderForm";
+import { convertDashboardToUIProducts } from "@/utils/productTypeConverter";
 
 interface OrderSuccessDialogProps {
   open: boolean;
@@ -277,7 +278,7 @@ const OrderSuccessDialog = ({
             </div>
           ) : editingItem ? (
             <ProductOrderForm
-              products={products}
+              products={convertDashboardToUIProducts(products)}
               editMode={true}
               initialProductId={editingItem.id}
               initialVariants={editingItem.variants}
