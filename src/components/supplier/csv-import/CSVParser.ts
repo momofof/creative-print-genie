@@ -10,7 +10,6 @@ export interface CSVProductData {
   description?: string;
   status?: "draft" | "published" | "archived";
   is_customizable?: boolean;
-  image?: string;
   variants?: {
     size: string;
     color: string;
@@ -77,12 +76,6 @@ export const parseCSV = (text: string): CSVProductData[] => {
       const customizableIndex = headers.indexOf('is_customizable');
       if (customizableIndex !== -1) {
         currentProduct.is_customizable = values[customizableIndex].toLowerCase() === 'true';
-      }
-      
-      // Add image URL if available
-      const imageIndex = headers.indexOf('image');
-      if (imageIndex !== -1 && values[imageIndex]) {
-        currentProduct.image = values[imageIndex];
       }
     } else if (currentProduct && currentProduct.variants && values[headers.indexOf('size')]) {
       // This is a variant line

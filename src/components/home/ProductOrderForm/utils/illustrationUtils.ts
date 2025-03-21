@@ -101,7 +101,7 @@ const variantIllustrations: Record<string, Record<string, Record<string, string>
 
 // Function to get feature illustration for a product category
 export const getFeatureIllustration = (product: Product | undefined, variants: Record<string, string>): string => {
-  if (!product) return 'https://via.placeholder.com/400x400?text=Produit+non+disponible';
+  if (!product) return "/placeholder.svg";
   
   // Si le produit a une subcategory, essayer d'abord avec celle-ci
   const category = product.subcategory || product.category;
@@ -120,15 +120,10 @@ export const getFeatureIllustration = (product: Product | undefined, variants: R
     }
   }
   
-  // Si on a une image du produit, la prioriser
-  if (product.image && product.image !== '/placeholder.svg') {
-    return product.image;
-  }
-  
   // Si pas d'illustration spécifique trouvée, renvoyer l'illustration générique
   return featureIllustrations[category] || 
          featureIllustrations[product.category] || 
-         'https://via.placeholder.com/400x400?text=Image+non+disponible';
+         "/placeholder.svg";
 };
 
 // Function to get variant illustration for a product category and variant type
@@ -144,5 +139,5 @@ export const getVariantIllustration = (category: string, variantType: string, va
   // Si toujours pas trouvé, renvoyer l'illustration générique
   return featureIllustrations[category] || 
          featureIllustrations[category.toLowerCase()] || 
-         'https://via.placeholder.com/400x400?text=Variant+non+disponible';
+         "/placeholder.svg";
 };

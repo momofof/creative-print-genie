@@ -1,10 +1,10 @@
 
-name,price,original_price,category,subcategory,description,status,is_customizable,image
-T-shirt Premium,29.99,39.99,vêtements,t-shirts,T-shirt en coton bio de haute qualité,draft,true,https://example.com/images/tshirt.jpg
+name,price,original_price,category,subcategory,description,status,is_customizable
+T-shirt Premium,29.99,39.99,vêtements,t-shirts,T-shirt en coton bio de haute qualité,draft,true
 ,M,Noir,#000000,15,0,in_stock
 ,L,Noir,#000000,10,0,in_stock
 ,M,Blanc,#FFFFFF,12,0,in_stock
 ,L,Blanc,#FFFFFF,8,0,in_stock
-Casquette Classique,19.99,24.99,accessoires,casquettes,Casquette ajustable en coton,published,false,https://example.com/images/cap.jpg
+Casquette Classique,19.99,24.99,accessoires,casquettes,Casquette ajustable en coton,published,false
 ,Unique,Noir,#000000,20,0,in_stock
 ,Unique,Bleu Navy,#000080,15,0,in_stock

@@ -10,9 +10,6 @@ interface ProductCardProps {
 }
 
 const ProductCard = ({ product, viewMode }: ProductCardProps) => {
-  // Fallback image if product image is not available
-  const imageUrl = product.image || 'https://via.placeholder.com/400x400?text=Image+non+disponible';
-
   return (
     <div className="group relative">
       <div className={`border border-gray-200 rounded-lg overflow-hidden hover:shadow-md transition-shadow ${
@@ -24,13 +21,9 @@ const ProductCard = ({ product, viewMode }: ProductCardProps) => {
           className={`block overflow-hidden ${viewMode === "list" ? "w-40 shrink-0" : "aspect-square"}`}
         >
           <img 
-            src={imageUrl} 
+            src={product.image} 
             alt={product.name} 
             className="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-300" 
-            onError={(e) => {
-              // Fallback if image fails to load
-              (e.target as HTMLImageElement).src = 'https://via.placeholder.com/400x400?text=Image+non+disponible';
-            }}
           />
         </Link>
         
