@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useRef } from "react";
 import {
   Select,
   SelectContent,
@@ -13,10 +13,11 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { Button } from "@/components/ui/button";
-import { Eye } from "lucide-react";
+import { Eye, ChevronUp, ChevronDown } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { getVariantIllustration } from "./utils";
 import VariantSearch from "./components/VariantSearch";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 interface VariantSelectorProps {
   variantType: string;
@@ -38,11 +39,28 @@ const VariantSelector = ({
   const [searchTerm, setSearchTerm] = useState('');
   const [showIllustration, setShowIllustration] = useState(false);
   const isMobile = useIsMobile();
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
   
   // Filter options by search term
   const filteredOptions = options.filter(option => 
     option.toLowerCase().includes(searchTerm.toLowerCase())
   );
+
+  // Determine if we need scroll buttons (5 or more options)
+  const needsScrollButtons = filteredOptions.length >= 5;
+  
+  // Scroll handlers
+  const scrollUp = () => {
+    if (scrollContainerRef.current) {
+      scrollContainerRef.current.scrollBy({ top: -100, behavior: 'smooth' });
+    }
+  };
+  
+  const scrollDown = () => {
+    if (scrollContainerRef.current) {
+      scrollContainerRef.current.scrollBy({ top: 100, behavior: 'smooth' });
+    }
+  };
 
   return (
     <div>
@@ -56,11 +74,13 @@ const VariantSelector = ({
             value={selectedValue || ""}
             defaultValue={selectedValue || ""}
           >
-            <SelectTrigger>
-              <SelectValue placeholder={`Choisir ${displayName.toLowerCase()}...`} />
+            <SelectTrigger className="w-full">
+              <SelectValue placeholder={`Choisir ${displayName.toLowerCase()}...`}>
+                {selectedValue}
+              </SelectValue>
             </SelectTrigger>
             <SelectContent 
-              className={`${isMobile ? 'pb-10' : 'max-h-[300px]'} bg-white shadow-lg border border-gray-200`}
+              className={`${isMobile ? 'pb-10' : 'max-h-[300px]'} bg-white shadow-lg border border-gray-200 ${needsScrollButtons ? 'py-0' : ''}`}
               position={isMobile ? "popper" : "item-aligned"}
               sideOffset={isMobile ? 5 : 0}
               align={isMobile ? "start" : "center"}
@@ -69,7 +89,24 @@ const VariantSelector = ({
                 searchTerm={searchTerm}
                 setSearchTerm={setSearchTerm}
               />
-              <div className={`overflow-y-auto pt-1 ${isMobile ? 'max-h-[30vh]' : 'max-h-[200px]'} bg-white`}>
+              
+              {needsScrollButtons && (
+                <div className="flex justify-center pt-1">
+                  <Button 
+                    variant="ghost" 
+                    size="sm" 
+                    className="h-6 w-full rounded-none hover:bg-gray-100"
+                    onClick={scrollUp}
+                  >
+                    <ChevronUp className="h-4 w-4" />
+                  </Button>
+                </div>
+              )}
+              
+              <div 
+                ref={scrollContainerRef}
+                className={`overflow-y-auto pt-1 ${isMobile ? 'max-h-[30vh]' : (needsScrollButtons ? 'max-h-[150px]' : 'max-h-[200px]')} bg-white`}
+              >
                 {filteredOptions.length > 0 ? (
                   filteredOptions.map((option) => (
                     <SelectItem key={option} value={option} className="py-3 hover:bg-gray-100">
@@ -82,6 +119,19 @@ const VariantSelector = ({
                   </div>
                 )}
               </div>
+              
+              {needsScrollButtons && (
+                <div className="flex justify-center pb-1">
+                  <Button 
+                    variant="ghost" 
+                    size="sm" 
+                    className="h-6 w-full rounded-none hover:bg-gray-100"
+                    onClick={scrollDown}
+                  >
+                    <ChevronDown className="h-4 w-4" />
+                  </Button>
+                </div>
+              )}
             </SelectContent>
           </Select>
         </div>
