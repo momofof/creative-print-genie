@@ -57,7 +57,9 @@ const VariantSelector = ({
             defaultValue={selectedValue || ""}
           >
             <SelectTrigger>
-              <SelectValue placeholder={`Choisir ${displayName.toLowerCase()}...`} />
+              <SelectValue placeholder={`Choisir ${displayName.toLowerCase()}...`}>
+                {selectedValue}
+              </SelectValue>
             </SelectTrigger>
             <SelectContent 
               className={`${isMobile ? 'pb-10' : 'max-h-[300px]'} bg-white shadow-lg border border-gray-200`}
