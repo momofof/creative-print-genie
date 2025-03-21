@@ -1,17 +1,20 @@
 
-import React from "react";
+import React, { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { Store, ArrowLeft, Loader2, Save } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ProductGeneralInfo } from "./components/ProductFormComponents/ProductGeneralInfo";
 import { ProductVariants } from "./components/ProductFormComponents/ProductVariants";
 import { ProductImageUpload } from "./components/ProductFormComponents/ProductImageUpload";
+import SimpleVariantEditor from "./components/ProductFormComponents/SimpleVariantEditor";
 import { useProductForm } from "./hooks/useProductForm";
 
 const ProductForm = () => {
   const { productId } = useParams();
   const navigate = useNavigate();
   const isEditing = !!productId;
+  const [variantTab, setVariantTab] = useState<string>("simple");
   
   const {
     isLoading,
@@ -28,7 +31,8 @@ const ProductForm = () => {
     addVariant,
     removeVariant,
     handleVariantChange,
-    handleSubmit
+    handleSubmit,
+    setVariants
   } = useProductForm(productId);
 
   if (isLoading) {
@@ -92,14 +96,31 @@ const ProductForm = () => {
                 handleCheckboxChange={handleCheckboxChange}
               />
               
-              <ProductVariants 
-                variants={variants}
-                variantImagePreviews={variantImagePreviews}
-                addVariant={addVariant}
-                removeVariant={removeVariant}
-                handleVariantChange={handleVariantChange}
-                handleVariantImageChange={handleVariantImageChange}
-              />
+              {/* Tabs pour les deux modes d'édition de variantes */}
+              <Tabs defaultValue="simple" value={variantTab} onValueChange={setVariantTab} className="w-full">
+                <TabsList className="grid grid-cols-2 mb-4">
+                  <TabsTrigger value="simple">Éditeur simplifié</TabsTrigger>
+                  <TabsTrigger value="advanced">Éditeur avancé</TabsTrigger>
+                </TabsList>
+                
+                <TabsContent value="simple">
+                  <SimpleVariantEditor 
+                    variants={variants} 
+                    setVariants={setVariants} 
+                  />
+                </TabsContent>
+                
+                <TabsContent value="advanced">
+                  <ProductVariants 
+                    variants={variants}
+                    variantImagePreviews={variantImagePreviews}
+                    addVariant={addVariant}
+                    removeVariant={removeVariant}
+                    handleVariantChange={handleVariantChange}
+                    handleVariantImageChange={handleVariantImageChange}
+                  />
+                </TabsContent>
+              </Tabs>
             </div>
             
             {/* Right Column - Image Upload */}

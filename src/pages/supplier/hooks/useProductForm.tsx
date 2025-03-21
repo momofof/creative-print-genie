@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
@@ -468,6 +467,7 @@ export const useProductForm = (productId?: string) => {
     addVariant,
     removeVariant,
     handleVariantChange,
-    handleSubmit
+    handleSubmit,
+    setVariants // Exposer cette fonction pour le SimpleVariantEditor
   };
 };
