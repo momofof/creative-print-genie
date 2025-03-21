@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Product, CartItem } from "@/types/product";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -11,6 +10,7 @@ import Step1ProductSelection from "./Step1ProductSelection";
 import Step2ProductOptions from "./Step2ProductOptions";
 import Step3OrderSummary from "./Step3OrderSummary";
 import ProductIllustration from "../ProductIllustration";
+import OrderFormHeader from "./OrderFormHeader";
 
 interface OrderFormContentProps {
   products: Product[];
