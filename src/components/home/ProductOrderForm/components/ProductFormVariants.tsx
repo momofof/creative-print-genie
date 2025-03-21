@@ -47,7 +47,6 @@ const ProductFormVariants = ({
       appearance: ['color', 'size', 'print_design', 'design', 'paper_type', 'finish', 'face_a_imprimer'],
       format: ['quantite', 'format', 'type_de_materiaux', 'poids'],
       impression: ['details_impression', 'orientation_impression', 'types_impression'],
-      pricing: ['prix_selon_quantite', 'prix_selon_poids', 'prix_selon_format', 'prix_selon_type_de_materiaux', 'prix_selon_delai_production'],
       extras: ['echantillon', 'bat']
     };
     
@@ -56,7 +55,6 @@ const ProductFormVariants = ({
       appearance: [],
       format: [],
       impression: [],
-      pricing: [],
       extras: [],
       other: [] // For any variants that don't fit in the above groups
     };
@@ -89,7 +87,6 @@ const ProductFormVariants = ({
     appearance: "Apparence",
     format: "Format et dimensions",
     impression: "Options d'impression",
-    pricing: "Options tarifaires",
     extras: "Suppléments",
     other: "Autres options"
   };
