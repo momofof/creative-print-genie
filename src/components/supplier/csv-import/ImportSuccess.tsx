@@ -1,4 +1,5 @@
 
+import React from "react";
 import { CheckCircle2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
@@ -8,10 +9,11 @@ interface ImportSuccessProps {
     success: number;
     failed: number;
   } | null;
+  onReset: () => void;
   onClose: () => void;
 }
 
-const ImportSuccess = ({ importStatus, onClose }: ImportSuccessProps) => {
+const ImportSuccess = ({ importStatus, onReset, onClose }: ImportSuccessProps) => {
   return (
     <div className="flex flex-col items-center justify-center py-6">
       <div className="rounded-full bg-green-100 p-3 mb-3">
@@ -22,9 +24,14 @@ const ImportSuccess = ({ importStatus, onClose }: ImportSuccessProps) => {
         {importStatus?.success} produits importés avec succès,{' '}
         {importStatus?.failed} échecs.
       </p>
-      <Button onClick={onClose} className="w-full">
-        Fermer
-      </Button>
+      <div className="flex space-x-3 w-full">
+        <Button variant="outline" onClick={onReset} className="flex-1">
+          Importer plus
+        </Button>
+        <Button onClick={onClose} className="flex-1 bg-teal-600 hover:bg-teal-700">
+          Fermer
+        </Button>
+      </div>
     </div>
   );
 };

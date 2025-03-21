@@ -10,10 +10,10 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { useCSVImport } from "./useCSVImport";
-import ImportForm from "./csv-import/ImportForm";
-import ImportProgress from "./csv-import/ImportProgress";
-import ImportSuccess from "./csv-import/ImportSuccess";
-import CSVFormatInfo from "./csv-import/CSVFormatInfo";
+import ImportForm from "./ImportForm";
+import ImportProgress from "./ImportProgress";
+import ImportSuccess from "./ImportSuccess";
+import CSVFormatInfo from "./CSVFormatInfo";
 import { getNextProductId } from "@/pages/supplier/hooks/utils/productFormUtils";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -132,8 +132,18 @@ const CSVImportModal = ({ open, onOpenChange, onImportSuccess }: CSVImportModalP
           const { error } = await supabase
             .from('products_master')
             .insert({
-              ...product,
-              id: currentId.toString()
+              id: currentId.toString(),
+              name: product.name,
+              price: product.price,
+              original_price: product.original_price || null,
+              category: product.category,
+              subcategory: product.subcategory || null,
+              description: product.description || null,
+              status: product.status || "draft",
+              image: product.image || null,
+              is_customizable: product.is_customizable || false,
+              supplier_id: product.supplier_id,
+              variants: product.variants
             });
           
           if (error) throw error;
