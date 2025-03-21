@@ -288,10 +288,28 @@ export const useProductForm = (productId?: string) => {
         
         if (updateError) throw updateError;
       } else {
-        // Create new product
+        // Get the highest current product ID to generate the next sequential ID
+        const { data: lastProduct, error: countError } = await supabase
+          .from('products_master')
+          .select('id')
+          .order('id', { ascending: false })
+          .limit(1);
+        
+        let nextId = 1;
+        if (!countError && lastProduct && lastProduct.length > 0) {
+          const highestId = parseInt(lastProduct[0].id);
+          if (!isNaN(highestId)) {
+            nextId = highestId + 1;
+          }
+        }
+        
+        // Create new product with sequential ID
         const { error: createError } = await supabase
           .from("products_master")
-          .insert(productPayload);
+          .insert({
+            ...productPayload,
+            id: nextId.toString()
+          });
         
         if (createError) throw createError;
       }

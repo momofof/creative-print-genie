@@ -164,7 +164,7 @@ export type Database = {
           created_at?: string | null
           customizations?: Json | null
           description?: string | null
-          id?: string
+          id: string
           image?: string | null
           is_customizable?: boolean | null
           name: string
