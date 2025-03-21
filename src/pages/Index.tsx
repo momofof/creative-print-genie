@@ -40,7 +40,7 @@ const Index = () => {
             name: item.name,
             price: item.price,
             originalPrice: item.original_price || undefined,
-            image: item.image || '/placeholder.svg',
+            image: item.image || 'https://via.placeholder.com/400x400?text=Image+non+disponible',
             category: item.category,
             subcategory: item.subcategory || '',
             description: item.description || '',

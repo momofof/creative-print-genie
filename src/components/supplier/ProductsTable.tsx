@@ -31,9 +31,13 @@ const ProductsTable = ({ products, onEditProduct, onDeleteProduct }: ProductsTab
                 <td className="py-3">
                   <div className="flex items-center gap-3">
                     <img 
-                      src={product.image || "/placeholder.svg"} 
+                      src={product.image || 'https://via.placeholder.com/100x100?text=Produit'} 
                       alt={product.name} 
                       className="w-10 h-10 object-cover rounded-md"
+                      onError={(e) => {
+                        // Fallback if the image fails to load
+                        (e.target as HTMLImageElement).src = 'https://via.placeholder.com/100x100?text=Produit';
+                      }}
                     />
                     <span>{product.name}</span>
                   </div>

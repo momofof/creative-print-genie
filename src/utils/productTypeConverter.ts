@@ -11,7 +11,7 @@ export const convertDashboardToUIProduct = (product: DashboardProduct): UIProduc
     name: product.name,
     price: product.price,
     originalPrice: product.original_price || undefined,
-    image: product.image || '/placeholder.svg',
+    image: product.image || 'https://via.placeholder.com/400x400?text=Image+non+disponible',
     category: product.category,
     subcategory: product.subcategory || '',
     description: product.description || '',
