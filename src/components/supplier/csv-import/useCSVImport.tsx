@@ -3,7 +3,6 @@ import { useState } from "react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { parseCSV, CSVProductData } from "./CSVParser";
-import { getNextProductId } from "@/pages/supplier/hooks/utils/productFormUtils";
 
 interface UseCSVImportProps {
   onImportSuccess: () => void;
@@ -48,9 +47,20 @@ export const useCSVImport = ({ onImportSuccess }: UseCSVImportProps) => {
       
       setImportStatus(prev => ({ ...prev!, total: products.length, success: 0, failed: 0 }));
       
-      // Get the next sequential ID
-      const nextId = await getNextProductId();
-      let currentId = nextId;
+      // Get the highest current product ID to start generating sequential IDs
+      const { data: lastProduct, error: countError } = await supabase
+        .from('products_master')
+        .select('id')
+        .order('id', { ascending: false })
+        .limit(1);
+        
+      let nextId = 1;
+      if (!countError && lastProduct && lastProduct.length > 0) {
+        const highestId = parseInt(lastProduct[0].id);
+        if (!isNaN(highestId)) {
+          nextId = highestId + 1;
+        }
+      }
       
       for (const productData of products) {
         try {
@@ -64,7 +74,7 @@ export const useCSVImport = ({ onImportSuccess }: UseCSVImportProps) => {
           const { error: productError } = await supabase
             .from("products_master")
             .insert({
-              id: currentId.toString(),  // Use sequential ID
+              id: nextId.toString(),  // Use sequential ID
               name: productData.name,
               price: productData.price,
               original_price: productData.original_price || null,
@@ -80,7 +90,7 @@ export const useCSVImport = ({ onImportSuccess }: UseCSVImportProps) => {
           
           if (productError) throw productError;
           
-          currentId++; // Increment the ID for the next product
+          nextId++; // Increment the ID for the next product
           setImportStatus(prev => ({ ...prev!, success: prev!.success + 1 }));
         } catch (error) {
           console.error(`Erreur lors de l'importation du produit ${productData.name}:`, error);
@@ -89,6 +99,7 @@ export const useCSVImport = ({ onImportSuccess }: UseCSVImportProps) => {
       }
       
       setIsComplete(true);
+      toast.success(`Importation terminée: ${importStatus?.success} produits importés, ${importStatus?.failed} échecs`);
       
       // Trigger refresh of products list
       onImportSuccess();
