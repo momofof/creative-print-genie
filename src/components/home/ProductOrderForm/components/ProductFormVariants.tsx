@@ -41,28 +41,87 @@ const ProductFormVariants = ({
     return [];
   };
 
+  // Group variants by type for better organization
+  const groupVariants = () => {
+    const groups = {
+      appearance: ['color', 'size', 'print_design', 'design', 'paper_type', 'finish', 'face_a_imprimer'],
+      format: ['quantite', 'format', 'type_de_materiaux', 'poids'],
+      impression: ['details_impression', 'orientation_impression', 'types_impression'],
+      pricing: ['prix_selon_quantite', 'prix_selon_poids', 'prix_selon_format', 'prix_selon_type_de_materiaux', 'prix_selon_delai_production'],
+      extras: ['echantillon', 'bat']
+    };
+    
+    // Sort the available variants into groups
+    const groupedVariants: Record<string, string[]> = {
+      appearance: [],
+      format: [],
+      impression: [],
+      pricing: [],
+      extras: [],
+      other: [] // For any variants that don't fit in the above groups
+    };
+    
+    availableVariants.forEach(variant => {
+      let placed = false;
+      for (const [group, variants] of Object.entries(groups)) {
+        if (variants.includes(variant)) {
+          groupedVariants[group].push(variant);
+          placed = true;
+          break;
+        }
+      }
+      if (!placed) {
+        groupedVariants.other].push(variant);
+      }
+    });
+    
+    return groupedVariants;
+  };
+  
+  const groupedVariants = groupVariants();
+
   if (availableVariants.length === 0) {
     return null;
   }
 
+  // Translate group names to French
+  const groupDisplayNames: Record<string, string> = {
+    appearance: "Apparence",
+    format: "Format et dimensions",
+    impression: "Options d'impression",
+    pricing: "Options tarifaires",
+    extras: "Suppléments",
+    other: "Autres options"
+  };
+
   return (
-    <div className="space-y-4">
+    <div className="space-y-6">
       <h3 className="text-lg font-medium text-gray-800">
         Options spécifiques
       </h3>
-      <div className="grid grid-cols-1 gap-4">
-        {availableVariants.map((variantType) => (
-          <VariantSelector
-            key={variantType}
-            variantType={variantType}
-            displayName={getVariantDisplayName(variantType)}
-            options={getOptionsForVariant(variantType)}
-            selectedValue={variants[variantType] || ""}
-            onChange={(value) => onVariantChange(variantType, value)}
-            productCategory={selectedProduct.subcategory || selectedProduct.category}
-          />
-        ))}
-      </div>
+      
+      {Object.entries(groupedVariants).map(([group, groupVariants]) => {
+        if (groupVariants.length === 0) return null;
+        
+        return (
+          <div key={group} className="space-y-4">
+            <h4 className="text-md font-medium text-gray-700">{groupDisplayNames[group]}</h4>
+            <div className="grid grid-cols-1 gap-4">
+              {groupVariants.map((variantType) => (
+                <VariantSelector
+                  key={variantType}
+                  variantType={variantType}
+                  displayName={getVariantDisplayName(variantType)}
+                  options={getOptionsForVariant(variantType)}
+                  selectedValue={variants[variantType] || ""}
+                  onChange={(value) => onVariantChange(variantType, value)}
+                  productCategory={selectedProduct.subcategory || selectedProduct.category}
+                />
+              ))}
+            </div>
+          </div>
+        );
+      })}
     </div>
   );
 };

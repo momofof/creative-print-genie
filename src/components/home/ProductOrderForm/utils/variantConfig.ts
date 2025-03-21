@@ -1,21 +1,69 @@
-
 // Define available variants for each product category
 const availableVariants: Record<string, string[]> = {
-  "vêtements": ["color", "size", "print_design"],
-  "t-shirts": ["color", "size", "print_design"],
-  "hoodies": ["color", "size", "print_design"],
-  "mugs": ["color", "design"],
-  "posters": ["size", "paper_type", "format", "orientation_impression"],
-  "stickers": ["size", "finish", "type_de_materiaux", "details_impression"],
-  "accessoires": ["color", "size"],
-  "casquettes": ["color", "size"],
-  "sport": ["color", "size"],
-  "vélo": ["color", "size", "face_a_imprimer"],
-  // Add the new variants to all categories
+  "vêtements": ["color", "size", "print_design", "quantite", "format", "type_de_materiaux", "poids", "details_impression", 
+                "orientation_impression", "prix_selon_quantite", "prix_selon_poids", 
+                "prix_selon_format", "prix_selon_type_de_materiaux", 
+                "prix_selon_delai_production", "types_impression", "echantillon", "bat"],
+  "t-shirts": ["color", "size", "print_design", "quantite", "format", "type_de_materiaux", "poids", "details_impression", 
+                "orientation_impression", "prix_selon_quantite", "prix_selon_poids", 
+                "prix_selon_format", "prix_selon_type_de_materiaux", 
+                "prix_selon_delai_production", "types_impression", "echantillon", "bat"],
+  "hoodies": ["color", "size", "print_design", "quantite", "format", "type_de_materiaux", "poids", "details_impression", 
+                "orientation_impression", "prix_selon_quantite", "prix_selon_poids", 
+                "prix_selon_format", "prix_selon_type_de_materiaux", 
+                "prix_selon_delai_production", "types_impression", "echantillon", "bat"],
+  "mugs": ["color", "design", "quantite", "format", "type_de_materiaux", "poids", "details_impression", 
+                "orientation_impression", "prix_selon_quantite", "prix_selon_poids", 
+                "prix_selon_format", "prix_selon_type_de_materiaux", 
+                "prix_selon_delai_production", "types_impression", "echantillon", "bat"],
+  "posters": ["size", "paper_type", "format", "orientation_impression", "quantite", "type_de_materiaux", "poids", "details_impression", 
+                "prix_selon_quantite", "prix_selon_poids", 
+                "prix_selon_format", "prix_selon_type_de_materiaux", 
+                "prix_selon_delai_production", "types_impression", "echantillon", "bat"],
+  "stickers": ["size", "finish", "type_de_materiaux", "details_impression", "quantite", "format", "poids", 
+                "orientation_impression", "prix_selon_quantite", "prix_selon_poids", 
+                "prix_selon_format", "prix_selon_type_de_materiaux", 
+                "prix_selon_delai_production", "types_impression", "echantillon", "bat"],
+  "accessoires": ["color", "size", "quantite", "format", "type_de_materiaux", "poids", "details_impression", 
+                "orientation_impression", "prix_selon_quantite", "prix_selon_poids", 
+                "prix_selon_format", "prix_selon_type_de_materiaux", 
+                "prix_selon_delai_production", "types_impression", "echantillon", "bat"],
+  "casquettes": ["color", "size", "quantite", "format", "type_de_materiaux", "poids", "details_impression", 
+                "orientation_impression", "prix_selon_quantite", "prix_selon_poids", 
+                "prix_selon_format", "prix_selon_type_de_materiaux", 
+                "prix_selon_delai_production", "types_impression", "echantillon", "bat"],
+  "sport": ["color", "size", "quantite", "format", "type_de_materiaux", "poids", "details_impression", 
+                "orientation_impression", "prix_selon_quantite", "prix_selon_poids", 
+                "prix_selon_format", "prix_selon_type_de_materiaux", 
+                "prix_selon_delai_production", "types_impression", "echantillon", "bat"],
+  "vélo": ["color", "size", "face_a_imprimer", "quantite", "format", "type_de_materiaux", "poids", "details_impression", 
+                "orientation_impression", "prix_selon_quantite", "prix_selon_poids", 
+                "prix_selon_format", "prix_selon_type_de_materiaux", 
+                "prix_selon_delai_production", "types_impression", "echantillon", "bat"],
   "impression": ["quantite", "format", "type_de_materiaux", "poids", "details_impression", 
                  "orientation_impression", "prix_selon_quantite", "prix_selon_poids", 
                  "prix_selon_format", "prix_selon_type_de_materiaux", 
                  "prix_selon_delai_production", "types_impression", "echantillon", "bat"],
+  "vinyl": ["quantite", "format", "type_de_materiaux", "poids", "details_impression", 
+           "orientation_impression", "prix_selon_quantite", "prix_selon_poids", 
+           "prix_selon_format", "prix_selon_type_de_materiaux", 
+           "prix_selon_delai_production", "types_impression", "echantillon", "bat"],
+  "panneaux": ["quantite", "format", "type_de_materiaux", "poids", "details_impression", 
+              "orientation_impression", "prix_selon_quantite", "prix_selon_poids", 
+              "prix_selon_format", "prix_selon_type_de_materiaux", 
+              "prix_selon_delai_production", "types_impression", "echantillon", "bat"],
+  "enseignes": ["quantite", "format", "type_de_materiaux", "poids", "details_impression", 
+               "orientation_impression", "prix_selon_quantite", "prix_selon_poids", 
+               "prix_selon_format", "prix_selon_type_de_materiaux", 
+               "prix_selon_delai_production", "types_impression", "echantillon", "bat"],
+  "papier": ["quantite", "format", "type_de_materiaux", "poids", "details_impression", 
+            "orientation_impression", "prix_selon_quantite", "prix_selon_poids", 
+            "prix_selon_format", "prix_selon_type_de_materiaux", 
+            "prix_selon_delai_production", "types_impression", "echantillon", "bat"],
+  "textile": ["quantite", "format", "type_de_materiaux", "poids", "details_impression", 
+             "orientation_impression", "prix_selon_quantite", "prix_selon_poids", 
+             "prix_selon_format", "prix_selon_type_de_materiaux", 
+             "prix_selon_delai_production", "types_impression", "echantillon", "bat"],
 };
 
 // Define variant options for each product category and variant type
@@ -68,7 +116,6 @@ const variantOptions: Record<string, Record<string, string[]>> = {
     "size": ["S", "M", "L"],
     "face_a_imprimer": ["Avant", "Arrière", "Les deux côtés"],
   },
-  // Add the new variants
   "impression": {
     "quantite": ["Standard", "Premium", "Économique"],
     "format": ["A4", "A3", "A2", "A1", "Personnalisé"],
@@ -85,6 +132,22 @@ const variantOptions: Record<string, Record<string, string[]>> = {
     "echantillon": ["Non", "Oui (+10€)"],
     "bat": ["Non", "Numérique (gratuit)", "Physique (+15€)"],
   },
+  "common": {
+    "quantite": ["Standard", "Premium", "Économique"],
+    "format": ["A4", "A3", "A2", "A1", "Personnalisé"],
+    "type_de_materiaux": ["Papier", "Carton", "Vinyle", "PVC", "Aluminium", "Textile", "Métal"],
+    "poids": ["Léger", "Standard", "Lourd", "Extra lourd"],
+    "details_impression": ["Haute résolution", "Standard", "Économique"],
+    "orientation_impression": ["Portrait", "Paysage", "Carré"],
+    "prix_selon_quantite": ["Remise 10%", "Remise 20%", "Remise 30%"],
+    "prix_selon_poids": ["Standard", "+10%", "+20%"],
+    "prix_selon_format": ["Standard", "+15%", "+30%"],
+    "prix_selon_type_de_materiaux": ["Standard", "+5%", "+15%", "+25%"],
+    "prix_selon_delai_production": ["Standard", "Express (+20%)", "Urgent (+50%)"],
+    "types_impression": ["Numérique", "Offset", "Sérigraphie", "Flexographie"],
+    "echantillon": ["Non", "Oui (+10€)"],
+    "bat": ["Non", "Numérique (gratuit)", "Physique (+15€)"],
+  }
 };
 
 // Define quantity options for each product category
@@ -99,8 +162,12 @@ const quantityOptions: Record<string, number[]> = {
   "casquettes": [1, 2, 3, 4, 5, 10],
   "sport": [1, 2, 3, 4, 5],
   "vélo": [1, 2, 3, 4, 5],
-  // Add for the new category
   "impression": [10, 20, 50, 100, 250, 500, 1000],
+  "vinyl": [10, 20, 50, 100, 250, 500, 1000],
+  "panneaux": [10, 20, 50, 100, 250, 500, 1000],
+  "enseignes": [10, 20, 50, 100, 250, 500, 1000],
+  "papier": [10, 20, 50, 100, 250, 500, 1000],
+  "textile": [10, 20, 50, 100, 250, 500, 1000],
 };
 
 // Function to get available variants for a product category
@@ -113,10 +180,16 @@ export const getAvailableVariants = (category: string): string[] => {
 
 // Function to get variant options for a product category and variant type
 export const getVariantOptions = (category: string, variantType: string): string[] => {
-  // Vérifier d'abord la catégorie exacte, puis vérifier la subcategory si pas trouvé
-  return variantOptions[category]?.[variantType] || 
-         variantOptions[category.toLowerCase()]?.[variantType] || 
-         [];
+  // First check if the category has specific options for this variant
+  const categoryOptions = variantOptions[category]?.[variantType] || 
+                         variantOptions[category.toLowerCase()]?.[variantType];
+  
+  if (categoryOptions) {
+    return categoryOptions;
+  }
+  
+  // If not found in category-specific options, use common options
+  return variantOptions["common"]?.[variantType] || [];
 };
 
 // Function to get quantity options for a product category
