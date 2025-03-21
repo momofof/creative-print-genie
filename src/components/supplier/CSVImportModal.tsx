@@ -168,6 +168,21 @@ const CSVImportModal = ({ open, onOpenChange, onImportSuccess }: CSVImportModalP
       
       setImportStatus(prev => ({ ...prev!, total: products.length, success: 0, failed: 0 }));
       
+      // Get the highest current product ID to start generating sequential IDs
+      const { data: lastProduct, error: countError } = await supabase
+        .from('products_master')
+        .select('id')
+        .order('id', { ascending: false })
+        .limit(1);
+        
+      let nextId = 1;
+      if (!countError && lastProduct && lastProduct.length > 0) {
+        const highestId = parseInt(lastProduct[0].id);
+        if (!isNaN(highestId)) {
+          nextId = highestId + 1;
+        }
+      }
+      
       for (const productData of products) {
         try {
           // Generate IDs for variants
@@ -180,6 +195,7 @@ const CSVImportModal = ({ open, onOpenChange, onImportSuccess }: CSVImportModalP
           const { error: productError } = await supabase
             .from("products_master")
             .insert({
+              id: nextId.toString(),  // Add the sequential ID here
               name: productData.name,
               price: productData.price,
               original_price: productData.original_price || null,
@@ -194,6 +210,7 @@ const CSVImportModal = ({ open, onOpenChange, onImportSuccess }: CSVImportModalP
           
           if (productError) throw productError;
           
+          nextId++; // Increment the ID for the next product
           setImportStatus(prev => ({ ...prev!, success: prev!.success + 1 }));
         } catch (error) {
           console.error(`Erreur lors de l'importation du produit ${productData.name}:`, error);

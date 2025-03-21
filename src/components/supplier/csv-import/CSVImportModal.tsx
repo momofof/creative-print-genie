@@ -11,8 +11,8 @@ import {
 import { Button } from "@/components/ui/button";
 import { Loader2, Upload } from "lucide-react";
 import { useCSVImport } from "./useCSVImport";
-import ImportForm from "./ImportForm";
-import ImportSuccess from "./ImportSuccess";
+import ImportForm from "../csv-import/ImportForm";
+import ImportSuccess from "../csv-import/ImportSuccess";
 
 interface CSVImportModalProps {
   open: boolean;

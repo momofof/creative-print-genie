@@ -82,7 +82,7 @@ export const useCSVImport = ({ onImportSuccess }: UseCSVImportProps) => {
               subcategory: productData.subcategory || null,
               description: productData.description || null,
               status: productData.status || "draft",
-              image: productData.image || null, // Use the image URL from CSV or null
+              image: productData.image || null,
               is_customizable: productData.is_customizable || false,
               supplier_id: userData.user.id,
               variants: variants
