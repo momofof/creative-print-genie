@@ -17,7 +17,11 @@ const Step1ProductSelection = ({
   productSelectionDisabled = false
 }: Step1ProductSelectionProps) => {
   return (
-    <div className="space-y-4">
+    <div className="space-y-6">
+      <h3 className="text-lg font-medium text-gray-800 mb-2">
+        Sélection du produit
+      </h3>
+      
       <SearchableDropdown
         label="Sélectionnez un produit"
         placeholder="Choisir un produit..."
