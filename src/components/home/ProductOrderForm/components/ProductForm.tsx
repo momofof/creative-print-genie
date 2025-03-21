@@ -8,6 +8,7 @@ import QuantitySelector from "../QuantitySelector";
 import ProductFormVariants from "./ProductFormVariants";
 import ProductFormPrice from "./ProductFormPrice";
 import ProductFormSubmitButton from "./ProductFormSubmitButton";
+import ProductDescription from "./ProductDescription";
 
 // Import utility functions
 import { 
@@ -104,6 +105,9 @@ const ProductForm = ({
         
         {selectedProduct && (
           <>
+            {/* Nouvelle section pour la description du produit */}
+            <ProductDescription product={selectedProduct} />
+            
             <QuantitySelector
               quantityOptions={getQuantityOptions(selectedProduct.subcategory || selectedProduct.category)}
               selectedQuantity={selectedQuantity}

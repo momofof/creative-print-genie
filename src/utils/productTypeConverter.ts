@@ -14,7 +14,7 @@ export const convertDashboardToUIProduct = (product: DashboardProduct): UIProduc
     image: product.image || '/placeholder.svg',
     category: product.category,
     subcategory: product.subcategory || '',
-    description: product.description || '',
+    description: product.description || '', // S'assurer que la description est bien transmise
     rating: 5, // Default rating
     reviewCount: 0, // Default review count
     color: '',
