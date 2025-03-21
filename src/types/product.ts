@@ -1,3 +1,4 @@
+
 export interface Color {
   id: string;
   name: string;
@@ -44,6 +45,8 @@ export interface Product {
   variant_images?: Record<string, string>; // Maps variant IDs to image URLs
   is_customizable?: boolean;
   customizations?: any; // This holds customization options in JSONB format
+  color?: string; // Added for compatibility with productTypeConverter
+  date?: string;  // Added for compatibility
 }
 
 export interface ProductView {

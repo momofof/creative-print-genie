@@ -17,10 +17,10 @@ export const convertDashboardToUIProduct = (product: DashboardProduct): UIProduc
     description: product.description || '', // S'assurer que la description est bien transmise
     rating: 5, // Default rating
     reviewCount: 0, // Default review count
-    color: '',
     date: product.created_at,
     isNew: false,
-    variants: product.variants
+    variants: product.variants,
+    variant_images: product.variant_images
   };
 };
 

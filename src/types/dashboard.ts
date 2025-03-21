@@ -16,6 +16,7 @@ export interface Product {
   supplier_id?: string | null;
   updated_at?: string | null;
   variants: ProductVariant[];
+  variant_images?: Record<string, string> | null;
   customizations?: Customization[];
 }
 
