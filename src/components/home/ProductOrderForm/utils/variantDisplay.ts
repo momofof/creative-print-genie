@@ -8,6 +8,21 @@ const variantDisplayNames: Record<string, string> = {
   "paper_type": "Type de papier",
   "finish": "Finition",
   "face_a_imprimer": "Face à imprimer",
+  // New variants
+  "quantite": "Quantité",
+  "format": "Format",
+  "type_de_materiaux": "Type de matériaux",
+  "poids": "Poids",
+  "details_impression": "Détails d'impression",
+  "orientation_impression": "Orientation d'impression",
+  "prix_selon_quantite": "Prix selon quantité",
+  "prix_selon_poids": "Prix selon poids",
+  "prix_selon_format": "Prix selon format",
+  "prix_selon_type_de_materiaux": "Prix selon type de matériaux",
+  "prix_selon_delai_production": "Prix selon délai de production",
+  "types_impression": "Types d'impression",
+  "echantillon": "Échantillon",
+  "bat": "B.A.T"
 };
 
 // Function to get display name for a variant type

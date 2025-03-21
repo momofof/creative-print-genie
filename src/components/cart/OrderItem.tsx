@@ -1,5 +1,6 @@
 
 import { CartItem } from "@/types/product";
+import { getVariantDisplayName } from "@/components/home/ProductOrderForm/utils/variantDisplay";
 
 interface OrderItemProps {
   item: CartItem;
@@ -36,7 +37,7 @@ const OrderItem = ({
           <div className="mt-1 text-xs text-gray-500">
             {Object.entries(item.variants).map(([key, value]) => (
               <span key={key} className="mr-2">
-                {key}: {value}
+                {getVariantDisplayName(key)}: {value}
               </span>
             ))}
           </div>
