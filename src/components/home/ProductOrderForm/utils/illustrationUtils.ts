@@ -99,16 +99,46 @@ const variantIllustrations: Record<string, Record<string, Record<string, string>
   },
 };
 
+// Find variant image in the product's variant_images
+const findVariantImage = (product: Product, variantType: string, variantValue: string): string | null => {
+  if (!product.variants || !product.variant_images) {
+    return null;
+  }
+  
+  // Try to find the matching variant
+  const matchingVariant = (product.variants as any[]).find(v => 
+    (variantType === 'color' && v.color === variantValue) || 
+    (variantType === 'size' && v.size === variantValue)
+  );
+  
+  if (matchingVariant && matchingVariant.id && product.variant_images[matchingVariant.id]) {
+    return product.variant_images[matchingVariant.id];
+  }
+  
+  return null;
+};
+
 // Function to get feature illustration for a product category
 export const getFeatureIllustration = (product: Product | undefined, variants: Record<string, string>): string => {
   if (!product) return "/placeholder.svg";
   
+  // If the product has its own image, use it first
+  if (product.image) {
+    return product.image;
+  }
+  
   // Si le produit a une subcategory, essayer d'abord avec celle-ci
   const category = product.subcategory || product.category;
   
-  // If there are variants selected, try to find a variant-specific illustration
+  // If there are variants selected, try to find a variant-specific image
   if (Object.keys(variants).length > 0) {
-    if (variants.color) {
+    if (variants.color && product.variant_images) {
+      // Try to find a specific variant image
+      const variantImage = findVariantImage(product, 'color', variants.color);
+      if (variantImage) {
+        return variantImage;
+      }
+      
       // Vérifier d'abord avec la subcategory
       if (variantIllustrations[category]?.color?.[variants.color]) {
         return variantIllustrations[category].color[variants.color];
@@ -127,7 +157,19 @@ export const getFeatureIllustration = (product: Product | undefined, variants: R
 };
 
 // Function to get variant illustration for a product category and variant type
-export const getVariantIllustration = (category: string, variantType: string, value: string): string => {
+export const getVariantIllustration = (product: Product | undefined, variantType: string, value: string): string => {
+  if (!product) {
+    return "/placeholder.svg";
+  }
+  
+  // Try to find a specific variant image in the product
+  const variantImage = findVariantImage(product, variantType, value);
+  if (variantImage) {
+    return variantImage;
+  }
+  
+  const category = product.subcategory || product.category;
+  
   // Vérifier d'abord la catégorie exacte
   const illustration = variantIllustrations[category]?.[variantType]?.[value];
   if (illustration) return illustration;

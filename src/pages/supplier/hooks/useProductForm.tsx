@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
@@ -12,6 +13,7 @@ export interface ProductData {
   subcategory: string | null;
   description: string | null;
   image: string | null;
+  variant_images: Record<string, string> | null;
   status: 'draft' | 'published' | 'archived';
   is_customizable: boolean;
 }
@@ -24,6 +26,7 @@ export interface ProductVariant {
   stock: number;
   price_adjustment: number | null;
   status: 'in_stock' | 'low_stock' | 'out_of_stock';
+  image?: string | null;
   isNew?: boolean;
   isDeleted?: boolean;
 }
@@ -42,6 +45,7 @@ export const useProductForm = (productId?: string) => {
     subcategory: null,
     description: null,
     image: null,
+    variant_images: null,
     status: "draft",
     is_customizable: false
   });
@@ -49,6 +53,8 @@ export const useProductForm = (productId?: string) => {
   const [variants, setVariants] = useState<ProductVariant[]>([]);
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [variantImageFiles, setVariantImageFiles] = useState<Record<string, File>>({});
+  const [variantImagePreviews, setVariantImagePreviews] = useState<Record<string, string>>({});
 
   useEffect(() => {
     checkAuthentication();
@@ -120,6 +126,7 @@ export const useProductForm = (productId?: string) => {
         subcategory: product.subcategory,
         description: product.description,
         image: product.image,
+        variant_images: product.variant_images || null,
         status: product.status as 'draft' | 'published' | 'archived',
         is_customizable: product.is_customizable || false
       };
@@ -130,6 +137,11 @@ export const useProductForm = (productId?: string) => {
       // Parse variants from the JSONB field
       const parsedVariants = parseVariantsFromJson(product.variants);
       setVariants(parsedVariants);
+      
+      // Set up variant image previews if they exist
+      if (product.variant_images) {
+        setVariantImagePreviews(product.variant_images as Record<string, string>);
+      }
       
       setIsLoading(false);
     } catch (error: any) {
@@ -178,10 +190,34 @@ export const useProductForm = (productId?: string) => {
     }
   };
 
+  const handleVariantImageChange = (variantId: string, e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      const file = e.target.files[0];
+      
+      // Store the file
+      setVariantImageFiles(prev => ({
+        ...prev,
+        [variantId]: file
+      }));
+      
+      // Create preview
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        setVariantImagePreviews(prev => ({
+          ...prev,
+          [variantId]: event.target?.result as string
+        }));
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
   const addVariant = () => {
+    const newVariantId = crypto.randomUUID();
     setVariants(prev => [
       ...prev,
       {
+        id: newVariantId,
         size: "M",
         color: "Noir",
         hex_color: "#000000",
@@ -196,9 +232,25 @@ export const useProductForm = (productId?: string) => {
   const removeVariant = (index: number) => {
     setVariants(prev => {
       const updated = [...prev];
+      const variantId = updated[index].id;
+      
+      // Remove variant image if it exists
+      if (variantId) {
+        setVariantImageFiles(prev => {
+          const newFiles = { ...prev };
+          delete newFiles[variantId];
+          return newFiles;
+        });
+        
+        setVariantImagePreviews(prev => {
+          const newPreviews = { ...prev };
+          delete newPreviews[variantId];
+          return newPreviews;
+        });
+      }
       
       // If it's an existing variant from the database, mark it for deletion
-      if (updated[index].id) {
+      if (updated[index].id && !updated[index].isNew) {
         updated[index] = {
           ...updated[index],
           isDeleted: true
@@ -234,13 +286,13 @@ export const useProductForm = (productId?: string) => {
       const filePath = `product-images/${fileName}`;
       
       const { error: uploadError } = await supabase.storage
-        .from('products')
+        .from('product-images')
         .upload(filePath, imageFile);
       
       if (uploadError) throw uploadError;
       
       const { data: urlData } = supabase.storage
-        .from('products')
+        .from('product-images')
         .getPublicUrl(filePath);
       
       return urlData.publicUrl;
@@ -249,6 +301,46 @@ export const useProductForm = (productId?: string) => {
       toast.error("Erreur lors de l'upload de l'image");
       return null;
     }
+  };
+
+  const uploadVariantImages = async (): Promise<Record<string, string>> => {
+    const variantImages: Record<string, string> = { ...variantImagePreviews };
+    
+    // Filter out variant image previews for deleted variants
+    const deletedVariantIds = variants
+      .filter(v => v.isDeleted)
+      .map(v => v.id)
+      .filter((id): id is string => id !== undefined);
+    
+    deletedVariantIds.forEach(id => {
+      delete variantImages[id];
+    });
+    
+    // Upload new variant images
+    for (const [variantId, file] of Object.entries(variantImageFiles)) {
+      try {
+        const fileExt = file.name.split('.').pop();
+        const fileName = `variant-${variantId}-${crypto.randomUUID()}.${fileExt}`;
+        const filePath = `product-images/${fileName}`;
+        
+        const { error: uploadError } = await supabase.storage
+          .from('product-images')
+          .upload(filePath, file);
+        
+        if (uploadError) throw uploadError;
+        
+        const { data: urlData } = supabase.storage
+          .from('product-images')
+          .getPublicUrl(filePath);
+        
+        variantImages[variantId] = urlData.publicUrl;
+      } catch (error) {
+        console.error(`Error uploading variant image for ${variantId}:`, error);
+        toast.error(`Erreur lors de l'upload de l'image pour une variante`);
+      }
+    }
+    
+    return variantImages;
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -264,18 +356,26 @@ export const useProductForm = (productId?: string) => {
         return;
       }
       
-      // 1. Upload image if there's a new one
+      // 1. Upload main product image if there's a new one
       const imageUrl = await uploadProductImage();
       
-      // 2. Filter out deleted variants
-      const activeVariants = variants.filter(variant => !variant.isDeleted);
+      // 2. Upload variant images
+      const variantImagesUrls = await uploadVariantImages();
       
-      // 3. Create or update product in products_master table
-      // Convert variants to Json compatible format
+      // 3. Filter out deleted variants and update variant images
+      const activeVariants = variants
+        .filter(variant => !variant.isDeleted)
+        .map(variant => ({
+          ...variant,
+          image: variant.id && variantImagesUrls[variant.id] ? variantImagesUrls[variant.id] : null
+        }));
+      
+      // 4. Create or update product in products_master table
       const productPayload = {
         ...productData,
         supplier_id: userData.user.id,
         image: imageUrl || productData.image,
+        variant_images: toJsonValue(variantImagesUrls), // Store variant images mapping
         variants: toJsonValue(activeVariants) // Convert to Json compatible format
       };
       
@@ -331,12 +431,15 @@ export const useProductForm = (productId?: string) => {
     variants,
     imageFile,
     imagePreview,
+    variantImageFiles,
+    variantImagePreviews,
     setImageFile,
     setImagePreview,
     handleInputChange,
     handleSelectChange,
     handleCheckboxChange,
     handleImageChange,
+    handleVariantImageChange,
     addVariant,
     removeVariant,
     handleVariantChange,

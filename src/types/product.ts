@@ -1,4 +1,3 @@
-
 export interface Color {
   id: string;
   name: string;
@@ -32,19 +31,19 @@ export interface RelatedProduct {
 export interface Product {
   id: string;
   name: string;
+  description?: string;
   price: number;
   originalPrice?: number;
-  image: string;
-  rating: number;
-  reviewCount: number;
+  image?: string;
   category: string;
-  subcategory: string;
-  description?: string;
-  color?: string;
-  date?: string;
+  subcategory?: string;
+  rating?: number;
+  reviewCount?: number;
   isNew?: boolean;
-  customizationViews?: ProductView[];
-  variants?: any; // Added variants property
+  variants?: any;  // This holds variant data in JSONB format
+  variant_images?: Record<string, string>; // Maps variant IDs to image URLs
+  is_customizable?: boolean;
+  customizations?: any; // This holds customization options in JSONB format
 }
 
 export interface ProductView {
