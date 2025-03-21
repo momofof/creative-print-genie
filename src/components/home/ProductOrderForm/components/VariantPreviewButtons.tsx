@@ -46,7 +46,7 @@ const VariantPreviewButtons = ({
           <PopoverContent className="w-64 p-2">
             <div className="text-center">
               <img 
-                src={getVariantIllustration(selectedProduct.category, type, value)} 
+                src={getVariantIllustration(selectedProduct.subcategory || selectedProduct.category, type, value)} 
                 alt={`${getVariantDisplayName(type)}: ${value}`} 
                 className="max-w-full h-32 object-contain mx-auto" 
               />

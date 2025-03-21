@@ -34,7 +34,7 @@ const VariantPreviewGrid = ({
             <div className="text-center">
               <div className="h-24 flex items-center justify-center">
                 <img 
-                  src={getVariantIllustration(selectedProduct.category, type, value)} 
+                  src={getVariantIllustration(selectedProduct.subcategory || selectedProduct.category, type, value)} 
                   alt={`${getVariantDisplayName(type)}: ${value}`} 
                   className="max-w-full max-h-20 object-contain" 
                 />

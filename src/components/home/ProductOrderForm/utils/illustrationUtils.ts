@@ -157,29 +157,17 @@ export const getFeatureIllustration = (product: Product | undefined, variants: R
 };
 
 // Function to get variant illustration for a product category and variant type
-export const getVariantIllustration = (product: Product | undefined, variantType: string, value: string): string => {
-  if (!product) {
-    return "/placeholder.svg";
-  }
-  
-  // Try to find a specific variant image in the product
-  const variantImage = findVariantImage(product, variantType, value);
-  if (variantImage) {
-    return variantImage;
-  }
-  
-  const category = product.subcategory || product.category;
-  
+export const getVariantIllustration = (productCategory: string, variantType: string, value: string): string => {
   // Vérifier d'abord la catégorie exacte
-  const illustration = variantIllustrations[category]?.[variantType]?.[value];
+  const illustration = variantIllustrations[productCategory]?.[variantType]?.[value];
   if (illustration) return illustration;
   
   // Si pas trouvé, vérifier la catégorie en minuscules
-  const lowerCaseIllustration = variantIllustrations[category.toLowerCase()]?.[variantType]?.[value];
+  const lowerCaseIllustration = variantIllustrations[productCategory.toLowerCase()]?.[variantType]?.[value];
   if (lowerCaseIllustration) return lowerCaseIllustration;
   
   // Si toujours pas trouvé, renvoyer l'illustration générique
-  return featureIllustrations[category] || 
-         featureIllustrations[category.toLowerCase()] || 
+  return featureIllustrations[productCategory] || 
+         featureIllustrations[productCategory.toLowerCase()] || 
          "/placeholder.svg";
 };

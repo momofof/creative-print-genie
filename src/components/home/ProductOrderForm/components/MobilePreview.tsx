@@ -19,7 +19,7 @@ const MobilePreview = ({ selectedProduct, variants }: MobilePreviewProps) => {
   const getCurrentIllustration = () => {
     if (activeVariant) {
       return getVariantIllustration(
-        selectedProduct.category, 
+        selectedProduct.subcategory || selectedProduct.category, 
         activeVariant.type, 
         activeVariant.value
       );

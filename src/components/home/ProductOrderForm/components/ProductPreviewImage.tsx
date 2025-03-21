@@ -20,7 +20,7 @@ const ProductPreviewImage = ({
   const getCurrentIllustration = () => {
     if (activeVariant && selectedProduct) {
       return getVariantIllustration(
-        selectedProduct.category, 
+        selectedProduct.subcategory || selectedProduct.category, 
         activeVariant.type, 
         activeVariant.value
       );
