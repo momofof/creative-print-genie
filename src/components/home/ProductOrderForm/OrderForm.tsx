@@ -16,7 +16,7 @@ import Step3OrderSummary from "./components/Step3OrderSummary";
 // Import hooks and utils
 import { useOrderFormState } from "./hooks/useOrderFormState";
 import { useOrderSubmission } from "./hooks/useOrderSubmission";
-import { extractVariantOptionsFromProduct } from "./utils";
+import { extractVariantOptionsFromProduct, getAvailableVariants } from "./utils";
 
 interface OrderFormProps {
   products: Product[];
@@ -65,18 +65,26 @@ const OrderForm = ({
         setSelectedProduct(product);
         if (initialQuantity) setSelectedQuantity(initialQuantity);
         if (initialVariants) setVariants({...initialVariants});
+        
+        // Set available variants based on the product
+        const productVariants = getAvailableVariants(product.subcategory || product.category);
+        setAvailableVariants(productVariants);
       }
     }
-  }, [editMode, initialProductId, initialQuantity, initialVariants, products, setSelectedProduct, setSelectedQuantity, setVariants]);
+  }, [editMode, initialProductId, initialQuantity, initialVariants, products, setSelectedProduct, setSelectedQuantity, setVariants, setAvailableVariants]);
   
   // Update available variants when product changes
   useEffect(() => {
     if (selectedProduct) {
+      // Set available variants based on product category
+      const productVariants = getAvailableVariants(selectedProduct.subcategory || selectedProduct.category);
+      setAvailableVariants(productVariants);
+      
       // Extract variant options from product data if available
       const productOptions = extractVariantOptionsFromProduct(selectedProduct);
       setProductVariantOptions(productOptions);
     }
-  }, [selectedProduct]);
+  }, [selectedProduct, setAvailableVariants]);
   
   // Handle step navigation
   const handleStepChange = (step: number) => {
@@ -210,6 +218,7 @@ const OrderForm = ({
               variants={variants}
               setVariants={setVariants}
               availableVariants={availableVariants}
+              setAvailableVariants={setAvailableVariants}
               productVariantOptions={productVariantOptions}
             />
           )}
