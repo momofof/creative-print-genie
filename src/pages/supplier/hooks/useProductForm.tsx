@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { toJsonValue } from "@/utils/jsonUtils";
+import { Json } from "@/integrations/supabase/types";
 
 export interface ProductData {
   name: string;
@@ -29,6 +30,27 @@ export interface ProductVariant {
   image?: string | null;
   isNew?: boolean;
   isDeleted?: boolean;
+}
+
+// Define a type for the product data returned from Supabase
+interface SupabaseProduct {
+  category: string;
+  created_at: string | null;
+  customizations: Json | null;
+  description: string | null;
+  id: string;
+  image: string | null;
+  is_customizable: boolean | null;
+  name: string;
+  original_price: number | null;
+  price: number;
+  status: string;
+  stock: number | null;
+  subcategory: string | null;
+  supplier_id: string | null;
+  updated_at: string | null;
+  variants: Json | null;
+  variant_images?: Json | null;  // Added this property to match the database schema
 }
 
 export const useProductForm = (productId?: string) => {
@@ -117,30 +139,33 @@ export const useProductForm = (productId?: string) => {
         return;
       }
       
+      // Safely typecast the product to our SupabaseProduct type
+      const typedProduct = product as SupabaseProduct;
+      
       // Extract the relevant fields for our ProductData type
-      const typedProduct: ProductData = {
-        name: product.name,
-        price: product.price,
-        original_price: product.original_price,
-        category: product.category,
-        subcategory: product.subcategory,
-        description: product.description,
-        image: product.image,
-        variant_images: product.variant_images || null,
-        status: product.status as 'draft' | 'published' | 'archived',
-        is_customizable: product.is_customizable || false
+      const formattedProduct: ProductData = {
+        name: typedProduct.name,
+        price: typedProduct.price,
+        original_price: typedProduct.original_price,
+        category: typedProduct.category,
+        subcategory: typedProduct.subcategory,
+        description: typedProduct.description,
+        image: typedProduct.image,
+        variant_images: typedProduct.variant_images ? typedProduct.variant_images as Record<string, string> : null,
+        status: typedProduct.status as 'draft' | 'published' | 'archived',
+        is_customizable: typedProduct.is_customizable || false
       };
       
-      setProductData(typedProduct);
-      setImagePreview(product.image);
+      setProductData(formattedProduct);
+      setImagePreview(typedProduct.image);
       
       // Parse variants from the JSONB field
-      const parsedVariants = parseVariantsFromJson(product.variants);
+      const parsedVariants = parseVariantsFromJson(typedProduct.variants);
       setVariants(parsedVariants);
       
       // Set up variant image previews if they exist
-      if (product.variant_images) {
-        setVariantImagePreviews(product.variant_images as Record<string, string>);
+      if (typedProduct.variant_images) {
+        setVariantImagePreviews(typedProduct.variant_images as Record<string, string>);
       }
       
       setIsLoading(false);
