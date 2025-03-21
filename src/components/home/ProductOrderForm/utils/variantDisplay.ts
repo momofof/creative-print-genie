@@ -12,6 +12,7 @@ const variantDisplayNames: Record<string, string> = {
   "quantite": "Quantité",
   "format": "Format",
   "type_de_materiaux": "Type de matériaux",
+  "type_de_papier": "Type de papier",
   "poids": "Poids",
   "details_impression": "Détails d'impression",
   "orientation_impression": "Orientation d'impression",
@@ -43,6 +44,7 @@ export const getPlaceholderImage = (category: string): string => {
     'panneaux': '/placeholder.svg',
     'enseignes': '/placeholder.svg',
     'papier': '/placeholder.svg',
+    'carte-de-visite': '/placeholder.svg',
     'textile': '/placeholder.svg',
     // Add more categories as needed
   };

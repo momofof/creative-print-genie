@@ -29,8 +29,10 @@ const availableVariants: Record<string, string[]> = {
               "orientation_impression", "types_impression", "echantillon", "bat"],
   "enseignes": ["quantite", "format", "type_de_materiaux", "poids", "details_impression", 
                "orientation_impression", "types_impression", "echantillon", "bat"],
-  "papier": ["quantite", "format", "type_de_materiaux", "poids", "details_impression", 
-            "orientation_impression", "types_impression", "echantillon", "bat"],
+  "papier": ["quantite", "format", "type_de_papier", "poids", "details_impression", 
+            "orientation_impression", "echantillon", "bat"],
+  "carte-de-visite": ["quantite", "format", "type_de_papier", "poids", "details_impression", 
+                     "orientation_impression", "echantillon", "bat"],
   "textile": ["quantite", "format", "type_de_materiaux", "poids", "details_impression", 
              "orientation_impression", "types_impression", "echantillon", "bat"],
 };
