@@ -1,12 +1,11 @@
 
 import React from "react";
-import { useIsMobile } from "@/hooks/use-mobile";
 import { Product } from "@/types/product";
-import ProductIllustration from "../ProductIllustration";
-import StepContent from "./StepContent";
-import StepButtons from "./StepButtons";
+import Step1ProductSelection from "./Step1ProductSelection";
+import Step2ProductOptions from "./Step2ProductOptions";
+import Step3OrderSummary from "./Step3OrderSummary";
 
-interface FormContentProps {
+interface StepContentProps {
   currentStep: number;
   products: Product[];
   selectedProduct: Product | undefined;
@@ -18,18 +17,13 @@ interface FormContentProps {
   availableVariants: string[];
   setAvailableVariants: React.Dispatch<React.SetStateAction<string[]>>;
   productVariantOptions: Record<string, string[]>;
-  openIllustration: boolean;
-  setOpenIllustration: (open: boolean) => void;
+  isSubmitting: boolean;
   editMode: boolean;
   handleSubmit: (e: React.FormEvent) => Promise<void>;
-  isSubmitting: boolean;
   onEditComplete?: (productId: string, quantity: number, variants: Record<string, string>) => void;
-  goToNextStep: () => void;
-  goToPreviousStep: () => void;
-  disableNextSteps: () => boolean;
 }
 
-const FormContent = ({
+const StepContent = ({
   currentStep,
   products,
   selectedProduct,
@@ -41,27 +35,36 @@ const FormContent = ({
   availableVariants,
   setAvailableVariants,
   productVariantOptions,
-  openIllustration,
-  setOpenIllustration,
+  isSubmitting,
   editMode,
   handleSubmit,
-  isSubmitting,
-  onEditComplete,
-  goToNextStep,
-  goToPreviousStep,
-  disableNextSteps
-}: FormContentProps) => {
-  const isMobile = useIsMobile();
+  onEditComplete
+}: StepContentProps) => {
+  // Handle edit completion
+  const handleUpdateProduct = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (onEditComplete && selectedProduct && selectedQuantity) {
+      onEditComplete(selectedProduct.id, selectedQuantity, variants);
+    }
+  };
 
-  return (
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-8">
-      {/* Form Content Column */}
-      <div>
-        <StepContent 
-          currentStep={currentStep}
+  // Render different steps based on currentStep
+  switch (currentStep) {
+    case 0:
+      return (
+        <Step1ProductSelection
           products={products}
           selectedProduct={selectedProduct}
           setSelectedProduct={setSelectedProduct}
+          productSelectionDisabled={editMode}
+        />
+      );
+      
+    case 1:
+      return (
+        <Step2ProductOptions
+          selectedProduct={selectedProduct}
           selectedQuantity={selectedQuantity}
           setSelectedQuantity={setSelectedQuantity}
           variants={variants}
@@ -69,32 +72,24 @@ const FormContent = ({
           availableVariants={availableVariants}
           setAvailableVariants={setAvailableVariants}
           productVariantOptions={productVariantOptions}
+        />
+      );
+      
+    case 2:
+      return (
+        <Step3OrderSummary
+          selectedProduct={selectedProduct}
+          selectedQuantity={selectedQuantity}
+          variants={variants}
           isSubmitting={isSubmitting}
           editMode={editMode}
-          handleSubmit={handleSubmit}
-          onEditComplete={onEditComplete}
+          handleSubmit={editMode ? handleUpdateProduct : handleSubmit}
         />
-        
-        {/* Step navigation buttons */}
-        <StepButtons
-          currentStep={currentStep}
-          goToPreviousStep={goToPreviousStep}
-          goToNextStep={goToNextStep}
-          disableNext={disableNextSteps()}
-        />
-      </div>
-
-      {/* Illustration Column - Hidden on mobile, replaced with sheet/drawer */}
-      {!isMobile && (
-        <ProductIllustration
-          selectedProduct={selectedProduct}
-          variants={variants}
-          openIllustration={openIllustration}
-          setOpenIllustration={setOpenIllustration}
-        />
-      )}
-    </div>
-  );
+      );
+      
+    default:
+      return null;
+  }
 };
 
-export default FormContent;
+export default StepContent;
