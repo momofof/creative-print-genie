@@ -71,7 +71,7 @@ const ProductFormVariants = ({
         }
       }
       if (!placed) {
-        groupedVariants.other].push(variant);
+        groupedVariants["other"].push(variant);
       }
     });
     
