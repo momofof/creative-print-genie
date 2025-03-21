@@ -32,10 +32,10 @@ const Pro = () => {
     products, 
     orders, 
     stats, 
-    deleteProduct
+    deleteProduct,
+    refreshProducts
   } = useSupplierDashboard();
 
-  // Dashboard features for the promo section
   const proFeatures: ProFeature[] = [
     {
       title: "Gestion des produits",
@@ -59,7 +59,6 @@ const Pro = () => {
     },
   ];
 
-  // Navigation handlers
   const handleAddProduct = () => {
     navigate("/supplier/product/new");
   };
@@ -72,6 +71,10 @@ const Pro = () => {
     await deleteProduct(productId);
   };
 
+  const handleRefreshProducts = () => {
+    refreshProducts();
+  };
+
   const handleViewAllOrders = () => {
     setActiveTab("orders");
   };
@@ -82,7 +85,6 @@ const Pro = () => {
     toast.success("Déconnexion réussie");
   };
 
-  // If loading or authentication check not completed
   if (isLoading || profileLoading) {
     return <LoadingSpinner />;
   }
@@ -143,7 +145,7 @@ const Pro = () => {
               onAddProduct={handleAddProduct}
               onEditProduct={handleEditProduct}
               onDeleteProduct={handleDeleteProduct}
-              onRefreshProducts={() => console.log("Refresh products")}
+              onRefreshProducts={handleRefreshProducts}
             />
           </TabsContent>
           
