@@ -1,16 +1,13 @@
+
 import { useState } from "react";
 import { Product, CartItem } from "@/types/product";
 import { useIsMobile } from "@/hooks/use-mobile";
 
 // Import components
-import MobilePreviewContainer from "./MobilePreviewContainer";
+import FormHeader from "./FormHeader";
+import FormContent from "./FormContent";
 import OrderSummaryHandler from "./OrderSummaryHandler";
-import StepNavigation from "./StepNavigation";
-import Step1ProductSelection from "./Step1ProductSelection";
-import Step2ProductOptions from "./Step2ProductOptions";
-import Step3OrderSummary from "./Step3OrderSummary";
 import ProductIllustration from "../ProductIllustration";
-import OrderFormHeader from "./OrderFormHeader";
 
 interface OrderFormContentProps {
   products: Product[];
@@ -86,122 +83,43 @@ const OrderFormContent = ({
     setOrderTotal(total);
     setShowOrderSummary(true);
   };
-  
-  // Handle edit completion
-  const handleUpdateProduct = async (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    if (onEditComplete && selectedProduct && selectedQuantity) {
-      onEditComplete(selectedProduct.id, selectedQuantity, variants);
-    }
-  };
-
-  // Show step navigation buttons
-  const renderStepButtons = () => {
-    return (
-      <div className="flex justify-between mt-6">
-        {currentStep > 0 && (
-          <button
-            type="button"
-            onClick={goToPreviousStep}
-            className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50"
-          >
-            Précédent
-          </button>
-        )}
-        
-        {currentStep < 2 && (
-          <button
-            type="button"
-            onClick={goToNextStep}
-            className="px-4 py-2 bg-teal-600 text-white rounded-md hover:bg-teal-700 ml-auto"
-            disabled={
-              (currentStep === 0 && !selectedProduct) ||
-              (currentStep === 1 && !selectedQuantity)
-            }
-          >
-            Suivant
-          </button>
-        )}
-      </div>
-    );
-  };
 
   return (
     <>
-      <div className="relative">
-        <OrderFormHeader editMode={editMode} />
-        
-        {/* Mobile preview illustration - Positioned inside the form below the title */}
-        {isMobile && selectedProduct && (
-          <MobilePreviewContainer 
-            selectedProduct={selectedProduct} 
-            variants={variants}
-            onShowPreview={() => setOpenIllustration(true)}
-          />
-        )}
-        
-        {/* Multi-step navigation */}
-        <StepNavigation 
-          currentStep={currentStep} 
-          onStepChange={handleStepChange}
-          disableNextSteps={disableNextSteps()}
-        />
-      </div>
+      {/* Header and step navigation */}
+      <FormHeader 
+        editMode={editMode}
+        currentStep={currentStep}
+        onStepChange={handleStepChange}
+        disableNextSteps={disableNextSteps()}
+        selectedProduct={selectedProduct}
+        variants={variants}
+        onShowPreview={() => setOpenIllustration(true)}
+      />
       
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-8">
-        {/* Form Content Column */}
-        <div>
-          {/* Step 1: Product Selection */}
-          {currentStep === 0 && (
-            <Step1ProductSelection
-              products={products}
-              selectedProduct={selectedProduct}
-              setSelectedProduct={setSelectedProduct}
-              productSelectionDisabled={editMode}
-            />
-          )}
-          
-          {/* Step 2: Options and Variants */}
-          {currentStep === 1 && (
-            <Step2ProductOptions
-              selectedProduct={selectedProduct}
-              selectedQuantity={selectedQuantity}
-              setSelectedQuantity={setSelectedQuantity}
-              variants={variants}
-              setVariants={setVariants}
-              availableVariants={availableVariants}
-              setAvailableVariants={setAvailableVariants}
-              productVariantOptions={productVariantOptions}
-            />
-          )}
-          
-          {/* Step 3: Order Summary */}
-          {currentStep === 2 && (
-            <Step3OrderSummary
-              selectedProduct={selectedProduct}
-              selectedQuantity={selectedQuantity}
-              variants={variants}
-              isSubmitting={isSubmitting}
-              editMode={editMode}
-              handleSubmit={editMode ? handleUpdateProduct : handleSubmit}
-            />
-          )}
-          
-          {/* Step navigation buttons */}
-          {renderStepButtons()}
-        </div>
-
-        {/* Illustration Column - Hidden on mobile, replaced with sheet/drawer */}
-        {!isMobile && (
-          <ProductIllustration
-            selectedProduct={selectedProduct}
-            variants={variants}
-            openIllustration={openIllustration}
-            setOpenIllustration={setOpenIllustration}
-          />
-        )}
-      </div>
+      {/* Form content and product illustration */}
+      <FormContent 
+        currentStep={currentStep}
+        products={products}
+        selectedProduct={selectedProduct}
+        setSelectedProduct={setSelectedProduct}
+        selectedQuantity={selectedQuantity}
+        setSelectedQuantity={setSelectedQuantity}
+        variants={variants}
+        setVariants={setVariants}
+        availableVariants={availableVariants}
+        setAvailableVariants={setAvailableVariants}
+        productVariantOptions={productVariantOptions}
+        openIllustration={openIllustration}
+        setOpenIllustration={setOpenIllustration}
+        editMode={editMode}
+        handleSubmit={handleSubmit}
+        isSubmitting={isSubmitting}
+        onEditComplete={onEditComplete}
+        goToNextStep={goToNextStep}
+        goToPreviousStep={goToPreviousStep}
+        disableNextSteps={disableNextSteps}
+      />
 
       {/* Mobile illustration sheet */}
       {isMobile && (
