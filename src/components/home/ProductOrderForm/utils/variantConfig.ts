@@ -1,3 +1,4 @@
+
 // Define available variants for each product category
 const availableVariants: Record<string, string[]> = {
   "vêtements": ["color", "size", "print_design", "quantite", "format", "type_de_materiaux", "poids", "details_impression", 
@@ -91,11 +92,6 @@ const variantOptions: Record<string, Record<string, string[]>> = {
     "poids": ["Léger", "Standard", "Lourd", "Extra lourd"],
     "details_impression": ["Haute résolution", "Standard", "Économique"],
     "orientation_impression": ["Portrait", "Paysage", "Carré"],
-    "prix_selon_quantite": ["Remise 10%", "Remise 20%", "Remise 30%"],
-    "prix_selon_poids": ["Standard", "+10%", "+20%"],
-    "prix_selon_format": ["Standard", "+15%", "+30%"],
-    "prix_selon_type_de_materiaux": ["Standard", "+5%", "+15%", "+25%"],
-    "prix_selon_delai_production": ["Standard", "Express (+20%)", "Urgent (+50%)"],
     "types_impression": ["Numérique", "Offset", "Sérigraphie", "Flexographie"],
     "echantillon": ["Non", "Oui (+10€)"],
     "bat": ["Non", "Numérique (gratuit)", "Physique (+15€)"],
@@ -107,11 +103,6 @@ const variantOptions: Record<string, Record<string, string[]>> = {
     "poids": ["Léger", "Standard", "Lourd", "Extra lourd"],
     "details_impression": ["Haute résolution", "Standard", "Économique"],
     "orientation_impression": ["Portrait", "Paysage", "Carré"],
-    "prix_selon_quantite": ["Remise 10%", "Remise 20%", "Remise 30%"],
-    "prix_selon_poids": ["Standard", "+10%", "+20%"],
-    "prix_selon_format": ["Standard", "+15%", "+30%"],
-    "prix_selon_type_de_materiaux": ["Standard", "+5%", "+15%", "+25%"],
-    "prix_selon_delai_production": ["Standard", "Express (+20%)", "Urgent (+50%)"],
     "types_impression": ["Numérique", "Offset", "Sérigraphie", "Flexographie"],
     "echantillon": ["Non", "Oui (+10€)"],
     "bat": ["Non", "Numérique (gratuit)", "Physique (+15€)"],
