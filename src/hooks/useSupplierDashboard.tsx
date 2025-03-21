@@ -25,14 +25,6 @@ export const useSupplierDashboard = () => {
     setIsLoading(false);
   };
 
-  // Refresh products function that will be exposed to components
-  const refreshProducts = async () => {
-    setIsLoading(true);
-    const fetchedProducts = await fetchProducts();
-    updateProductStats(fetchedProducts);
-    setIsLoading(false);
-  };
-
   // Initial data loading
   useEffect(() => {
     loadDashboardData();
@@ -45,7 +37,6 @@ export const useSupplierDashboard = () => {
     stats,
     fetchProducts,
     deleteProduct,
-    refreshProducts,
     loadDashboardData
   };
 };

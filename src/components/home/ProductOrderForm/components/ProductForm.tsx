@@ -105,7 +105,7 @@ const ProductForm = ({
         
         {selectedProduct && (
           <>
-            {/* Description du produit */}
+            {/* Nouvelle section pour la description du produit */}
             <ProductDescription product={selectedProduct} />
             
             <QuantitySelector
@@ -114,7 +114,7 @@ const ProductForm = ({
               setSelectedQuantity={setSelectedQuantity}
             />
             
-            {/* Variant selectors with pagination */}
+            {/* Variant selectors */}
             {availableVariants.length > 0 && (
               <ProductFormVariants
                 selectedProduct={selectedProduct}

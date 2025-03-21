@@ -2,7 +2,7 @@
 import { useState } from "react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
-import { parseCSV } from "./CSVParser";
+import { parseCSV, CSVProductData } from "./CSVParser";
 
 interface UseCSVImportProps {
   onImportSuccess: () => void;

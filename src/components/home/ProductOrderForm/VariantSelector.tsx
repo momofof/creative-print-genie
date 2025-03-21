@@ -43,11 +43,6 @@ const VariantSelector = ({
   const filteredOptions = options.filter(option => 
     option.toLowerCase().includes(searchTerm.toLowerCase())
   );
-  
-  // Placeholder text changes based on whether an option is selected
-  const placeholderText = selectedValue 
-    ? selectedValue 
-    : `Choisir ${displayName.toLowerCase()}...`;
 
   return (
     <div>
@@ -61,10 +56,8 @@ const VariantSelector = ({
             value={selectedValue || ""}
             defaultValue={selectedValue || ""}
           >
-            <SelectTrigger className="w-full">
-              <SelectValue placeholder={placeholderText}>
-                {selectedValue}
-              </SelectValue>
+            <SelectTrigger>
+              <SelectValue placeholder={`Choisir ${displayName.toLowerCase()}...`} />
             </SelectTrigger>
             <SelectContent 
               className={`${isMobile ? 'pb-10' : 'max-h-[300px]'} bg-white shadow-lg border border-gray-200`}

@@ -10,6 +10,9 @@ const CSVFormatInfo = () => {
         <p className="text-xs text-gray-500">
           Colonnes: name, price, category, subcategory, status, description, original_price, is_customizable, size, color, hex_color, stock, price_adjustment, variant_status
         </p>
+        <p className="text-xs text-gray-500 mt-1">
+          Les données de variantes (size, color, etc.) seront automatiquement converties en format JSON pour la base de données Supabase.
+        </p>
       </div>
     </div>
   );
