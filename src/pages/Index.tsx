@@ -22,7 +22,7 @@ const Index = () => {
         setIsLoading(true);
         console.log("Fetching products from Supabase...");
         const { data, error } = await supabase
-          .from('products_master')
+          .from('unified_products')
           .select('*')
           .eq('status', 'published')
           .order('created_at', { ascending: false });

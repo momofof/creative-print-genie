@@ -10,7 +10,7 @@ export const customizationService = {
     try {
       // Get the current product with its customizations
       const { data: product, error: fetchError } = await supabase
-        .from("products_master")
+        .from("unified_products")
         .select("customizations")
         .eq("id", productId)
         .single();
@@ -38,7 +38,7 @@ export const customizationService = {
       
       // Update the product with the new customizations array
       const { error: updateError } = await supabase
-        .from("products_master")
+        .from("unified_products")
         .update({ customizations: toJsonValue(updatedCustomizations) })
         .eq("id", productId);
         
@@ -56,7 +56,7 @@ export const customizationService = {
   async getCustomizationsForProduct(productId: string): Promise<Customization[]> {
     try {
       const { data, error } = await supabase
-        .from("products_master")
+        .from("unified_products")
         .select("customizations")
         .eq("id", productId)
         .single();
@@ -76,7 +76,7 @@ export const customizationService = {
     try {
       // Get the current product with its customizations
       const { data: product, error: fetchError } = await supabase
-        .from("products_master")
+        .from("unified_products")
         .select("customizations")
         .eq("id", productId)
         .single();
@@ -95,7 +95,7 @@ export const customizationService = {
       
       // Update the product with the modified customizations array
       const { error: updateError } = await supabase
-        .from("products_master")
+        .from("unified_products")
         .update({ customizations: toJsonValue(updatedCustomizations) })
         .eq("id", productId);
         
@@ -114,7 +114,7 @@ export const customizationService = {
     try {
       // Get the current product with its customizations
       const { data: product, error: fetchError } = await supabase
-        .from("products_master")
+        .from("unified_products")
         .select("customizations")
         .eq("id", productId)
         .single();
@@ -131,7 +131,7 @@ export const customizationService = {
       
       // Update the product with the filtered customizations array
       const { error: updateError } = await supabase
-        .from("products_master")
+        .from("unified_products")
         .update({ customizations: toJsonValue(updatedCustomizations) })
         .eq("id", productId);
         
