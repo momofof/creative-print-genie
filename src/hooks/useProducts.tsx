@@ -1,9 +1,9 @@
 
 import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { Product } from "@/types/dashboard";
+import { Product, ProductVariant } from "@/types/dashboard";
 import { toast } from "sonner";
-import { parseCustomizations } from "@/utils/jsonUtils";
+import { parseCustomizations, parseJsonArray } from "@/utils/jsonUtils";
 
 export const useProducts = () => {
   const [products, setProducts] = useState<Product[]>([]);
@@ -26,15 +26,25 @@ export const useProducts = () => {
       } else {
         // Convertir les produits unifiés en notre format d'interface
         const formattedProducts: Product[] = data.map(product => {
+          // Ensure variants is properly parsed to be ProductVariant[]
+          const parsedVariants = Array.isArray(product.variants) 
+            ? product.variants 
+            : (typeof product.variants === 'string' 
+              ? JSON.parse(product.variants) 
+              : []);
+              
+          // Ensure customizations is properly parsed
+          const parsedCustomizations = parseCustomizations(product.customizations);
+          
           return {
             ...product,
             // S'assurer que le statut est une valeur attendue
             status: (product.status === 'draft' || product.status === 'published' || product.status === 'archived') 
               ? product.status 
               : 'draft',
-            // Ensure variants and customizations are parsed from JSON
-            variants: product.variants || [],
-            customizations: product.customizations || [],
+            // Properly parsed arrays for variants and customizations
+            variants: parsedVariants as ProductVariant[],
+            customizations: parsedCustomizations,
           };
         });
         
