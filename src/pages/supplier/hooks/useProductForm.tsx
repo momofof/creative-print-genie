@@ -7,6 +7,28 @@ import { useAuthCheck } from "./useAuthCheck";
 import { useProductFetch } from "./useProductFetch";
 import { useProductSubmit } from "./useProductSubmit";
 
+export interface ProductVariant {
+  id: string;
+  product_id?: string;
+  size: string;
+  color: string;
+  hex_color: string;
+  stock: number;
+  price_adjustment?: number;
+  status: "in_stock" | "low_stock" | "out_of_stock";
+  bat?: string;
+  poids?: string;
+  format?: string;
+  quantite?: string;
+  echantillon?: string;
+  types_impression?: string;
+  type_de_materiaux?: string;
+  details_impression?: string;
+  orientation_impression?: string;
+  isNew?: boolean;
+  isDeleted?: boolean;
+}
+
 export const useProductForm = (productId?: string) => {
   const navigate = useNavigate();
   const { checkAuthentication } = useAuthCheck();

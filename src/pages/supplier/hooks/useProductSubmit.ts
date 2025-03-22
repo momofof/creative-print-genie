@@ -15,7 +15,8 @@ export const useProductSubmit = (
   const [isSaving, setIsSaving] = useState(false);
   const navigate = useNavigate();
   
-  const { uploadProductImage } = useImageUpload(imageFile, productData);
+  // Mise à jour de la ligne suivante pour ne passer que les arguments nécessaires
+  const { uploadProductImage } = useImageUpload(imageFile, productData.name);
 
   const handleSubmit = async (e?: React.FormEvent) => {
     if (e) e.preventDefault();

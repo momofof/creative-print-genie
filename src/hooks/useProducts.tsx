@@ -34,7 +34,7 @@ export const useProducts = () => {
               : 'draft',
             // Les champs de variantes sont maintenant intégrés directement dans le produit
             variants: [], // Variantes vides car maintenant intégrées
-            customizations: parseCustomizations(product.customizations),
+            customizations: [], // Initialiser un tableau vide pour les customizations
           };
         });
         

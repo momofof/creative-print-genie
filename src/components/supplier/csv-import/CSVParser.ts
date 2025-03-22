@@ -51,12 +51,11 @@ export const parseCSV = (text: string): CSVProductData[] => {
     };
     
     // Ajouter les champs optionnels
-    const addFieldIfExists = (fieldName: string, parser?: (val: string) => any) => {
-      const index = headers.indexOf(fieldName);
+    const addFieldIfExists = (fieldName: keyof CSVProductData, parser?: (val: string) => any) => {
+      const index = headers.indexOf(fieldName as string);
       if (index !== -1 && values[index]) {
-        product[fieldName as keyof CSVProductData] = parser 
-          ? parser(values[index]) 
-          : values[index];
+        const parsed = parser ? parser(values[index]) : values[index];
+        (product as any)[fieldName] = parsed;
       }
     };
     

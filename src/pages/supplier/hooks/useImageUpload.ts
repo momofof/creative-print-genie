@@ -1,80 +1,35 @@
 
 import { supabase } from "@/integrations/supabase/client";
-import { toast } from "sonner";
-import { ProductVariant } from "./types/productTypes";
+import { v4 as uuidv4 } from 'uuid';
 
-export const useImageUpload = (
-  imageFile: File | null,
-  productData: any,
-  variantImageFiles: Record<string, File>,
-  variantImagePreviews: Record<string, string>,
-  variants: ProductVariant[]
-) => {
+export const useImageUpload = (imageFile: File | null, productName: string) => {
   const uploadProductImage = async (): Promise<string | null> => {
-    if (!imageFile) return productData.image;
+    if (!imageFile) return null;
     
     try {
+      // Create a unique file name to avoid collisions
       const fileExt = imageFile.name.split('.').pop();
-      const fileName = `${crypto.randomUUID()}.${fileExt}`;
+      const fileName = `${uuidv4()}.${fileExt}`;
       const filePath = `product-images/${fileName}`;
       
+      // Upload file to Supabase Storage
       const { error: uploadError } = await supabase.storage
-        .from('product-images')
+        .from('products')
         .upload(filePath, imageFile);
       
       if (uploadError) throw uploadError;
       
-      const { data: urlData } = supabase.storage
-        .from('product-images')
+      // Get the public URL for the uploaded image
+      const { data } = supabase.storage
+        .from('products')
         .getPublicUrl(filePath);
       
-      return urlData.publicUrl;
+      return data.publicUrl;
     } catch (error) {
-      console.error("Error uploading image:", error);
-      toast.error("Erreur lors de l'upload de l'image");
+      console.error('Error uploading image:', error);
       return null;
     }
   };
-
-  const uploadVariantImages = async (): Promise<Record<string, string>> => {
-    const variantImages: Record<string, string> = { ...variantImagePreviews };
-    
-    // Filter out variant image previews for deleted variants
-    const deletedVariantIds = variants
-      .filter(v => v.isDeleted)
-      .map(v => v.id)
-      .filter((id): id is string => id !== undefined);
-    
-    deletedVariantIds.forEach(id => {
-      delete variantImages[id];
-    });
-    
-    // Upload new variant images
-    for (const [variantId, file] of Object.entries(variantImageFiles)) {
-      try {
-        const fileExt = file.name.split('.').pop();
-        const fileName = `variant-${variantId}-${crypto.randomUUID()}.${fileExt}`;
-        const filePath = `product-images/${fileName}`;
-        
-        const { error: uploadError } = await supabase.storage
-          .from('product-images')
-          .upload(filePath, file);
-        
-        if (uploadError) throw uploadError;
-        
-        const { data: urlData } = supabase.storage
-          .from('product-images')
-          .getPublicUrl(filePath);
-        
-        variantImages[variantId] = urlData.publicUrl;
-      } catch (error) {
-        console.error(`Error uploading variant image for ${variantId}:`, error);
-        toast.error(`Erreur lors de l'upload de l'image pour une variante`);
-      }
-    }
-    
-    return variantImages;
-  };
-
-  return { uploadProductImage, uploadVariantImages };
+  
+  return { uploadProductImage };
 };

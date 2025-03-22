@@ -2,7 +2,7 @@
 export interface ProductData {
   name: string;
   price: number;
-  original_price?: number | null;
+  original_price: number;
   category: string;
   subcategory?: string | null;
   description?: string | null;
