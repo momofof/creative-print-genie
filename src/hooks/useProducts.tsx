@@ -32,9 +32,9 @@ export const useProducts = () => {
             status: (product.status === 'draft' || product.status === 'published' || product.status === 'archived') 
               ? product.status 
               : 'draft',
-            // Les champs de variantes sont maintenant intégrés directement dans le produit
-            variants: [], // Variantes vides car maintenant intégrées
-            customizations: [], // Initialiser un tableau vide pour les customizations
+            // Ensure variants and customizations are parsed from JSON
+            variants: product.variants || [],
+            customizations: product.customizations || [],
           };
         });
         

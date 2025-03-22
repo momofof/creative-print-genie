@@ -93,7 +93,10 @@ export const useCSVImport = ({ onImportSuccess }: UseCSVImportProps) => {
               types_impression: productData.types_impression || null,
               type_de_materiaux: productData.type_de_materiaux || null,
               details_impression: productData.details_impression || null,
-              orientation_impression: productData.orientation_impression || null
+              orientation_impression: productData.orientation_impression || null,
+              // Add empty arrays for variants and customizations
+              variants: [],
+              customizations: []
             });
           
           if (productError) throw productError;

@@ -296,6 +296,7 @@ export type Database = {
           category: string
           color: string | null
           created_at: string | null
+          customizations: Json | null
           description: string | null
           details_impression: string | null
           echantillon: string | null
@@ -320,12 +321,14 @@ export type Database = {
           types_impression: string | null
           updated_at: string | null
           variant_status: string | null
+          variants: Json | null
         }
         Insert: {
           bat?: string | null
           category: string
           color?: string | null
           created_at?: string | null
+          customizations?: Json | null
           description?: string | null
           details_impression?: string | null
           echantillon?: string | null
@@ -350,12 +353,14 @@ export type Database = {
           types_impression?: string | null
           updated_at?: string | null
           variant_status?: string | null
+          variants?: Json | null
         }
         Update: {
           bat?: string | null
           category?: string
           color?: string | null
           created_at?: string | null
+          customizations?: Json | null
           description?: string | null
           details_impression?: string | null
           echantillon?: string | null
@@ -380,6 +385,7 @@ export type Database = {
           types_impression?: string | null
           updated_at?: string | null
           variant_status?: string | null
+          variants?: Json | null
         }
         Relationships: []
       }

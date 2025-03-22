@@ -51,8 +51,10 @@ const Index = () => {
             color: '',
             date: item.created_at,
             isNew: false,
-            // Inclure les variantes pour une utilisation ultérieure
-            variants: item.variants
+            // Parse variants from the JSON column
+            variants: item.variants || [],
+            // Include customizations for future use
+            customizations: item.customizations || []
           })) || [];
           
           console.log("Mapped products:", mappedProducts);

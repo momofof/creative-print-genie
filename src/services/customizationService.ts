@@ -33,7 +33,7 @@ export const customizationService = {
       };
       
       // Parse the existing customizations and append the new one
-      const currentCustomizations = parseCustomizations(product.customizations);
+      const currentCustomizations = parseCustomizations(product?.customizations || []);
       const updatedCustomizations = [...currentCustomizations, newCustomization];
       
       // Update the product with the new customizations array
@@ -65,7 +65,7 @@ export const customizationService = {
         throw error;
       }
       
-      return parseCustomizations(data.customizations);
+      return parseCustomizations(data?.customizations || []);
     } catch (error: any) {
       toast.error(`Erreur lors de la récupération des personnalisations: ${error.message}`);
       return [];
@@ -86,7 +86,7 @@ export const customizationService = {
       }
       
       // Parse and update the customization in the array
-      const currentCustomizations = parseCustomizations(product.customizations);
+      const currentCustomizations = parseCustomizations(product?.customizations || []);
       const updatedCustomizations = currentCustomizations.map((custom: Customization) => 
         custom.id === customization.id ? 
         { ...customization, updated_at: new Date().toISOString() } : 
@@ -124,7 +124,7 @@ export const customizationService = {
       }
       
       // Parse and filter out the customization to delete
-      const currentCustomizations = parseCustomizations(product.customizations);
+      const currentCustomizations = parseCustomizations(product?.customizations || []);
       const updatedCustomizations = currentCustomizations.filter(
         (custom: Customization) => custom.id !== customizationId
       );
