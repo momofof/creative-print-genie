@@ -30,6 +30,7 @@ export const useProductForm = (productId?: string) => {
     category: "",
     subcategory: "",
     image: "",
+    variant_images: null,
     status: "draft",
     is_customizable: false
   });
@@ -52,14 +53,14 @@ export const useProductForm = (productId?: string) => {
     variants
   );
   
-  const { submitProductData } = useProductSubmit(
+  const { isSaving: isSubmitting, handleSubmit: submitProductData } = useProductSubmit(
+    !!productId,
     productId,
     productData,
     variants,
-    uploadProductImage,
-    uploadVariantImages,
-    setIsSaving,
-    navigate
+    imageFile,
+    variantImageFiles,
+    variantImagePreviews
   );
 
   useEffect(() => {
@@ -86,7 +87,8 @@ export const useProductForm = (productId?: string) => {
     setProductData(prev => ({ ...prev, [name]: value }));
   };
 
-  const handleCheckboxChange = (name: string, checked: boolean) => {
+  const handleCheckboxChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, checked } = e.target;
     setProductData(prev => ({ ...prev, [name]: checked }));
   };
 
@@ -178,7 +180,7 @@ export const useProductForm = (productId?: string) => {
 
   return {
     isLoading,
-    isSaving,
+    isSaving: isSaving || isSubmitting,
     productData,
     variants,
     imagePreview,
