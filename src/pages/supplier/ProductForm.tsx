@@ -1,38 +1,27 @@
 
-import React, { useState } from "react";
+import React from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { Store, ArrowLeft, Loader2, Save } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ProductGeneralInfo } from "./components/ProductFormComponents/ProductGeneralInfo";
-import { ProductVariants } from "./components/ProductFormComponents/ProductVariants";
 import { ProductImageUpload } from "./components/ProductFormComponents/ProductImageUpload";
-import SimpleVariantEditor from "./components/ProductFormComponents/SimpleVariantEditor";
 import { useProductForm } from "./hooks/useProductForm";
 
 const ProductForm = () => {
   const { productId } = useParams();
   const navigate = useNavigate();
   const isEditing = !!productId;
-  const [variantTab, setVariantTab] = useState<string>("simple");
   
   const {
     isLoading,
     isSaving,
     productData,
-    variants,
     imagePreview,
-    variantImagePreviews,
     handleInputChange,
     handleSelectChange,
     handleCheckboxChange,
     handleImageChange,
-    handleVariantImageChange,
-    addVariant,
-    removeVariant,
-    handleVariantChange,
-    handleSubmit,
-    setVariants
+    handleSubmit
   } = useProductForm(productId);
 
   if (isLoading) {
@@ -95,32 +84,174 @@ const ProductForm = () => {
                 handleSelectChange={handleSelectChange}
                 handleCheckboxChange={handleCheckboxChange}
               />
-              
-              {/* Tabs pour les deux modes d'édition de variantes */}
-              <Tabs defaultValue="simple" value={variantTab} onValueChange={setVariantTab} className="w-full">
-                <TabsList className="grid grid-cols-2 mb-4">
-                  <TabsTrigger value="simple">Éditeur simplifié</TabsTrigger>
-                  <TabsTrigger value="advanced">Éditeur avancé</TabsTrigger>
-                </TabsList>
-                
-                <TabsContent value="simple">
-                  <SimpleVariantEditor 
-                    variants={variants} 
-                    setVariants={setVariants} 
-                  />
-                </TabsContent>
-                
-                <TabsContent value="advanced">
-                  <ProductVariants 
-                    variants={variants}
-                    variantImagePreviews={variantImagePreviews}
-                    addVariant={addVariant}
-                    removeVariant={removeVariant}
-                    handleVariantChange={handleVariantChange}
-                    handleVariantImageChange={handleVariantImageChange}
-                  />
-                </TabsContent>
-              </Tabs>
+
+              {/* Section for variant fields */}
+              <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+                <h2 className="text-lg font-semibold mb-4">Détails de la variante</h2>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="space-y-3">
+                    <div>
+                      <label htmlFor="size" className="block text-sm font-medium text-gray-700">Taille</label>
+                      <input
+                        type="text"
+                        id="size"
+                        name="size"
+                        value={productData.size || ""}
+                        onChange={handleInputChange}
+                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-teal-500 focus:ring-teal-500"
+                      />
+                    </div>
+                    <div>
+                      <label htmlFor="color" className="block text-sm font-medium text-gray-700">Couleur</label>
+                      <input
+                        type="text"
+                        id="color"
+                        name="color"
+                        value={productData.color || ""}
+                        onChange={handleInputChange}
+                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-teal-500 focus:ring-teal-500"
+                      />
+                    </div>
+                    <div>
+                      <label htmlFor="hex_color" className="block text-sm font-medium text-gray-700">Code Hex Couleur</label>
+                      <input
+                        type="color"
+                        id="hex_color"
+                        name="hex_color"
+                        value={productData.hex_color || "#000000"}
+                        onChange={handleInputChange}
+                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-teal-500 focus:ring-teal-500 h-10"
+                      />
+                    </div>
+                    <div>
+                      <label htmlFor="stock" className="block text-sm font-medium text-gray-700">Stock</label>
+                      <input
+                        type="number"
+                        id="stock"
+                        name="stock"
+                        value={productData.stock || 0}
+                        onChange={handleInputChange}
+                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-teal-500 focus:ring-teal-500"
+                      />
+                    </div>
+                    <div>
+                      <label htmlFor="price_adjustment" className="block text-sm font-medium text-gray-700">Ajustement de prix</label>
+                      <input
+                        type="number"
+                        id="price_adjustment"
+                        name="price_adjustment"
+                        value={productData.price_adjustment || 0}
+                        onChange={handleInputChange}
+                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-teal-500 focus:ring-teal-500"
+                      />
+                    </div>
+                  </div>
+                  <div className="space-y-3">
+                    <div>
+                      <label htmlFor="bat" className="block text-sm font-medium text-gray-700">BAT</label>
+                      <input
+                        type="text"
+                        id="bat"
+                        name="bat"
+                        value={productData.bat || ""}
+                        onChange={handleInputChange}
+                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-teal-500 focus:ring-teal-500"
+                      />
+                    </div>
+                    <div>
+                      <label htmlFor="poids" className="block text-sm font-medium text-gray-700">Poids</label>
+                      <input
+                        type="text"
+                        id="poids"
+                        name="poids"
+                        value={productData.poids || ""}
+                        onChange={handleInputChange}
+                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-teal-500 focus:ring-teal-500"
+                      />
+                    </div>
+                    <div>
+                      <label htmlFor="format" className="block text-sm font-medium text-gray-700">Format</label>
+                      <input
+                        type="text"
+                        id="format"
+                        name="format"
+                        value={productData.format || ""}
+                        onChange={handleInputChange}
+                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-teal-500 focus:ring-teal-500"
+                      />
+                    </div>
+                    <div>
+                      <label htmlFor="quantite" className="block text-sm font-medium text-gray-700">Quantité</label>
+                      <input
+                        type="text"
+                        id="quantite"
+                        name="quantite"
+                        value={productData.quantite || ""}
+                        onChange={handleInputChange}
+                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-teal-500 focus:ring-teal-500"
+                      />
+                    </div>
+                    <div>
+                      <label htmlFor="echantillon" className="block text-sm font-medium text-gray-700">Échantillon</label>
+                      <input
+                        type="text"
+                        id="echantillon"
+                        name="echantillon"
+                        value={productData.echantillon || ""}
+                        onChange={handleInputChange}
+                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-teal-500 focus:ring-teal-500"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4">
+                  <div>
+                    <label htmlFor="types_impression" className="block text-sm font-medium text-gray-700">Types d'impression</label>
+                    <input
+                      type="text"
+                      id="types_impression"
+                      name="types_impression"
+                      value={productData.types_impression || ""}
+                      onChange={handleInputChange}
+                      className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-teal-500 focus:ring-teal-500"
+                    />
+                  </div>
+                  <div>
+                    <label htmlFor="type_de_materiaux" className="block text-sm font-medium text-gray-700">Type de matériaux</label>
+                    <input
+                      type="text"
+                      id="type_de_materiaux"
+                      name="type_de_materiaux"
+                      value={productData.type_de_materiaux || ""}
+                      onChange={handleInputChange}
+                      className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-teal-500 focus:ring-teal-500"
+                    />
+                  </div>
+                  <div>
+                    <label htmlFor="details_impression" className="block text-sm font-medium text-gray-700">Détails d'impression</label>
+                    <input
+                      type="text"
+                      id="details_impression"
+                      name="details_impression"
+                      value={productData.details_impression || ""}
+                      onChange={handleInputChange}
+                      className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-teal-500 focus:ring-teal-500"
+                    />
+                  </div>
+                  <div>
+                    <label htmlFor="orientation_impression" className="block text-sm font-medium text-gray-700">Orientation d'impression</label>
+                    <input
+                      type="text"
+                      id="orientation_impression"
+                      name="orientation_impression"
+                      value={productData.orientation_impression || ""}
+                      onChange={handleInputChange}
+                      className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-teal-500 focus:ring-teal-500"
+                    />
+                  </div>
+                </div>
+              </div>
             </div>
             
             {/* Right Column - Image Upload */}

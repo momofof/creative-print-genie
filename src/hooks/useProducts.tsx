@@ -3,7 +3,7 @@ import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Product } from "@/types/dashboard";
 import { toast } from "sonner";
-import { parseProductVariants, parseCustomizations } from "@/utils/jsonUtils";
+import { parseCustomizations } from "@/utils/jsonUtils";
 
 export const useProducts = () => {
   const [products, setProducts] = useState<Product[]>([]);
@@ -14,7 +14,7 @@ export const useProducts = () => {
     setIsLoading(true);
     try {
       const { data, error } = await supabase
-        .from('products_master')
+        .from('unified_products')
         .select('*')
         .order('created_at', { ascending: false })
         .limit(10);
@@ -24,21 +24,21 @@ export const useProducts = () => {
         toast.error("Impossible de charger les produits");
         return [];
       } else {
-        // Convert products from unified format to our interface format
+        // Convertir les produits unifiés en notre format d'interface
         const formattedProducts: Product[] = data.map(product => {
           return {
             ...product,
-            // Ensure status is one of the expected values
+            // S'assurer que le statut est une valeur attendue
             status: (product.status === 'draft' || product.status === 'published' || product.status === 'archived') 
               ? product.status 
               : 'draft',
-            // Parse variants and customizations
-            variants: parseProductVariants(product.variants),
+            // Les champs de variantes sont maintenant intégrés directement dans le produit
+            variants: [], // Variantes vides car maintenant intégrées
             customizations: parseCustomizations(product.customizations),
           };
         });
         
-        // Update products state
+        // Mettre à jour l'état des produits
         setProducts(formattedProducts);
         setIsLoading(false);
         return formattedProducts;
@@ -59,9 +59,9 @@ export const useProducts = () => {
         return false;
       }
       
-      // Delete the product from the master table
+      // Delete the product from the unified table
       const { error } = await supabase
-        .from('products_master')
+        .from('unified_products')
         .delete()
         .eq('id', productId);
         
