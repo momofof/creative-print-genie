@@ -27,6 +27,49 @@ export const ProductVariants = ({
 }: ProductVariantsProps) => {
   const activeVariants = variants.filter(v => !v.isDeleted);
   
+  // Grouper les champs en catégories pour une meilleure organisation
+  const fieldGroups = [
+    {
+      title: "Informations de base",
+      fields: [
+        { name: "size", label: "Taille", type: "select", options: ["XS", "S", "M", "L", "XL", "XXL", "XXXL", "Unique"] },
+        { name: "color", label: "Couleur", type: "text" },
+        { name: "hex_color", label: "Code couleur", type: "color" },
+        { name: "stock", label: "Stock", type: "number" },
+      ]
+    },
+    {
+      title: "Attributs avancés",
+      fields: [
+        { name: "price_adjustment", label: "Ajustement de prix (€)", type: "number" },
+        { name: "status", label: "Statut", type: "select", options: [
+          { value: "in_stock", label: "En stock" },
+          { value: "low_stock", label: "Stock faible" },
+          { value: "out_of_stock", label: "Épuisé" }
+        ]},
+      ]
+    },
+    {
+      title: "Attributs d'impression",
+      fields: [
+        { name: "format", label: "Format", type: "text" },
+        { name: "poids", label: "Poids", type: "text" },
+        { name: "quantite", label: "Quantité", type: "text" },
+        { name: "types_impression", label: "Types d'impression", type: "text" },
+        { name: "details_impression", label: "Détails d'impression", type: "text" },
+        { name: "orientation_impression", label: "Orientation", type: "text" },
+      ]
+    },
+    {
+      title: "Matériaux et options",
+      fields: [
+        { name: "type_de_materiaux", label: "Type de matériaux", type: "text" },
+        { name: "bat", label: "BAT", type: "text" },
+        { name: "echantillon", label: "Échantillon", type: "text" },
+      ]
+    }
+  ];
+  
   return (
     <Card>
       <CardContent className="p-6">
@@ -63,109 +106,56 @@ export const ProductVariants = ({
                   <Trash2 className="h-4 w-4" />
                 </Button>
                 
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  {/* Taille */}
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Taille
-                    </label>
-                    <Select
-                      value={variant.size}
-                      onValueChange={(value) => handleVariantChange(variants.indexOf(variant), "size", value)}
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder="Choisir une taille" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="XS">XS</SelectItem>
-                        <SelectItem value="S">S</SelectItem>
-                        <SelectItem value="M">M</SelectItem>
-                        <SelectItem value="L">L</SelectItem>
-                        <SelectItem value="XL">XL</SelectItem>
-                        <SelectItem value="XXL">XXL</SelectItem>
-                        <SelectItem value="XXXL">XXXL</SelectItem>
-                        <SelectItem value="Unique">Taille unique</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  
-                  {/* Couleur */}
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Couleur
-                    </label>
-                    <div className="flex items-center gap-2">
-                      <Input
-                        type="text"
-                        value={variant.color}
-                        onChange={(e) => handleVariantChange(variants.indexOf(variant), "color", e.target.value)}
-                        placeholder="Nom de la couleur"
-                      />
-                      <Input
-                        type="color"
-                        value={variant.hex_color}
-                        onChange={(e) => handleVariantChange(variants.indexOf(variant), "hex_color", e.target.value)}
-                        className="w-10 p-1 h-9"
-                      />
+                {/* Affichage tabulaire des champs par groupe */}
+                {fieldGroups.map((group, groupIndex) => (
+                  <div key={groupIndex} className="mb-4">
+                    <h3 className="text-sm font-medium text-gray-700 mb-2">{group.title}</h3>
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                      {group.fields.map((field) => (
+                        <div key={field.name}>
+                          <label className="block text-xs font-medium text-gray-700 mb-1">
+                            {field.label}
+                          </label>
+                          {field.type === 'select' ? (
+                            <Select
+                              value={variant[field.name as keyof ProductVariant]?.toString() || ''}
+                              onValueChange={(value) => handleVariantChange(variants.indexOf(variant), field.name as keyof ProductVariant, value)}
+                            >
+                              <SelectTrigger>
+                                <SelectValue placeholder={`Choisir ${field.label.toLowerCase()}`} />
+                              </SelectTrigger>
+                              <SelectContent>
+                                {Array.isArray(field.options) ? 
+                                  field.options.map((option) => (
+                                    typeof option === 'string' ? 
+                                      <SelectItem key={option} value={option}>{option}</SelectItem> :
+                                      <SelectItem key={option.value} value={option.value}>{option.label}</SelectItem>
+                                  )) : null
+                                }
+                              </SelectContent>
+                            </Select>
+                          ) : field.type === 'color' ? (
+                            <Input
+                              type="color"
+                              value={variant[field.name as keyof ProductVariant]?.toString() || '#000000'}
+                              onChange={(e) => handleVariantChange(variants.indexOf(variant), field.name as keyof ProductVariant, e.target.value)}
+                              className="w-full p-1 h-9"
+                            />
+                          ) : (
+                            <Input
+                              type={field.type}
+                              value={variant[field.name as keyof ProductVariant]?.toString() || ''}
+                              onChange={(e) => handleVariantChange(variants.indexOf(variant), field.name as keyof ProductVariant, field.type === 'number' ? Number(e.target.value) : e.target.value)}
+                              placeholder={`Entrez ${field.label.toLowerCase()}`}
+                              step={field.type === 'number' ? "0.01" : undefined}
+                              min={field.type === 'number' ? "0" : undefined}
+                            />
+                          )}
+                        </div>
+                      ))}
                     </div>
                   </div>
-                  
-                  {/* Stock */}
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Stock
-                    </label>
-                    <Input
-                      type="number"
-                      value={variant.stock}
-                      onChange={(e) => handleVariantChange(variants.indexOf(variant), "stock", e.target.value)}
-                      min="0"
-                    />
-                  </div>
-                </div>
-                
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
-                  {/* Ajustement de prix */}
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Ajustement de prix (€)
-                    </label>
-                    <Input
-                      type="number"
-                      value={variant.price_adjustment || 0}
-                      onChange={(e) => handleVariantChange(variants.indexOf(variant), "price_adjustment", e.target.value)}
-                      placeholder="0.00"
-                      step="0.01"
-                    />
-                    <p className="text-xs text-gray-500 mt-1">
-                      Laissez 0 si pas d'ajustement de prix pour cette variante
-                    </p>
-                  </div>
-                  
-                  {/* Statut */}
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Statut
-                    </label>
-                    <Select
-                      value={variant.status}
-                      onValueChange={(value) => handleVariantChange(
-                        variants.indexOf(variant), 
-                        "status", 
-                        value as 'in_stock' | 'low_stock' | 'out_of_stock'
-                      )}
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder="Statut du stock" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="in_stock">En stock</SelectItem>
-                        <SelectItem value="low_stock">Stock faible</SelectItem>
-                        <SelectItem value="out_of_stock">Épuisé</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                </div>
+                ))}
 
                 {/* Image de la variante */}
                 {handleVariantImageChange && variant.id && (

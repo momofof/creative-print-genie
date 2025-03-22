@@ -17,6 +17,15 @@ export interface CSVProductData {
     stock: number;
     price_adjustment?: number;
     status?: "in_stock" | "low_stock" | "out_of_stock";
+    bat?: string;
+    poids?: string;
+    format?: string;
+    quantite?: string;
+    echantillon?: string;
+    types_impression?: string;
+    type_de_materiaux?: string;
+    details_impression?: string;
+    orientation_impression?: string;
   }[];
 }
 

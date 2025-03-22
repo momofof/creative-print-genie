@@ -46,13 +46,8 @@ export const useProductSubmit = (
       // 2. Upload variant images
       const variantImagesUrls = await uploadVariantImages();
       
-      // 3. Filter out deleted variants and update variant images
-      const activeVariants = variants
-        .filter(variant => !variant.isDeleted)
-        .map(variant => ({
-          ...variant,
-          image: variant.id && variantImagesUrls[variant.id] ? variantImagesUrls[variant.id] : null
-        }));
+      // 3. Filter out deleted variants
+      const activeVariants = variants.filter(variant => !variant.isDeleted);
       
       // 4. Create or update product in products_master table
       const productPayload = {
@@ -60,9 +55,9 @@ export const useProductSubmit = (
         supplier_id: userData.user.id,
         image: imageUrl || productData.image,
         variant_images: toJsonValue(variantImagesUrls), // Store variant images mapping
-        variants: toJsonValue(activeVariants) // Convert to Json compatible format
       };
       
+      // Handle product creation or update
       if (isEditing && productId) {
         // Update existing product
         const { error: updateError } = await supabase
@@ -71,6 +66,14 @@ export const useProductSubmit = (
           .eq("id", productId);
         
         if (updateError) throw updateError;
+
+        // Delete existing variants for this product
+        const { error: deleteError } = await supabase
+          .from("product_variants")
+          .delete()
+          .eq("product_id", productId);
+        
+        if (deleteError) throw deleteError;
       } else {
         // Get the highest current product ID to generate the next sequential ID
         const { data: lastProduct, error: countError } = await supabase
@@ -96,6 +99,38 @@ export const useProductSubmit = (
           });
         
         if (createError) throw createError;
+
+        // Set productId for variant creation
+        productId = nextId.toString();
+      }
+      
+      // Insert all active variants into the product_variants table
+      if (activeVariants.length > 0 && productId) {
+        const variantsPayload = activeVariants.map(variant => ({
+          product_id: productId,
+          size: variant.size,
+          color: variant.color,
+          hex_color: variant.hex_color,
+          stock: variant.stock,
+          price_adjustment: variant.price_adjustment || 0,
+          status: variant.status,
+          // Add additional variant fields as needed
+          bat: variant.bat || null,
+          poids: variant.poids || null,
+          format: variant.format || null,
+          quantite: variant.quantite || null,
+          echantillon: variant.echantillon || null,
+          types_impression: variant.types_impression || null,
+          type_de_materiaux: variant.type_de_materiaux || null,
+          details_impression: variant.details_impression || null,
+          orientation_impression: variant.orientation_impression || null
+        }));
+        
+        const { error: variantsError } = await supabase
+          .from("product_variants")
+          .insert(variantsPayload);
+        
+        if (variantsError) throw variantsError;
       }
       
       toast.success(isEditing ? "Produit mis à jour avec succès" : "Produit créé avec succès");

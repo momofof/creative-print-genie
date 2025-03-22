@@ -64,17 +64,11 @@ export const useCSVImport = ({ onImportSuccess }: UseCSVImportProps) => {
       
       for (const productData of products) {
         try {
-          // Generate IDs for variants
-          const variants = productData.variants?.map(variant => ({
-            ...variant,
-            id: crypto.randomUUID()
-          })) || [];
-
-          // Create product with variants in the product master table
-          const { error: productError } = await supabase
+          // Create product in the products_master table
+          const { error: productError, data: newProduct } = await supabase
             .from("products_master")
             .insert({
-              id: nextId.toString(),  // Use sequential ID
+              id: nextId.toString(),
               name: productData.name,
               price: productData.price,
               original_price: productData.original_price || null,
@@ -83,11 +77,42 @@ export const useCSVImport = ({ onImportSuccess }: UseCSVImportProps) => {
               description: productData.description || null,
               status: productData.status || "draft",
               is_customizable: productData.is_customizable || false,
-              supplier_id: userData.user.id,
-              variants: variants
-            });
+              supplier_id: userData.user.id
+            })
+            .select('id')
+            .single();
           
           if (productError) throw productError;
+          
+          // Insert variants into the product_variants table
+          if (productData.variants && productData.variants.length > 0) {
+            const variantsPayload = productData.variants.map(variant => ({
+              product_id: nextId.toString(),
+              size: variant.size,
+              color: variant.color,
+              hex_color: variant.hex_color,
+              stock: variant.stock,
+              price_adjustment: variant.price_adjustment || 0,
+              status: variant.status || "in_stock",
+              bat: variant.bat || null,
+              poids: variant.poids || null,
+              format: variant.format || null,
+              quantite: variant.quantite || null,
+              echantillon: variant.echantillon || null,
+              types_impression: variant.types_impression || null,
+              type_de_materiaux: variant.type_de_materiaux || null,
+              details_impression: variant.details_impression || null,
+              orientation_impression: variant.orientation_impression || null
+            }));
+            
+            const { error: variantsError } = await supabase
+              .from("product_variants")
+              .insert(variantsPayload);
+            
+            if (variantsError) {
+              console.error(`Erreur lors de l'importation des variantes pour le produit ${productData.name}:`, variantsError);
+            }
+          }
           
           nextId++; // Increment the ID for the next product
           setImportStatus(prev => ({ ...prev!, success: prev!.success + 1 }));

@@ -1,4 +1,3 @@
-
 import { Json } from "@/integrations/supabase/types";
 
 export interface ProductData {
@@ -15,19 +14,26 @@ export interface ProductData {
 }
 
 export interface ProductVariant {
-  id?: string;
+  id: string;
   size: string;
   color: string;
   hex_color: string;
   stock: number;
-  price_adjustment: number | null;
-  status: 'in_stock' | 'low_stock' | 'out_of_stock';
-  image?: string | null;
+  price_adjustment?: number | null;
+  status: "in_stock" | "low_stock" | "out_of_stock";
   isNew?: boolean;
   isDeleted?: boolean;
+  bat?: string;
+  poids?: string;
+  format?: string;
+  quantite?: string;
+  echantillon?: string;
+  types_impression?: string;
+  type_de_materiaux?: string;
+  details_impression?: string;
+  orientation_impression?: string;
 }
 
-// Define a type for the product data returned from Supabase
 export interface SupabaseProduct {
   category: string;
   created_at: string | null;

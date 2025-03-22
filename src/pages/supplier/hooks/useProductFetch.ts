@@ -53,9 +53,41 @@ export const useProductFetch = (
       setProductData(formattedProduct);
       setImagePreview(typedProduct.image);
       
-      // Parse variants from the JSONB field
-      const parsedVariants = parseVariantsFromJson(typedProduct.variants);
-      setVariants(parsedVariants);
+      // Fetch variants from the product_variants table
+      const { data: variantsData, error: variantsError } = await supabase
+        .from("product_variants")
+        .select("*")
+        .eq("product_id", productId);
+      
+      if (variantsError) throw variantsError;
+      
+      // Format the variants for our component
+      const formattedVariants = variantsData.map(variant => ({
+        id: variant.id.toString(),
+        size: variant.size || "M",
+        color: variant.color || "",
+        hex_color: variant.hex_color || "#000000",
+        stock: variant.stock || 0,
+        price_adjustment: variant.price_adjustment || 0,
+        status: variant.status || "in_stock",
+        bat: variant.bat,
+        poids: variant.poids,
+        format: variant.format,
+        quantite: variant.quantite,
+        echantillon: variant.echantillon,
+        types_impression: variant.types_impression,
+        type_de_materiaux: variant.type_de_materiaux,
+        details_impression: variant.details_impression,
+        orientation_impression: variant.orientation_impression
+      }));
+      
+      // Si aucune variante dans la table, vérifier les anciennes variantes en JSON
+      if (formattedVariants.length === 0 && typedProduct.variants) {
+        const parsedVariants = parseVariantsFromJson(typedProduct.variants);
+        setVariants(parsedVariants);
+      } else {
+        setVariants(formattedVariants);
+      }
       
       // Set up variant image previews if they exist
       if (typedProduct.variant_images) {
