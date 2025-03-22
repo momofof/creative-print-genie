@@ -140,63 +140,6 @@ export type Database = {
         }
         Relationships: []
       }
-      products_master: {
-        Row: {
-          category: string
-          created_at: string | null
-          customizations: Json | null
-          description: string | null
-          id: string
-          image: string | null
-          is_customizable: boolean | null
-          name: string
-          original_price: number | null
-          price: number
-          status: string
-          stock: number | null
-          subcategory: string | null
-          supplier_id: string | null
-          updated_at: string | null
-          variants: Json | null
-        }
-        Insert: {
-          category: string
-          created_at?: string | null
-          customizations?: Json | null
-          description?: string | null
-          id: string
-          image?: string | null
-          is_customizable?: boolean | null
-          name: string
-          original_price?: number | null
-          price: number
-          status?: string
-          stock?: number | null
-          subcategory?: string | null
-          supplier_id?: string | null
-          updated_at?: string | null
-          variants?: Json | null
-        }
-        Update: {
-          category?: string
-          created_at?: string | null
-          customizations?: Json | null
-          description?: string | null
-          id?: string
-          image?: string | null
-          is_customizable?: boolean | null
-          name?: string
-          original_price?: number | null
-          price?: number
-          status?: string
-          stock?: number | null
-          subcategory?: string | null
-          supplier_id?: string | null
-          updated_at?: string | null
-          variants?: Json | null
-        }
-        Relationships: []
-      }
       profiles: {
         Row: {
           avatar_url: string | null
@@ -320,6 +263,7 @@ export type Database = {
           type_de_materiaux: string | null
           types_impression: string | null
           updated_at: string | null
+          variant_images: Json | null
           variant_status: string | null
           variants: Json | null
         }
@@ -352,6 +296,7 @@ export type Database = {
           type_de_materiaux?: string | null
           types_impression?: string | null
           updated_at?: string | null
+          variant_images?: Json | null
           variant_status?: string | null
           variants?: Json | null
         }
@@ -384,6 +329,7 @@ export type Database = {
           type_de_materiaux?: string | null
           types_impression?: string | null
           updated_at?: string | null
+          variant_images?: Json | null
           variant_status?: string | null
           variants?: Json | null
         }

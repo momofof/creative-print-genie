@@ -10,20 +10,24 @@ import { VariantImageUpload } from "./VariantImageUpload";
 
 interface ProductVariantsProps {
   variants: ProductVariant[];
-  variantImagePreviews?: Record<string, string>;
+  productId?: string;
+  variantImagePreviews?: Record<string, string[]>;
   addVariant: () => void;
   removeVariant: (index: number) => void;
   handleVariantChange: (index: number, field: keyof ProductVariant, value: string | number) => void;
   handleVariantImageChange?: (variantId: string, e: React.ChangeEvent<HTMLInputElement>) => void;
+  handleVariantImageDelete?: (variantId: string, imageUrl: string) => void;
 }
 
 export const ProductVariants = ({
   variants,
+  productId,
   variantImagePreviews = {},
   addVariant,
   removeVariant,
   handleVariantChange,
-  handleVariantImageChange
+  handleVariantImageChange,
+  handleVariantImageDelete
 }: ProductVariantsProps) => {
   const activeVariants = variants.filter(v => !v.isDeleted);
   
@@ -157,12 +161,15 @@ export const ProductVariants = ({
                   </div>
                 ))}
 
-                {/* Image de la variante */}
+                {/* Images de la variante */}
                 {handleVariantImageChange && variant.id && (
                   <VariantImageUpload
                     variantId={variant.id}
-                    imagePreview={variantImagePreviews[variant.id] || null}
+                    productId={productId}
+                    imagePreview={null}
+                    imagesList={variantImagePreviews[variant.id] || []}
                     onImageChange={handleVariantImageChange}
+                    onImageDelete={handleVariantImageDelete}
                   />
                 )}
               </div>
