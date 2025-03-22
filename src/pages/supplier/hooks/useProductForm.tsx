@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
@@ -38,12 +39,12 @@ export const useProductForm = (productId?: string) => {
   
   const [productData, setProductData] = useState<ProductData>({
     name: "",
-    description: "",
+    description: null, // Explicitly setting description to null initially
     price: 0,
     original_price: 0,
     category: "",
-    subcategory: "",
-    image: "",
+    subcategory: "", // Now required
+    image: null,
     status: "draft",
     is_customizable: false,
     // Champs de variantes initialisés

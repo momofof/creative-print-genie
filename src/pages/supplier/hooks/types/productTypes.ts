@@ -1,11 +1,10 @@
-
 export interface ProductData {
   name: string;
   price: number;
   original_price: number;
   category: string;
   subcategory: string; // Changed from optional to required
-  description?: string | null;
+  description: string | null; // Making sure description is explicitly optional
   image?: string | null;
   status: 'draft' | 'published' | 'archived';
   is_customizable: boolean;
