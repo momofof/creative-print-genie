@@ -1,3 +1,4 @@
+
 import React from "react";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -13,9 +14,9 @@ import {
 interface ProductData {
   name: string;
   price: number;
-  original_price: number | null;
+  original_price: number;
   category: string;
-  subcategory: string | null;
+  subcategory: string;
   description: string | null;
   image: string | null;
   status: 'draft' | 'published' | 'archived';
@@ -115,7 +116,7 @@ export const ProductGeneralInfo = ({
             
             <div>
               <label htmlFor="subcategory" className="block text-sm font-medium text-gray-700">
-                Sous-catégorie
+                Sous-catégorie *
               </label>
               <Input
                 id="subcategory"
@@ -123,7 +124,7 @@ export const ProductGeneralInfo = ({
                 value={productData.subcategory || ""}
                 onChange={handleInputChange}
                 className="mt-1 block w-full"
-                placeholder="Facultatif"
+                required
               />
             </div>
           </div>

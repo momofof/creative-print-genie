@@ -4,7 +4,7 @@ export interface ProductData {
   price: number;
   original_price: number;
   category: string;
-  subcategory?: string | null;
+  subcategory: string; // Changed from optional to required
   description?: string | null;
   image?: string | null;
   status: 'draft' | 'published' | 'archived';
@@ -33,7 +33,7 @@ export interface SupabaseProduct {
   price: number;
   original_price?: number | null;
   category: string;
-  subcategory?: string | null;
+  subcategory: string; // Changed from optional to required
   description?: string | null;
   image?: string | null;
   status: string;
@@ -59,8 +59,7 @@ export interface SupabaseProduct {
   orientation_impression?: string | null;
 }
 
-// Cette interface n'est plus nécessaire car les variantes sont désormais intégrées
-// dans le produit, mais nous la conservons pour la rétrocompatibilité
+// Export ProductVariant interface so it can be imported in other files
 export interface ProductVariant {
   id: string;
   size?: string | null;

@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
@@ -125,7 +124,7 @@ export const useProductForm = (productId?: string) => {
   const handleSubmit = async (e?: React.FormEvent) => {
     if (e) e.preventDefault();
     
-    if (!productData.name || !productData.category) {
+    if (!productData.name || !productData.category || !productData.subcategory) {
       toast.error("Veuillez remplir tous les champs obligatoires");
       return;
     }
