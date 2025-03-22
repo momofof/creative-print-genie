@@ -1,3 +1,4 @@
+
 export interface ProductData {
   name: string;
   price: number;
@@ -5,7 +6,7 @@ export interface ProductData {
   category: string;
   subcategory: string; // Changed from optional to required
   description: string | null; // Making sure description is explicitly optional
-  image?: string | null;
+  image: string | null; // Making sure image is consistently defined as optional
   status: 'draft' | 'published' | 'archived';
   is_customizable: boolean;
   // Champs de variantes maintenant intégrés directement

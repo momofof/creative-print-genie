@@ -18,7 +18,7 @@ interface ProductData {
   category: string;
   subcategory: string;
   description: string | null; // Making it compatible with productTypes.ts
-  image: string | null;
+  image: string | null; // Making it compatible with productTypes.ts
   status: 'draft' | 'published' | 'archived';
   is_customizable: boolean;
 }
