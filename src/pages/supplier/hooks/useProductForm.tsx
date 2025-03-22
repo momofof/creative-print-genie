@@ -175,7 +175,8 @@ export const useProductForm = (productId?: string) => {
       return;
     }
     
-    await submitProductData();
+    // Here's the fix: Pass the event to submitProductData
+    await submitProductData(e);
   };
 
   return {

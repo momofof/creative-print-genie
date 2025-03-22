@@ -27,8 +27,8 @@ export const useProductSubmit = (
     variants
   );
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSubmit = async (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
     setIsSaving(true);
     
     try {
