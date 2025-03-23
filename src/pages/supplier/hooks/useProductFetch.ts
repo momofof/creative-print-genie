@@ -29,7 +29,7 @@ export const useProductFetch = (
         return;
       }
       
-      // Safely convert the product to our SupabaseProduct type
+      // Convert the product to our expected type
       const typedProduct = product as unknown as SupabaseProduct;
       
       // Extract the relevant fields for our ProductData type
