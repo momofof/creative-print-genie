@@ -46,7 +46,9 @@ export const useProducts = () => {
             variants: parsedVariants as ProductVariant[],
             customizations: parsedCustomizations,
             // Ajouter l'URL d'image de variante (simplifiée)
-            variant_image_url: product.variant_image_url || null
+            variant_image_url: product.variant_image_url || null,
+            // Ensure variant_images is treated as a Record or string
+            variant_images: product.variant_images || {}
           };
         });
         

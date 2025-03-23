@@ -263,6 +263,7 @@ export type Database = {
           type_de_materiaux: string | null
           types_impression: string | null
           updated_at: string | null
+          variant_image_url: string | null
           variant_images: string | null
           variant_status: string | null
           variants: Json | null
@@ -296,6 +297,7 @@ export type Database = {
           type_de_materiaux?: string | null
           types_impression?: string | null
           updated_at?: string | null
+          variant_image_url?: string | null
           variant_images?: string | null
           variant_status?: string | null
           variants?: Json | null
@@ -329,6 +331,7 @@ export type Database = {
           type_de_materiaux?: string | null
           types_impression?: string | null
           updated_at?: string | null
+          variant_image_url?: string | null
           variant_images?: string | null
           variant_status?: string | null
           variants?: Json | null
