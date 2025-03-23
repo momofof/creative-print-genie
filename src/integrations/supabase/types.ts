@@ -112,7 +112,7 @@ export type Database = {
           created_at: string
           customer_id: string | null
           id: string
-          items: Json
+          items: string
           shipping_address: Json | null
           status: string
           total: number
@@ -122,7 +122,7 @@ export type Database = {
           created_at?: string
           customer_id?: string | null
           id?: string
-          items: Json
+          items: string
           shipping_address?: Json | null
           status: string
           total: number
@@ -132,7 +132,7 @@ export type Database = {
           created_at?: string
           customer_id?: string | null
           id?: string
-          items?: Json
+          items?: string
           shipping_address?: Json | null
           status?: string
           total?: number
@@ -263,10 +263,7 @@ export type Database = {
           type_de_materiaux: string | null
           types_impression: string | null
           updated_at: string | null
-          variant_image_url: string | null
-          variant_images: string | null
           variant_status: string | null
-          variants: Json | null
         }
         Insert: {
           bat?: string | null
@@ -297,10 +294,7 @@ export type Database = {
           type_de_materiaux?: string | null
           types_impression?: string | null
           updated_at?: string | null
-          variant_image_url?: string | null
-          variant_images?: string | null
           variant_status?: string | null
-          variants?: Json | null
         }
         Update: {
           bat?: string | null
@@ -331,10 +325,7 @@ export type Database = {
           type_de_materiaux?: string | null
           types_impression?: string | null
           updated_at?: string | null
-          variant_image_url?: string | null
-          variant_images?: string | null
           variant_status?: string | null
-          variants?: Json | null
         }
         Relationships: []
       }

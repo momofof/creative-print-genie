@@ -3,7 +3,6 @@ import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Product, ProductVariant } from "@/types/dashboard";
 import { toast } from "sonner";
-import { parseCustomizations, parseJsonArray } from "@/utils/jsonUtils";
 
 export const useProducts = () => {
   const [products, setProducts] = useState<Product[]>([]);
@@ -13,6 +12,7 @@ export const useProducts = () => {
   const fetchProducts = async () => {
     setIsLoading(true);
     try {
+      // Récupérer les produits avec une approche plus simple
       const { data, error } = await supabase
         .from('unified_products')
         .select('*')
@@ -24,35 +24,41 @@ export const useProducts = () => {
         toast.error("Impossible de charger les produits");
         return [];
       } else {
-        // Convertir les produits unifiés en notre format d'interface
+        // Transforme les données en format simple
         const formattedProducts: Product[] = data.map(product => {
-          // Ensure variants is properly parsed to be ProductVariant[]
-          const parsedVariants = Array.isArray(product.variants) 
-            ? product.variants 
-            : (typeof product.variants === 'string' 
-              ? JSON.parse(product.variants) 
-              : []);
-              
-          // Ensure customizations is properly parsed
-          const parsedCustomizations = parseCustomizations(product.customizations);
-          
           return {
-            ...product,
-            // S'assurer que le statut est une valeur attendue
+            id: product.id,
+            name: product.name,
+            price: product.price,
+            original_price: product.original_price,
+            category: product.category,
+            subcategory: product.subcategory,
+            description: product.description,
             status: (product.status === 'draft' || product.status === 'published' || product.status === 'archived') 
               ? product.status 
               : 'draft',
-            // Properly parsed arrays for variants and customizations
-            variants: parsedVariants as ProductVariant[],
-            customizations: parsedCustomizations,
-            // Ajouter l'URL d'image de variante (simplifiée)
-            variant_image_url: product.variant_image_url || null,
-            // Ensure variant_images is treated as a Record or string
-            variant_images: product.variant_images || {}
+            image: product.image,
+            supplier_id: product.supplier_id,
+            is_customizable: product.is_customizable,
+            stock: product.stock,
+            // Conserver les attributs simples de variante directement sur le produit
+            size: product.size,
+            color: product.color,
+            hex_color: product.hex_color,
+            variant_status: product.variant_status,
+            // Pour les tableaux, établir une structure simple
+            variants: [],
+            customizations: [],
+            // Utiliser un champ simple pour les URLs d'images
+            variant_image_url: product.variant_image_url,
+            variant_images: product.variant_images || {},
+            // Horodatage
+            created_at: product.created_at,
+            updated_at: product.updated_at
           };
         });
         
-        // Mettre à jour l'état des produits
+        // Mettre à jour l'état avec les produits formatés
         setProducts(formattedProducts);
         setIsLoading(false);
         return formattedProducts;
@@ -61,6 +67,38 @@ export const useProducts = () => {
       console.error("Erreur:", error);
       toast.error("Une erreur est survenue");
       setIsLoading(false);
+      return [];
+    }
+  };
+
+  // Récupérer les variantes d'un produit spécifique
+  const fetchProductVariants = async (productId: string) => {
+    try {
+      const { data, error } = await supabase
+        .from('product_variants')
+        .select('*')
+        .eq('product_id', productId);
+      
+      if (error) throw error;
+      return data || [];
+    } catch (error) {
+      console.error("Erreur lors de la récupération des variantes:", error);
+      return [];
+    }
+  };
+
+  // Récupérer les personnalisations d'un produit spécifique
+  const fetchProductCustomizations = async (productId: string) => {
+    try {
+      const { data, error } = await supabase
+        .from('product_customizations')
+        .select('*')
+        .eq('product_id', productId);
+      
+      if (error) throw error;
+      return data || [];
+    } catch (error) {
+      console.error("Erreur lors de la récupération des personnalisations:", error);
       return [];
     }
   };
@@ -96,10 +134,49 @@ export const useProducts = () => {
     }
   };
 
+  // Récupérer un produit avec toutes ses données associées (variantes et personnalisations)
+  const fetchProductComplete = async (productId: string) => {
+    try {
+      // 1. Récupérer le produit de base
+      const { data: productData, error: productError } = await supabase
+        .from('unified_products')
+        .select('*')
+        .eq('id', productId)
+        .single();
+      
+      if (productError) throw productError;
+      
+      // 2. Récupérer les variantes du produit
+      const variants = await fetchProductVariants(productId);
+      
+      // 3. Récupérer les personnalisations du produit
+      const customizations = await fetchProductCustomizations(productId);
+      
+      // 4. Assembler les données en un seul objet produit
+      const completeProduct: Product = {
+        ...productData,
+        variants: variants as ProductVariant[],
+        customizations: customizations,
+        status: (productData.status === 'draft' || productData.status === 'published' || productData.status === 'archived') 
+          ? productData.status 
+          : 'draft',
+      };
+      
+      return completeProduct;
+    } catch (error) {
+      console.error("Erreur lors de la récupération du produit complet:", error);
+      toast.error("Impossible de charger les détails du produit");
+      return null;
+    }
+  };
+
   return {
     products,
     isLoading,
     fetchProducts,
-    deleteProduct
+    deleteProduct,
+    fetchProductComplete,
+    fetchProductVariants,
+    fetchProductCustomizations
   };
 };
