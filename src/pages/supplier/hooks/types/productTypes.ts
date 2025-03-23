@@ -1,3 +1,4 @@
+
 export interface ProductData {
   name: string;
   description: string | null;
@@ -24,6 +25,8 @@ export interface ProductData {
   type_de_materiaux: string | null;
   details_impression: string | null;
   orientation_impression: string | null;
+  // URL d'image pour chaque variante (simplifiée en texte)
+  variant_image_url: string | null;
 }
 
 export interface ProductVariant {
@@ -43,6 +46,8 @@ export interface ProductVariant {
   type_de_materiaux?: string;
   details_impression?: string;
   orientation_impression?: string;
+  // URL d'image pour la variante (simplifiée)
+  image_url?: string;
   // Pour le frontend uniquement
   isNew?: boolean;
   isDeleted?: boolean;
@@ -64,8 +69,8 @@ export interface SupabaseProduct {
   updated_at?: string | null;
   customizations?: any;
   variants?: any;
-  // Match the database type for variant_images (string in DB)
-  variant_images?: string | null;
+  // Image URL en texte simple pour les variantes
+  variant_image_url?: string | null;
   // Additional fields that might be used
   stock?: number | null;
   size?: string | null;

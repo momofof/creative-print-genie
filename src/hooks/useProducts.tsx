@@ -36,13 +36,6 @@ export const useProducts = () => {
           // Ensure customizations is properly parsed
           const parsedCustomizations = parseCustomizations(product.customizations);
           
-          // Parse variant_images ou utiliser un objet vide si non défini
-          const parsedVariantImages = product.variant_images 
-            ? (typeof product.variant_images === 'string' 
-               ? JSON.parse(product.variant_images) 
-               : product.variant_images)
-            : {};
-          
           return {
             ...product,
             // S'assurer que le statut est une valeur attendue
@@ -52,8 +45,8 @@ export const useProducts = () => {
             // Properly parsed arrays for variants and customizations
             variants: parsedVariants as ProductVariant[],
             customizations: parsedCustomizations,
-            // Ajouter les images des variantes
-            variant_images: parsedVariantImages
+            // Ajouter l'URL d'image de variante (simplifiée)
+            variant_image_url: product.variant_image_url
           };
         });
         

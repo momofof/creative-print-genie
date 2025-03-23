@@ -58,7 +58,9 @@ export const useProductFetch = (
         types_impression: typedProduct.types_impression || "",
         type_de_materiaux: typedProduct.type_de_materiaux || "",
         details_impression: typedProduct.details_impression || "",
-        orientation_impression: typedProduct.orientation_impression || ""
+        orientation_impression: typedProduct.orientation_impression || "",
+        // URL d'image pour variante (simplifiée)
+        variant_image_url: typedProduct.variant_image_url || null
       };
       
       setProductData(formattedProduct);
