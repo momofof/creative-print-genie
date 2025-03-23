@@ -14,13 +14,13 @@ export const convertDashboardToUIProduct = (product: DashboardProduct): UIProduc
     image: product.image || '/placeholder.svg',
     category: product.category,
     subcategory: product.subcategory || '',
-    description: product.description || '', // S'assurer que la description est bien transmise
+    description: product.description || '', 
     rating: 5, // Default rating
     reviewCount: 0, // Default review count
-    date: product.created_at,
+    date: product.created_at || new Date().toISOString(),
     isNew: false,
     variants: product.variants,
-    variant_images: product.variant_images
+    variant_images: product.variant_images || {}
   };
 };
 

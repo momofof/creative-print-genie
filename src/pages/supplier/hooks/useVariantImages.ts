@@ -25,7 +25,21 @@ export const useVariantImages = (productId: string) => {
       }
 
       if (data?.variant_images) {
-        setVariantImagePreviews(data.variant_images);
+        // Ensure we're setting a proper object of string arrays
+        const processedImages: Record<string, string[]> = {};
+        const rawImages = data.variant_images;
+        
+        // Parse the variant_images object safely
+        if (typeof rawImages === 'object' && rawImages !== null) {
+          Object.keys(rawImages).forEach(variantId => {
+            const urls = rawImages[variantId];
+            if (Array.isArray(urls)) {
+              processedImages[variantId] = urls;
+            }
+          });
+        }
+        
+        setVariantImagePreviews(processedImages);
       }
     } catch (error) {
       console.error("Erreur:", error);

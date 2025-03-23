@@ -52,7 +52,7 @@ export const useFavorites = () => {
         
         // Fetch product details for all liked products
         const { data: productsData, error: productsError } = await supabase
-          .from('products_master')
+          .from('unified_products')
           .select('id, name, image, price, category')
           .in('id', productIds);
           
@@ -63,16 +63,18 @@ export const useFavorites = () => {
           // Map products to likes
           for (const like of likesData) {
             const product = productsData.find(p => p.id === like.product_id);
-            formattedFavorites.push({
-              id: like.id,
-              product_id: like.product_id,
-              user_id: like.user_id,
-              created_at: like.created_at,
-              product_name: product?.name,
-              product_image: product?.image,
-              product_price: product?.price,
-              product_category: product?.category
-            });
+            if (product) {
+              formattedFavorites.push({
+                id: like.id,
+                product_id: like.product_id,
+                user_id: like.user_id,
+                created_at: like.created_at,
+                product_name: product.name,
+                product_image: product.image,
+                product_price: product.price,
+                product_category: product.category
+              });
+            }
           }
         }
       }

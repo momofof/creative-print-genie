@@ -1,3 +1,4 @@
+
 export interface ProductVariant {
   id: string;
   product_id?: string;
@@ -55,4 +56,32 @@ export interface Product {
   customizations: Customization[];
   // Nouvelle propriété pour stocker les images des variantes
   variant_images?: Record<string, string[]>;
+  // Additional fields for compatibility
+  created_at?: string;
+  updated_at?: string;
+}
+
+// Order related types
+export interface Order {
+  id: string;
+  customer: string;
+  date: string;
+  total: number;
+  status: "processing" | "shipped" | "delivered" | "cancelled";
+  items: number;
+}
+
+// Stats type for dashboard
+export interface Stat {
+  title: string;
+  value: string;
+  change: string;
+  changeType: "positive" | "negative" | "neutral";
+}
+
+// ProFeature type for the supplier dashboard
+export interface ProFeature {
+  title: string;
+  description: string;
+  icon: React.ComponentType<{ className?: string; size?: number }>;
 }
