@@ -1,4 +1,3 @@
-
 export interface Color {
   id: string;
   name: string;
@@ -47,6 +46,7 @@ export interface Product {
   customizations?: any; // This holds customization options in JSONB format
   color?: string; // Added for compatibility with productTypeConverter
   date?: string;  // Added for compatibility
+  created_at?: string; // Added for compatibility with dashboard
 }
 
 export interface ProductView {

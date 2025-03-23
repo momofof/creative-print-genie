@@ -1,4 +1,6 @@
 
+import { LucideIcon } from "lucide-react";
+
 export interface ProductVariant {
   id: string;
   product_id?: string;
@@ -83,5 +85,5 @@ export interface Stat {
 export interface ProFeature {
   title: string;
   description: string;
-  icon: React.ComponentType<{ className?: string; size?: number }>;
+  icon: LucideIcon;
 }

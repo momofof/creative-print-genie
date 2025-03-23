@@ -112,7 +112,9 @@ const findVariantImage = (product: Product, variantType: string, variantValue: s
   );
   
   if (matchingVariant && matchingVariant.id && product.variant_images[matchingVariant.id]) {
-    return product.variant_images[matchingVariant.id];
+    // Get the first image from the variant images array
+    const images = product.variant_images[matchingVariant.id];
+    return Array.isArray(images) && images.length > 0 ? images[0] : null;
   }
   
   return null;

@@ -17,7 +17,8 @@ export const convertDashboardToUIProduct = (product: DashboardProduct): UIProduc
     description: product.description || '', 
     rating: 5, // Default rating
     reviewCount: 0, // Default review count
-    date: product.created_at || new Date().toISOString(),
+    date: new Date().toISOString(),
+    created_at: product.created_at,
     isNew: false,
     variants: product.variants,
     variant_images: product.variant_images || {}

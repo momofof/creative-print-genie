@@ -75,11 +75,16 @@ export const updateVariantImages = async (
     const currentImages = data.variant_images || {};
     const variantImages = currentImages[variantId] || [];
     
-    // Ajouter la nouvelle URL
-    const updatedImages = {
-      ...currentImages,
-      [variantId]: [...variantImages, imageUrl]
-    };
+    // Créer un nouvel objet pour éviter les mutations directes
+    const updatedImages: Record<string, string[]> = {};
+    
+    // Copier les propriétés existantes
+    Object.keys(currentImages).forEach(key => {
+      updatedImages[key] = [...currentImages[key]];
+    });
+    
+    // Ajouter ou mettre à jour le tableau pour la variante spécifique
+    updatedImages[variantId] = variantImages ? [...variantImages, imageUrl] : [imageUrl];
 
     // Mettre à jour la table
     const { error: updateError } = await supabase
@@ -132,16 +137,20 @@ export const removeVariantImage = async (
       return false;
     }
 
-    // Filtrer pour retirer l'URL spécifiée
-    const updatedVariantImages = currentImages[variantId].filter(
-      (url: string) => url !== imageUrl
-    );
-
-    // Mettre à jour l'objet complet
-    const updatedImages = {
-      ...currentImages,
-      [variantId]: updatedVariantImages
-    };
+    // Créer un nouvel objet pour éviter les mutations directes
+    const updatedImages: Record<string, string[]> = {};
+    
+    // Copier les propriétés existantes
+    Object.keys(currentImages).forEach(key => {
+      if (key === variantId) {
+        // Filtrer pour retirer l'URL spécifiée
+        updatedImages[key] = currentImages[key].filter(
+          (url: string) => url !== imageUrl
+        );
+      } else {
+        updatedImages[key] = [...currentImages[key]];
+      }
+    });
 
     // Mettre à jour la table
     const { error: updateError } = await supabase
