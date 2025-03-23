@@ -56,8 +56,10 @@ export interface Product {
   // Tableaux de données complexes
   variants: ProductVariant[];
   customizations: Customization[];
-  // Nouvelle propriété pour stocker les images des variantes
+  // Propriété pour les images des variantes
   variant_images?: Record<string, string[]>;
+  // Nouvelle propriété pour simplifier la gestion des images de variantes
+  variant_image_url?: string | null;
   // Additional fields for compatibility
   created_at?: string;
   updated_at?: string;

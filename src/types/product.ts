@@ -43,6 +43,7 @@ export interface Product {
   isNew?: boolean;
   variants?: any;  // This holds variant data in JSONB format
   variant_images?: Record<string, string[]> | string; // String from DB or parsed object
+  variant_image_url?: string | null; // Added for variant image URL (simplified)
   is_customizable?: boolean;
   customizations?: any; // This holds customization options in JSONB format
   color?: string; // Added for compatibility with productTypeConverter

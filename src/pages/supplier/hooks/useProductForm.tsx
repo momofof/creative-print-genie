@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
@@ -62,7 +61,9 @@ export const useProductForm = (productId?: string) => {
     types_impression: "",
     type_de_materiaux: "",
     details_impression: "",
-    orientation_impression: ""
+    orientation_impression: "",
+    // Ajout du champ variant_image_url
+    variant_image_url: null
   });
   
   const { fetchProductData } = useProductFetch(

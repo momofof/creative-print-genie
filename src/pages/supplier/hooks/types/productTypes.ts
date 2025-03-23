@@ -71,6 +71,7 @@ export interface SupabaseProduct {
   variants?: any;
   // Image URL en texte simple pour les variantes
   variant_image_url?: string | null;
+  variant_images?: string | null;
   // Additional fields that might be used
   stock?: number | null;
   size?: string | null;
