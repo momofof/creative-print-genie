@@ -1,3 +1,4 @@
+
 import { Product } from "@/types/product";
 import { getVariantImage } from './index';
 
@@ -26,9 +27,23 @@ export const findVariantImage = (product?: Product, variants?: Record<string, st
     (v) => v.color === variants.color && v.size === variants.size
   );
   
-  if (matchingVariant && matchingVariant.id && product.variant_images && product.variant_images[matchingVariant.id]) {
+  if (matchingVariant && matchingVariant.id && product.variant_images) {
+    let variantImages: Record<string, string[]> = {};
+    
+    // Handle the case where variant_images is a string (from the database)
+    if (typeof product.variant_images === 'string') {
+      try {
+        variantImages = JSON.parse(product.variant_images);
+      } catch (e) {
+        console.error('Error parsing variant_images:', e);
+        return null;
+      }
+    } else {
+      variantImages = product.variant_images;
+    }
+    
     // Get the first image from the variant images array
-    const images = product.variant_images[matchingVariant.id];
+    const images = variantImages[matchingVariant.id];
     return Array.isArray(images) && images.length > 0 ? images[0] : null;
   }
   

@@ -29,14 +29,21 @@ export const useVariantImages = (productId: string) => {
         const processedImages: Record<string, string[]> = {};
         const rawImages = data.variant_images;
         
-        // Parse the variant_images object safely
-        if (typeof rawImages === 'object' && rawImages !== null) {
-          Object.keys(rawImages).forEach(variantId => {
-            const urls = rawImages[variantId];
-            if (Array.isArray(urls)) {
-              processedImages[variantId] = urls;
+        // Parse the variant_images string safely to convert it to an object
+        if (typeof rawImages === 'string') {
+          try {
+            const parsedImages = JSON.parse(rawImages);
+            if (parsedImages && typeof parsedImages === 'object' && parsedImages !== null) {
+              Object.keys(parsedImages).forEach(variantId => {
+                const urls = parsedImages[variantId];
+                if (Array.isArray(urls)) {
+                  processedImages[variantId] = urls;
+                }
+              });
             }
-          });
+          } catch (e) {
+            console.error("Error parsing variant_images JSON:", e);
+          }
         }
         
         setVariantImagePreviews(processedImages);

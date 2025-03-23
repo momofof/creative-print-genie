@@ -1,3 +1,4 @@
+
 export interface Color {
   id: string;
   name: string;
@@ -41,7 +42,7 @@ export interface Product {
   reviewCount?: number;
   isNew?: boolean;
   variants?: any;  // This holds variant data in JSONB format
-  variant_images?: Record<string, string[]>; // Maps variant IDs to arrays of image URLs
+  variant_images?: Record<string, string[]> | string; // String from DB or parsed object
   is_customizable?: boolean;
   customizations?: any; // This holds customization options in JSONB format
   color?: string; // Added for compatibility with productTypeConverter

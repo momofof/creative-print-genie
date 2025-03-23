@@ -72,25 +72,32 @@ export const updateVariantImages = async (
     }
 
     // Préparer le nouvel objet variant_images
-    const currentImages = data.variant_images || {};
-    const variantImages = currentImages[variantId] || [];
+    let currentImages: Record<string, string[]> = {};
+    
+    // Parse the current variant_images if it exists and is a string
+    if (data.variant_images) {
+      if (typeof data.variant_images === 'string') {
+        try {
+          currentImages = JSON.parse(data.variant_images);
+        } catch (e) {
+          console.error('Error parsing variant_images:', e);
+          currentImages = {};
+        }
+      }
+    }
     
     // Créer un nouvel objet pour éviter les mutations directes
-    const updatedImages: Record<string, string[]> = {};
-    
-    // Copier les propriétés existantes
-    Object.keys(currentImages).forEach(key => {
-      updatedImages[key] = [...currentImages[key]];
-    });
+    const updatedImages: Record<string, string[]> = { ...currentImages };
     
     // Ajouter ou mettre à jour le tableau pour la variante spécifique
-    updatedImages[variantId] = variantImages ? [...variantImages, imageUrl] : [imageUrl];
+    const variantImages = currentImages[variantId] || [];
+    updatedImages[variantId] = [...variantImages, imageUrl];
 
-    // Mettre à jour la table
+    // Mettre à jour la table - convert object to string for storage
     const { error: updateError } = await supabase
       .from('unified_products')
       .update({
-        variant_images: updatedImages
+        variant_images: JSON.stringify(updatedImages)
       })
       .eq('id', productId);
 
@@ -131,32 +138,39 @@ export const removeVariantImage = async (
       return false;
     }
 
+    // Parse the variant_images string to an object
+    let currentImages: Record<string, string[]> = {};
+    if (data.variant_images) {
+      if (typeof data.variant_images === 'string') {
+        try {
+          currentImages = JSON.parse(data.variant_images);
+        } catch (e) {
+          console.error('Error parsing variant_images:', e);
+          return false;
+        }
+      }
+    }
+
     // Vérifier si l'objet variant_images et le tableau d'images existent
-    const currentImages = data.variant_images || {};
     if (!currentImages[variantId]) {
       return false;
     }
 
     // Créer un nouvel objet pour éviter les mutations directes
-    const updatedImages: Record<string, string[]> = {};
+    const updatedImages: Record<string, string[]> = { ...currentImages };
     
-    // Copier les propriétés existantes
-    Object.keys(currentImages).forEach(key => {
-      if (key === variantId) {
-        // Filtrer pour retirer l'URL spécifiée
-        updatedImages[key] = currentImages[key].filter(
-          (url: string) => url !== imageUrl
-        );
-      } else {
-        updatedImages[key] = [...currentImages[key]];
-      }
-    });
+    // Filtrer pour retirer l'URL spécifiée
+    if (updatedImages[variantId]) {
+      updatedImages[variantId] = updatedImages[variantId].filter(
+        (url: string) => url !== imageUrl
+      );
+    }
 
-    // Mettre à jour la table
+    // Mettre à jour la table - convert object to string for storage
     const { error: updateError } = await supabase
       .from('unified_products')
       .update({
-        variant_images: updatedImages
+        variant_images: JSON.stringify(updatedImages)
       })
       .eq('id', productId);
 
@@ -208,9 +222,21 @@ export const getVariantImages = async (
       return [];
     }
 
+    // Parse the variant_images string to an object
+    let variantImagesObject: Record<string, string[]> = {};
+    if (data.variant_images) {
+      if (typeof data.variant_images === 'string') {
+        try {
+          variantImagesObject = JSON.parse(data.variant_images);
+        } catch (e) {
+          console.error('Error parsing variant_images:', e);
+          return [];
+        }
+      }
+    }
+
     // Récupérer les images de la variante spécifique
-    const variantImages = data.variant_images?.[variantId] || [];
-    return variantImages;
+    return variantImagesObject[variantId] || [];
   } catch (error) {
     console.error('Erreur:', error);
     return [];

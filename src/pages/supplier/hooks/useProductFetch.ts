@@ -29,36 +29,36 @@ export const useProductFetch = (
         return;
       }
       
-      // Safely typecast the product to our SupabaseProduct type
-      const typedProduct = product as SupabaseProduct;
+      // Safely convert the product to our SupabaseProduct type
+      const typedProduct = product as unknown as SupabaseProduct;
       
       // Extract the relevant fields for our ProductData type
       const formattedProduct: ProductData = {
         name: typedProduct.name,
         price: typedProduct.price,
-        original_price: typedProduct.original_price,
+        original_price: typedProduct.original_price || undefined,
         category: typedProduct.category,
-        subcategory: typedProduct.subcategory,
-        description: typedProduct.description,
-        image: typedProduct.image,
+        subcategory: typedProduct.subcategory || "",
+        description: typedProduct.description || null,
+        image: typedProduct.image || null,
         status: typedProduct.status as 'draft' | 'published' | 'archived',
         is_customizable: typedProduct.is_customizable || false,
         // Champs de variantes
-        size: typedProduct.size,
-        color: typedProduct.color,
-        hex_color: typedProduct.hex_color,
-        stock: typedProduct.stock,
-        price_adjustment: typedProduct.price_adjustment,
-        variant_status: typedProduct.variant_status as 'in_stock' | 'low_stock' | 'out_of_stock',
-        bat: typedProduct.bat,
-        poids: typedProduct.poids,
-        format: typedProduct.format,
-        quantite: typedProduct.quantite,
-        echantillon: typedProduct.echantillon,
-        types_impression: typedProduct.types_impression,
-        type_de_materiaux: typedProduct.type_de_materiaux,
-        details_impression: typedProduct.details_impression,
-        orientation_impression: typedProduct.orientation_impression
+        size: typedProduct.size || "",
+        color: typedProduct.color || "",
+        hex_color: typedProduct.hex_color || "#000000",
+        stock: typedProduct.stock || 0,
+        price_adjustment: typedProduct.price_adjustment || 0,
+        variant_status: typedProduct.variant_status as 'in_stock' | 'low_stock' | 'out_of_stock' || 'in_stock',
+        bat: typedProduct.bat || "",
+        poids: typedProduct.poids || "",
+        format: typedProduct.format || "",
+        quantite: typedProduct.quantite || "",
+        echantillon: typedProduct.echantillon || "",
+        types_impression: typedProduct.types_impression || "",
+        type_de_materiaux: typedProduct.type_de_materiaux || "",
+        details_impression: typedProduct.details_impression || "",
+        orientation_impression: typedProduct.orientation_impression || ""
       };
       
       setProductData(formattedProduct);

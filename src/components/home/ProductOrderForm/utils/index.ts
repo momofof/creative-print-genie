@@ -1,3 +1,4 @@
+
 // Re-export utility functions from all utility files
 export * from './variantConfig';
 export * from './variantDisplay';
@@ -19,7 +20,21 @@ export const getVariantImage = (product?: Product, variantType?: string, variant
     );
     
     if (colorVariant && colorVariant.id && product.variant_images) {
-      const images = product.variant_images[colorVariant.id];
+      let variantImages: Record<string, string[]> = {};
+      
+      // Handle the case where variant_images is a string (from the database)
+      if (typeof product.variant_images === 'string') {
+        try {
+          variantImages = JSON.parse(product.variant_images);
+        } catch (e) {
+          console.error('Error parsing variant_images:', e);
+          return null;
+        }
+      } else {
+        variantImages = product.variant_images;
+      }
+      
+      const images = variantImages[colorVariant.id];
       // Return the first image if available
       return Array.isArray(images) && images.length > 0 ? images[0] : null;
     }

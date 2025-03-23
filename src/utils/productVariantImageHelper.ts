@@ -1,6 +1,14 @@
 
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { Json } from "@/integrations/supabase/types";
+
+// Define a Variant interface that matches the expected structure
+interface Variant {
+  id: string;
+  color?: string;
+  [key: string]: any;
+}
 
 /**
  * Updates a specific color variant image for a product
@@ -29,12 +37,26 @@ export const updateProductColorVariantImage = async (
     }
     
     // 2. Find the variant ID for the specified color
-    const variants = Array.isArray(product.variants) ? product.variants : [];
+    let variants: Variant[] = [];
+    
+    if (product.variants) {
+      if (typeof product.variants === 'string') {
+        try {
+          variants = JSON.parse(product.variants);
+        } catch (e) {
+          console.error('Error parsing variants:', e);
+          variants = [];
+        }
+      } else if (Array.isArray(product.variants)) {
+        variants = product.variants as Variant[];
+      }
+    }
+    
     const colorVariant = variants.find(v => 
       v.color && v.color.toLowerCase() === colorName.toLowerCase()
     );
     
-    if (!colorVariant) {
+    if (!colorVariant || !colorVariant.id) {
       console.error(`No variant found with color ${colorName}`);
       toast.error(`Aucune variante trouvée avec la couleur ${colorName}`);
       return false;
@@ -43,24 +65,31 @@ export const updateProductColorVariantImage = async (
     const variantId = colorVariant.id;
     
     // 3. Update the variant_images object
-    const currentImages = product.variant_images || {};
+    let currentImages: Record<string, string[]> = {};
+    
+    // Parse the current variant_images if it exists and is a string
+    if (product.variant_images) {
+      if (typeof product.variant_images === 'string') {
+        try {
+          currentImages = JSON.parse(product.variant_images);
+        } catch (e) {
+          console.error('Error parsing variant_images:', e);
+          currentImages = {};
+        }
+      }
+    }
     
     // Create a new object to avoid direct mutations
-    const updatedImages: Record<string, string[]> = {};
-    
-    // Copy existing properties
-    Object.keys(currentImages).forEach(key => {
-      updatedImages[key] = Array.isArray(currentImages[key]) ? [...currentImages[key]] : [];
-    });
+    const updatedImages: Record<string, string[]> = { ...currentImages };
     
     // Add or update the array for the specific variant
     updatedImages[variantId] = [imageUrl];
     
-    // 4. Update the database
+    // 4. Update the database - convert the object back to a string
     const { error: updateError } = await supabase
       .from('unified_products')
       .update({
-        variant_images: updatedImages
+        variant_images: JSON.stringify(updatedImages)
       })
       .eq('id', productId);
     
