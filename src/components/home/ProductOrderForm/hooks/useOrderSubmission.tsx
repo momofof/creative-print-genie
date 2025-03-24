@@ -117,7 +117,7 @@ export const useOrderSubmission = ({
         price: product.price,
         quantity: quantity,
         image: product.image || "/placeholder.svg",
-        ...(Object.keys(variants).length > 0 && { variants })
+        variants: Object.keys(variants).length > 0 ? variants : undefined
       };
       
       // For logged in users

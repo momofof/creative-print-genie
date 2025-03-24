@@ -38,30 +38,30 @@ export const useProductForm = (productId?: string) => {
   
   const [productData, setProductData] = useState<ProductData>({
     name: "",
-    description: null, // Explicitly setting description to null initially
+    description: null,
     price: 0,
     original_price: 0,
-    category: "",
-    subcategory: "", // Now required
+    category: "textile",
+    subcategory: "tshirt",
     image: null,
     status: "draft",
     is_customizable: false,
-    // Champs de variantes initialisés
-    size: "",
-    color: "",
-    hex_color: "#000000",
+    size: null,
+    color: null,
+    hex_color: null,
     stock: 0,
     price_adjustment: 0,
     variant_status: "in_stock",
-    bat: "",
-    poids: "",
-    format: "",
-    quantite: "",
-    echantillon: "",
-    types_impression: "",
-    type_de_materiaux: "",
-    details_impression: "",
-    orientation_impression: ""
+    bat: null,
+    poids: null,
+    format: null,
+    quantite: null,
+    echantillon: null,
+    types_impression: null,
+    type_de_materiaux: null,
+    details_impression: null,
+    orientation_impression: null,
+    variant_image_url: null
   });
   
   const { fetchProductData } = useProductFetch(
@@ -132,6 +132,40 @@ export const useProductForm = (productId?: string) => {
     await submitProductData(e);
   };
 
+  const initializeEmptyForm = () => {
+    setProductData({
+      name: "",
+      description: null,
+      price: 0,
+      original_price: 0,
+      category: "textile",
+      subcategory: "tshirt",
+      image: null,
+      status: "draft",
+      is_customizable: false,
+      
+      // Champs de variante
+      size: null,
+      color: null,
+      hex_color: null,
+      bat: null,
+      poids: null,
+      format: null,
+      quantite: null,
+      echantillon: null,
+      types_impression: null,
+      type_de_materiaux: null,
+      details_impression: null,
+      orientation_impression: null,
+      
+      // Champ pour la référence d'image de variante
+      variant_image_url: null
+    });
+    
+    setVariants([]);
+    setCustomizations([]);
+  };
+
   return {
     isLoading,
     isSaving,
@@ -141,6 +175,9 @@ export const useProductForm = (productId?: string) => {
     handleSelectChange,
     handleCheckboxChange,
     handleImageChange,
-    handleSubmit
+    handleSubmit,
+    initializeEmptyForm
   };
 };
+
+export default useProductForm;

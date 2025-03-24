@@ -3,13 +3,13 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } f
 import { CartItem } from "@/types/product";
 import ProductOrderForm from "../home/ProductOrderForm";
 import { convertDashboardToUIProducts } from "@/utils/productTypeConverter";
-import { Product } from "@/types/dashboard";
+import { ProductComplete } from "@/types/dashboard";
 
 interface EditItemModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   editingItem: CartItem | null;
-  products: Product[];
+  products: ProductComplete[];
   loadingProducts: boolean;
   onEditComplete: (productId: string, quantity: number, variants: Record<string, string>) => void;
 }

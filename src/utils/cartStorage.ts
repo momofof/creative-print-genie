@@ -66,11 +66,13 @@ const convertCartItemsForStorage = async (
         const options: { cart_item_id: string; option_name: string; option_value: string }[] = [];
         
         Object.entries(item.variants).forEach(([key, value]) => {
-          options.push({
-            cart_item_id: cartItem.id,
-            option_name: key,
-            option_value: value
-          });
+          if (typeof value === 'string') {
+            options.push({
+              cart_item_id: cartItem.id,
+              option_name: key,
+              option_value: value
+            });
+          }
         });
         
         if (options.length > 0) {
@@ -131,8 +133,7 @@ const convertStorageToCartItems = async (cartId: string): Promise<CartItem[]> =>
         price: item.price,
         quantity: item.quantity,
         image: item.image,
-        variants: Object.keys(variants).length > 0 ? variants : undefined,
-        options: options || []
+        variants: Object.keys(variants).length > 0 ? variants : undefined
       });
     }
     

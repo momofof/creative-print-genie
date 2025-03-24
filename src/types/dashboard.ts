@@ -45,6 +45,9 @@ export interface ProductComplete {
   updated_at?: string;
 }
 
+// Pour la compatibilité avec le code existant
+export type Product = ProductComplete;
+
 // Order related types
 export interface OrderComplete {
   id: string;
@@ -70,6 +73,9 @@ export interface OrderComplete {
   created_at?: string;
   updated_at?: string;
 }
+
+// Pour la compatibilité avec le code existant
+export type Order = OrderComplete;
 
 // Cart type
 export interface CartComplete {
@@ -130,4 +136,54 @@ export interface ProFeature {
   title: string;
   description: string;
   icon: LucideIcon;
+}
+
+// Type pour les images de variantes
+export interface VariantImage {
+  id: string;
+  product_id?: string;
+  variant_id?: string;
+  image_url: string;
+  created_at?: string;
+}
+
+// Type pour les customisations
+export interface Customization {
+  id: string;
+  product_id?: string;
+  name: string;
+  description?: string;
+  type: string;
+  position?: string;
+  price_adjustment?: number;
+  is_required?: boolean;
+  created_at?: string;
+  updated_at?: string;
+}
+
+// Type pour les variantes de produit
+export interface ProductVariant {
+  id: string;
+  product_id?: string;
+  size?: string;
+  color?: string;
+  hex_color?: string;
+  stock?: number;
+  price_adjustment?: number;
+  status?: string;
+  bat?: string;
+  poids?: string;
+  format?: string;
+  quantite?: string;
+  echantillon?: string;
+  types_impression?: string;
+  type_de_materiaux?: string;
+  details_impression?: string;
+  orientation_impression?: string;
+  image_url?: string;
+  created_at?: string;
+  updated_at?: string;
+  // Pour le frontend uniquement
+  isNew?: boolean;
+  isDeleted?: boolean;
 }
