@@ -99,7 +99,8 @@ export const useProductForm = (productId?: string) => {
             details_impression: data.details_impression || null,
             orientation_impression: data.orientation_impression || null,
             stock: data.stock || 0,
-            price_adjustment: data.price_adjustment || 0,
+            // Here's the fix: use customization_price_adjustment from DB as price_adjustment in our app
+            price_adjustment: data.customization_price_adjustment || 0,
             status: typedStatus,
             variant_status: typedVariantStatus,
             variant_image_url: data.variant_image_url || null
@@ -207,6 +208,8 @@ export const useProductForm = (productId?: string) => {
         ...productData,
         image: imageUrl,
         id: productData.id || uuidv4(),
+        // Map price_adjustment from our app to customization_price_adjustment in DB during save
+        customization_price_adjustment: productData.price_adjustment,
       };
       
       // Insert or update product
