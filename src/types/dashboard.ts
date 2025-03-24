@@ -29,7 +29,7 @@ export interface Customization {
   name: string;
   description?: string;
   type: "text" | "image";
-  position?: "front" | "back" | "sleeve" | "collar";
+  position?: string;
   price_adjustment?: number;
   is_required?: boolean;
   created_at: string;
@@ -62,7 +62,7 @@ export interface Product {
   color?: string;
   hex_color?: string;
   variant_status?: string;
-  // Tableaux de données relationnelles
+  // Arrays for related data
   variants: ProductVariant[];
   customizations: Customization[];
   variantImages: VariantImage[];

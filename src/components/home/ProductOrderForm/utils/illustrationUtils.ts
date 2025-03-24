@@ -1,68 +1,33 @@
 
 import { Product } from "@/types/product";
-import { getVariantImage } from './index';
 
-// Helper function to get the illustration for a specific variant
-export const getVariantIllustration = (
-  category: string,
-  variantType: string,
-  variantValue: string
-) => {
-  // Default illustration image
-  return `/images/illustrations/${category}/${variantType}/${variantValue}.svg`;
+// Helper to get variant illustrations, showing visualizations of different product options
+export const getVariantIllustration = (category: string, variantType: string, variantValue: string) => {
+  // For now, return a placeholder image - in a real implementation, this would fetch appropriate illustrations
+  return "/placeholder.svg";
 };
 
-// Update this function to use variant images from the product when available
-export const findVariantImage = (product?: Product, variants?: Record<string, string>): string | null => {
-  if (!product || !variants || !product.variants) return null;
+// Get primary product illustration based on product and selected variants
+export const getProductIllustration = (product?: Product, variants?: Record<string, string>) => {
+  if (!product) return "/placeholder.svg";
   
-  // Check if we have a color variant that might have an image
-  if (variants.color) {
-    const colorImage = getVariantImage(product, 'color', variants.color);
-    if (colorImage) return colorImage;
+  // If no variants are selected or variants don't meaningfully change the appearance,
+  // return the main product image
+  if (!variants || Object.keys(variants).length === 0) {
+    return product.image || "/placeholder.svg";
   }
-  
-  // Original implementation
-  const matchingVariant = product.variants.find(
-    (v) => v.color === variants.color && v.size === variants.size
-  );
-  
-  if (matchingVariant && matchingVariant.id && product.variant_images) {
-    let variantImages: Record<string, string[]> = {};
-    
-    // Handle the case where variant_images is a string (from the database)
-    if (typeof product.variant_images === 'string') {
-      try {
-        variantImages = JSON.parse(product.variant_images);
-      } catch (e) {
-        console.error('Error parsing variant_images:', e);
-        return null;
-      }
-    } else {
-      variantImages = product.variant_images;
-    }
-    
-    // Get the first image from the variant images array
-    const images = variantImages[matchingVariant.id];
-    return Array.isArray(images) && images.length > 0 ? images[0] : null;
-  }
-  
-  return null;
+
+  // For now, we'll just return the default product image
+  // In a complete implementation, this would select the appropriate variant image
+  return product.image || "/placeholder.svg";
 };
 
-// Get the feature illustration for a product based on its category and variants
-export const getFeatureIllustration = (product?: Product, variants?: Record<string, string>) => {
-  if (!product) return "/images/illustrations/placeholder.svg";
-  
-  // First check if we have a variant-specific image
-  if (variants && Object.keys(variants).length > 0) {
-    const variantImage = findVariantImage(product, variants);
-    if (variantImage) return variantImage;
+// For a variant image preview
+export const getVariantPreviewImage = (product?: Product, variantType?: string, variantValue?: string) => {
+  if (!product || !variantType || !variantValue) {
+    return "/placeholder.svg";
   }
-  
-  // Fallback to the product's main image
-  if (product.image) return product.image;
-  
-  // Default illustration based on category
-  return `/images/illustrations/${product.category}/default.svg`;
+
+  // In a real implementation, we would check if this variant has a specific image
+  return "/placeholder.svg";
 };

@@ -25,7 +25,11 @@ export const customizationService = {
         throw error;
       }
       
-      return data;
+      // Ensure the type is correctly cast to "text" | "image"
+      return {
+        ...data,
+        type: data.type as "text" | "image"
+      };
     } catch (error: any) {
       toast.error(`Erreur lors de l'ajout de la personnalisation: ${error.message}`);
       return null;
@@ -43,7 +47,11 @@ export const customizationService = {
         throw error;
       }
       
-      return data || [];
+      // Ensure all types are correctly cast
+      return (data || []).map(item => ({
+        ...item,
+        type: item.type as "text" | "image"
+      }));
     } catch (error: any) {
       toast.error(`Erreur lors de la récupération des personnalisations: ${error.message}`);
       return [];
@@ -71,7 +79,11 @@ export const customizationService = {
         throw error;
       }
       
-      return data;
+      // Ensure the type is correctly cast
+      return {
+        ...data,
+        type: data.type as "text" | "image"
+      };
     } catch (error: any) {
       toast.error(`Erreur lors de la mise à jour de la personnalisation: ${error.message}`);
       return null;

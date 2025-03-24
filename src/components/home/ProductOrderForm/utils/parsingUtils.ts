@@ -1,5 +1,6 @@
 
 import { Product, ProductVariant } from "@/types/product";
+import { supabase } from "@/integrations/supabase/client";
 
 // Extract variant options from product and its variants
 export const extractVariantOptionsFromProduct = async (product: Product): Promise<Record<string, string[]>> => {
@@ -7,7 +8,10 @@ export const extractVariantOptionsFromProduct = async (product: Product): Promis
     if (!product || !product.id) return {};
     
     // Fetch variants directly from the database
-    const { data: variants, error } = await fetch(`/api/products/${product.id}/variants`).then(res => res.json());
+    const { data: variants, error } = await supabase
+      .from('product_variants')
+      .select('*')
+      .eq('product_id', product.id);
     
     if (error || !variants || variants.length === 0) return {};
     
@@ -30,8 +34,21 @@ export const extractVariantOptionsFromProduct = async (product: Product): Promis
       if (variant.color && !result['couleur'].includes(variant.color)) {
         result['couleur'].push(variant.color);
       }
-      
-      // Add other properties as needed
+
+      // Add other specific properties that need to be extracted from variants
+      const additionalProps = [
+        'format', 'poids', 'quantite', 'echantillon', 'types_impression',
+        'type_de_materiaux', 'details_impression', 'orientation_impression', 'bat'
+      ];
+
+      additionalProps.forEach(prop => {
+        if ((variant as any)[prop] && !result[prop]) {
+          result[prop] = [];
+        }
+        if ((variant as any)[prop] && !result[prop].includes((variant as any)[prop])) {
+          result[prop].push((variant as any)[prop]);
+        }
+      });
     });
     
     return result;

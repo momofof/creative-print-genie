@@ -14,7 +14,6 @@ import ProductDescription from "./ProductDescription";
 import { 
   getQuantityOptions, 
   getAvailableVariants,
-  parseVariants,
   extractVariantOptionsFromProduct
 } from "../utils";
 
@@ -73,9 +72,13 @@ const ProductForm = ({
       setAvailableVariants(variantTypes);
       
       // Extract variant options from product data if available
-      const productOptions = extractVariantOptionsFromProduct(selectedProduct);
-      console.log("Extracted product variant options:", productOptions);
-      setProductVariantOptions(productOptions);
+      const fetchProductVariantOptions = async () => {
+        const options = await extractVariantOptionsFromProduct(selectedProduct);
+        console.log("Extracted product variant options:", options);
+        setProductVariantOptions(options);
+      };
+      
+      fetchProductVariantOptions();
       
       // Only reset variant selections when product changes if not in edit mode
       if (!editMode) {
