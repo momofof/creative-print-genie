@@ -5,70 +5,12 @@ import ProductOrderForm from "@/components/home/ProductOrderForm";
 import AuthStateWrapper from "@/components/home/AuthStateWrapper";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
-import { useEffect, useState } from "react";
-import { Product } from "@/types/product";
-import { supabase } from "@/integrations/supabase/client";
-import { toast } from "sonner";
+import Footer from "@/components/Footer";
+import { useProductsWithVariants } from "@/hooks/useProductsWithVariants";
 
 const Index = () => {
   const navigate = useNavigate();
-  const [products, setProducts] = useState<Product[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  
-  // Fetch products from Supabase
-  useEffect(() => {
-    const fetchProducts = async () => {
-      try {
-        setIsLoading(true);
-        console.log("Fetching products from Supabase...");
-        const { data, error } = await supabase
-          .from('unified_products')
-          .select('*')
-          .eq('status', 'published')
-          .order('created_at', { ascending: false });
-          
-        if (error) {
-          console.error("Error fetching products:", error);
-          toast.error("Impossible de charger les produits");
-        } else {
-          console.log("Fetched products:", data);
-          console.log("Number of products fetched:", data?.length || 0);
-          
-          // Map Supabase data to Product type, adding missing required properties
-          const mappedProducts: Product[] = data?.map(item => ({
-            id: item.id,
-            name: item.name,
-            price: item.price,
-            originalPrice: item.original_price || undefined,
-            image: item.image || '/placeholder.svg',
-            category: item.category,
-            subcategory: item.subcategory || '',
-            description: item.description || '',
-            // Add the missing required properties with default values
-            rating: 5, // Default rating
-            reviewCount: 0, // Default review count
-            // Optionally, include additional properties from Supabase
-            color: item.color || '',
-            date: item.created_at,
-            isNew: false,
-            // Pour compatibilité
-            is_customizable: item.is_customizable || false,
-            created_at: item.created_at
-          })) || [];
-          
-          console.log("Mapped products:", mappedProducts);
-          setProducts(mappedProducts);
-        }
-      } catch (error) {
-        console.error("Error:", error);
-        toast.error("Une erreur est survenue lors du chargement des produits");
-      } finally {
-        setIsLoading(false);
-      }
-    };
-    
-    fetchProducts();
-  }, []);
+  const { products, isLoading, error } = useProductsWithVariants();
   
   return (
     <AuthStateWrapper>
@@ -88,6 +30,11 @@ const Index = () => {
                 <span className="!absolute !-m-px !h-px !w-px !overflow-hidden !whitespace-nowrap !border-0 !p-0 ![clip:rect(0,0,0,0)]">Chargement...</span>
               </div>
               <p className="mt-2 text-gray-600">Chargement des produits...</p>
+            </div>
+          ) : error ? (
+            <div className="text-center py-12 bg-red-50 rounded-lg">
+              <p className="text-red-500 mb-4">Une erreur est survenue lors du chargement des produits.</p>
+              <p className="text-sm text-gray-500">Veuillez réessayer plus tard ou contacter le support.</p>
             </div>
           ) : products.length > 0 ? (
             <ProductOrderForm products={products} />
@@ -110,6 +57,8 @@ const Index = () => {
             </Button>
           </div>
         </div>
+        
+        <Footer />
       </div>
     </AuthStateWrapper>
   );
