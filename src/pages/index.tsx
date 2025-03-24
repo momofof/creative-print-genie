@@ -1,12 +1,11 @@
 
 import React from "react";
 import Navigation from "@/components/Navigation";
-import Hero from "@/components/home/Hero";
-import ProductList from "@/components/products/ProductList";
-import Footer from "@/components/Footer";
 import { useProductsWithVariants } from "@/hooks/useProductsWithVariants";
+import Footer from "@/components/Footer";
 import { Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import ProductList from "@/components/products/ProductList";
 
 export default function Home() {
   const { products, isLoading, error, refetch } = useProductsWithVariants();
@@ -14,7 +13,18 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-white">
       <Navigation />
-      <Hero />
+      
+      <div className="flex flex-col items-center justify-center py-16 px-4 bg-gradient-to-br from-teal-500 to-teal-700 text-white">
+        <div className="max-w-3xl text-center">
+          <h1 className="text-4xl md:text-5xl font-bold mb-4">Vos produits personnalisés</h1>
+          <p className="text-lg md:text-xl mb-8">
+            Découvrez notre sélection de produits de haute qualité, personnalisables selon vos besoins
+          </p>
+          <Button className="px-8 py-6 bg-white text-teal-700 hover:bg-gray-100">
+            Commander maintenant
+          </Button>
+        </div>
+      </div>
 
       <div className="max-w-7xl mx-auto px-4 py-16">
         <div className="mb-8">

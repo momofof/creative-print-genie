@@ -1,7 +1,7 @@
 
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Product } from "@/types/product";
+import { Product, ProductVariant } from "@/types/product";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { 
@@ -20,7 +20,9 @@ interface ProductCardProps {
 
 const ProductCard = ({ product, showVariants = false }: ProductCardProps) => {
   const navigate = useNavigate();
-  const [selectedVariant, setSelectedVariant] = useState(product.variants?.[0] || null);
+  const [selectedVariant, setSelectedVariant] = useState<ProductVariant | undefined>(
+    product.variants && product.variants.length > 0 ? product.variants[0] : undefined
+  );
   const [selectedVariantOptions, setSelectedVariantOptions] = useState<Record<string, string>>({});
 
   // Extraire les options de variantes disponibles
@@ -83,6 +85,9 @@ const ProductCard = ({ product, showVariants = false }: ProductCardProps) => {
     navigate(`/order/${product.id}`);
   };
 
+  // Get the final price, applying any variant price adjustment
+  const finalPrice = product.price + (selectedVariant?.priceAdjustment || 0);
+  
   return (
     <Card className="overflow-hidden h-full flex flex-col transition-shadow hover:shadow-md">
       <div className="relative pt-[100%]">
@@ -111,7 +116,7 @@ const ProductCard = ({ product, showVariants = false }: ProductCardProps) => {
       <CardContent className="flex-grow">
         <div className="flex items-baseline gap-2 mb-2">
           <span className="font-bold text-lg">
-            {formatPrice(product.price + (selectedVariant?.priceAdjustment || 0))}
+            {formatPrice(finalPrice)}
           </span>
           
           {product.originalPrice && (

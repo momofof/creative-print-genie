@@ -2,7 +2,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { Product } from "@/types/product";
+import { Product, ProductVariant } from "@/types/product";
 
 export const fetchProductsWithVariants = async (): Promise<Product[]> => {
   try {
@@ -22,8 +22,8 @@ export const fetchProductsWithVariants = async (): Promise<Product[]> => {
       id: product.id,
       name: product.name,
       description: product.description || "",
-      price: product.price,
-      originalPrice: product.original_price || undefined,
+      price: parseFloat(product.price) || 0,
+      originalPrice: product.original_price ? parseFloat(product.original_price) : undefined,
       category: product.category,
       subcategory: product.subcategory || undefined,
       image: product.image || "",
@@ -47,16 +47,16 @@ export const fetchProductsWithVariants = async (): Promise<Product[]> => {
 };
 
 // Fonction pour extraire les variantes d'un produit
-const extractVariantsFromProduct = (product: any) => {
+const extractVariantsFromProduct = (product: any): ProductVariant[] => {
   // Créer un objet variante à partir des champs directs du produit
-  const mainVariant = {
+  const mainVariant: ProductVariant = {
     id: "default",
     productId: product.id,
     size: product.size || null,
     color: product.color || null,
     hexColor: product.hex_color || null,
-    stock: product.stock || 0,
-    priceAdjustment: product.price_adjustment || 0,
+    stock: product.stock ? parseInt(product.stock) : 0,
+    priceAdjustment: product.price_adjustment ? parseFloat(product.price_adjustment) : 0,
     status: product.variant_status || "in_stock",
     imageUrl: product.variant_image_url || product.image || null,
     // Attributs supplémentaires
