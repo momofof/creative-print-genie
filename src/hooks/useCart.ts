@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -47,7 +48,7 @@ export const useCart = (): UseCartReturn => {
       let loadedItems: CartItem[] = [];
       
       if (userId) {
-        // Load cart from our new table
+        // Load cart from cart_complete table
         const { data, error } = await supabase
           .from("cart_complete")
           .select("*")

@@ -14,9 +14,9 @@ export const useProductFetch = (
 
   const fetchProductData = async (productId: string) => {
     try {
-      // Fetch product data from the unified_products table
+      // Fetch product data from the products_complete table
       const { data: product, error: productError } = await supabase
-        .from("unified_products")
+        .from("products_complete")
         .select("*")
         .eq("id", productId)
         .single();

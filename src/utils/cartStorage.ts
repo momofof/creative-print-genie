@@ -8,82 +8,35 @@ const convertCartItemsForStorage = async (
   cartItems: CartItem[]
 ): Promise<boolean> => {
   try {
-    // 1. Récupérer le cart_id existant ou en créer un nouveau
-    let cartId: string;
-    const { data: existingCart, error: cartError } = await supabase
-      .from('user_carts')
-      .select('id')
-      .eq('user_id', userId)
-      .single();
-    
-    if (cartError || !existingCart) {
-      // Créer un nouveau panier
-      const { data: newCart, error: createError } = await supabase
-        .from('user_carts')
-        .insert({ user_id: userId })
-        .select('id')
-        .single();
-      
-      if (createError || !newCart) {
-        console.error("Erreur lors de la création du panier:", createError);
-        return false;
-      }
-      
-      cartId = newCart.id;
-    } else {
-      cartId = existingCart.id;
-      
-      // Supprimer les éléments existants
-      await supabase
-        .from('cart_items')
-        .delete()
-        .eq('cart_id', cartId);
-    }
+    // Supprimer les éléments existants en utilisant cart_complete
+    await supabase
+      .from('cart_complete')
+      .delete()
+      .eq('user_id', userId);
     
     // 2. Insérer les nouveaux éléments
     for (const item of cartItems) {
       // Ajouter l'élément de panier
-      const { data: cartItem, error: itemError } = await supabase
-        .from('cart_items')
-        .insert({
-          cart_id: cartId,
-          product_id: item.id,
-          product_name: item.name,
-          price: item.price,
-          quantity: item.quantity,
-          image: item.image || null
-        })
-        .select('id')
-        .single();
+      const insertData = {
+        user_id: userId,
+        product_id: item.id,
+        product_name: item.name,
+        price: item.price,
+        quantity: item.quantity,
+        product_image: item.image || null,
+        option_color: item.option_color || null,
+        option_size: item.option_size || null,
+        option_format: item.option_format || null,
+        option_quantity: item.option_quantity || null
+      };
       
-      if (itemError || !cartItem) {
+      const { error: itemError } = await supabase
+        .from('cart_complete')
+        .insert(insertData);
+      
+      if (itemError) {
         console.error("Erreur lors de l'ajout de l'élément au panier:", itemError);
         continue;
-      }
-      
-      // Ajouter les options de l'élément si nécessaire
-      if (item.variants) {
-        const options: { cart_item_id: string; option_name: string; option_value: string }[] = [];
-        
-        Object.entries(item.variants).forEach(([key, value]) => {
-          if (typeof value === 'string') {
-            options.push({
-              cart_item_id: cartItem.id,
-              option_name: key,
-              option_value: value
-            });
-          }
-        });
-        
-        if (options.length > 0) {
-          const { error: optionsError } = await supabase
-            .from('cart_item_options')
-            .insert(options);
-          
-          if (optionsError) {
-            console.error("Erreur lors de l'ajout des options:", optionsError);
-          }
-        }
       }
     }
     
@@ -95,47 +48,31 @@ const convertCartItemsForStorage = async (
 };
 
 // Fonction pour convertir les données de la base en objets CartItem
-const convertStorageToCartItems = async (cartId: string): Promise<CartItem[]> => {
+const convertStorageToCartItems = async (userId: string): Promise<CartItem[]> => {
   try {
-    // 1. Récupérer les éléments du panier
+    // Récupérer les éléments du panier depuis cart_complete
     const { data: items, error: itemsError } = await supabase
-      .from('cart_items')
+      .from('cart_complete')
       .select('*')
-      .eq('cart_id', cartId);
+      .eq('user_id', userId);
     
     if (itemsError || !items) {
       console.error("Erreur lors de la récupération des éléments du panier:", itemsError);
       return [];
     }
     
-    // 2. Récupérer les options pour chaque élément
-    const cartItems: CartItem[] = [];
-    
-    for (const item of items) {
-      const { data: options, error: optionsError } = await supabase
-        .from('cart_item_options')
-        .select('*')
-        .eq('cart_item_id', item.id);
-      
-      // Construire l'objet variants à partir des options
-      const variants: Record<string, string> = {};
-      
-      if (!optionsError && options) {
-        options.forEach((option: CartItemOption) => {
-          variants[option.option_name] = option.option_value;
-        });
-      }
-      
-      // Ajouter l'élément au panier
-      cartItems.push({
-        id: item.product_id,
-        name: item.product_name,
-        price: item.price,
-        quantity: item.quantity,
-        image: item.image,
-        variants: Object.keys(variants).length > 0 ? variants : undefined
-      });
-    }
+    // Convertir les éléments en CartItem
+    const cartItems: CartItem[] = items.map(item => ({
+      id: item.product_id || "",
+      name: item.product_name,
+      price: item.price,
+      quantity: item.quantity,
+      image: item.product_image || "/placeholder.svg",
+      option_color: item.option_color,
+      option_size: item.option_size,
+      option_format: item.option_format,
+      option_quantity: item.option_quantity
+    }));
     
     return cartItems;
   } catch (error) {
@@ -154,18 +91,7 @@ export const saveCartToLocalStorage = (cartItems: CartItem[]): void => {
 
 export const loadCartFromSupabase = async (userId: string): Promise<CartItem[]> => {
   try {
-    const { data: cart, error: cartError } = await supabase
-      .from('user_carts')
-      .select('id')
-      .eq('user_id', userId)
-      .single();
-    
-    if (cartError || !cart) {
-      console.error("Erreur lors de la récupération du panier:", cartError);
-      return [];
-    }
-    
-    return await convertStorageToCartItems(cart.id);
+    return await convertStorageToCartItems(userId);
   } catch (error) {
     console.error("Erreur lors du chargement du panier:", error);
     return [];

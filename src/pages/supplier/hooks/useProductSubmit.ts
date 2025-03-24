@@ -34,18 +34,20 @@ export const useProductSubmit = (
       // 1. Upload main product image if there's a new one
       const imageUrl = await uploadProductImage();
       
-      // 2. Create or update product in unified_products table
+      // 2. Create or update product in products_complete table
       const productPayload = {
         ...productData,
         supplier_id: userData.user.id,
         image: imageUrl || productData.image,
+        // Map price_adjustment from our app to customization_price_adjustment in DB during save
+        customization_price_adjustment: productData.price_adjustment,
       };
       
       // Handle product creation or update
       if (isEditing && productId) {
         // Update existing product
         const { error: updateError } = await supabase
-          .from("unified_products")
+          .from("products_complete")
           .update(productPayload)
           .eq("id", productId);
         
@@ -53,7 +55,7 @@ export const useProductSubmit = (
       } else {
         // Get the highest current product ID to generate the next sequential ID
         const { data: lastProduct, error: countError } = await supabase
-          .from('unified_products')
+          .from('products_complete')
           .select('id')
           .order('id', { ascending: false })
           .limit(1);
@@ -68,7 +70,7 @@ export const useProductSubmit = (
         
         // Create new product with sequential ID
         const { error: createError } = await supabase
-          .from("unified_products")
+          .from("products_complete")
           .insert({
             ...productPayload,
             id: nextId.toString()

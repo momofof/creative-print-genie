@@ -8,7 +8,7 @@ export const fetchProducts = async (): Promise<ProductComplete[]> => {
   try {
     console.log("Fetching products from database...");
     
-    // Fetch from our new simplified table
+    // Fetch from products_complete table
     const { data: products, error } = await supabase
       .from("products_complete")
       .select("*")

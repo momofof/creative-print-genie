@@ -122,45 +122,23 @@ export const useOrderSubmission = ({
       
       // For logged in users
       if (userId) {
-        // Get current cart from Supabase
-        const { data: cartData } = await supabase
-          .from('user_carts')
-          .select('cart_items')
-          .eq('user_id', userId)
-          .single();
-        
-        // Parse the cart items
-        const existingCartItems = parseJsonArray(cartData?.cart_items);
-        
-        // Check if product already exists in cart
-        const existingItemIndex = existingCartItems.findIndex((item: CartItem) => 
-          item.id === product.id && 
-          JSON.stringify(item.variants || {}) === JSON.stringify(variants || {})
-        );
-        
-        let updatedCart;
-        if (existingItemIndex >= 0) {
-          // Update quantity if item exists
-          updatedCart = [...existingCartItems];
-          updatedCart[existingItemIndex].quantity += quantity;
-        } else {
-          // Add new item
-          updatedCart = [...existingCartItems, newCartItem];
-        }
-        
-        // Convert to JSON-safe format before sending to Supabase
-        const jsonSafeUpdatedCart = toJsonValue(updatedCart);
-        
-        // Update cart in Supabase
-        await supabase
-          .from('user_carts')
-          .upsert({
+        // Insert directly into cart_complete
+        const { error } = await supabase
+          .from('cart_complete')
+          .insert({
             user_id: userId,
-            cart_items: jsonSafeUpdatedCart
-          }, {
-            onConflict: 'user_id'
+            product_id: product.id,
+            product_name: product.name,
+            price: product.price,
+            quantity: quantity,
+            product_image: product.image || "/placeholder.svg",
+            option_color: variants.color,
+            option_size: variants.size,
+            option_format: variants.format,
+            option_quantity: variants.quantity
           });
           
+        if (error) throw error;
         toast.success("Produit ajouté au panier");
       } else {
         // For anonymous users, use localStorage
