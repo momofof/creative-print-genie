@@ -15,7 +15,7 @@ export const updateProductVariantImage = async (
   try {
     // Update the product with the variant image URL
     const { error } = await supabase
-      .from('unified_products')
+      .from('products_complete')
       .update({
         variant_image_url: imageUrl
       })
@@ -43,7 +43,7 @@ export const updateProductVariantImage = async (
 export const getBicycleProduct = async () => {
   try {
     const { data, error } = await supabase
-      .from('unified_products')
+      .from('products_complete')
       .select('*')
       .ilike('name', '%velo%')
       .single();

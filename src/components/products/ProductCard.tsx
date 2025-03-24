@@ -86,13 +86,13 @@ const ProductCard = ({ product, showVariants = false }: ProductCardProps) => {
   };
 
   // Get the final price, applying any variant price adjustment
-  const finalPrice = product.price + (selectedVariant?.priceAdjustment || 0);
+  const finalPrice = product.price + (selectedVariant?.price_adjustment || 0);
   
   return (
     <Card className="overflow-hidden h-full flex flex-col transition-shadow hover:shadow-md">
       <div className="relative pt-[100%]">
         <img
-          src={selectedVariant?.imageUrl || product.image}
+          src={selectedVariant?.image_url || product.image}
           alt={product.name}
           className="absolute inset-0 w-full h-full object-cover object-center"
         />

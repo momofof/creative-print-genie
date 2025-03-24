@@ -51,14 +51,14 @@ const extractVariantsFromProduct = (product: any): ProductVariant[] => {
   // Créer un objet variante à partir des champs directs du produit
   const mainVariant: ProductVariant = {
     id: "default",
-    productId: product.id,
+    product_id: product.id,
     size: product.size || null,
     color: product.color || null,
-    hexColor: product.hex_color || null,
+    hex_color: product.hex_color || null,
     stock: product.stock ? parseInt(product.stock) : 0,
-    priceAdjustment: product.price_adjustment ? parseFloat(product.price_adjustment) : 0,
+    price_adjustment: product.price_adjustment ? parseFloat(product.price_adjustment) : 0,
     status: product.variant_status || "in_stock",
-    imageUrl: product.variant_image_url || product.image || null,
+    image_url: product.variant_image_url || product.image || null,
     // Attributs supplémentaires
     bat: product.bat || null,
     poids: product.poids || null,

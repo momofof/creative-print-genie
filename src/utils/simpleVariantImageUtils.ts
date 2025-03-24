@@ -50,7 +50,7 @@ export const uploadVariantImage = async (
 };
 
 /**
- * Met à jour l'URL d'image de variante dans la table unified_products
+ * Met à jour l'URL d'image de variante dans la table products_complete
  * @param productId ID du produit
  * @param imageUrl URL de l'image
  * @returns true si la mise à jour a réussi, false sinon
@@ -62,7 +62,7 @@ export const updateProductWithVariantImageUrl = async (
   try {
     // Mettre à jour directement l'URL d'image de variante
     const { error: updateError } = await supabase
-      .from('unified_products')
+      .from('products_complete')
       .update({
         variant_image_url: imageUrl
       })
@@ -90,7 +90,7 @@ export const getVariantImageUrl = async (
 ): Promise<string | null> => {
   try {
     const { data, error } = await supabase
-      .from('unified_products')
+      .from('products_complete')
       .select('variant_image_url')
       .eq('id', productId)
       .single();

@@ -1,6 +1,7 @@
+
 import React from 'react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
-import Index from "@/pages/Index";
+import Index from "@/pages/index";
 import Login from "@/pages/auth/Login";
 import Signup from "@/pages/auth/Signup";
 import AuthLanding from "@/pages/auth/AuthLanding";

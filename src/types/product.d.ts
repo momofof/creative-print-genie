@@ -16,14 +16,14 @@ export interface Product {
 
 export interface ProductVariant {
   id: string;
-  productId?: string;
+  product_id?: string;
   size?: string | null;
   color?: string | null;
-  hexColor?: string | null;
+  hex_color?: string | null;
   stock?: number | null;
-  priceAdjustment?: number | null;
+  price_adjustment?: number | null;
   status?: string | null;
-  imageUrl?: string | null;
+  image_url?: string | null;
   // Attributs supplémentaires
   bat?: string | null;
   poids?: string | null;
