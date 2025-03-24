@@ -1,5 +1,5 @@
 
-import { Product, ProductVariant } from "@/types/product";
+import { Product } from "@/types/product";
 import { supabase } from "@/integrations/supabase/client";
 
 // Extract variant options from product and its variants
@@ -18,7 +18,7 @@ export const extractVariantOptionsFromProduct = async (product: Product): Promis
     // Extract unique values for each variant property
     const result: Record<string, string[]> = {};
     
-    variants.forEach((variant: ProductVariant) => {
+    variants.forEach((variant: any) => {
       // Add size if it exists and is unique
       if (variant.size && !result['taille']) {
         result['taille'] = [];
@@ -42,11 +42,11 @@ export const extractVariantOptionsFromProduct = async (product: Product): Promis
       ];
 
       additionalProps.forEach(prop => {
-        if ((variant as any)[prop] && !result[prop]) {
+        if (variant[prop] && !result[prop]) {
           result[prop] = [];
         }
-        if ((variant as any)[prop] && !result[prop].includes((variant as any)[prop])) {
-          result[prop].push((variant as any)[prop]);
+        if (variant[prop] && !result[prop].includes(variant[prop])) {
+          result[prop].push(variant[prop]);
         }
       });
     });

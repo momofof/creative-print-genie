@@ -1,11 +1,10 @@
 
 // Export individual utility functions from all utility files
-export { getAvailableVariants } from './configs/availableVariants';
-export { getVariantOptions } from './configs/variantOptions';
-export { getQuantityOptions } from './configs/quantityOptions';
+export { getAvailableVariants, getQuantityOptions } from './parsingUtils';
 export { getVariantDisplayName } from './variantDisplay';
-export { getVariantIllustration } from './illustrationUtils';
+export { getVariantIllustration, getFeatureIllustration } from './illustrationUtils';
 export { extractVariantOptionsFromProduct } from './parsingUtils';
+export { parseVariants, extractVariantFields } from './parseUtils';
 
 // Simplified function to get variant image - uses the direct image URL
 export const getVariantImage = (product?: any, variantType?: string, variantValue?: string) => {

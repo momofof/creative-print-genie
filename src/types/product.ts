@@ -16,6 +16,8 @@ export interface Product {
   size?: string;
   format?: string;
   created_at?: string;
+  // For variants compatibility
+  variants?: Record<string, string>;
 }
 
 export interface CartItem {
@@ -28,52 +30,78 @@ export interface CartItem {
   option_size?: string;
   option_format?: string;
   option_quantity?: string;
-  variants?: Record<string, string>; // Ajout de cette propriété pour compatibilité
+  variants?: Record<string, string>; // Property for compatibility
 }
 
-// Types requis pour les composants de customisation
+// Types for the customize components
 export interface Color {
   name: string;
   hex: string;
+  id?: string; // Make id optional for compatibility
+  available?: boolean; // Make available optional for compatibility
 }
 
 export interface SizeGuideItem {
   size: string;
-  chest: string;
-  waist: string;
-  hips: string;
+  chest?: string;
+  waist?: string;
+  hips?: string;
+  a?: string; // For compatibility
+  b?: string; // For compatibility
+  c?: string; // For compatibility
+  size2?: string; // For compatibility
 }
 
 export interface Review {
-  id: string;
-  userName: string;
+  id: string | number;
+  userName?: string;
+  author?: string; // For compatibility
+  date?: string;
   rating: number;
-  date: string;
-  comment: string;
+  comment?: string;
+  content?: string; // For compatibility
 }
 
 export interface RelatedProduct {
-  id: string;
+  id: string | number;
   name: string;
-  price: number;
+  price: string | number;
   image: string;
 }
 
 export interface ProductVariant {
   id: string;
-  name: string;
-  value: string;
+  name?: string;
+  value?: string;
+  // Database fields
+  product_id?: string;
+  size?: string;
+  color?: string;
+  hex_color?: string;
+  stock?: number;
+  price_adjustment?: number;
+  status?: string;
+  bat?: string;
+  poids?: string;
+  format?: string;
+  quantite?: string;
+  echantillon?: string;
+  types_impression?: string;
+  type_de_materiaux?: string;
+  details_impression?: string;
+  orientation_impression?: string;
+  image_url?: string;
+  created_at?: string;
+  updated_at?: string;
+  isNew?: boolean;
+  isDeleted?: boolean;
 }
 
-export interface CustomizableProduct {
-  id: string;
-  name: string;
-  description: string;
-  basePrice: number;
-  image: string;
-  views: ProductView[];
-  colors: Color[];
-  customizableAreas: string[];
+export interface CustomizableProduct extends Product {
+  views?: ProductView[];
+  colors?: Color[];
+  customizableAreas?: string[];
+  price?: number; // Make price optional for CustomizableProduct
 }
 
 export interface ProductView {
@@ -92,19 +120,27 @@ export interface CustomizationElement {
   color?: string;
   fontFamily?: string;
   fontSize?: number;
+  fontStyle?: {
+    bold?: boolean;
+    italic?: boolean;
+    alignment?: 'left' | 'center' | 'right';
+  };
 }
 
 export interface DesignCategory {
   id: string;
   name: string;
-  items: DesignItem[];
+  items?: DesignItem[];
+  designs?: DesignItem[]; // For compatibility
 }
 
 export interface DesignItem {
   id: string;
   name: string;
-  thumbnail: string;
-  designUrl: string;
+  thumbnail?: string;
+  image?: string; // For compatibility
+  designUrl?: string;
+  category?: string;
 }
 
 export interface CartItemOption {

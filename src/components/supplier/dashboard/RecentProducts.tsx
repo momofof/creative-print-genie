@@ -1,94 +1,90 @@
 
 import React from "react";
-import { Link } from "react-router-dom";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { PlusCircle } from "lucide-react";
-import { Product } from "@/types/dashboard";
+import { ProductComplete } from "@/types/dashboard";
+import { Badge } from "@/components/ui/badge";
+import { MoreHorizontal, Edit, Trash } from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 interface RecentProductsProps {
-  products: Product[];
+  products: ProductComplete[];
+  onEditProduct: (productId: string) => void;
+  onDeleteProduct: (productId: string) => void;
 }
 
-const RecentProducts = ({ products }: RecentProductsProps) => {
+const RecentProducts = ({ 
+  products, 
+  onEditProduct, 
+  onDeleteProduct 
+}: RecentProductsProps) => {
+  // Display only the 5 most recent products
+  const recentProducts = [...products]
+    .sort((a, b) => new Date(b.updated_at || "").getTime() - new Date(a.updated_at || "").getTime())
+    .slice(0, 5);
+
+  if (recentProducts.length === 0) {
+    return (
+      <div className="bg-white rounded-lg border p-4">
+        <h3 className="font-semibold text-lg mb-4">Produits récents</h3>
+        <p className="text-gray-500 text-center py-4">
+          Vous n'avez pas encore de produits. Commencez par en ajouter un !
+        </p>
+      </div>
+    );
+  }
+
   return (
-    <Card className="mb-8">
-      <CardHeader>
-        <div className="flex items-center justify-between">
-          <CardTitle>Produits récents</CardTitle>
-          <Link to="/supplier/products">
-            <Button variant="ghost" size="sm">
-              Voir tous
-            </Button>
-          </Link>
-        </div>
-      </CardHeader>
-      <CardContent>
-        {products.length > 0 ? (
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead>
-                <tr className="text-left border-b">
-                  <th className="pb-3 font-medium text-gray-500">Nom</th>
-                  <th className="pb-3 font-medium text-gray-500">Catégorie</th>
-                  <th className="pb-3 font-medium text-gray-500">Prix</th>
-                  <th className="pb-3 font-medium text-gray-500">Variants</th>
-                  <th className="pb-3 font-medium text-gray-500">Statut</th>
-                  <th className="pb-3 font-medium text-gray-500">Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {products.map((product) => (
-                  <tr key={product.id} className="border-b hover:bg-gray-50">
-                    <td className="py-3">{product.name}</td>
-                    <td className="py-3">{product.category}</td>
-                    <td className="py-3">{product.price} €</td>
-                    <td className="py-3">{product.variants?.length || 0}</td>
-                    <td className="py-3">
-                      <span 
-                        className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
-                          product.status === 'published' 
-                            ? 'bg-green-100 text-green-800'
-                            : product.status === 'draft'
-                            ? 'bg-gray-100 text-gray-800'
-                            : 'bg-red-100 text-red-800'
-                        }`}
-                      >
-                        {product.status === 'published' 
-                          ? 'Publié' 
-                          : product.status === 'draft'
-                          ? 'Brouillon'
-                          : 'Archivé'
-                        }
-                      </span>
-                    </td>
-                    <td className="py-3">
-                      <div className="flex space-x-2">
-                        <Link to={`/supplier/product/${product.id}/edit`}>
-                          <Button variant="outline" size="sm">
-                            Modifier
-                          </Button>
-                        </Link>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+    <div className="bg-white rounded-lg border">
+      <h3 className="font-semibold text-lg p-4 border-b">Produits récents</h3>
+      <div className="divide-y">
+        {recentProducts.map((product) => (
+          <div key={product.id} className="p-4 flex items-center justify-between">
+            <div className="flex items-center space-x-3">
+              <img 
+                src={product.image || "/placeholder.svg"} 
+                alt={product.name} 
+                className="w-10 h-10 rounded object-cover"
+              />
+              <div>
+                <h4 className="font-medium text-sm">{product.name}</h4>
+                <div className="flex items-center space-x-2 mt-1">
+                  <Badge variant={product.status === "published" ? "default" : "secondary"} className="text-xs">
+                    {product.status === "published" ? "Actif" : 
+                     product.status === "draft" ? "Brouillon" : "Archivé"}
+                  </Badge>
+                  <span className="text-sm text-gray-500">{product.price.toFixed(2)} €</span>
+                </div>
+              </div>
+            </div>
+            
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button className="p-2 hover:bg-gray-100 rounded-full">
+                  <MoreHorizontal className="h-4 w-4 text-gray-500" />
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem onClick={() => onEditProduct(product.id)}>
+                  <Edit className="h-4 w-4 mr-2" />
+                  <span>Modifier</span>
+                </DropdownMenuItem>
+                <DropdownMenuItem 
+                  onClick={() => onDeleteProduct(product.id)}
+                  className="text-red-600 focus:text-red-600"
+                >
+                  <Trash className="h-4 w-4 mr-2" />
+                  <span>Supprimer</span>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
-        ) : (
-          <div className="text-center py-6">
-            <p className="text-gray-500 mb-4">Vous n'avez pas encore de produits</p>
-            <Link to="/supplier/product/new">
-              <Button>
-                <PlusCircle className="mr-2 h-4 w-4" />
-                Ajouter un produit
-              </Button>
-            </Link>
-          </div>
-        )}
-      </CardContent>
-    </Card>
+        ))}
+      </div>
+    </div>
   );
 };
 

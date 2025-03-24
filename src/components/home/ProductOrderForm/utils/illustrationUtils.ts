@@ -1,33 +1,58 @@
 
 import { Product } from "@/types/product";
 
-// Helper to get variant illustrations, showing visualizations of different product options
-export const getVariantIllustration = (category: string, variantType: string, variantValue: string) => {
-  // For now, return a placeholder image - in a real implementation, this would fetch appropriate illustrations
-  return "/placeholder.svg";
-};
-
-// Get primary product illustration based on product and selected variants
-export const getProductIllustration = (product?: Product, variants?: Record<string, string>) => {
+export const getFeatureIllustration = (product: Product | undefined, variants: Record<string, string>): string => {
+  // Default placeholder
   if (!product) return "/placeholder.svg";
   
-  // If no variants are selected or variants don't meaningfully change the appearance,
-  // return the main product image
-  if (!variants || Object.keys(variants).length === 0) {
-    return product.image || "/placeholder.svg";
+  // If the product has an image, use it
+  if (product.image) return product.image;
+  
+  // Fallback to a generic illustration based on product category
+  let category = product.subcategory || product.category || "";
+  category = category.toLowerCase();
+  
+  if (category.includes("t-shirt") || category.includes("textile")) {
+    return "/illustrations/tshirt.svg";
+  } else if (category.includes("mug") || category.includes("tasse")) {
+    return "/illustrations/mug.svg";
+  } else if (category.includes("poster") || category.includes("affiche")) {
+    return "/illustrations/poster.svg";
   }
-
-  // For now, we'll just return the default product image
-  // In a complete implementation, this would select the appropriate variant image
-  return product.image || "/placeholder.svg";
+  
+  // Default illustration
+  return "/illustrations/product.svg";
 };
 
-// For a variant image preview
-export const getVariantPreviewImage = (product?: Product, variantType?: string, variantValue?: string) => {
-  if (!product || !variantType || !variantValue) {
+export const getVariantIllustration = (
+  category: string, 
+  variantType: string, 
+  variantValue: string
+): string => {
+  category = category.toLowerCase();
+  variantType = variantType.toLowerCase();
+  
+  // Path pattern: /illustrations/{category}/{variant-type}/{variant-value}.svg
+  try {
+    // For color variants
+    if (variantType === "couleur" || variantType === "color") {
+      return `/illustrations/${category}/colors/${variantValue.toLowerCase().replace(/\s+/g, '-')}.svg`;
+    }
+    
+    // For size variants
+    if (variantType === "taille" || variantType === "size") {
+      return `/illustrations/${category}/sizes/${variantValue.toLowerCase().replace(/\s+/g, '-')}.svg`;
+    }
+    
+    // For format variants
+    if (variantType === "format") {
+      return `/illustrations/${category}/formats/${variantValue.toLowerCase().replace(/\s+/g, '-')}.svg`;
+    }
+    
+    // Generic fallback
+    return `/illustrations/${category}/${variantType}/${variantValue.toLowerCase().replace(/\s+/g, '-')}.svg`;
+  } catch (e) {
+    console.error("Error getting variant illustration:", e);
     return "/placeholder.svg";
   }
-
-  // In a real implementation, we would check if this variant has a specific image
-  return "/placeholder.svg";
 };
