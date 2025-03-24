@@ -42,7 +42,7 @@ export interface Product {
   reviewCount?: number;
   isNew?: boolean;
   variants?: any;  // This holds variant data in JSONB format
-  variant_images?: Record<string, string[]> | string; // String from DB or parsed object
+  variant_images?: Record<string, string[]>; // String from DB or parsed object
   variant_image_url?: string | null; // Added for variant image URL (simplified)
   is_customizable?: boolean;
   customizations?: any; // This holds customization options in JSONB format

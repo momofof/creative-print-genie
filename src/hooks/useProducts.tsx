@@ -49,8 +49,8 @@ export const useProducts = () => {
             // Pour les tableaux, établir une structure simple
             variants: [],
             customizations: [],
-            // Utiliser un champ simple pour les URLs d'images
-            variant_image_url: product.variant_image_url,
+            // Champs pour la compatibilité
+            variant_image_url: product.variant_image_url || null,
             variant_images: product.variant_images || {},
             // Horodatage
             created_at: product.created_at,
@@ -74,6 +74,7 @@ export const useProducts = () => {
   // Récupérer les variantes d'un produit spécifique
   const fetchProductVariants = async (productId: string) => {
     try {
+      // Utiliser la nouvelle table product_variants
       const { data, error } = await supabase
         .from('product_variants')
         .select('*')
@@ -90,6 +91,7 @@ export const useProducts = () => {
   // Récupérer les personnalisations d'un produit spécifique
   const fetchProductCustomizations = async (productId: string) => {
     try {
+      // Utiliser la nouvelle table product_customizations
       const { data, error } = await supabase
         .from('product_customizations')
         .select('*')
@@ -156,10 +158,12 @@ export const useProducts = () => {
       const completeProduct: Product = {
         ...productData,
         variants: variants as ProductVariant[],
-        customizations: customizations,
+        customizations: customizations as any[],
         status: (productData.status === 'draft' || productData.status === 'published' || productData.status === 'archived') 
           ? productData.status 
           : 'draft',
+        variant_image_url: productData.variant_image_url || null,
+        variant_images: productData.variant_images || {}
       };
       
       return completeProduct;

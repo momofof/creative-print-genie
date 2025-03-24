@@ -29,7 +29,7 @@ export const useVariantImages = (productId: string) => {
         const processedImages: Record<string, string[]> = {};
         const rawImages = data.variant_images;
         
-        // Parse the variant_images string safely to convert it to an object
+        // Parse the variant_images safely to convert it to an object
         if (typeof rawImages === 'string') {
           try {
             const parsedImages = JSON.parse(rawImages);
@@ -44,6 +44,14 @@ export const useVariantImages = (productId: string) => {
           } catch (e) {
             console.error("Error parsing variant_images JSON:", e);
           }
+        } else if (typeof rawImages === 'object' && rawImages !== null) {
+          // It's already an object
+          Object.keys(rawImages).forEach(variantId => {
+            const urls = rawImages[variantId];
+            if (Array.isArray(urls)) {
+              processedImages[variantId] = urls;
+            }
+          });
         }
         
         setVariantImagePreviews(processedImages);

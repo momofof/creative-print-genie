@@ -51,10 +51,11 @@ const Index = () => {
             color: '',
             date: item.created_at,
             isNew: false,
-            // Parse variants from the JSON column
+            // Pour compatibilité
             variants: item.variants || [],
-            // Include customizations for future use
-            customizations: item.customizations || []
+            customizations: item.customizations || [],
+            variant_images: item.variant_images || {},
+            variant_image_url: item.variant_image_url || null
           })) || [];
           
           console.log("Mapped products:", mappedProducts);

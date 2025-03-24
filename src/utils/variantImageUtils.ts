@@ -1,3 +1,4 @@
+
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
@@ -82,6 +83,8 @@ export const updateVariantImages = async (
           console.error('Error parsing variant_images:', e);
           currentImages = {};
         }
+      } else {
+        currentImages = data.variant_images as Record<string, string[]>;
       }
     }
     
@@ -92,11 +95,11 @@ export const updateVariantImages = async (
     const variantImages = currentImages[variantId] || [];
     updatedImages[variantId] = [...variantImages, imageUrl];
 
-    // Mettre à jour la table - convert object to string for storage
+    // Mettre à jour la table
     const { error: updateError } = await supabase
       .from('unified_products')
       .update({
-        variant_images: JSON.stringify(updatedImages)
+        variant_images: updatedImages
       })
       .eq('id', productId);
 
@@ -147,6 +150,8 @@ export const removeVariantImage = async (
           console.error('Error parsing variant_images:', e);
           return false;
         }
+      } else {
+        currentImages = data.variant_images as Record<string, string[]>;
       }
     }
 
@@ -169,7 +174,7 @@ export const removeVariantImage = async (
     const { error: updateError } = await supabase
       .from('unified_products')
       .update({
-        variant_images: JSON.stringify(updatedImages)
+        variant_images: updatedImages
       })
       .eq('id', productId);
 
@@ -221,7 +226,7 @@ export const getVariantImages = async (
       return [];
     }
 
-    // Parse the variant_images string to an object
+    // Parse the variant_images to an object
     let variantImagesObject: Record<string, string[]> = {};
     if (data.variant_images) {
       if (typeof data.variant_images === 'string') {
@@ -231,6 +236,8 @@ export const getVariantImages = async (
           console.error('Error parsing variant_images:', e);
           return [];
         }
+      } else {
+        variantImagesObject = data.variant_images as Record<string, string[]>;
       }
     }
 
