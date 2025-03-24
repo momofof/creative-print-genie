@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import Navigation from "@/components/Navigation";
@@ -45,10 +46,10 @@ const sizeGuide: SizeGuideItem[] = [
 ];
 
 const relatedProducts: RelatedProduct[] = [
-  { id: 1, name: "Sweatshirt Premium Bio Unisexe", price: "29.99", image: "https://images.unsplash.com/photo-1581655353564-df123a1eb820?w=800&auto=format&fit=crop&q=60&ixlib=rb-4.0.3" },
-  { id: 2, name: "T-shirt Manches Longues Col Rond", price: "24.99", image: "https://images.unsplash.com/photo-1618354691373-d851c5c3a990?w=800&auto=format&fit=crop&q=60&ixlib=rb-4.0.3" },
-  { id: 3, name: "Pull à Capuche Heavy Blend", price: "34.99", image: "https://images.unsplash.com/photo-1620799140408-edc6dcb6d633?w=800&auto=format&fit=crop&q=60&ixlib=rb-4.0.3" },
-  { id: 4, name: "T-shirt Manches Longues Col V", price: "26.99", image: "https://images.unsplash.com/photo-1586790170083-2f9ceadc732d?w=800&auto=format&fit=crop&q=60&ixlib=rb-4.0.3" },
+  { id: 1, name: "Sweatshirt Premium Bio Unisexe", price: 29.99, image: "https://images.unsplash.com/photo-1581655353564-df123a1eb820?w=800&auto=format&fit=crop&q=60&ixlib=rb-4.0.3" },
+  { id: 2, name: "T-shirt Manches Longues Col Rond", price: 24.99, image: "https://images.unsplash.com/photo-1618354691373-d851c5c3a990?w=800&auto=format&fit=crop&q=60&ixlib=rb-4.0.3" },
+  { id: 3, name: "Pull à Capuche Heavy Blend", price: 34.99, image: "https://images.unsplash.com/photo-1620799140408-edc6dcb6d633?w=800&auto=format&fit=crop&q=60&ixlib=rb-4.0.3" },
+  { id: 4, name: "T-shirt Manches Longues Col V", price: 26.99, image: "https://images.unsplash.com/photo-1586790170083-2f9ceadc732d?w=800&auto=format&fit=crop&q=60&ixlib=rb-4.0.3" },
 ];
 
 const thumbnailImages = [

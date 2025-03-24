@@ -1,5 +1,5 @@
 
-import { Product, ProductVariant } from "@/types/product";
+import { Product } from "@/types/product";
 
 export const parseVariants = (variants: Record<string, string>): string => {
   return Object.entries(variants)
@@ -8,7 +8,7 @@ export const parseVariants = (variants: Record<string, string>): string => {
 };
 
 export const extractVariantFields = (
-  product: Product | ProductVariant,
+  product: Product,
   prefix: string = ""
 ): Record<string, string> => {
   const result: Record<string, string> = {};

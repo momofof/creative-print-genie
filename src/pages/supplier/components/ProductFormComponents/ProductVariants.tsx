@@ -1,11 +1,10 @@
-
 import React from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Plus, Trash2 } from "lucide-react";
-import { ProductVariant } from "../../hooks/useProductForm";
+import { ProductVariant } from "../../hooks/types/productTypes";
 import { VariantImageUpload } from "./VariantImageUpload";
 
 interface ProductVariantsProps {
@@ -31,7 +30,6 @@ export const ProductVariants = ({
 }: ProductVariantsProps) => {
   const activeVariants = variants.filter(v => !v.isDeleted);
   
-  // Grouper les champs en catégories pour une meilleure organisation
   const fieldGroups = [
     {
       title: "Informations de base",
@@ -110,7 +108,6 @@ export const ProductVariants = ({
                   <Trash2 className="h-4 w-4" />
                 </Button>
                 
-                {/* Affichage tabulaire des champs par groupe */}
                 {fieldGroups.map((group, groupIndex) => (
                   <div key={groupIndex} className="mb-4">
                     <h3 className="text-sm font-medium text-gray-700 mb-2">{group.title}</h3>
@@ -161,7 +158,6 @@ export const ProductVariants = ({
                   </div>
                 ))}
 
-                {/* Images de la variante */}
                 {handleVariantImageChange && variant.id && (
                   <VariantImageUpload
                     variantId={variant.id}

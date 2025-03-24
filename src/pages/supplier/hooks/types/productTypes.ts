@@ -1,5 +1,6 @@
 
 export interface ProductData {
+  id?: string;
   name: string;
   description: string | null;
   price: number;
@@ -7,15 +8,14 @@ export interface ProductData {
   category: string;
   subcategory: string | null;
   image: string | null;
-  status: 'draft' | 'published' | 'archived';
+  status: "draft" | "published" | "archived";
   is_customizable: boolean;
-  // Champs de variantes
+  supplier_id?: string | null;
+  
+  // Variant fields
   size: string | null;
   color: string | null;
   hex_color: string | null;
-  stock: number | null;
-  price_adjustment: number | null;
-  variant_status: 'in_stock' | 'low_stock' | 'out_of_stock' | null;
   bat: string | null;
   poids: string | null;
   format: string | null;
@@ -25,29 +25,32 @@ export interface ProductData {
   type_de_materiaux: string | null;
   details_impression: string | null;
   orientation_impression: string | null;
-  // URL d'image pour chaque variante (simplifiée en texte)
+  
+  // Added missing fields
+  stock: number | null;
+  price_adjustment: number | null;
+  variant_status: "in_stock" | "low_stock" | "out_of_stock";
   variant_image_url: string | null;
 }
 
 export interface ProductVariant {
   id: string;
-  size?: string;
-  color?: string;
-  hex_color?: string;
-  stock?: number;
-  price_adjustment?: number;
-  status?: string;
-  bat?: string;
-  poids?: string;
-  format?: string;
-  quantite?: string;
-  echantillon?: string;
-  types_impression?: string;
-  type_de_materiaux?: string;
-  details_impression?: string;
-  orientation_impression?: string;
-  // URL d'image pour la variante (simplifiée)
-  image_url?: string;
+  size?: string | null;
+  color?: string | null;
+  hex_color?: string | null;
+  stock?: number | null;
+  price_adjustment?: number | null;
+  status?: string | null;
+  bat?: string | null;
+  poids?: string | null;
+  format?: string | null;
+  quantite?: string | null;
+  echantillon?: string | null;
+  types_impression?: string | null;
+  type_de_materiaux?: string | null;
+  details_impression?: string | null;
+  orientation_impression?: string | null;
+  image_url?: string | null;
   // Pour le frontend uniquement
   isNew?: boolean;
   isDeleted?: boolean;

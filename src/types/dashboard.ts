@@ -6,30 +6,31 @@ export interface ProductComplete {
   name: string;
   description?: string;
   price: number;
-  original_price?: number;
+  original_price?: number | null;
   category: string;
-  subcategory?: string;
-  image?: string;
+  subcategory?: string | null;
+  image?: string | null;
   status: "draft" | "published" | "archived";
   is_customizable?: boolean;
   supplier_id?: string;
-  stock?: number;
+  stock?: number | null;
+  variants?: ProductVariant[];
   
   // Champs de variants
-  size?: string;
-  color?: string;
-  hex_color?: string;
-  bat?: string;
-  poids?: string;
-  format?: string;
-  quantite?: string;
-  echantillon?: string;
-  types_impression?: string;
-  type_de_materiaux?: string;
-  details_impression?: string;
-  orientation_impression?: string;
-  variant_status?: "in_stock" | "low_stock" | "out_of_stock";
-  price_adjustment?: number;
+  size?: string | null;
+  color?: string | null;
+  hex_color?: string | null;
+  bat?: string | null;
+  poids?: string | null;
+  format?: string | null;
+  quantite?: string | null;
+  echantillon?: string | null;
+  types_impression?: string | null;
+  type_de_materiaux?: string | null;
+  details_impression?: string | null;
+  orientation_impression?: string | null;
+  variant_status?: "in_stock" | "low_stock" | "out_of_stock" | null;
+  price_adjustment?: number | null;
   
   // Customisations
   customization_name?: string;
@@ -40,7 +41,7 @@ export interface ProductComplete {
   customization_required?: boolean;
   
   // Image de variante
-  variant_image_url?: string;
+  variant_image_url?: string | null;
   
   created_at?: string;
   updated_at?: string;
@@ -48,6 +49,32 @@ export interface ProductComplete {
 
 // Pour la compatibilité avec le code existant
 export type Product = ProductComplete;
+
+// Product Variant type
+export interface ProductVariant {
+  id: string;
+  product_id?: string;
+  size?: string | null;
+  color?: string | null;
+  hex_color?: string | null;
+  stock?: number | null;
+  price_adjustment?: number | null;
+  status?: string | null;
+  bat?: string | null;
+  poids?: string | null;
+  format?: string | null;
+  quantite?: string | null;
+  echantillon?: string | null;
+  types_impression?: string | null;
+  type_de_materiaux?: string | null;
+  details_impression?: string | null;
+  orientation_impression?: string | null;
+  image_url?: string | null;
+  created_at?: string;
+  updated_at?: string;
+  isNew?: boolean;
+  isDeleted?: boolean;
+}
 
 // Order related types
 export interface OrderComplete {
@@ -112,6 +139,20 @@ export interface Customization {
   position?: string;
   price_adjustment?: number;
   is_required?: boolean;
+  created_at?: string;
+  updated_at?: string;
+}
+
+// Type for reviews and comments
+export interface ReviewComment {
+  id: string;
+  product_id: string;
+  user_id: string;
+  user_name?: string;
+  rating?: number | null;
+  content: string;
+  is_review: boolean;
+  parent_id?: string | null;
   created_at?: string;
   updated_at?: string;
 }

@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -13,7 +12,7 @@ import {
   TableRow 
 } from "@/components/ui/table";
 import { toast } from "sonner";
-import { ProductVariant } from "../../hooks/useProductForm";
+import { ProductVariant } from "../../hooks/types/productTypes";
 
 interface SimpleVariantEditorProps {
   variants: ProductVariant[];
@@ -26,14 +25,12 @@ const SimpleVariantEditor = ({ variants, setVariants }: SimpleVariantEditorProps
   const [attributes, setAttributes] = useState<{ name: string; values: string[] }[]>([]);
   const [showAttributeForm, setShowAttributeForm] = useState(false);
 
-  // Génère toutes les combinaisons possibles des attributs
   const generateCombinations = () => {
     if (attributes.length === 0) {
       toast.error("Ajoutez au moins un attribut avec des valeurs");
       return;
     }
 
-    // Fonction pour générer toutes les combinaisons possibles d'attributs
     const generateAllCombinations = (
       attrList: { name: string; values: string[] }[],
       current: Record<string, string> = {},
@@ -56,12 +53,9 @@ const SimpleVariantEditor = ({ variants, setVariants }: SimpleVariantEditorProps
 
     const combinations = generateAllCombinations(attributes);
     
-    // Convertir les combinaisons en variantes de produit
     const newVariants = combinations.map(combo => {
-      // Créer un identifiant unique pour chaque variante
       const id = crypto.randomUUID();
       
-      // Déterminer la taille et la couleur si elles existent
       let size = "Unique";
       let color = "";
       let colorHex = "#000000";
@@ -74,7 +68,6 @@ const SimpleVariantEditor = ({ variants, setVariants }: SimpleVariantEditorProps
         color = combo["Couleur"] || combo["couleur"] || combo["COULEUR"];
       }
 
-      // Créer une variante avec les valeurs par défaut
       const variant: ProductVariant = {
         id,
         size,
@@ -104,7 +97,6 @@ const SimpleVariantEditor = ({ variants, setVariants }: SimpleVariantEditorProps
       return;
     }
 
-    // Convertir la chaîne de valeurs en tableau (séparées par virgules ou espaces)
     const values = attributeValues
       .split(/[,\s]+/)
       .map(v => v.trim())

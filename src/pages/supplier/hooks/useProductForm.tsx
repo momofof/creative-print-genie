@@ -4,41 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { v4 as uuidv4 } from "uuid";
-
-// Define ProductData type for the form
-interface ProductData {
-  id?: string;
-  name: string;
-  description: string | null;
-  price: number;
-  original_price: number | null;
-  category: string;
-  subcategory: string | null;
-  image: string | null;
-  status: "draft" | "published" | "archived";
-  is_customizable: boolean;
-  supplier_id?: string | null;
-  
-  // Variant fields
-  size: string | null;
-  color: string | null;
-  hex_color: string | null;
-  bat: string | null;
-  poids: string | null;
-  format: string | null;
-  quantite: string | null;
-  echantillon: string | null;
-  types_impression: string | null;
-  type_de_materiaux: string | null;
-  details_impression: string | null;
-  orientation_impression: string | null;
-  
-  // Added missing fields
-  stock: number | null;
-  price_adjustment: number | null;
-  variant_status: string | null;
-  variant_image_url: string | null;
-}
+import { ProductData } from "./types/productTypes";
 
 export const useProductForm = (productId?: string) => {
   const navigate = useNavigate();
@@ -101,6 +67,20 @@ export const useProductForm = (productId?: string) => {
         }
         
         if (data) {
+          // Type assertion to ensure data status is compatible
+          const typedStatus = (data.status as string === "draft" || 
+                               data.status as string === "published" || 
+                               data.status as string === "archived") 
+                               ? data.status as "draft" | "published" | "archived" 
+                               : "draft";
+          
+          // Type assertion for variant_status
+          const typedVariantStatus = (data.variant_status as string === "in_stock" || 
+                                     data.variant_status as string === "low_stock" || 
+                                     data.variant_status as string === "out_of_stock") 
+                                     ? data.variant_status as "in_stock" | "low_stock" | "out_of_stock" 
+                                     : "in_stock";
+          
           setProductData({
             ...data,
             description: data.description || null,
@@ -120,7 +100,8 @@ export const useProductForm = (productId?: string) => {
             orientation_impression: data.orientation_impression || null,
             stock: data.stock || 0,
             price_adjustment: data.price_adjustment || 0,
-            variant_status: data.variant_status || "in_stock",
+            status: typedStatus,
+            variant_status: typedVariantStatus,
             variant_image_url: data.variant_image_url || null
           });
           

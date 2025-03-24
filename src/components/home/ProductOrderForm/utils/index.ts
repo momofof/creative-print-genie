@@ -1,9 +1,8 @@
 
 // Export individual utility functions from all utility files
-export { getAvailableVariants, getQuantityOptions } from './parsingUtils';
+export { getAvailableVariants, getQuantityOptions, extractVariantOptionsFromProduct } from './parsingUtils';
 export { getVariantDisplayName } from './variantDisplay';
 export { getVariantIllustration, getFeatureIllustration } from './illustrationUtils';
-export { extractVariantOptionsFromProduct } from './parsingUtils';
 export { parseVariants, extractVariantFields } from './parseUtils';
 
 // Simplified function to get variant image - uses the direct image URL

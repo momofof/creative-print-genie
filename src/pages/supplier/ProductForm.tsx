@@ -1,4 +1,3 @@
-
 import React from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { Store, ArrowLeft, Loader2, Save } from "lucide-react";
@@ -31,6 +30,16 @@ const ProductForm = () => {
       </div>
     );
   }
+
+  const handleCheckboxAdapter = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, checked } = e.target;
+    handleCheckboxChange(name, checked);
+  };
+
+  const handleImageAdapter = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0] || null;
+    handleImageChange(file);
+  };
 
   return (
     <div className="min-h-screen bg-gray-50 pb-12">
@@ -82,7 +91,7 @@ const ProductForm = () => {
                 productData={productData}
                 handleInputChange={handleInputChange}
                 handleSelectChange={handleSelectChange}
-                handleCheckboxChange={handleCheckboxChange}
+                handleCheckboxChange={handleCheckboxAdapter}
               />
 
               {/* Section for variant fields */}
@@ -258,7 +267,7 @@ const ProductForm = () => {
             <div className="lg:col-span-1">
               <ProductImageUpload 
                 imagePreview={imagePreview}
-                handleImageChange={handleImageChange}
+                handleImageChange={handleImageAdapter}
               />
             </div>
           </div>

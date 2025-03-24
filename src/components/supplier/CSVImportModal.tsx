@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { toast } from "sonner";
 import {
@@ -13,7 +12,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { supabase } from "@/integrations/supabase/client";
 import { Loader2, FileSpreadsheet, Upload, CheckCircle2 } from "lucide-react";
-import { Product, ProductVariant } from "@/types/dashboard";
+import { ProductComplete } from "@/types/dashboard";
+import { ProductVariant } from "@/pages/supplier/hooks/types/productTypes";
 
 interface CSVImportModalProps {
   open: boolean;

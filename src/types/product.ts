@@ -8,8 +8,8 @@ export interface Product {
   image?: string;
   category: string;
   subcategory?: string;
-  rating: number;
-  reviewCount: number;
+  rating?: number;
+  reviewCount?: number;
   isNew?: boolean;
   is_customizable?: boolean;
   color?: string;
@@ -37,7 +37,7 @@ export interface CartItem {
 export interface Color {
   name: string;
   hex: string;
-  id?: string; // Make id optional for compatibility
+  id: string; // Make id required
   available?: boolean; // Make available optional for compatibility
 }
 
@@ -46,24 +46,24 @@ export interface SizeGuideItem {
   chest?: string;
   waist?: string;
   hips?: string;
-  a?: string; // For compatibility
-  b?: string; // For compatibility
-  c?: string; // For compatibility
+  a: string; // Make required
+  b: string; // Make required
+  c: string; // Make required
   size2?: string; // For compatibility
 }
 
 export interface Review {
-  id: string | number;
+  id: number; // Changed to number
   userName?: string;
-  author?: string; // For compatibility
+  author: string; // Make required
   date?: string;
   rating: number;
   comment?: string;
-  content?: string; // For compatibility
+  content: string; // Make required
 }
 
 export interface RelatedProduct {
-  id: string | number;
+  id: number; // Changed to number
   name: string;
   price: string | number;
   image: string;
@@ -101,7 +101,8 @@ export interface CustomizableProduct extends Product {
   views?: ProductView[];
   colors?: Color[];
   customizableAreas?: string[];
-  price?: number; // Make price optional for CustomizableProduct
+  price: number; // Make price required to match Product
+  selectedView?: string; // Add this property
 }
 
 export interface ProductView {
@@ -120,7 +121,7 @@ export interface CustomizationElement {
   color?: string;
   fontFamily?: string;
   fontSize?: number;
-  fontStyle?: {
+  fontStyle?: {  // Add this back
     bold?: boolean;
     italic?: boolean;
     alignment?: 'left' | 'center' | 'right';

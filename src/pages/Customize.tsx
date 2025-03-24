@@ -14,7 +14,7 @@ import DesignSelector from "@/components/customize/DesignSelector";
 import UploadDesignArea from "@/components/customize/UploadDesignArea";
 import SaveDesignModal from "@/components/customize/SaveDesignModal";
 import PromoBanner from "@/components/customize/PromoBanner";
-import { CustomizableProduct, CustomizationElement, Color } from "@/types/product";
+import { CustomizableProduct, CustomizationElement, Color, Product } from "@/types/product";
 import { toast } from "sonner";
 
 // Sample data
@@ -46,7 +46,6 @@ const sampleProduct: CustomizableProduct = {
     { id: "composition", name: "Composition", image: "https://images.unsplash.com/photo-1581655353564-df123a1eb820?w=800&auto=format&fit=crop&q=60&ixlib=rb-4.0.3" },
   ],
   selectedView: "front",
-  customizationElements: [],
 };
 
 const initialElements: CustomizationElement[] = [];
@@ -211,7 +210,7 @@ const Customize = () => {
           
           <div className="flex-1 flex flex-col overflow-hidden">
             <ProductCanvas 
-              product={product} 
+              product={product as Product} 
               elements={elements} 
               activeView={activeView}
               onElementSelect={setSelectedElementId}
@@ -220,7 +219,7 @@ const Customize = () => {
             />
             
             <ProductViews 
-              views={product.views} 
+              views={product.views || []} 
               activeView={activeView} 
               setActiveView={setActiveView} 
             />

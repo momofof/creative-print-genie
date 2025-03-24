@@ -1,107 +1,48 @@
 
 import { Product } from "@/types/product";
-import { supabase } from "@/integrations/supabase/client";
+import { ProductVariant } from "@/pages/supplier/hooks/types/productTypes";
 
-// Extract variant options from product and its variants
-export const extractVariantOptionsFromProduct = async (product: Product): Promise<Record<string, string[]>> => {
-  try {
-    if (!product || !product.id) return {};
-    
-    // Fetch variants directly from the database
-    const { data: variants, error } = await supabase
-      .from('product_variants')
-      .select('*')
-      .eq('product_id', product.id);
-    
-    if (error || !variants || variants.length === 0) return {};
-    
-    // Extract unique values for each variant property
-    const result: Record<string, string[]> = {};
-    
-    variants.forEach((variant: any) => {
-      // Add size if it exists and is unique
-      if (variant.size && !result['taille']) {
-        result['taille'] = [];
-      }
-      if (variant.size && !result['taille'].includes(variant.size)) {
-        result['taille'].push(variant.size);
-      }
-      
-      // Add color if it exists and is unique
-      if (variant.color && !result['couleur']) {
-        result['couleur'] = [];
-      }
-      if (variant.color && !result['couleur'].includes(variant.color)) {
-        result['couleur'].push(variant.color);
-      }
-
-      // Add other specific properties that need to be extracted from variants
-      const additionalProps = [
-        'format', 'poids', 'quantite', 'echantillon', 'types_impression',
-        'type_de_materiaux', 'details_impression', 'orientation_impression', 'bat'
-      ];
-
-      additionalProps.forEach(prop => {
-        if (variant[prop] && !result[prop]) {
-          result[prop] = [];
-        }
-        if (variant[prop] && !result[prop].includes(variant[prop])) {
-          result[prop].push(variant[prop]);
-        }
-      });
-    });
-    
-    return result;
-  } catch (error) {
-    console.error("Error extracting variant options from product:", error);
-    return {};
-  }
+export const getAvailableVariants = (product: Product | undefined): Record<string, string[]> => {
+  const variants: Record<string, string[]> = {};
+  
+  if (!product) return variants;
+  
+  // Extract variant fields from the product
+  const variantFields = extractVariantOptionsFromProduct(product);
+  
+  // Process each variant field
+  Object.entries(variantFields).forEach(([field, values]) => {
+    if (Array.isArray(values) && values.length > 0) {
+      variants[field] = values;
+    }
+  });
+  
+  return variants;
 };
 
-// Fonction simplifiée pour obtenir les variantes disponibles par catégorie
-export const getAvailableVariants = (category: string): string[] => {
-  // Mappez les catégories aux types de variantes disponibles
-  const variantsByCategory: Record<string, string[]> = {
-    "vêtements": ["taille", "couleur"],
-    "accessoires": ["couleur"],
-    "électronique": ["taille", "couleur"],
-    "papeterie": ["format", "couleur"],
-    "goodies": ["taille", "couleur"],
-    "high-tech": ["taille", "couleur"],
-    // Catégories et sous-catégories
-    "t-shirts": ["taille", "couleur"],
-    "hoodies": ["taille", "couleur"],
-    "sacs": ["taille", "couleur"],
-    "casquettes": ["taille", "couleur"],
-    "mugs": ["couleur"],
-    "posters": ["format", "couleur"],
-    "stickers": ["taille", "couleur"],
-    "cartes": ["format", "couleur"],
-    "bloc-notes": ["format", "couleur"]
-  };
-
-  // Retournez les variantes pour cette catégorie, ou un tableau vide si non trouvé
-  return variantsByCategory[category.toLowerCase()] || [];
+export const getQuantityOptions = (max: number = 10): number[] => {
+  return Array.from({ length: max }, (_, i) => i + 1);
 };
 
-// Fonction pour obtenir les options de quantité selon la catégorie
-export const getQuantityOptions = (category: string): number[] => {
-  switch (category.toLowerCase()) {
-    case "t-shirts":
-    case "hoodies":
-    case "vêtements":
-    case "casquettes":
-    case "sacs":
-      return [1, 2, 3, 4, 5, 10, 25, 50, 100];
-    case "stickers":
-    case "cartes":
-    case "papeterie":
-      return [10, 25, 50, 100, 250, 500, 1000];
-    case "posters":
-    case "mugs":
-    case "goodies":
-      return [1, 2, 5, 10, 25, 50, 100];
-    default:
-      return [1, 2, 3, 5, 10, 25, 50, 100];
-  }
+export const extractVariantOptionsFromProduct = (product: Product | undefined): Record<string, string[]> => {
+  if (!product) return {};
+  
+  const options: Record<string, string[]> = {};
+  
+  // Fields to extract from the product object
+  const fieldsToExtract = [
+    { key: "size", label: "Taille" },
+    { key: "color", label: "Couleur" },
+    { key: "format", label: "Format" },
+    { key: "quantite", label: "Quantité" }
+  ];
+  
+  // For each field, try to extract values from the product
+  fieldsToExtract.forEach(field => {
+    if ((product as any)[field.key]) {
+      options[field.label] = [(product as any)[field.key]];
+    }
+  });
+  
+  return options;
 };
