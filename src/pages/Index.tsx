@@ -48,14 +48,12 @@ const Index = () => {
             rating: 5, // Default rating
             reviewCount: 0, // Default review count
             // Optionally, include additional properties from Supabase
-            color: '',
+            color: item.color || '',
             date: item.created_at,
             isNew: false,
             // Pour compatibilité
-            variants: item.variants || [],
-            customizations: item.customizations || [],
-            variant_images: item.variant_images || {},
-            variant_image_url: item.variant_image_url || null
+            is_customizable: item.is_customizable || false,
+            created_at: item.created_at
           })) || [];
           
           console.log("Mapped products:", mappedProducts);

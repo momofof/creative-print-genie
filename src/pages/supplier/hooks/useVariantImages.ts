@@ -2,7 +2,12 @@
 import { useState } from "react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
-import { updateVariantImages, removeVariantImage } from "@/utils/variantImageUtils";
+import { VariantImage } from "@/types/dashboard";
+import { 
+  updateVariantImages, 
+  removeVariantImage, 
+  getProductVariantImages 
+} from "@/utils/variantImageUtils";
 
 export const useVariantImages = (productId: string) => {
   const [variantImagePreviews, setVariantImagePreviews] = useState<Record<string, string[]>>({});
@@ -13,51 +18,19 @@ export const useVariantImages = (productId: string) => {
     try {
       if (!productId) return;
 
-      const { data, error } = await supabase
-        .from('unified_products')
-        .select('variant_images')
-        .eq('id', productId)
-        .single();
-
-      if (error) {
-        console.error("Erreur lors du chargement des images de variantes:", error);
-        return;
-      }
-
-      if (data?.variant_images) {
-        // Ensure we're setting a proper object of string arrays
-        const processedImages: Record<string, string[]> = {};
-        const rawImages = data.variant_images;
-        
-        // Parse the variant_images safely to convert it to an object
-        if (typeof rawImages === 'string') {
-          try {
-            const parsedImages = JSON.parse(rawImages);
-            if (parsedImages && typeof parsedImages === 'object' && parsedImages !== null) {
-              Object.keys(parsedImages).forEach(variantId => {
-                const urls = parsedImages[variantId];
-                if (Array.isArray(urls)) {
-                  processedImages[variantId] = urls;
-                }
-              });
-            }
-          } catch (e) {
-            console.error("Error parsing variant_images JSON:", e);
-          }
-        } else if (typeof rawImages === 'object' && rawImages !== null) {
-          // It's already an object
-          Object.keys(rawImages).forEach(variantId => {
-            const urls = rawImages[variantId];
-            if (Array.isArray(urls)) {
-              processedImages[variantId] = urls;
-            }
-          });
-        }
-        
-        setVariantImagePreviews(processedImages);
-      }
+      // Récupérer les images des variantes
+      const imagesByVariant = await getProductVariantImages(productId);
+      
+      // Convertir les objets VariantImage en URLs
+      const imagePreviewsByVariant: Record<string, string[]> = {};
+      
+      Object.entries(imagesByVariant).forEach(([variantId, images]) => {
+        imagePreviewsByVariant[variantId] = images.map(img => img.image_url);
+      });
+      
+      setVariantImagePreviews(imagePreviewsByVariant);
     } catch (error) {
-      console.error("Erreur:", error);
+      console.error("Erreur lors du chargement des images de variantes:", error);
     }
   };
 
@@ -96,7 +69,7 @@ export const useVariantImages = (productId: string) => {
         .from('product-images')
         .getPublicUrl(filePath);
 
-      // Mettre à jour la table unified_products
+      // Mettre à jour la table variant_images
       const success = await updateVariantImages(productId, variantId, publicUrl);
       
       if (success) {

@@ -2,51 +2,30 @@
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { Customization } from "@/types/dashboard";
-import { Json } from "@/integrations/supabase/types";
-import { parseJsonArray, parseCustomizations, toJsonValue } from "@/utils/jsonUtils";
 
 export const customizationService = {
   async addCustomization(customization: Omit<Customization, "id" | "created_at">, productId: string): Promise<Customization | null> {
     try {
-      // Get the current product with its customizations
-      const { data: product, error: fetchError } = await supabase
-        .from("unified_products")
-        .select("customizations")
-        .eq("id", productId)
+      // Insérer directement dans la table product_customizations
+      const { data, error } = await supabase
+        .from("product_customizations")
+        .insert({
+          product_id: productId,
+          name: customization.name,
+          description: customization.description,
+          type: customization.type,
+          position: customization.position,
+          price_adjustment: customization.price_adjustment,
+          is_required: customization.is_required
+        })
+        .select()
         .single();
-      
-      if (fetchError) {
-        throw fetchError;
-      }
-      
-      // Create a new customization object with ID
-      const newCustomization: Customization = {
-        id: crypto.randomUUID(),
-        name: customization.name,
-        description: customization.description,
-        type: customization.type,
-        position: customization.position,
-        price_adjustment: customization.price_adjustment,
-        is_required: customization.is_required,
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString()
-      };
-      
-      // Parse the existing customizations and append the new one
-      const currentCustomizations = parseCustomizations(product?.customizations || []);
-      const updatedCustomizations = [...currentCustomizations, newCustomization];
-      
-      // Update the product with the new customizations array
-      const { error: updateError } = await supabase
-        .from("unified_products")
-        .update({ customizations: toJsonValue(updatedCustomizations) })
-        .eq("id", productId);
         
-      if (updateError) {
-        throw updateError;
+      if (error) {
+        throw error;
       }
       
-      return newCustomization;
+      return data;
     } catch (error: any) {
       toast.error(`Erreur lors de l'ajout de la personnalisation: ${error.message}`);
       return null;
@@ -56,16 +35,15 @@ export const customizationService = {
   async getCustomizationsForProduct(productId: string): Promise<Customization[]> {
     try {
       const { data, error } = await supabase
-        .from("unified_products")
-        .select("customizations")
-        .eq("id", productId)
-        .single();
+        .from("product_customizations")
+        .select("*")
+        .eq("product_id", productId);
       
       if (error) {
         throw error;
       }
       
-      return parseCustomizations(data?.customizations || []);
+      return data || [];
     } catch (error: any) {
       toast.error(`Erreur lors de la récupération des personnalisations: ${error.message}`);
       return [];
@@ -74,36 +52,26 @@ export const customizationService = {
 
   async updateCustomization(customization: Customization, productId: string): Promise<Customization | null> {
     try {
-      // Get the current product with its customizations
-      const { data: product, error: fetchError } = await supabase
-        .from("unified_products")
-        .select("customizations")
-        .eq("id", productId)
+      const { data, error } = await supabase
+        .from("product_customizations")
+        .update({
+          name: customization.name,
+          description: customization.description,
+          type: customization.type,
+          position: customization.position,
+          price_adjustment: customization.price_adjustment,
+          is_required: customization.is_required
+        })
+        .eq("id", customization.id)
+        .eq("product_id", productId)
+        .select()
         .single();
-      
-      if (fetchError) {
-        throw fetchError;
-      }
-      
-      // Parse and update the customization in the array
-      const currentCustomizations = parseCustomizations(product?.customizations || []);
-      const updatedCustomizations = currentCustomizations.map((custom: Customization) => 
-        custom.id === customization.id ? 
-        { ...customization, updated_at: new Date().toISOString() } : 
-        custom
-      );
-      
-      // Update the product with the modified customizations array
-      const { error: updateError } = await supabase
-        .from("unified_products")
-        .update({ customizations: toJsonValue(updatedCustomizations) })
-        .eq("id", productId);
         
-      if (updateError) {
-        throw updateError;
+      if (error) {
+        throw error;
       }
       
-      return customization;
+      return data;
     } catch (error: any) {
       toast.error(`Erreur lors de la mise à jour de la personnalisation: ${error.message}`);
       return null;
@@ -112,31 +80,14 @@ export const customizationService = {
 
   async deleteCustomization(customizationId: string, productId: string): Promise<boolean> {
     try {
-      // Get the current product with its customizations
-      const { data: product, error: fetchError } = await supabase
-        .from("unified_products")
-        .select("customizations")
-        .eq("id", productId)
-        .single();
-      
-      if (fetchError) {
-        throw fetchError;
-      }
-      
-      // Parse and filter out the customization to delete
-      const currentCustomizations = parseCustomizations(product?.customizations || []);
-      const updatedCustomizations = currentCustomizations.filter(
-        (custom: Customization) => custom.id !== customizationId
-      );
-      
-      // Update the product with the filtered customizations array
-      const { error: updateError } = await supabase
-        .from("unified_products")
-        .update({ customizations: toJsonValue(updatedCustomizations) })
-        .eq("id", productId);
+      const { error } = await supabase
+        .from("product_customizations")
+        .delete()
+        .eq("id", customizationId)
+        .eq("product_id", productId);
         
-      if (updateError) {
-        throw updateError;
+      if (error) {
+        throw error;
       }
       
       return true;

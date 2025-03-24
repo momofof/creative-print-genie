@@ -25,6 +25,7 @@ export interface ProductVariant {
 
 export interface Customization {
   id: string;
+  product_id?: string;
   name: string;
   description?: string;
   type: "text" | "image";
@@ -33,6 +34,14 @@ export interface Customization {
   is_required?: boolean;
   created_at: string;
   updated_at: string;
+}
+
+export interface VariantImage {
+  id: string;
+  variant_id: string;
+  product_id: string;
+  image_url: string;
+  created_at?: string;
 }
 
 export interface Product {
@@ -53,13 +62,10 @@ export interface Product {
   color?: string;
   hex_color?: string;
   variant_status?: string;
-  // Tableaux de données complexes
+  // Tableaux de données relationnelles
   variants: ProductVariant[];
-  customizations: any[]; // Changé pour permettre différentes structures
-  // Propriété pour les images des variantes
-  variant_images?: Record<string, string[]>;
-  // Nouvelle propriété pour simplifier la gestion des images de variantes
-  variant_image_url?: string | null;
+  customizations: Customization[];
+  variantImages: VariantImage[];
   // Additional fields for compatibility
   created_at?: string;
   updated_at?: string;

@@ -9,6 +9,79 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      cart_item_options: {
+        Row: {
+          cart_item_id: string | null
+          id: string
+          option_name: string
+          option_value: string
+        }
+        Insert: {
+          cart_item_id?: string | null
+          id?: string
+          option_name: string
+          option_value: string
+        }
+        Update: {
+          cart_item_id?: string | null
+          id?: string
+          option_name?: string
+          option_value?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "cart_item_options_cart_item_id_fkey"
+            columns: ["cart_item_id"]
+            isOneToOne: false
+            referencedRelation: "cart_items"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      cart_items: {
+        Row: {
+          cart_id: string | null
+          created_at: string | null
+          id: string
+          image: string | null
+          price: number
+          product_id: string | null
+          product_name: string
+          quantity: number
+          updated_at: string | null
+        }
+        Insert: {
+          cart_id?: string | null
+          created_at?: string | null
+          id?: string
+          image?: string | null
+          price: number
+          product_id?: string | null
+          product_name: string
+          quantity?: number
+          updated_at?: string | null
+        }
+        Update: {
+          cart_id?: string | null
+          created_at?: string | null
+          id?: string
+          image?: string | null
+          price?: number
+          product_id?: string | null
+          product_name?: string
+          quantity?: number
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "cart_items_cart_id_fkey"
+            columns: ["cart_id"]
+            isOneToOne: false
+            referencedRelation: "user_carts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       comments: {
         Row: {
           content: string
@@ -140,6 +213,127 @@ export type Database = {
         }
         Relationships: []
       }
+      product_customizations: {
+        Row: {
+          created_at: string | null
+          description: string | null
+          id: string
+          is_required: boolean | null
+          name: string
+          position: string | null
+          price_adjustment: number | null
+          product_id: string | null
+          type: string
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          is_required?: boolean | null
+          name: string
+          position?: string | null
+          price_adjustment?: number | null
+          product_id?: string | null
+          type: string
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          is_required?: boolean | null
+          name?: string
+          position?: string | null
+          price_adjustment?: number | null
+          product_id?: string | null
+          type?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "product_customizations_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "unified_products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      product_variants: {
+        Row: {
+          bat: string | null
+          color: string | null
+          created_at: string | null
+          details_impression: string | null
+          echantillon: string | null
+          format: string | null
+          hex_color: string | null
+          id: string
+          orientation_impression: string | null
+          poids: string | null
+          price_adjustment: number | null
+          product_id: string | null
+          quantite: string | null
+          size: string | null
+          status: string | null
+          stock: number | null
+          type_de_materiaux: string | null
+          types_impression: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          bat?: string | null
+          color?: string | null
+          created_at?: string | null
+          details_impression?: string | null
+          echantillon?: string | null
+          format?: string | null
+          hex_color?: string | null
+          id?: string
+          orientation_impression?: string | null
+          poids?: string | null
+          price_adjustment?: number | null
+          product_id?: string | null
+          quantite?: string | null
+          size?: string | null
+          status?: string | null
+          stock?: number | null
+          type_de_materiaux?: string | null
+          types_impression?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          bat?: string | null
+          color?: string | null
+          created_at?: string | null
+          details_impression?: string | null
+          echantillon?: string | null
+          format?: string | null
+          hex_color?: string | null
+          id?: string
+          orientation_impression?: string | null
+          poids?: string | null
+          price_adjustment?: number | null
+          product_id?: string | null
+          quantite?: string | null
+          size?: string | null
+          status?: string | null
+          stock?: number | null
+          type_de_materiaux?: string | null
+          types_impression?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "product_variants_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "unified_products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           avatar_url: string | null
@@ -263,7 +457,10 @@ export type Database = {
           type_de_materiaux: string | null
           types_impression: string | null
           updated_at: string | null
+          variant_image_url: string | null
+          variant_images: Json | null
           variant_status: string | null
+          variants: Json | null
         }
         Insert: {
           bat?: string | null
@@ -294,7 +491,10 @@ export type Database = {
           type_de_materiaux?: string | null
           types_impression?: string | null
           updated_at?: string | null
+          variant_image_url?: string | null
+          variant_images?: Json | null
           variant_status?: string | null
+          variants?: Json | null
         }
         Update: {
           bat?: string | null
@@ -325,7 +525,10 @@ export type Database = {
           type_de_materiaux?: string | null
           types_impression?: string | null
           updated_at?: string | null
+          variant_image_url?: string | null
+          variant_images?: Json | null
           variant_status?: string | null
+          variants?: Json | null
         }
         Relationships: []
       }
@@ -352,6 +555,45 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      variant_images: {
+        Row: {
+          created_at: string | null
+          id: string
+          image_url: string
+          product_id: string | null
+          variant_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          image_url: string
+          product_id?: string | null
+          variant_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          image_url?: string
+          product_id?: string | null
+          variant_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "variant_images_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "unified_products"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "variant_images_variant_id_fkey"
+            columns: ["variant_id"]
+            isOneToOne: false
+            referencedRelation: "product_variants"
+            referencedColumns: ["id"]
+          },
+        ]
       }
     }
     Views: {

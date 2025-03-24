@@ -1,250 +1,152 @@
 
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { VariantImage } from "@/types/dashboard";
 
-/**
- * Télécharge une image pour une variante spécifique
- * @param file Fichier image à télécharger
- * @param productId ID du produit
- * @param variantId ID de la variante
- * @returns URL de l'image téléchargée ou null en cas d'erreur
- */
-export const uploadVariantImage = async (
-  file: File,
+// Ajouter une nouvelle image à une variante
+export const addVariantImage = async (
   productId: string,
-  variantId: string
-): Promise<string | null> => {
+  variantId: string,
+  imageUrl: string
+): Promise<boolean> => {
   try {
-    if (!file) return null;
-
-    // Générer un nom de fichier unique
-    const fileExt = file.name.split('.').pop();
-    const fileName = `${productId}-variant-${variantId}-${Date.now()}.${fileExt}`;
-    const filePath = `variant-images/${fileName}`;
-
-    // Télécharger le fichier vers Supabase Storage
-    const { error: uploadError, data } = await supabase.storage
-      .from('product-images')
-      .upload(filePath, file);
-
-    if (uploadError) {
-      console.error('Erreur lors du téléchargement de l\'image:', uploadError);
-      toast.error('Impossible de télécharger l\'image');
-      return null;
+    if (!productId || !variantId || !imageUrl) {
+      toast.error("Paramètres manquants pour ajouter l'image");
+      return false;
     }
 
-    // Obtenir l'URL publique de l'image
-    const { data: { publicUrl } } = supabase.storage
-      .from('product-images')
-      .getPublicUrl(filePath);
+    // Insérer directement dans la table variant_images
+    const { error } = await supabase
+      .from('variant_images')
+      .insert({
+        product_id: productId,
+        variant_id: variantId,
+        image_url: imageUrl
+      });
 
-    return publicUrl;
+    if (error) {
+      console.error("Erreur lors de l'ajout de l'image:", error);
+      toast.error("Impossible d'ajouter l'image");
+      return false;
+    }
+
+    return true;
   } catch (error) {
-    console.error('Erreur:', error);
-    toast.error('Une erreur est survenue lors du téléchargement');
-    return null;
+    console.error("Erreur:", error);
+    toast.error("Une erreur est survenue");
+    return false;
   }
 };
 
-/**
- * Met à jour les images d'une variante dans la table unified_products
- * @param productId ID du produit
- * @param variantId ID de la variante
- * @param imageUrl URL de l'image à ajouter
- * @returns true si la mise à jour a réussi, false sinon
- */
+// Récupérer toutes les images d'une variante
+export const getVariantImages = async (
+  variantId: string
+): Promise<VariantImage[]> => {
+  try {
+    const { data, error } = await supabase
+      .from('variant_images')
+      .select('*')
+      .eq('variant_id', variantId);
+
+    if (error) {
+      console.error("Erreur lors de la récupération des images:", error);
+      return [];
+    }
+
+    return data || [];
+  } catch (error) {
+    console.error("Erreur:", error);
+    return [];
+  }
+};
+
+// Récupérer toutes les images des variantes d'un produit
+export const getProductVariantImages = async (
+  productId: string
+): Promise<Record<string, VariantImage[]>> => {
+  try {
+    const { data, error } = await supabase
+      .from('variant_images')
+      .select('*')
+      .eq('product_id', productId);
+
+    if (error) {
+      console.error("Erreur lors de la récupération des images:", error);
+      return {};
+    }
+
+    // Organiser les images par variante
+    const imagesByVariant: Record<string, VariantImage[]> = {};
+    
+    if (data) {
+      data.forEach((image: VariantImage) => {
+        if (!imagesByVariant[image.variant_id]) {
+          imagesByVariant[image.variant_id] = [];
+        }
+        imagesByVariant[image.variant_id].push(image);
+      });
+    }
+
+    return imagesByVariant;
+  } catch (error) {
+    console.error("Erreur:", error);
+    return {};
+  }
+};
+
+// Mettre à jour les images d'une variante
 export const updateVariantImages = async (
   productId: string,
   variantId: string,
   imageUrl: string
 ): Promise<boolean> => {
   try {
-    // Récupérer les données actuelles du produit
-    const { data, error } = await supabase
-      .from('unified_products')
-      .select('variant_images')
-      .eq('id', productId)
-      .single();
-
-    if (error) {
-      console.error('Erreur lors de la récupération des images de variante:', error);
-      return false;
-    }
-
-    // Préparer le nouvel objet variant_images
-    let currentImages: Record<string, string[]> = {};
-    
-    // Parse the current variant_images if it exists and is a string
-    if (data.variant_images) {
-      if (typeof data.variant_images === 'string') {
-        try {
-          currentImages = JSON.parse(data.variant_images);
-        } catch (e) {
-          console.error('Error parsing variant_images:', e);
-          currentImages = {};
-        }
-      } else {
-        currentImages = data.variant_images as Record<string, string[]>;
-      }
-    }
-    
-    // Créer un nouvel objet pour éviter les mutations directes
-    const updatedImages: Record<string, string[]> = { ...currentImages };
-    
-    // Ajouter ou mettre à jour le tableau pour la variante spécifique
-    const variantImages = currentImages[variantId] || [];
-    updatedImages[variantId] = [...variantImages, imageUrl];
-
-    // Mettre à jour la table
-    const { error: updateError } = await supabase
-      .from('unified_products')
-      .update({
-        variant_images: updatedImages
-      })
-      .eq('id', productId);
-
-    if (updateError) {
-      console.error('Erreur lors de la mise à jour des images de variante:', updateError);
-      return false;
-    }
-
-    return true;
+    return await addVariantImage(productId, variantId, imageUrl);
   } catch (error) {
-    console.error('Erreur:', error);
+    console.error("Erreur:", error);
+    toast.error("Une erreur est survenue");
     return false;
   }
 };
 
-/**
- * Supprime une image de variante
- * @param productId ID du produit
- * @param variantId ID de la variante
- * @param imageUrl URL de l'image à supprimer
- * @returns true si la suppression a réussi, false sinon
- */
+// Supprimer une image de variante
 export const removeVariantImage = async (
   productId: string,
   variantId: string,
   imageUrl: string
 ): Promise<boolean> => {
   try {
-    // Récupérer les données actuelles du produit
-    const { data, error } = await supabase
-      .from('unified_products')
-      .select('variant_images')
-      .eq('id', productId)
+    // Récupérer l'ID de l'image
+    const { data, error: fetchError } = await supabase
+      .from('variant_images')
+      .select('id')
+      .eq('product_id', productId)
+      .eq('variant_id', variantId)
+      .eq('image_url', imageUrl)
       .single();
 
-    if (error) {
-      console.error('Erreur lors de la récupération des images de variante:', error);
+    if (fetchError || !data) {
+      console.error("Erreur lors de la récupération de l'image:", fetchError);
+      toast.error("Impossible de trouver l'image");
       return false;
     }
 
-    // Parse the variant_images string to an object
-    let currentImages: Record<string, string[]> = {};
-    if (data.variant_images) {
-      if (typeof data.variant_images === 'string') {
-        try {
-          currentImages = JSON.parse(data.variant_images);
-        } catch (e) {
-          console.error('Error parsing variant_images:', e);
-          return false;
-        }
-      } else {
-        currentImages = data.variant_images as Record<string, string[]>;
-      }
-    }
+    // Supprimer l'image
+    const { error: deleteError } = await supabase
+      .from('variant_images')
+      .delete()
+      .eq('id', data.id);
 
-    // Vérifier si l'objet variant_images et le tableau d'images existent
-    if (!currentImages[variantId]) {
+    if (deleteError) {
+      console.error("Erreur lors de la suppression de l'image:", deleteError);
+      toast.error("Impossible de supprimer l'image");
       return false;
-    }
-
-    // Créer un nouvel objet pour éviter les mutations directes
-    const updatedImages: Record<string, string[]> = { ...currentImages };
-    
-    // Filtrer pour retirer l'URL spécifiée
-    if (updatedImages[variantId]) {
-      updatedImages[variantId] = updatedImages[variantId].filter(
-        (url: string) => url !== imageUrl
-      );
-    }
-
-    // Mettre à jour la table - convert object to string for storage
-    const { error: updateError } = await supabase
-      .from('unified_products')
-      .update({
-        variant_images: updatedImages
-      })
-      .eq('id', productId);
-
-    if (updateError) {
-      console.error('Erreur lors de la mise à jour des images de variante:', updateError);
-      return false;
-    }
-
-    // Optionnellement, supprimer le fichier du stockage
-    // Extraire le chemin du fichier à partir de l'URL
-    const filePath = imageUrl.split('/').pop();
-    if (filePath) {
-      const { error: storageError } = await supabase.storage
-        .from('product-images')
-        .remove([`variant-images/${filePath}`]);
-
-      if (storageError) {
-        console.error('Erreur lors de la suppression du fichier:', storageError);
-        // Continuer même si la suppression du fichier échoue
-      }
     }
 
     return true;
   } catch (error) {
-    console.error('Erreur:', error);
+    console.error("Erreur:", error);
+    toast.error("Une erreur est survenue");
     return false;
-  }
-};
-
-/**
- * Récupère les images d'une variante
- * @param productId ID du produit
- * @param variantId ID de la variante
- * @returns Tableau d'URLs d'images
- */
-export const getVariantImages = async (
-  productId: string,
-  variantId: string
-): Promise<string[]> => {
-  try {
-    const { data, error } = await supabase
-      .from('unified_products')
-      .select('variant_images')
-      .eq('id', productId)
-      .single();
-
-    if (error || !data) {
-      console.error('Erreur lors de la récupération des images de variante:', error);
-      return [];
-    }
-
-    // Parse the variant_images to an object
-    let variantImagesObject: Record<string, string[]> = {};
-    if (data.variant_images) {
-      if (typeof data.variant_images === 'string') {
-        try {
-          variantImagesObject = JSON.parse(data.variant_images);
-        } catch (e) {
-          console.error('Error parsing variant_images:', e);
-          return [];
-        }
-      } else {
-        variantImagesObject = data.variant_images as Record<string, string[]>;
-      }
-    }
-
-    // Récupérer les images de la variante spécifique
-    return variantImagesObject[variantId] || [];
-  } catch (error) {
-    console.error('Erreur:', error);
-    return [];
   }
 };

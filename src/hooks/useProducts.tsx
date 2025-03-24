@@ -1,7 +1,7 @@
 
 import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { Product, ProductVariant } from "@/types/dashboard";
+import { Product, ProductVariant, Customization, VariantImage } from "@/types/dashboard";
 import { toast } from "sonner";
 
 export const useProducts = () => {
@@ -12,7 +12,7 @@ export const useProducts = () => {
   const fetchProducts = async () => {
     setIsLoading(true);
     try {
-      // Récupérer les produits avec une approche plus simple
+      // Récupérer les produits avec une approche relationnelle
       const { data, error } = await supabase
         .from('unified_products')
         .select('*')
@@ -46,12 +46,10 @@ export const useProducts = () => {
             color: product.color,
             hex_color: product.hex_color,
             variant_status: product.variant_status,
-            // Pour les tableaux, établir une structure simple
+            // Initialiser les tableaux vides pour les données relationnelles
             variants: [],
             customizations: [],
-            // Champs pour la compatibilité
-            variant_image_url: product.variant_image_url || null,
-            variant_images: product.variant_images || {},
+            variantImages: [],
             // Horodatage
             created_at: product.created_at,
             updated_at: product.updated_at
@@ -72,7 +70,7 @@ export const useProducts = () => {
   };
 
   // Récupérer les variantes d'un produit spécifique
-  const fetchProductVariants = async (productId: string) => {
+  const fetchProductVariants = async (productId: string): Promise<ProductVariant[]> => {
     try {
       // Utiliser la nouvelle table product_variants
       const { data, error } = await supabase
@@ -80,7 +78,11 @@ export const useProducts = () => {
         .select('*')
         .eq('product_id', productId);
       
-      if (error) throw error;
+      if (error) {
+        console.error("Erreur lors de la récupération des variantes:", error);
+        return [];
+      }
+      
       return data || [];
     } catch (error) {
       console.error("Erreur lors de la récupération des variantes:", error);
@@ -89,7 +91,7 @@ export const useProducts = () => {
   };
 
   // Récupérer les personnalisations d'un produit spécifique
-  const fetchProductCustomizations = async (productId: string) => {
+  const fetchProductCustomizations = async (productId: string): Promise<Customization[]> => {
     try {
       // Utiliser la nouvelle table product_customizations
       const { data, error } = await supabase
@@ -97,10 +99,34 @@ export const useProducts = () => {
         .select('*')
         .eq('product_id', productId);
       
-      if (error) throw error;
+      if (error) {
+        console.error("Erreur lors de la récupération des personnalisations:", error);
+        return [];
+      }
+      
       return data || [];
     } catch (error) {
       console.error("Erreur lors de la récupération des personnalisations:", error);
+      return [];
+    }
+  };
+
+  // Récupérer les images des variantes d'un produit
+  const fetchProductVariantImages = async (productId: string): Promise<VariantImage[]> => {
+    try {
+      const { data, error } = await supabase
+        .from('variant_images')
+        .select('*')
+        .eq('product_id', productId);
+      
+      if (error) {
+        console.error("Erreur lors de la récupération des images des variantes:", error);
+        return [];
+      }
+      
+      return data || [];
+    } catch (error) {
+      console.error("Erreur lors de la récupération des images des variantes:", error);
       return [];
     }
   };
@@ -146,7 +172,11 @@ export const useProducts = () => {
         .eq('id', productId)
         .single();
       
-      if (productError) throw productError;
+      if (productError) {
+        console.error("Erreur lors de la récupération du produit:", productError);
+        toast.error("Impossible de charger les détails du produit");
+        return null;
+      }
       
       // 2. Récupérer les variantes du produit
       const variants = await fetchProductVariants(productId);
@@ -154,16 +184,18 @@ export const useProducts = () => {
       // 3. Récupérer les personnalisations du produit
       const customizations = await fetchProductCustomizations(productId);
       
-      // 4. Assembler les données en un seul objet produit
+      // 4. Récupérer les images des variantes
+      const variantImages = await fetchProductVariantImages(productId);
+      
+      // 5. Assembler les données en un seul objet produit
       const completeProduct: Product = {
         ...productData,
-        variants: variants as ProductVariant[],
-        customizations: customizations as any[],
+        variants: variants,
+        customizations: customizations,
+        variantImages: variantImages,
         status: (productData.status === 'draft' || productData.status === 'published' || productData.status === 'archived') 
           ? productData.status 
           : 'draft',
-        variant_image_url: productData.variant_image_url || null,
-        variant_images: productData.variant_images || {}
       };
       
       return completeProduct;
@@ -181,6 +213,7 @@ export const useProducts = () => {
     deleteProduct,
     fetchProductComplete,
     fetchProductVariants,
-    fetchProductCustomizations
+    fetchProductCustomizations,
+    fetchProductVariantImages
   };
 };

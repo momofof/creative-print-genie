@@ -1,84 +1,90 @@
 
-import { Product } from "@/types/product";
+import { Product, ProductVariant } from "@/types/product";
 
-// Add or ensure these utility functions exist for JSON parsing
-export const parseVariants = (variantsJson: any): Record<string, string[]> => {
-  if (!variantsJson) return {};
-  
+// Extract variant options from product and its variants
+export const extractVariantOptionsFromProduct = async (product: Product): Promise<Record<string, string[]>> => {
   try {
-    if (typeof variantsJson === 'string') {
-      return JSON.parse(variantsJson);
-    }
+    if (!product || !product.id) return {};
     
-    // Si variantsJson est un tableau d'objets avec des propriétés size, color, etc.
-    if (Array.isArray(variantsJson)) {
-      // Extraire les valeurs uniques pour chaque propriété
-      const result: Record<string, string[]> = {};
-      
-      variantsJson.forEach(variant => {
-        Object.entries(variant).forEach(([key, value]) => {
-          // Ignorer les propriétés qui ne sont pas des variantes
-          if (['id', 'stock', 'price_adjustment', 'status', 'hex_color', 'printable_sides', 'shipping_time'].includes(key)) return;
-          
-          if (!result[key]) {
-            result[key] = [];
-          }
-          
-          if (typeof value === 'string' && !result[key].includes(value)) {
-            result[key].push(value);
-          }
-        });
-      });
-      
-      return result;
-    }
+    // Fetch variants directly from the database
+    const { data: variants, error } = await fetch(`/api/products/${product.id}/variants`).then(res => res.json());
     
-    return variantsJson;
+    if (error || !variants || variants.length === 0) return {};
+    
+    // Extract unique values for each variant property
+    const result: Record<string, string[]> = {};
+    
+    variants.forEach((variant: ProductVariant) => {
+      // Add size if it exists and is unique
+      if (variant.size && !result['taille']) {
+        result['taille'] = [];
+      }
+      if (variant.size && !result['taille'].includes(variant.size)) {
+        result['taille'].push(variant.size);
+      }
+      
+      // Add color if it exists and is unique
+      if (variant.color && !result['couleur']) {
+        result['couleur'] = [];
+      }
+      if (variant.color && !result['couleur'].includes(variant.color)) {
+        result['couleur'].push(variant.color);
+      }
+      
+      // Add other properties as needed
+    });
+    
+    return result;
   } catch (error) {
-    console.error("Error parsing variants:", error);
+    console.error("Error extracting variant options from product:", error);
     return {};
   }
 };
 
-// Extract variant options from product data
-export const extractVariantOptionsFromProduct = (product: Product): Record<string, string[]> => {
-  try {
-    if (!product) return {};
-    
-    // Check if product has variants property - could be string or object
-    const productVariants = product.variants as any;
-    
-    if (!productVariants) return {};
-    
-    let variants = productVariants;
-    if (typeof variants === 'string') {
-      variants = JSON.parse(variants);
-    }
-    
-    if (Array.isArray(variants)) {
-      const result: Record<string, string[]> = {};
-      
-      variants.forEach(variant => {
-        Object.entries(variant).forEach(([key, value]) => {
-          // Ignorer les propriétés qui ne sont pas des variantes
-          if (['id', 'stock', 'price_adjustment', 'status', 'hex_color', 'printable_sides', 'shipping_time'].includes(key)) return;
-          
-          if (!result[key]) {
-            result[key] = [];
-          }
-          
-          if (typeof value === 'string' && !result[key].includes(value)) {
-            result[key].push(value as string);
-          }
-        });
-      });
-      
-      return result;
-    }
-    
-    return {};
-  } catch (error) {
-    console.error("Error extracting variant options from product:", error);
-    return {};
+// Fonction simplifiée pour obtenir les variantes disponibles par catégorie
+export const getAvailableVariants = (category: string): string[] => {
+  // Mappez les catégories aux types de variantes disponibles
+  const variantsByCategory: Record<string, string[]> = {
+    "vêtements": ["taille", "couleur"],
+    "accessoires": ["couleur"],
+    "électronique": ["taille", "couleur"],
+    "papeterie": ["format", "couleur"],
+    "goodies": ["taille", "couleur"],
+    "high-tech": ["taille", "couleur"],
+    // Catégories et sous-catégories
+    "t-shirts": ["taille", "couleur"],
+    "hoodies": ["taille", "couleur"],
+    "sacs": ["taille", "couleur"],
+    "casquettes": ["taille", "couleur"],
+    "mugs": ["couleur"],
+    "posters": ["format", "couleur"],
+    "stickers": ["taille", "couleur"],
+    "cartes": ["format", "couleur"],
+    "bloc-notes": ["format", "couleur"]
+  };
+
+  // Retournez les variantes pour cette catégorie, ou un tableau vide si non trouvé
+  return variantsByCategory[category.toLowerCase()] || [];
+};
+
+// Fonction pour obtenir les options de quantité selon la catégorie
+export const getQuantityOptions = (category: string): number[] => {
+  switch (category.toLowerCase()) {
+    case "t-shirts":
+    case "hoodies":
+    case "vêtements":
+    case "casquettes":
+    case "sacs":
+      return [1, 2, 3, 4, 5, 10, 25, 50, 100];
+    case "stickers":
+    case "cartes":
+    case "papeterie":
+      return [10, 25, 50, 100, 250, 500, 1000];
+    case "posters":
+    case "mugs":
+    case "goodies":
+      return [1, 2, 5, 10, 25, 50, 100];
+    default:
+      return [1, 2, 3, 5, 10, 25, 50, 100];
   }
 };

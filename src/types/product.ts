@@ -41,14 +41,37 @@ export interface Product {
   rating?: number;
   reviewCount?: number;
   isNew?: boolean;
-  variants?: any;  // This holds variant data in JSONB format
-  variant_images?: Record<string, string[]>; // String from DB or parsed object
-  variant_image_url?: string | null; // Added for variant image URL (simplified)
   is_customizable?: boolean;
-  customizations?: any; // This holds customization options in JSONB format
   color?: string; // Added for compatibility with productTypeConverter
   date?: string;  // Added for compatibility
   created_at?: string; // Added for compatibility with dashboard
+}
+
+export interface ProductVariant {
+  id: string;
+  product_id: string;
+  size: string;
+  color: string;
+  hex_color: string;
+  stock: number;
+  price_adjustment: number;
+  status: "in_stock" | "low_stock" | "out_of_stock";
+  bat?: string;
+  poids?: string;
+  format?: string;
+  quantite?: string;
+  echantillon?: string;
+  types_impression?: string;
+  type_de_materiaux?: string;
+  details_impression?: string;
+  orientation_impression?: string;
+}
+
+export interface VariantImage {
+  id: string;
+  variant_id: string;
+  product_id: string;
+  image_url: string;
 }
 
 export interface ProductView {
@@ -81,6 +104,19 @@ export interface CustomizationElement {
   color?: string;
 }
 
+export interface Customization {
+  id: string;
+  product_id: string;
+  name: string;
+  description?: string;
+  type: 'text' | 'image';
+  position?: string;
+  price_adjustment?: number;
+  is_required?: boolean;
+  created_at?: string;
+  updated_at?: string;
+}
+
 export interface FontOption {
   id: string;
   name: string;
@@ -99,7 +135,7 @@ export interface DesignItem {
   category: string;
 }
 
-// Updated CartItem interface to be compatible with Supabase's Json type
+// Updated CartItem interface for the relational tables
 export interface CartItem {
   id: string;
   name: string;
@@ -107,5 +143,12 @@ export interface CartItem {
   quantity: number;
   image?: string;
   variants?: Record<string, string>;
-  [key: string]: any; // Add index signature for Json compatibility
+  options?: CartItemOption[];
+}
+
+export interface CartItemOption {
+  id: string;
+  cart_item_id: string;
+  option_name: string;
+  option_value: string;
 }
