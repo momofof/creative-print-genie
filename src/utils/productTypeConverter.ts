@@ -1,9 +1,9 @@
 
-import { Product as DashboardProduct } from "@/types/dashboard";
-import { Product as UIProduct } from "@/types/product";
+import { ProductComplete } from "@/types/dashboard";
+import { Product } from "@/types/product";
 
 // Convert from Dashboard Product type to UI Product type
-export const convertDashboardToUIProducts = (products: DashboardProduct[]): UIProduct[] => {
+export const convertDashboardToUIProducts = (products: ProductComplete[]): Product[] => {
   return products.map(product => ({
     id: product.id,
     name: product.name,
@@ -18,12 +18,14 @@ export const convertDashboardToUIProducts = (products: DashboardProduct[]): UIPr
     isNew: product.created_at ? new Date(product.created_at) > new Date(Date.now() - 7 * 24 * 60 * 60 * 1000) : false,
     is_customizable: product.is_customizable,
     color: product.color,
+    size: product.size,
+    format: product.format,
     created_at: product.created_at
   }));
 };
 
 // Convert from UI Product type to Dashboard Product type
-export const convertUIToDashboardProduct = (product: UIProduct): Partial<DashboardProduct> => {
+export const convertUIToDashboardProduct = (product: Product): Partial<ProductComplete> => {
   return {
     id: product.id,
     name: product.name,
@@ -34,9 +36,9 @@ export const convertUIToDashboardProduct = (product: UIProduct): Partial<Dashboa
     category: product.category,
     subcategory: product.subcategory,
     is_customizable: product.is_customizable,
-    variants: [], // Initialize empty arrays for related data
-    customizations: [],
-    variantImages: [],
+    color: product.color,
+    size: product.size,
+    format: product.format,
     created_at: product.created_at
   };
 };

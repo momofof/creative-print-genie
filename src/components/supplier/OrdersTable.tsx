@@ -2,10 +2,10 @@
 import React from "react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Order } from "@/types/dashboard";
+import { OrderComplete } from "@/types/dashboard";
 
 interface OrdersTableProps {
-  orders: Order[];
+  orders: OrderComplete[];
   isCompact?: boolean;
   onViewAllOrders?: () => void;
 }
@@ -30,9 +30,9 @@ const OrdersTable = ({ orders, isCompact = false, onViewAllOrders }: OrdersTable
             orders.map((order) => (
               <tr key={order.id} className="border-b">
                 <td className="py-3">{order.id}</td>
-                <td className="py-3">{order.customer}</td>
-                <td className="py-3">{order.date}</td>
-                {!isCompact && <td className="py-3">{order.items}</td>}
+                <td className="py-3">{order.customer_name || "Client invité"}</td>
+                <td className="py-3">{new Date(order.created_at || "").toLocaleDateString()}</td>
+                {!isCompact && <td className="py-3">{order.product_quantity || 0}</td>}
                 <td className="py-3">{order.total.toFixed(2)} €</td>
                 <td className="py-3">
                   <Badge variant={

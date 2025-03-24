@@ -1,16 +1,9 @@
-
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { CartItem } from "@/types/product";
 import { AddToCartProps, UseCartReturn } from "@/types/cart";
-import { 
-  saveCartToSupabase, 
-  saveCartToLocalStorage, 
-  loadCartFromSupabase, 
-  loadCartFromLocalStorage 
-} from "@/utils/cartStorage";
-import { calculateTotalPrice, findExistingItemIndex } from "@/utils/cartCalculations";
+import { calculateTotalPrice } from "@/utils/cartCalculations";
 
 export const useCart = (): UseCartReturn => {
   const [isLoading, setIsLoading] = useState(false);
@@ -54,11 +47,29 @@ export const useCart = (): UseCartReturn => {
       let loadedItems: CartItem[] = [];
       
       if (userId) {
-        // Load cart from Supabase for logged-in users
-        loadedItems = await loadCartFromSupabase(userId);
+        // Load cart from our new table
+        const { data, error } = await supabase
+          .from("cart_complete")
+          .select("*")
+          .eq("user_id", userId);
+        
+        if (error) throw error;
+        
+        loadedItems = data.map(item => ({
+          id: item.product_id || item.id,
+          name: item.product_name,
+          price: item.price,
+          quantity: item.quantity,
+          image: item.product_image || "/placeholder.svg",
+          option_color: item.option_color,
+          option_size: item.option_size,
+          option_format: item.option_format,
+          option_quantity: item.option_quantity
+        }));
       } else {
         // Load cart from localStorage for anonymous users
-        loadedItems = loadCartFromLocalStorage();
+        const savedCart = localStorage.getItem("cart");
+        loadedItems = savedCart ? JSON.parse(savedCart) : [];
       }
       
       setCartItems(loadedItems);
@@ -75,9 +86,36 @@ export const useCart = (): UseCartReturn => {
   const saveCart = async (updatedCartItems: CartItem[]) => {
     try {
       if (userId) {
-        await saveCartToSupabase(userId, updatedCartItems);
+        // Delete existing cart items
+        await supabase
+          .from("cart_complete")
+          .delete()
+          .eq("user_id", userId);
+        
+        // Insert new cart items
+        if (updatedCartItems.length > 0) {
+          const cartData = updatedCartItems.map(item => ({
+            user_id: userId,
+            product_id: item.id,
+            product_name: item.name,
+            price: item.price,
+            quantity: item.quantity,
+            product_image: item.image,
+            option_color: item.option_color,
+            option_size: item.option_size,
+            option_format: item.option_format,
+            option_quantity: item.option_quantity
+          }));
+          
+          const { error } = await supabase
+            .from("cart_complete")
+            .insert(cartData);
+          
+          if (error) throw error;
+        }
       } else {
-        saveCartToLocalStorage(updatedCartItems);
+        // Save to localStorage for anonymous users
+        localStorage.setItem("cart", JSON.stringify(updatedCartItems));
       }
     } catch (error) {
       console.error("Failed to save cart:", error);
@@ -101,28 +139,24 @@ export const useCart = (): UseCartReturn => {
     setIsLoading(true);
     
     try {
-      // Create variants object if color or size is selected
-      const variants: Record<string, string> = {};
-      if (selectedColor) variants['couleur'] = selectedColor;
-      if (selectedSize) variants['taille'] = selectedSize;
-      
       const newItem: CartItem = {
         id: productId,
         name: productName,
         price: productPrice,
         quantity: quantity,
         image: "/placeholder.svg", // Default image
-        variants: Object.keys(variants).length > 0 ? variants : undefined
+        option_color: selectedColor,
+        option_size: selectedSize
       };
       
       // Copy current cart
       const currentCart = [...cartItems];
       
       // Check if item already exists in cart
-      const existingItemIndex = findExistingItemIndex(
-        currentCart, 
-        productId, 
-        newItem.variants
+      const existingItemIndex = currentCart.findIndex(item => 
+        item.id === productId && 
+        item.option_color === selectedColor && 
+        item.option_size === selectedSize
       );
       
       if (existingItemIndex >= 0) {
@@ -177,14 +211,16 @@ export const useCart = (): UseCartReturn => {
     toast.success("Cart cleared");
   };
 
-  // Fonction pour modifier un article existant dans le panier
-  const editCartItem = (id: string, newQuantity: number, variants?: Record<string, string>) => {
+  const editCartItem = (id: string, newQuantity: number, options?: Record<string, string>) => {
     const updatedCart = cartItems.map((item) => {
       if (item.id === id) {
         return { 
           ...item, 
           quantity: newQuantity,
-          ...(variants && { variants })
+          option_color: options?.color,
+          option_size: options?.size,
+          option_format: options?.format,
+          option_quantity: options?.quantity
         };
       }
       return item;
@@ -196,7 +232,6 @@ export const useCart = (): UseCartReturn => {
     toast.success("Panier mis à jour");
   };
 
-  // Calculate total price
   const totalPrice = calculateTotalPrice(cartItems);
 
   return {

@@ -9,6 +9,54 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      cart_complete: {
+        Row: {
+          created_at: string | null
+          id: string
+          option_color: string | null
+          option_format: string | null
+          option_quantity: string | null
+          option_size: string | null
+          price: number
+          product_id: string | null
+          product_image: string | null
+          product_name: string
+          quantity: number
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          option_color?: string | null
+          option_format?: string | null
+          option_quantity?: string | null
+          option_size?: string | null
+          price: number
+          product_id?: string | null
+          product_image?: string | null
+          product_name: string
+          quantity?: number
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          option_color?: string | null
+          option_format?: string | null
+          option_quantity?: string | null
+          option_size?: string | null
+          price?: number
+          product_id?: string | null
+          product_image?: string | null
+          product_name?: string
+          quantity?: number
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       cart_item_options: {
         Row: {
           cart_item_id: string | null
@@ -213,6 +261,66 @@ export type Database = {
         }
         Relationships: []
       }
+      orders_complete: {
+        Row: {
+          created_at: string | null
+          customer_id: string | null
+          customer_name: string | null
+          id: string
+          product_id: string | null
+          product_name: string | null
+          product_options: string | null
+          product_price: number | null
+          product_quantity: number | null
+          shipping_address_city: string | null
+          shipping_address_country: string | null
+          shipping_address_state: string | null
+          shipping_address_street: string | null
+          shipping_address_zip: string | null
+          status: string
+          total: number
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          customer_id?: string | null
+          customer_name?: string | null
+          id?: string
+          product_id?: string | null
+          product_name?: string | null
+          product_options?: string | null
+          product_price?: number | null
+          product_quantity?: number | null
+          shipping_address_city?: string | null
+          shipping_address_country?: string | null
+          shipping_address_state?: string | null
+          shipping_address_street?: string | null
+          shipping_address_zip?: string | null
+          status: string
+          total: number
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          customer_id?: string | null
+          customer_name?: string | null
+          id?: string
+          product_id?: string | null
+          product_name?: string | null
+          product_options?: string | null
+          product_price?: number | null
+          product_quantity?: number | null
+          shipping_address_city?: string | null
+          shipping_address_country?: string | null
+          shipping_address_state?: string | null
+          shipping_address_street?: string | null
+          shipping_address_zip?: string | null
+          status?: string
+          total?: number
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       product_customizations: {
         Row: {
           created_at: string | null
@@ -334,6 +442,117 @@ export type Database = {
           },
         ]
       }
+      products_complete: {
+        Row: {
+          bat: string | null
+          category: string
+          color: string | null
+          created_at: string | null
+          customization_description: string | null
+          customization_name: string | null
+          customization_position: string | null
+          customization_price_adjustment: number | null
+          customization_required: boolean | null
+          customization_type: string | null
+          description: string | null
+          details_impression: string | null
+          echantillon: string | null
+          format: string | null
+          hex_color: string | null
+          id: string
+          image: string | null
+          is_customizable: boolean | null
+          name: string
+          orientation_impression: string | null
+          original_price: number | null
+          poids: string | null
+          price: number
+          quantite: string | null
+          size: string | null
+          status: string
+          stock: number | null
+          subcategory: string | null
+          supplier_id: string | null
+          type_de_materiaux: string | null
+          types_impression: string | null
+          updated_at: string | null
+          variant_image_url: string | null
+          variant_status: string | null
+        }
+        Insert: {
+          bat?: string | null
+          category: string
+          color?: string | null
+          created_at?: string | null
+          customization_description?: string | null
+          customization_name?: string | null
+          customization_position?: string | null
+          customization_price_adjustment?: number | null
+          customization_required?: boolean | null
+          customization_type?: string | null
+          description?: string | null
+          details_impression?: string | null
+          echantillon?: string | null
+          format?: string | null
+          hex_color?: string | null
+          id: string
+          image?: string | null
+          is_customizable?: boolean | null
+          name: string
+          orientation_impression?: string | null
+          original_price?: number | null
+          poids?: string | null
+          price: number
+          quantite?: string | null
+          size?: string | null
+          status?: string
+          stock?: number | null
+          subcategory?: string | null
+          supplier_id?: string | null
+          type_de_materiaux?: string | null
+          types_impression?: string | null
+          updated_at?: string | null
+          variant_image_url?: string | null
+          variant_status?: string | null
+        }
+        Update: {
+          bat?: string | null
+          category?: string
+          color?: string | null
+          created_at?: string | null
+          customization_description?: string | null
+          customization_name?: string | null
+          customization_position?: string | null
+          customization_price_adjustment?: number | null
+          customization_required?: boolean | null
+          customization_type?: string | null
+          description?: string | null
+          details_impression?: string | null
+          echantillon?: string | null
+          format?: string | null
+          hex_color?: string | null
+          id?: string
+          image?: string | null
+          is_customizable?: boolean | null
+          name?: string
+          orientation_impression?: string | null
+          original_price?: number | null
+          poids?: string | null
+          price?: number
+          quantite?: string | null
+          size?: string | null
+          status?: string
+          stock?: number | null
+          subcategory?: string | null
+          supplier_id?: string | null
+          type_de_materiaux?: string | null
+          types_impression?: string | null
+          updated_at?: string | null
+          variant_image_url?: string | null
+          variant_status?: string | null
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null
@@ -388,6 +607,45 @@ export type Database = {
           rating?: number
           updated_at?: string | null
           user_id?: string
+        }
+        Relationships: []
+      }
+      reviews_comments: {
+        Row: {
+          content: string
+          created_at: string | null
+          id: string
+          is_review: boolean | null
+          parent_id: string | null
+          product_id: string
+          rating: number | null
+          updated_at: string | null
+          user_id: string
+          user_name: string | null
+        }
+        Insert: {
+          content: string
+          created_at?: string | null
+          id?: string
+          is_review?: boolean | null
+          parent_id?: string | null
+          product_id: string
+          rating?: number | null
+          updated_at?: string | null
+          user_id: string
+          user_name?: string | null
+        }
+        Update: {
+          content?: string
+          created_at?: string | null
+          id?: string
+          is_review?: boolean | null
+          parent_id?: string | null
+          product_id?: string
+          rating?: number | null
+          updated_at?: string | null
+          user_id?: string
+          user_name?: string | null
         }
         Relationships: []
       }
@@ -553,6 +811,39 @@ export type Database = {
           id?: string
           updated_at?: string
           user_id?: string
+        }
+        Relationships: []
+      }
+      users_complete: {
+        Row: {
+          avatar_url: string | null
+          created_at: string | null
+          email: string | null
+          first_name: string | null
+          id: string
+          last_name: string | null
+          role: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          avatar_url?: string | null
+          created_at?: string | null
+          email?: string | null
+          first_name?: string | null
+          id: string
+          last_name?: string | null
+          role?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          avatar_url?: string | null
+          created_at?: string | null
+          email?: string | null
+          first_name?: string | null
+          id?: string
+          last_name?: string | null
+          role?: string | null
+          updated_at?: string | null
         }
         Relationships: []
       }

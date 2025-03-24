@@ -49,7 +49,7 @@ export const useCSVImport = ({ onImportSuccess }: UseCSVImportProps) => {
       
       // Get the highest current product ID to start generating sequential IDs
       const { data: lastProduct, error: countError } = await supabase
-        .from('unified_products')
+        .from('products_complete')
         .select('id')
         .order('id', { ascending: false })
         .limit(1);
@@ -64,9 +64,9 @@ export const useCSVImport = ({ onImportSuccess }: UseCSVImportProps) => {
       
       for (const productData of products) {
         try {
-          // Create product in the unified_products table
+          // Create product in the products_complete table
           const { error: productError } = await supabase
-            .from("unified_products")
+            .from("products_complete")
             .insert({
               id: nextId.toString(),
               name: productData.name,
@@ -78,12 +78,12 @@ export const useCSVImport = ({ onImportSuccess }: UseCSVImportProps) => {
               status: productData.status || "draft",
               is_customizable: productData.is_customizable || false,
               supplier_id: userData.user.id,
-              // Champs de variantes
+              stock: productData.stock || 0,
+              
+              // Champs de variants
               size: productData.size || null,
               color: productData.color || null,
               hex_color: productData.hex_color || "#000000",
-              stock: productData.stock || 0,
-              price_adjustment: productData.price_adjustment || 0,
               variant_status: productData.variant_status || "in_stock",
               bat: productData.bat || null,
               poids: productData.poids || null,
@@ -94,9 +94,14 @@ export const useCSVImport = ({ onImportSuccess }: UseCSVImportProps) => {
               type_de_materiaux: productData.type_de_materiaux || null,
               details_impression: productData.details_impression || null,
               orientation_impression: productData.orientation_impression || null,
-              // Add empty arrays for variants and customizations
-              variants: [],
-              customizations: []
+              
+              // Customisations
+              customization_name: productData.customization_name || null,
+              customization_description: productData.customization_description || null,
+              customization_type: productData.customization_type || null,
+              customization_position: productData.customization_position || null,
+              customization_price_adjustment: productData.customization_price_adjustment || 0,
+              customization_required: productData.customization_required || false
             });
           
           if (productError) throw productError;

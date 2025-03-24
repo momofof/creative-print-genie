@@ -3,33 +3,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { useUser } from "@supabase/auth-helpers-react";
-
-export interface Like {
-  id: string;
-  user_id: string;
-  product_id: string;
-  created_at: string;
-}
-
-export interface Review {
-  id: string;
-  user_id: string;
-  product_id: string;
-  rating: number;
-  content: string;
-  created_at: string;
-  updated_at: string;
-}
-
-export interface Comment {
-  id: string;
-  user_id: string;
-  product_id: string;
-  content: string;
-  created_at: string;
-  updated_at: string;
-  parent_id?: string;
-}
+import { ReviewComment } from "@/types/dashboard";
 
 export function useProductInteractions(productId: string) {
   const user = useUser();
@@ -41,12 +15,14 @@ export function useProductInteractions(productId: string) {
     queryFn: async () => {
       try {
         const { data, error } = await supabase
-          .from("likes")
+          .from("reviews_comments")
           .select("*")
-          .eq("product_id", productId);
+          .eq("product_id", productId)
+          .eq("is_review", false)
+          .is("rating", null);
 
         if (error) throw error;
-        return data as Like[];
+        return data as ReviewComment[];
       } catch (error: any) {
         toast.error("Erreur lors du chargement des likes");
         console.error(error);
@@ -61,12 +37,13 @@ export function useProductInteractions(productId: string) {
     queryFn: async () => {
       try {
         const { data, error } = await supabase
-          .from("reviews")
+          .from("reviews_comments")
           .select("*")
-          .eq("product_id", productId);
+          .eq("product_id", productId)
+          .eq("is_review", true);
 
         if (error) throw error;
-        return data as Review[];
+        return data as ReviewComment[];
       } catch (error: any) {
         toast.error("Erreur lors du chargement des avis");
         console.error(error);
@@ -81,12 +58,14 @@ export function useProductInteractions(productId: string) {
     queryFn: async () => {
       try {
         const { data, error } = await supabase
-          .from("comments")
+          .from("reviews_comments")
           .select("*")
-          .eq("product_id", productId);
+          .eq("product_id", productId)
+          .eq("is_review", false)
+          .not("rating", "is", null);
 
         if (error) throw error;
-        return data as Comment[];
+        return data as ReviewComment[];
       } catch (error: any) {
         toast.error("Erreur lors du chargement des commentaires");
         console.error(error);
@@ -102,18 +81,16 @@ export function useProductInteractions(productId: string) {
 
       try {
         const { error } = await supabase
-          .from("likes")
+          .from("reviews_comments")
           .insert([{ 
             product_id: productId,
-            user_id: user.id
+            user_id: user.id,
+            content: "like",
+            is_review: false
           }]);
 
         if (error) {
-          if (error.code === '23505') {
-            toast.error("Vous avez déjà aimé ce produit");
-          } else {
-            toast.error("Erreur lors de l'ajout du like");
-          }
+          toast.error("Erreur lors de l'ajout du like");
           throw error;
         }
       } catch (error) {
@@ -134,10 +111,12 @@ export function useProductInteractions(productId: string) {
 
       try {
         const { error } = await supabase
-          .from("likes")
+          .from("reviews_comments")
           .delete()
           .eq("product_id", productId)
-          .eq("user_id", user.id);
+          .eq("user_id", user.id)
+          .eq("content", "like")
+          .is("rating", null);
 
         if (error) {
           toast.error("Erreur lors de la suppression du like");
@@ -161,20 +140,17 @@ export function useProductInteractions(productId: string) {
 
       try {
         const { error } = await supabase
-          .from("reviews")
+          .from("reviews_comments")
           .insert([{ 
             product_id: productId,
+            user_id: user.id,
             rating,
             content,
-            user_id: user.id
+            is_review: true
           }]);
 
         if (error) {
-          if (error.code === '23505') {
-            toast.error("Vous avez déjà donné votre avis sur ce produit");
-          } else {
-            toast.error("Erreur lors de l'ajout de l'avis");
-          }
+          toast.error("Erreur lors de l'ajout de l'avis");
           throw error;
         }
       } catch (error) {
@@ -195,12 +171,13 @@ export function useProductInteractions(productId: string) {
 
       try {
         const { error } = await supabase
-          .from("comments")
+          .from("reviews_comments")
           .insert([{ 
             product_id: productId,
+            user_id: user.id,
             content,
             parent_id: parentId,
-            user_id: user.id
+            is_review: false
           }]);
 
         if (error) {

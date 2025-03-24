@@ -1,15 +1,24 @@
 
 import { LucideIcon } from "lucide-react";
 
-export interface ProductVariant {
+export interface ProductComplete {
   id: string;
-  product_id?: string;
-  size: string;
-  color: string;
-  hex_color: string;
-  stock: number;
-  price_adjustment?: number;
-  status: "in_stock" | "low_stock" | "out_of_stock";
+  name: string;
+  description?: string;
+  price: number;
+  original_price?: number;
+  category: string;
+  subcategory?: string;
+  image?: string;
+  status: "draft" | "published" | "archived";
+  is_customizable?: boolean;
+  supplier_id?: string;
+  stock?: number;
+  
+  // Champs de variants
+  size?: string;
+  color?: string;
+  hex_color?: string;
   bat?: string;
   poids?: string;
   format?: string;
@@ -19,66 +28,93 @@ export interface ProductVariant {
   type_de_materiaux?: string;
   details_impression?: string;
   orientation_impression?: string;
-  isNew?: boolean;
-  isDeleted?: boolean;
-}
-
-export interface Customization {
-  id: string;
-  product_id?: string;
-  name: string;
-  description?: string;
-  type: "text" | "image";
-  position?: string;
-  price_adjustment?: number;
-  is_required?: boolean;
-  created_at: string;
-  updated_at: string;
-}
-
-export interface VariantImage {
-  id: string;
-  variant_id: string;
-  product_id: string;
-  image_url: string;
-  created_at?: string;
-}
-
-export interface Product {
-  id: string;
-  name: string;
-  price: number;
-  original_price?: number;
-  category: string;
-  subcategory?: string;
-  description?: string;
-  status: "draft" | "published" | "archived";
-  image?: string | null;
-  supplier_id?: string;
-  is_customizable?: boolean;
-  stock?: number;
-  // Champs spécifiques aux variantes
-  size?: string;
-  color?: string;
-  hex_color?: string;
-  variant_status?: string;
-  // Arrays for related data
-  variants: ProductVariant[];
-  customizations: Customization[];
-  variantImages: VariantImage[];
-  // Additional fields for compatibility
+  variant_status?: "in_stock" | "low_stock" | "out_of_stock";
+  
+  // Customisations
+  customization_name?: string;
+  customization_description?: string;
+  customization_type?: string;
+  customization_position?: string;
+  customization_price_adjustment?: number;
+  customization_required?: boolean;
+  
+  // Image de variante
+  variant_image_url?: string;
+  
   created_at?: string;
   updated_at?: string;
 }
 
 // Order related types
-export interface Order {
+export interface OrderComplete {
   id: string;
-  customer: string;
-  date: string;
+  customer_id?: string;
+  customer_name?: string;
   total: number;
   status: "processing" | "shipped" | "delivered" | "cancelled";
-  items: number;
+  
+  // Adresse de livraison
+  shipping_address_street?: string;
+  shipping_address_city?: string;
+  shipping_address_state?: string;
+  shipping_address_zip?: string;
+  shipping_address_country?: string;
+  
+  // Détails de la commande
+  product_id?: string;
+  product_name?: string;
+  product_quantity?: number;
+  product_price?: number;
+  product_options?: string;
+  
+  created_at?: string;
+  updated_at?: string;
+}
+
+// Cart type
+export interface CartComplete {
+  id: string;
+  user_id: string;
+  product_id?: string;
+  product_name: string;
+  price: number;
+  quantity: number;
+  product_image?: string;
+  
+  // Options spécifiques
+  option_color?: string;
+  option_size?: string;
+  option_format?: string;
+  option_quantity?: string;
+  
+  created_at?: string;
+  updated_at?: string;
+}
+
+// User type
+export interface UserComplete {
+  id: string;
+  email?: string;
+  first_name?: string;
+  last_name?: string;
+  avatar_url?: string;
+  role?: string;
+  created_at?: string;
+  updated_at?: string;
+}
+
+// Review et Comment combinés
+export interface ReviewComment {
+  id: string;
+  product_id: string;
+  user_id: string;
+  user_name?: string;
+  content: string;
+  rating?: number;
+  parent_id?: string;
+  is_review: boolean;
+  created_at?: string;
+  updated_at?: string;
 }
 
 // Stats type for dashboard

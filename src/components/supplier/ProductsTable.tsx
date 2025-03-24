@@ -2,10 +2,10 @@
 import React from "react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Product } from "@/types/dashboard";
+import { ProductComplete } from "@/types/dashboard";
 
 interface ProductsTableProps {
-  products: Product[];
+  products: ProductComplete[];
   onEditProduct: (productId: string) => void;
   onDeleteProduct: (productId: string) => void;
 }
@@ -50,8 +50,8 @@ const ProductsTable = ({ products, onEditProduct, onDeleteProduct }: ProductsTab
                   </div>
                 </td>
                 <td className="py-3">
-                  <Badge variant={product.stock <= 5 ? "destructive" : "outline"}>
-                    {product.stock} en stock
+                  <Badge variant={product.stock && product.stock <= 5 ? "destructive" : "outline"}>
+                    {product.stock || 0} en stock
                   </Badge>
                 </td>
                 <td className="py-3">

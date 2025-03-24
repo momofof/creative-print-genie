@@ -1,5 +1,5 @@
 
-import { Product } from "@/types/dashboard";
+import { ProductComplete } from "@/types/dashboard";
 
 export interface CSVProductData {
   name: string;
@@ -10,12 +10,11 @@ export interface CSVProductData {
   description?: string;
   status?: "draft" | "published" | "archived";
   is_customizable?: boolean;
+  stock?: number;
   // Champs de variantes
   size?: string;
   color?: string;
   hex_color?: string;
-  stock?: number;
-  price_adjustment?: number;
   variant_status?: "in_stock" | "low_stock" | "out_of_stock";
   bat?: string;
   poids?: string;
@@ -26,6 +25,13 @@ export interface CSVProductData {
   type_de_materiaux?: string;
   details_impression?: string;
   orientation_impression?: string;
+  // Customisations
+  customization_name?: string;
+  customization_description?: string;
+  customization_type?: string;
+  customization_position?: string;
+  customization_price_adjustment?: number;
+  customization_required?: boolean;
 }
 
 /**
@@ -65,13 +71,12 @@ export const parseCSV = (text: string): CSVProductData[] => {
     addFieldIfExists('subcategory');
     addFieldIfExists('status');
     addFieldIfExists('is_customizable', val => val.toLowerCase() === 'true');
+    addFieldIfExists('stock', val => parseInt(val, 10));
     
     // Champs de variantes
     addFieldIfExists('size');
     addFieldIfExists('color');
     addFieldIfExists('hex_color');
-    addFieldIfExists('stock', val => parseInt(val, 10));
-    addFieldIfExists('price_adjustment', val => parseFloat(val));
     addFieldIfExists('variant_status');
     addFieldIfExists('bat');
     addFieldIfExists('poids');
@@ -82,6 +87,14 @@ export const parseCSV = (text: string): CSVProductData[] => {
     addFieldIfExists('type_de_materiaux');
     addFieldIfExists('details_impression');
     addFieldIfExists('orientation_impression');
+    
+    // Customisations
+    addFieldIfExists('customization_name');
+    addFieldIfExists('customization_description');
+    addFieldIfExists('customization_type');
+    addFieldIfExists('customization_position');
+    addFieldIfExists('customization_price_adjustment', val => parseFloat(val));
+    addFieldIfExists('customization_required', val => val.toLowerCase() === 'true');
     
     products.push(product);
   }
