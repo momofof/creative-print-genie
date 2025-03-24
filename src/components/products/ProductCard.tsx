@@ -1,104 +1,166 @@
 
-import React from "react";
-import { Link } from "react-router-dom";
-import { ShoppingCart, Heart, Search } from "lucide-react";
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Product } from "@/types/product";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { 
+  Card, 
+  CardContent, 
+  CardFooter, 
+  CardHeader 
+} from "@/components/ui/card";
+import { formatPrice } from "@/lib/utils";
+import VariantSelector from "../home/ProductOrderForm/VariantSelector";
 
 interface ProductCardProps {
   product: Product;
-  viewMode: "grid" | "list";
+  showVariants?: boolean;
 }
 
-const ProductCard = ({ product, viewMode }: ProductCardProps) => {
+const ProductCard = ({ product, showVariants = false }: ProductCardProps) => {
+  const navigate = useNavigate();
+  const [selectedVariant, setSelectedVariant] = useState(product.variants?.[0] || null);
+  const [selectedVariantOptions, setSelectedVariantOptions] = useState<Record<string, string>>({});
+
+  // Extraire les options de variantes disponibles
+  const variantOptions: Record<string, string[]> = {};
+  
+  if (product.variants && product.variants.length > 0) {
+    // Collecter les options uniques pour chaque type de variante
+    product.variants.forEach(variant => {
+      // Couleur
+      if (variant.color && !variantOptions['color']) {
+        variantOptions['color'] = [];
+      }
+      if (variant.color && !variantOptions['color'].includes(variant.color)) {
+        variantOptions['color'].push(variant.color);
+      }
+      
+      // Taille
+      if (variant.size && !variantOptions['size']) {
+        variantOptions['size'] = [];
+      }
+      if (variant.size && !variantOptions['size'].includes(variant.size)) {
+        variantOptions['size'].push(variant.size);
+      }
+      
+      // Format
+      if (variant.format && !variantOptions['format']) {
+        variantOptions['format'] = [];
+      }
+      if (variant.format && !variantOptions['format'].includes(variant.format)) {
+        variantOptions['format'].push(variant.format);
+      }
+    });
+  }
+
+  const handleVariantChange = (variantType: string, value: string) => {
+    setSelectedVariantOptions(prev => ({
+      ...prev,
+      [variantType]: value
+    }));
+
+    // Trouver la variante correspondante
+    if (product.variants && product.variants.length > 0) {
+      const matchingVariant = product.variants.find(variant => 
+        (variantType === 'color' ? variant.color === value : true) &&
+        (variantType === 'size' ? variant.size === value : true) &&
+        (variantType === 'format' ? variant.format === value : true)
+      );
+      
+      if (matchingVariant) {
+        setSelectedVariant(matchingVariant);
+      }
+    }
+  };
+
+  const handleViewProduct = () => {
+    navigate(`/products/${product.id}`);
+  };
+
+  const handleOrderNow = () => {
+    navigate(`/order/${product.id}`);
+  };
+
   return (
-    <div className="group relative">
-      <div className={`border border-gray-200 rounded-lg overflow-hidden hover:shadow-md transition-shadow ${
-        viewMode === "list" ? "flex items-start" : ""
-      }`}>
-        {/* Image du produit */}
-        <Link 
-          to={`/products/detail/${product.id}`}
-          className={`block overflow-hidden ${viewMode === "list" ? "w-40 shrink-0" : "aspect-square"}`}
-        >
-          <img 
-            src={product.image} 
-            alt={product.name} 
-            className="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-300" 
-          />
-        </Link>
+    <Card className="overflow-hidden h-full flex flex-col transition-shadow hover:shadow-md">
+      <div className="relative pt-[100%]">
+        <img
+          src={selectedVariant?.imageUrl || product.image}
+          alt={product.name}
+          className="absolute inset-0 w-full h-full object-cover object-center"
+        />
         
-        {/* Informations produit */}
-        <div className={`p-4 ${viewMode === "list" ? "flex-1" : ""}`}>
-          <Link to={`/products/detail/${product.id}`}>
-            <h3 className="font-medium text-gray-900 group-hover:text-accent transition-colors">
-              {product.name}
-            </h3>
-          </Link>
-          
-          {/* Note et avis */}
-          <div className="flex items-center mt-1">
-            <div className="flex text-yellow-400">
-              {[...Array(5)].map((_, i) => (
-                <svg 
-                  key={i} 
-                  className={`w-4 h-4 ${i < Math.floor(product.rating) ? "fill-current" : "fill-gray-300"}`} 
-                  xmlns="http://www.w3.org/2000/svg" 
-                  viewBox="0 0 24 24"
-                >
-                  <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z" />
-                </svg>
-              ))}
-            </div>
-            <span className="ml-1 text-xs text-gray-500">({product.reviewCount})</span>
-          </div>
-          
-          {/* Prix */}
-          <div className="mt-2 flex items-center">
-            <span className="text-accent font-bold">{product.price.toFixed(2)} €</span>
-            {product.originalPrice && (
-              <>
-                <span className="ml-2 text-sm text-gray-500 line-through">
-                  {product.originalPrice.toFixed(2)} €
-                </span>
-                <span className="ml-2 text-xs font-medium text-green-600">
-                  -{Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100)}%
-                </span>
-              </>
-            )}
-          </div>
-          
-          {/* Description courte pour la vue en liste */}
-          {viewMode === "list" && product.description && (
-            <p className="mt-2 text-sm text-gray-500 line-clamp-2">{product.description}</p>
-          )}
-          
-          {/* Actions rapides */}
-          <div className={`mt-3 flex items-center gap-2 ${viewMode === "list" ? "" : "opacity-0 group-hover:opacity-100 transition-opacity"}`}>
-            <button className="p-1.5 rounded-full bg-accent/10 hover:bg-accent/20 text-accent" title="Ajouter au panier">
-              <ShoppingCart className="w-4 h-4" />
-            </button>
-            <button className="p-1.5 rounded-full bg-gray-100 hover:bg-gray-200 text-gray-700" title="Ajouter aux favoris">
-              <Heart className="w-4 h-4" />
-            </button>
-            <Link to={`/products/detail/${product.id}`} className="p-1.5 rounded-full bg-gray-100 hover:bg-gray-200 text-gray-700" title="Voir détails">
-              <Search className="w-4 h-4" />
-            </Link>
-          </div>
-        </div>
+        {product.originalPrice && (
+          <Badge className="absolute top-2 right-2 bg-red-500">
+            Promo
+          </Badge>
+        )}
       </div>
       
-      {/* Badge de nouveauté ou promo */}
-      {product.isNew && (
-        <div className="absolute top-2 left-2 bg-green-500 text-white text-xs font-bold px-2 py-1 rounded">
-          Nouveau
+      <CardHeader className="pb-2">
+        <div className="space-y-1">
+          <h3 className="font-semibold text-lg line-clamp-1">{product.name}</h3>
+          <p className="text-sm text-gray-500 line-clamp-1">
+            {product.category} {product.subcategory ? `· ${product.subcategory}` : ''}
+          </p>
         </div>
-      )}
-      {product.originalPrice && (
-        <div className="absolute top-2 right-2 bg-accent text-white text-xs font-bold px-2 py-1 rounded">
-          Promo
+      </CardHeader>
+      
+      <CardContent className="flex-grow">
+        <div className="flex items-baseline gap-2 mb-2">
+          <span className="font-bold text-lg">
+            {formatPrice(product.price + (selectedVariant?.priceAdjustment || 0))}
+          </span>
+          
+          {product.originalPrice && (
+            <span className="text-sm text-gray-500 line-through">
+              {formatPrice(product.originalPrice)}
+            </span>
+          )}
         </div>
-      )}
-    </div>
+
+        {/* Affichage des variantes */}
+        {showVariants && Object.keys(variantOptions).length > 0 && (
+          <div className="space-y-3 mt-3">
+            {Object.entries(variantOptions).map(([variantType, options]) => (
+              <div key={variantType} className="space-y-1">
+                <VariantSelector
+                  variantType={variantType}
+                  displayName={
+                    variantType === 'color' ? 'Couleur' :
+                    variantType === 'size' ? 'Taille' :
+                    variantType === 'format' ? 'Format' : 
+                    variantType
+                  }
+                  options={options}
+                  selectedValue={selectedVariantOptions[variantType] || ''}
+                  onChange={(value) => handleVariantChange(variantType, value)}
+                  productCategory={product.category}
+                />
+              </div>
+            ))}
+          </div>
+        )}
+      </CardContent>
+      
+      <CardFooter className="pt-0 flex gap-2">
+        <Button 
+          variant="outline" 
+          className="flex-1"
+          onClick={handleViewProduct}
+        >
+          Détails
+        </Button>
+        <Button 
+          className="flex-1"
+          onClick={handleOrderNow}
+        >
+          Commander
+        </Button>
+      </CardFooter>
+    </Card>
   );
 };
 
