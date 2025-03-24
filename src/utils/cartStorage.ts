@@ -8,9 +8,9 @@ const convertCartItemsForStorage = async (
   cartItems: CartItem[]
 ): Promise<boolean> => {
   try {
-    // Supprimer les éléments existants en utilisant cart_complete
+    // Supprimer les éléments existants
     await supabase
-      .from('cart_complete')
+      .from('cart_items')
       .delete()
       .eq('user_id', userId);
     
@@ -31,7 +31,7 @@ const convertCartItemsForStorage = async (
       };
       
       const { error: itemError } = await supabase
-        .from('cart_complete')
+        .from('cart_items')
         .insert(insertData);
       
       if (itemError) {
@@ -50,9 +50,9 @@ const convertCartItemsForStorage = async (
 // Fonction pour convertir les données de la base en objets CartItem
 const convertStorageToCartItems = async (userId: string): Promise<CartItem[]> => {
   try {
-    // Récupérer les éléments du panier depuis cart_complete
+    // Récupérer les éléments du panier
     const { data: items, error: itemsError } = await supabase
-      .from('cart_complete')
+      .from('cart_items')
       .select('*')
       .eq('user_id', userId);
     
@@ -62,7 +62,7 @@ const convertStorageToCartItems = async (userId: string): Promise<CartItem[]> =>
     }
     
     // Convertir les éléments en CartItem
-    const cartItems: CartItem[] = items.map(item => ({
+    const cartItems: CartItem[] = items.map((item: any) => ({
       id: item.product_id || "",
       name: item.product_name,
       price: item.price,

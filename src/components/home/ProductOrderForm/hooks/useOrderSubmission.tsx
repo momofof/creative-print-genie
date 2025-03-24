@@ -122,9 +122,9 @@ export const useOrderSubmission = ({
       
       // For logged in users
       if (userId) {
-        // Insert directly into cart_complete
+        // Insert directly into cart_items table with type assertion
         const { error } = await supabase
-          .from('cart_complete')
+          .from('cart_items')
           .insert({
             user_id: userId,
             product_id: product.id,

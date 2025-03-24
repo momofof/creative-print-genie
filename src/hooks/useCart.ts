@@ -48,16 +48,16 @@ export const useCart = (): UseCartReturn => {
       let loadedItems: CartItem[] = [];
       
       if (userId) {
-        // Load cart from cart_complete table
+        // Load cart from cart_items table
         const { data, error } = await supabase
-          .from("cart_complete")
+          .from("cart_items")
           .select("*")
           .eq("user_id", userId);
         
         if (error) throw error;
         
-        loadedItems = data.map(item => ({
-          id: item.product_id || item.id,
+        loadedItems = data.map((item: any) => ({
+          id: item.product_id || "",
           name: item.product_name,
           price: item.price,
           quantity: item.quantity,
@@ -89,7 +89,7 @@ export const useCart = (): UseCartReturn => {
       if (userId) {
         // Delete existing cart items
         await supabase
-          .from("cart_complete")
+          .from("cart_items")
           .delete()
           .eq("user_id", userId);
         
@@ -109,7 +109,7 @@ export const useCart = (): UseCartReturn => {
           }));
           
           const { error } = await supabase
-            .from("cart_complete")
+            .from("cart_items")
             .insert(cartData);
           
           if (error) throw error;

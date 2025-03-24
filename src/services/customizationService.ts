@@ -1,111 +1,205 @@
 
 import { supabase } from "@/integrations/supabase/client";
-import { toast } from "sonner";
-import { Customization } from "@/types/dashboard";
+import { v4 as uuidv4 } from "uuid";
 
-export const customizationService = {
-  async addCustomization(customization: Omit<Customization, "id" | "created_at">, productId: string): Promise<Customization | null> {
-    try {
-      // Insérer directement dans la table product_customizations
-      const { data, error } = await supabase
-        .from("product_customizations")
-        .insert({
-          product_id: productId,
-          name: customization.name,
-          description: customization.description,
-          type: customization.type,
-          position: customization.position,
-          price_adjustment: customization.price_adjustment,
-          is_required: customization.is_required
-        })
-        .select()
-        .single();
+export interface Customization {
+  id: string;
+  product_id: string;
+  name: string;
+  type: "text" | "image";
+  position?: { x: number; y: number } | null;
+  content?: string | null;
+  created_at?: string | null;
+}
+
+// Fonction pour créer une nouvelle personnalisation
+export const createCustomization = async (customization: Omit<Customization, "id" | "created_at">): Promise<Customization | null> => {
+  try {
+    // Since product_customizations doesn't exist, we'll update the product directly
+    const { data: product, error: fetchError } = await supabase
+      .from('products_complete')
+      .select('customizations')
+      .eq('id', customization.product_id)
+      .single();
+      
+    if (fetchError) throw fetchError;
+    
+    // Parse existing customizations
+    let customizations = [];
+    if (product.customizations) {
+      customizations = typeof product.customizations === 'string' 
+        ? JSON.parse(product.customizations) 
+        : product.customizations;
+    }
+    
+    // Create a new customization with ID
+    const newCustomization: Customization = {
+      id: uuidv4(),
+      ...customization,
+      created_at: new Date().toISOString()
+    };
+    
+    // Add to array
+    customizations.push(newCustomization);
+    
+    // Update the product
+    const { error: updateError } = await supabase
+      .from('products_complete')
+      .update({ customizations })
+      .eq('id', customization.product_id);
+      
+    if (updateError) throw updateError;
+    
+    return newCustomization;
+  } catch (error) {
+    console.error("Error creating customization:", error);
+    return null;
+  }
+};
+
+// Fonction pour récupérer toutes les personnalisations d'un produit
+export const getProductCustomizations = async (productId: string): Promise<Customization[]> => {
+  try {
+    // Get customizations from the product
+    const { data: product, error } = await supabase
+      .from('products_complete')
+      .select('customizations')
+      .eq('id', productId)
+      .single();
+      
+    if (error) throw error;
+    
+    // Parse and return customizations
+    if (product && product.customizations) {
+      const customizations = typeof product.customizations === 'string' 
+        ? JSON.parse(product.customizations) 
+        : product.customizations;
         
-      if (error) {
-        throw error;
-      }
-      
-      // Ensure the type is correctly cast to "text" | "image"
-      return {
-        ...data,
-        type: data.type as "text" | "image"
-      };
-    } catch (error: any) {
-      toast.error(`Erreur lors de l'ajout de la personnalisation: ${error.message}`);
-      return null;
+      return Array.isArray(customizations) ? customizations : [];
     }
-  },
+    
+    return [];
+  } catch (error) {
+    console.error("Error getting customizations:", error);
+    return [];
+  }
+};
 
-  async getCustomizationsForProduct(productId: string): Promise<Customization[]> {
-    try {
-      const { data, error } = await supabase
-        .from("product_customizations")
-        .select("*")
-        .eq("product_id", productId);
+// Fonction pour obtenir une personnalisation spécifique
+export const getCustomization = async (productId: string, customizationId: string): Promise<Customization | null> => {
+  try {
+    // Get customizations from the product
+    const { data: product, error } = await supabase
+      .from('products_complete')
+      .select('customizations')
+      .eq('id', productId)
+      .single();
       
-      if (error) {
-        throw error;
-      }
-      
-      // Ensure all types are correctly cast
-      return (data || []).map(item => ({
-        ...item,
-        type: item.type as "text" | "image"
-      }));
-    } catch (error: any) {
-      toast.error(`Erreur lors de la récupération des personnalisations: ${error.message}`);
-      return [];
-    }
-  },
-
-  async updateCustomization(customization: Customization, productId: string): Promise<Customization | null> {
-    try {
-      const { data, error } = await supabase
-        .from("product_customizations")
-        .update({
-          name: customization.name,
-          description: customization.description,
-          type: customization.type,
-          position: customization.position,
-          price_adjustment: customization.price_adjustment,
-          is_required: customization.is_required
-        })
-        .eq("id", customization.id)
-        .eq("product_id", productId)
-        .select()
-        .single();
+    if (error) throw error;
+    
+    // Parse customizations
+    if (product && product.customizations) {
+      const customizations = typeof product.customizations === 'string' 
+        ? JSON.parse(product.customizations) 
+        : product.customizations;
         
-      if (error) {
-        throw error;
+      // Find the specific customization
+      if (Array.isArray(customizations)) {
+        const customization = customizations.find(c => c.id === customizationId);
+        return customization || null;
       }
-      
-      // Ensure the type is correctly cast
-      return {
-        ...data,
-        type: data.type as "text" | "image"
-      };
-    } catch (error: any) {
-      toast.error(`Erreur lors de la mise à jour de la personnalisation: ${error.message}`);
-      return null;
     }
-  },
+    
+    return null;
+  } catch (error) {
+    console.error("Error getting customization:", error);
+    return null;
+  }
+};
 
-  async deleteCustomization(customizationId: string, productId: string): Promise<boolean> {
-    try {
-      const { error } = await supabase
-        .from("product_customizations")
-        .delete()
-        .eq("id", customizationId)
-        .eq("product_id", productId);
-        
-      if (error) {
-        throw error;
-      }
+// Fonction pour mettre à jour une personnalisation
+export const updateCustomization = async (productId: string, customizationId: string, updates: Partial<Customization>): Promise<boolean> => {
+  try {
+    // Get customizations from the product
+    const { data: product, error: fetchError } = await supabase
+      .from('products_complete')
+      .select('customizations')
+      .eq('id', productId)
+      .single();
       
-      return true;
-    } catch (error: any) {
-      toast.error(`Erreur lors de la suppression de la personnalisation: ${error.message}`);
-      return false;
+    if (fetchError) throw fetchError;
+    
+    // Parse customizations
+    if (product && product.customizations) {
+      let customizations = typeof product.customizations === 'string' 
+        ? JSON.parse(product.customizations) 
+        : product.customizations;
+        
+      // Find and update the specific customization
+      if (Array.isArray(customizations)) {
+        customizations = customizations.map(c => {
+          if (c.id === customizationId) {
+            return { ...c, ...updates };
+          }
+          return c;
+        });
+        
+        // Update the product
+        const { error: updateError } = await supabase
+          .from('products_complete')
+          .update({ customizations })
+          .eq('id', productId);
+          
+        if (updateError) throw updateError;
+        
+        return true;
+      }
     }
+    
+    return false;
+  } catch (error) {
+    console.error("Error updating customization:", error);
+    return false;
+  }
+};
+
+// Fonction pour supprimer une personnalisation
+export const deleteCustomization = async (productId: string, customizationId: string): Promise<boolean> => {
+  try {
+    // Get customizations from the product
+    const { data: product, error: fetchError } = await supabase
+      .from('products_complete')
+      .select('customizations')
+      .eq('id', productId)
+      .single();
+      
+    if (fetchError) throw fetchError;
+    
+    // Parse customizations
+    if (product && product.customizations) {
+      let customizations = typeof product.customizations === 'string' 
+        ? JSON.parse(product.customizations) 
+        : product.customizations;
+        
+      // Filter out the customization to delete
+      if (Array.isArray(customizations)) {
+        customizations = customizations.filter(c => c.id !== customizationId);
+        
+        // Update the product
+        const { error: updateError } = await supabase
+          .from('products_complete')
+          .update({ customizations })
+          .eq('id', productId);
+          
+        if (updateError) throw updateError;
+        
+        return true;
+      }
+    }
+    
+    return false;
+  } catch (error) {
+    console.error("Error deleting customization:", error);
+    return false;
   }
 };

@@ -31,8 +31,9 @@ export const useProfileData = () => {
       
       // Fetch profile data
       try {
+        // Use users_complete table instead of profiles
         const { data: profileData, error } = await supabase
-          .from("profiles")
+          .from("users_complete")
           .select("*")
           .eq("id", data.session.user.id)
           .single();
