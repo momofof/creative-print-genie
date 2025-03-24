@@ -19,10 +19,10 @@ const OrdersTab = ({ orders }: OrdersTabProps) => {
       const formattedOrders = ordersData.map(order => ({
         id: order.id,
         customer: order.customer_id || "Client invité",
-        date: new Date(order.created_at).toLocaleDateString(),
-        total: parseFloat(order.total),
-        status: order.status === "completed" ? "delivered" : 
-                order.status === "pending" ? "processing" : "shipped",
+        date: new Date(order.created_at || '').toLocaleDateString(),
+        total: order.total.toString(), // Convert to string to match expected type
+        status: order.status === "pending" ? "processing" : 
+                order.status === "delivered" ? "delivered" : "shipped",
         items: Array.isArray(order.items) ? order.items.length : 0
       }));
       

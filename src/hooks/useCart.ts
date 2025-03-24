@@ -48,20 +48,22 @@ export const useCart = (): UseCartReturn => {
       let loadedItems: CartItem[] = [];
       
       if (userId) {
-        // Load cart from cart_items table
+        // Load cart from cart_items table instead of cart_complete
         const { data, error } = await supabase
           .from("cart_items")
           .select("*")
-          .eq("user_id", userId);
+          .eq("cart_id", userId);
         
         if (error) throw error;
         
+        // Convert the database format to CartItem
         loadedItems = data.map((item: any) => ({
           id: item.product_id || "",
           name: item.product_name,
           price: item.price,
           quantity: item.quantity,
-          image: item.product_image || "/placeholder.svg",
+          image: item.image || "/placeholder.svg",
+          // Use optional properties to avoid errors
           option_color: item.option_color,
           option_size: item.option_size,
           option_format: item.option_format,
@@ -91,17 +93,18 @@ export const useCart = (): UseCartReturn => {
         await supabase
           .from("cart_items")
           .delete()
-          .eq("user_id", userId);
+          .eq("cart_id", userId);
         
         // Insert new cart items
         if (updatedCartItems.length > 0) {
           const cartData = updatedCartItems.map(item => ({
-            user_id: userId,
+            cart_id: userId,
             product_id: item.id,
             product_name: item.name,
             price: item.price,
             quantity: item.quantity,
-            product_image: item.image,
+            image: item.image,
+            // Include optional fields
             option_color: item.option_color,
             option_size: item.option_size,
             option_format: item.option_format,

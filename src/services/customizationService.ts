@@ -12,26 +12,9 @@ export interface Customization {
   created_at?: string | null;
 }
 
-// Fonction pour créer une nouvelle personnalisation
+// Store customizations directly as fields in the products_complete table
 export const createCustomization = async (customization: Omit<Customization, "id" | "created_at">): Promise<Customization | null> => {
   try {
-    // Since product_customizations doesn't exist, we'll update the product directly
-    const { data: product, error: fetchError } = await supabase
-      .from('products_complete')
-      .select('customizations')
-      .eq('id', customization.product_id)
-      .single();
-      
-    if (fetchError) throw fetchError;
-    
-    // Parse existing customizations
-    let customizations = [];
-    if (product.customizations) {
-      customizations = typeof product.customizations === 'string' 
-        ? JSON.parse(product.customizations) 
-        : product.customizations;
-    }
-    
     // Create a new customization with ID
     const newCustomization: Customization = {
       id: uuidv4(),
@@ -39,13 +22,15 @@ export const createCustomization = async (customization: Omit<Customization, "id
       created_at: new Date().toISOString()
     };
     
-    // Add to array
-    customizations.push(newCustomization);
-    
-    // Update the product
+    // Update the product with customization fields
     const { error: updateError } = await supabase
       .from('products_complete')
-      .update({ customizations })
+      .update({ 
+        customization_name: newCustomization.name,
+        customization_type: newCustomization.type,
+        customization_position: newCustomization.position ? JSON.stringify(newCustomization.position) : null,
+        is_customizable: true
+      })
       .eq('id', customization.product_id);
       
     if (updateError) throw updateError;
@@ -57,57 +42,58 @@ export const createCustomization = async (customization: Omit<Customization, "id
   }
 };
 
-// Fonction pour récupérer toutes les personnalisations d'un produit
+// Retrieve customizations from product fields
 export const getProductCustomizations = async (productId: string): Promise<Customization[]> => {
   try {
-    // Get customizations from the product
+    // Get product with customization fields
     const { data: product, error } = await supabase
       .from('products_complete')
-      .select('customizations')
+      .select('id, customization_name, customization_type, customization_position, is_customizable')
       .eq('id', productId)
       .single();
       
     if (error) throw error;
     
-    // Parse and return customizations
-    if (product && product.customizations) {
-      const customizations = typeof product.customizations === 'string' 
-        ? JSON.parse(product.customizations) 
-        : product.customizations;
-        
-      return Array.isArray(customizations) ? customizations : [];
+    // Convert product fields to customization objects
+    const customizations: Customization[] = [];
+    if (product && product.is_customizable && product.customization_name) {
+      customizations.push({
+        id: uuidv4(), // Generate a unique ID since we don't store customization IDs
+        product_id: productId,
+        name: product.customization_name,
+        type: (product.customization_type as "text" | "image") || "text",
+        position: product.customization_position ? JSON.parse(product.customization_position) : null
+      });
     }
     
-    return [];
+    return customizations;
   } catch (error) {
     console.error("Error getting customizations:", error);
     return [];
   }
 };
 
-// Fonction pour obtenir une personnalisation spécifique
+// Get a specific customization - since we don't have real customization IDs, we'll just use the first one
 export const getCustomization = async (productId: string, customizationId: string): Promise<Customization | null> => {
   try {
-    // Get customizations from the product
+    // Get product with customization fields
     const { data: product, error } = await supabase
       .from('products_complete')
-      .select('customizations')
+      .select('id, customization_name, customization_type, customization_position, is_customizable')
       .eq('id', productId)
       .single();
       
     if (error) throw error;
     
-    // Parse customizations
-    if (product && product.customizations) {
-      const customizations = typeof product.customizations === 'string' 
-        ? JSON.parse(product.customizations) 
-        : product.customizations;
-        
-      // Find the specific customization
-      if (Array.isArray(customizations)) {
-        const customization = customizations.find(c => c.id === customizationId);
-        return customization || null;
-      }
+    // Convert to a customization object
+    if (product && product.is_customizable && product.customization_name) {
+      return {
+        id: customizationId, // Use the provided ID
+        product_id: productId,
+        name: product.customization_name,
+        type: (product.customization_type as "text" | "image") || "text",
+        position: product.customization_position ? JSON.parse(product.customization_position) : null
+      };
     }
     
     return null;
@@ -117,87 +103,55 @@ export const getCustomization = async (productId: string, customizationId: strin
   }
 };
 
-// Fonction pour mettre à jour une personnalisation
+// Update customization by setting product fields
 export const updateCustomization = async (productId: string, customizationId: string, updates: Partial<Customization>): Promise<boolean> => {
   try {
-    // Get customizations from the product
-    const { data: product, error: fetchError } = await supabase
-      .from('products_complete')
-      .select('customizations')
-      .eq('id', productId)
-      .single();
-      
-    if (fetchError) throw fetchError;
+    // Update the product with the new customization fields
+    const updateFields: any = {};
     
-    // Parse customizations
-    if (product && product.customizations) {
-      let customizations = typeof product.customizations === 'string' 
-        ? JSON.parse(product.customizations) 
-        : product.customizations;
-        
-      // Find and update the specific customization
-      if (Array.isArray(customizations)) {
-        customizations = customizations.map(c => {
-          if (c.id === customizationId) {
-            return { ...c, ...updates };
-          }
-          return c;
-        });
-        
-        // Update the product
-        const { error: updateError } = await supabase
-          .from('products_complete')
-          .update({ customizations })
-          .eq('id', productId);
-          
-        if (updateError) throw updateError;
-        
-        return true;
-      }
+    if (updates.name) {
+      updateFields.customization_name = updates.name;
     }
     
-    return false;
+    if (updates.type) {
+      updateFields.customization_type = updates.type;
+    }
+    
+    if (updates.position) {
+      updateFields.customization_position = JSON.stringify(updates.position);
+    }
+    
+    const { error: updateError } = await supabase
+      .from('products_complete')
+      .update(updateFields)
+      .eq('id', productId);
+      
+    if (updateError) throw updateError;
+    
+    return true;
   } catch (error) {
     console.error("Error updating customization:", error);
     return false;
   }
 };
 
-// Fonction pour supprimer une personnalisation
+// Delete customization by clearing product fields
 export const deleteCustomization = async (productId: string, customizationId: string): Promise<boolean> => {
   try {
-    // Get customizations from the product
-    const { data: product, error: fetchError } = await supabase
+    // Clear the customization fields in the product
+    const { error: updateError } = await supabase
       .from('products_complete')
-      .select('customizations')
-      .eq('id', productId)
-      .single();
+      .update({
+        customization_name: null,
+        customization_type: null,
+        customization_position: null,
+        is_customizable: false
+      })
+      .eq('id', productId);
       
-    if (fetchError) throw fetchError;
+    if (updateError) throw updateError;
     
-    // Parse customizations
-    if (product && product.customizations) {
-      let customizations = typeof product.customizations === 'string' 
-        ? JSON.parse(product.customizations) 
-        : product.customizations;
-        
-      // Filter out the customization to delete
-      if (Array.isArray(customizations)) {
-        customizations = customizations.filter(c => c.id !== customizationId);
-        
-        // Update the product
-        const { error: updateError } = await supabase
-          .from('products_complete')
-          .update({ customizations })
-          .eq('id', productId);
-          
-        if (updateError) throw updateError;
-        
-        return true;
-      }
-    }
-    
-    return false;
+    return true;
   } catch (error) {
     console.error("Error deleting customization:", error);
     return false;

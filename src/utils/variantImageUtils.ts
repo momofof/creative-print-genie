@@ -12,42 +12,29 @@ export interface VariantImage {
 // Function to get all variant images for a product
 export const getProductVariantImages = async (productId: string): Promise<Record<string, VariantImage[]>> => {
   try {
-    // Since variant_images table doesn't exist in the TypeScript type definitions, 
-    // we need to use a type assertion
+    // Since we no longer have variant_images or variants, we'll use variant_image_url directly
     const { data, error } = await supabase
-      .from('products_complete') // Use products_complete as a substitute
-      .select('id, variants')
+      .from('products_complete')
+      .select('id, variant_image_url, color')
       .eq('id', productId)
-      .single() as unknown as { 
-        data: { id: string, variants: any[] } | null, 
-        error: Error | null 
-      };
+      .single();
 
     if (error) throw error;
     
-    // Simulate returning variant images from product data
+    // Create a record with variant IDs as keys
     const variantImages: Record<string, VariantImage[]> = {};
     
-    // Try to extract variant images from the product's variants field
-    if (data && data.variants) {
-      // Parse variants if needed
-      const variants = typeof data.variants === 'string' 
-        ? JSON.parse(data.variants) 
-        : data.variants;
+    // If there's a variant_image_url, create a single variant image entry
+    if (data && data.variant_image_url) {
+      // Use color as variant ID or generate one
+      const variantId = data.color || 'default';
       
-      // Create a record with variant IDs as keys
-      if (Array.isArray(variants)) {
-        variants.forEach((variant, index) => {
-          if (variant.id && variant.image_url) {
-            variantImages[variant.id] = [{
-              id: `${index}`,
-              product_id: productId,
-              variant_id: variant.id,
-              image_url: variant.image_url
-            }];
-          }
-        });
-      }
+      variantImages[variantId] = [{
+        id: '1', // Use a default ID
+        product_id: productId,
+        variant_id: variantId,
+        image_url: data.variant_image_url
+      }];
     }
     
     return variantImages;
@@ -64,54 +51,14 @@ export const updateVariantImages = async (
   imageUrl: string
 ): Promise<boolean> => {
   try {
-    // Since variant_images doesn't exist, we need to update the product's variants directly
-    // First, get the current product data
-    const { data: productData, error: fetchError } = await supabase
-      .from('products_complete')
-      .select('variants')
-      .eq('id', productId)
-      .single();
-      
-    if (fetchError) throw fetchError;
-    
-    // Parse variants
-    let variants = [];
-    if (productData.variants) {
-      variants = typeof productData.variants === 'string' 
-        ? JSON.parse(productData.variants) 
-        : productData.variants;
-    }
-    
-    // Find the variant and update or add image_url
-    let variantUpdated = false;
-    if (Array.isArray(variants)) {
-      for (const variant of variants) {
-        if (variant.id === variantId) {
-          variant.image_url = imageUrl;
-          variantUpdated = true;
-          break;
-        }
-      }
-      
-      // If variant not found, add it
-      if (!variantUpdated) {
-        variants.push({
-          id: variantId,
-          image_url: imageUrl
-        });
-      }
-    } else {
-      // Create new variants array
-      variants = [{
-        id: variantId,
-        image_url: imageUrl
-      }];
-    }
-    
-    // Update the product with the modified variants
+    // Since products_complete has no variants field, we'll update variant_image_url directly
     const { error: updateError } = await supabase
       .from('products_complete')
-      .update({ variants: variants })
+      .update({ 
+        variant_image_url: imageUrl,
+        // Also update color to match the variant ID if possible
+        color: variantId
+      })
       .eq('id', productId);
       
     if (updateError) throw updateError;
@@ -130,40 +77,15 @@ export const removeVariantImage = async (
   imageUrl: string
 ): Promise<boolean> => {
   try {
-    // Get the current product data
-    const { data: productData, error: fetchError } = await supabase
+    // Clear the variant_image_url field
+    const { error: updateError } = await supabase
       .from('products_complete')
-      .select('variants')
-      .eq('id', productId)
-      .single();
+      .update({ 
+        variant_image_url: null 
+      })
+      .eq('id', productId);
       
-    if (fetchError) throw fetchError;
-    
-    // Parse variants
-    let variants = [];
-    if (productData.variants) {
-      variants = typeof productData.variants === 'string' 
-        ? JSON.parse(productData.variants) 
-        : productData.variants;
-    }
-    
-    // Find the variant and remove the image_url
-    if (Array.isArray(variants)) {
-      for (const variant of variants) {
-        if (variant.id === variantId && variant.image_url === imageUrl) {
-          variant.image_url = null;
-          break;
-        }
-      }
-      
-      // Update the product with the modified variants
-      const { error: updateError } = await supabase
-        .from('products_complete')
-        .update({ variants: variants })
-        .eq('id', productId);
-        
-      if (updateError) throw updateError;
-    }
+    if (updateError) throw updateError;
     
     return true;
   } catch (error) {

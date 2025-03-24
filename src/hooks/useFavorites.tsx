@@ -30,18 +30,16 @@ export const useFavorites = () => {
         return [];
       }
 
-      // Using type assertion to get around TypeScript checking
-      // First, get the user's favorites from likes table
-      const { data: likesData, error: likesError } = await supabase
-        .from('reviews_comments') // Using an existing table as a placeholder
+      // Using reviews_comments table as this is what's available
+      const { data: reviewsData, error: reviewsError } = await supabase
+        .from('reviews_comments')
         .select('*')
-        .eq('user_id', sessionData.session.user.id) as unknown as { 
-          data: Favorite[] | null, 
-          error: Error | null 
-        };
-
-      if (likesError) {
-        console.error("Erreur lors de la récupération des favoris:", likesError);
+        .eq('user_id', sessionData.session.user.id)
+        .eq('is_review', false)
+        .eq('content', 'favorited');
+      
+      if (reviewsError) {
+        console.error("Erreur lors de la récupération des favoris:", reviewsError);
         toast.error("Impossible de charger vos favoris");
         setIsLoading(false);
         return [];
@@ -50,9 +48,9 @@ export const useFavorites = () => {
       // Then, for each liked product, get the product details
       const formattedFavorites: Favorite[] = [];
       
-      if (likesData && likesData.length > 0) {
+      if (reviewsData && reviewsData.length > 0) {
         // Get all product ids from likes
-        const productIds = likesData.map(like => like.product_id);
+        const productIds = reviewsData.map((review: any) => review.product_id);
         
         // Fetch product details for all liked products from products_complete
         const { data: productsData, error: productsError } = await supabase
@@ -64,15 +62,15 @@ export const useFavorites = () => {
           console.error("Erreur lors de la récupération des produits:", productsError);
           toast.error("Impossible de charger les détails des produits");
         } else if (productsData) {
-          // Map products to likes
-          for (const like of likesData) {
-            const product = productsData.find(p => p.id === like.product_id);
+          // Map products to reviews
+          for (const review of reviewsData) {
+            const product = productsData.find((p: any) => p.id === review.product_id);
             if (product) {
               formattedFavorites.push({
-                id: like.id,
-                product_id: like.product_id,
-                user_id: like.user_id,
-                created_at: like.created_at,
+                id: review.id,
+                product_id: review.product_id,
+                user_id: review.user_id,
+                created_at: review.created_at,
                 product_name: product.name,
                 product_image: product.image,
                 product_price: product.price,
@@ -116,19 +114,19 @@ export const useFavorites = () => {
         return false;
       }
 
-      // Using type assertion for the insert operation
+      // Add favorite using reviews_comments table
       const { error } = await supabase
-        .from('reviews_comments') // Using an existing table as a placeholder
+        .from('reviews_comments')
         .insert({
           user_id: sessionData.session.user.id,
           product_id: productId,
-          content: 'favorited', // Required field for reviews_comments
+          content: 'favorited',
           is_review: false
-        }) as unknown as { error: Error | null };
+        });
 
       if (error) {
-        // Check if it's a duplicate (product already in favorites)
-        if (error.code === '23505') {
+        // Check if it's a duplicate error, different database engines use different error indicators
+        if (error.message && error.message.includes('duplicate')) {
           toast.info("Ce produit est déjà dans vos favoris");
         } else {
           throw error;
@@ -159,12 +157,14 @@ export const useFavorites = () => {
         return false;
       }
 
-      // Using type assertion for the delete operation
+      // Remove the favorite from reviews_comments table
       const { error } = await supabase
-        .from('reviews_comments') // Using an existing table as a placeholder
+        .from('reviews_comments')
         .delete()
         .eq('user_id', sessionData.session.user.id)
-        .eq('product_id', productId) as unknown as { error: Error | null };
+        .eq('product_id', productId)
+        .eq('content', 'favorited')
+        .eq('is_review', false);
 
       if (error) {
         console.error("Erreur lors de la suppression des favoris:", error);
