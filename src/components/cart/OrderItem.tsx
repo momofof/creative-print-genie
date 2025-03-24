@@ -43,7 +43,7 @@ const OrderItem = ({
       <div className="mt-1 text-xs text-gray-500">
         {Object.entries(options).map(([key, value]) => (
           <span key={key} className="mr-2">
-            {getVariantDisplayName(key)}: {value}
+            {getVariantDisplayName(key, value)}
           </span>
         ))}
       </div>

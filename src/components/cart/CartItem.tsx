@@ -82,7 +82,7 @@ const CartItem = ({ item, updateQuantity, removeItem, editCartItem }: CartItemPr
       <div className="mt-1 text-sm text-gray-500">
         {Object.entries(options).map(([key, value]) => (
           <span key={key} className="mr-3">
-            {getVariantDisplayName(key)}: {value}
+            {getVariantDisplayName(key, value)}
           </span>
         ))}
       </div>

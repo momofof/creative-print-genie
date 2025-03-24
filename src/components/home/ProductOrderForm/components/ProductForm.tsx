@@ -73,9 +73,11 @@ const ProductForm = ({
       
       // Extract variant options from product data if available
       const fetchProductVariantOptions = async () => {
-        const options = await extractVariantOptionsFromProduct(selectedProduct);
-        console.log("Extracted product variant options:", options);
-        setProductVariantOptions(options);
+        if (selectedProduct) {
+          const options = await extractVariantOptionsFromProduct(selectedProduct);
+          console.log("Extracted product variant options:", options);
+          setProductVariantOptions(options);
+        }
       };
       
       fetchProductVariantOptions();

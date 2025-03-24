@@ -1,58 +1,60 @@
-
 import { Product } from "@/types/product";
 
-export const getFeatureIllustration = (product: Product | undefined, variants: Record<string, string>): string => {
+// This function returns a placeholder or specific variant illustration URL
+export const getVariantIllustration = (
+  categoryOrSubcategory: string,
+  variantType: string,
+  variantValue: string
+): string => {
+  // For demo purposes, return placeholders based on variant type and value
+  // In a real implementation, these would come from a product-specific API or database
+  
+  // Simple mapping for some common variant types
+  if (variantType === 'color') {
+    // We could return actual color swatches
+    return `/placeholder.svg`;
+  }
+  
+  if (variantType === 'size') {
+    return `/placeholder.svg`;
+  }
+  
+  if (variantType === 'format') {
+    return `/placeholder.svg`;
+  }
+  
   // Default placeholder
-  if (!product) return "/placeholder.svg";
+  return `/placeholder.svg`;
+};
+
+// Helper function to get feature illustration for product order form
+export const getFeatureIllustration = (
+  product: Product | undefined,
+  variants: Record<string, string>
+): string => {
+  // Default placeholder
+  if (!product) return `/placeholder.svg`;
   
   // If the product has an image, use it
   if (product.image) return product.image;
   
-  // Fallback to a generic illustration based on product category
-  let category = product.subcategory || product.category || "";
-  category = category.toLowerCase();
-  
-  if (category.includes("t-shirt") || category.includes("textile")) {
-    return "/illustrations/tshirt.svg";
-  } else if (category.includes("mug") || category.includes("tasse")) {
-    return "/illustrations/mug.svg";
-  } else if (category.includes("poster") || category.includes("affiche")) {
-    return "/illustrations/poster.svg";
-  }
-  
-  // Default illustration
-  return "/illustrations/product.svg";
+  // Otherwise, use placeholders based on the product category
+  return `/placeholder.svg`;
 };
 
-export const getVariantIllustration = (
-  category: string, 
-  variantType: string, 
-  variantValue: string
+// Helper function to get feature illustration for specific features
+export const getFeatureIllustration2 = (
+  feature: string
 ): string => {
-  category = category.toLowerCase();
-  variantType = variantType.toLowerCase();
-  
-  // Path pattern: /illustrations/{category}/{variant-type}/{variant-value}.svg
-  try {
-    // For color variants
-    if (variantType === "couleur" || variantType === "color") {
-      return `/illustrations/${category}/colors/${variantValue.toLowerCase().replace(/\s+/g, '-')}.svg`;
-    }
-    
-    // For size variants
-    if (variantType === "taille" || variantType === "size") {
-      return `/illustrations/${category}/sizes/${variantValue.toLowerCase().replace(/\s+/g, '-')}.svg`;
-    }
-    
-    // For format variants
-    if (variantType === "format") {
-      return `/illustrations/${category}/formats/${variantValue.toLowerCase().replace(/\s+/g, '-')}.svg`;
-    }
-    
-    // Generic fallback
-    return `/illustrations/${category}/${variantType}/${variantValue.toLowerCase().replace(/\s+/g, '-')}.svg`;
-  } catch (e) {
-    console.error("Error getting variant illustration:", e);
-    return "/placeholder.svg";
+  // Provide illustrations for specific product features
+  switch (feature) {
+    case 'eco-friendly':
+      return `/placeholder.svg`;
+    case 'fast-delivery':
+      return `/placeholder.svg`;
+    case 'custom-design':
+      return `/placeholder.svg`;
+    default:
+      return `/placeholder.svg`;
   }
 };

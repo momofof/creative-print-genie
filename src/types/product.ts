@@ -37,8 +37,8 @@ export interface CartItem {
 export interface Color {
   name: string;
   hex: string;
-  id: string; // Make id required
-  available?: boolean; // Make available optional for compatibility
+  id: string;
+  available: boolean;
 }
 
 export interface SizeGuideItem {
@@ -46,26 +46,26 @@ export interface SizeGuideItem {
   chest?: string;
   waist?: string;
   hips?: string;
-  a: string; // Make required
-  b: string; // Make required
-  c: string; // Make required
+  a: string;
+  b: string;
+  c: string;
   size2?: string; // For compatibility
 }
 
 export interface Review {
-  id: number; // Changed to number
+  id: number;
   userName?: string;
-  author: string; // Make required
-  date?: string;
+  author: string;
+  date: string;
   rating: number;
   comment?: string;
-  content: string; // Make required
+  content: string;
 }
 
 export interface RelatedProduct {
-  id: number; // Changed to number
+  id: number;
   name: string;
-  price: string | number;
+  price: string;
   image: string;
 }
 
@@ -101,8 +101,8 @@ export interface CustomizableProduct extends Product {
   views?: ProductView[];
   colors?: Color[];
   customizableAreas?: string[];
-  price: number; // Make price required to match Product
-  selectedView?: string; // Add this property
+  selectedView?: string;
+  price: number;
 }
 
 export interface ProductView {
@@ -121,7 +121,7 @@ export interface CustomizationElement {
   color?: string;
   fontFamily?: string;
   fontSize?: number;
-  fontStyle?: {  // Add this back
+  fontStyle?: {
     bold?: boolean;
     italic?: boolean;
     alignment?: 'left' | 'center' | 'right';
