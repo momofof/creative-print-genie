@@ -299,6 +299,111 @@ export type Database = {
         }
         Relationships: []
       }
+      unified_products: {
+        Row: {
+          bat: string | null
+          category: string
+          color: string | null
+          created_at: string | null
+          customizations: Json | null
+          description: string | null
+          details_impression: string | null
+          echantillon: string | null
+          format: string | null
+          hex_color: string | null
+          id: string
+          image: string | null
+          is_customizable: boolean | null
+          name: string
+          orientation_impression: string | null
+          original_price: number | null
+          poids: string | null
+          price: number
+          price_adjustment: number | null
+          quantite: string | null
+          size: string | null
+          status: string
+          stock: number | null
+          subcategory: string | null
+          supplier_id: string | null
+          type_de_materiaux: string | null
+          types_impression: string | null
+          updated_at: string | null
+          variant_image_url: string | null
+          variant_images: Json | null
+          variant_status: string | null
+          variants: Json | null
+        }
+        Insert: {
+          bat?: string | null
+          category: string
+          color?: string | null
+          created_at?: string | null
+          customizations?: Json | null
+          description?: string | null
+          details_impression?: string | null
+          echantillon?: string | null
+          format?: string | null
+          hex_color?: string | null
+          id: string
+          image?: string | null
+          is_customizable?: boolean | null
+          name: string
+          orientation_impression?: string | null
+          original_price?: number | null
+          poids?: string | null
+          price: number
+          price_adjustment?: number | null
+          quantite?: string | null
+          size?: string | null
+          status?: string
+          stock?: number | null
+          subcategory?: string | null
+          supplier_id?: string | null
+          type_de_materiaux?: string | null
+          types_impression?: string | null
+          updated_at?: string | null
+          variant_image_url?: string | null
+          variant_images?: Json | null
+          variant_status?: string | null
+          variants?: Json | null
+        }
+        Update: {
+          bat?: string | null
+          category?: string
+          color?: string | null
+          created_at?: string | null
+          customizations?: Json | null
+          description?: string | null
+          details_impression?: string | null
+          echantillon?: string | null
+          format?: string | null
+          hex_color?: string | null
+          id?: string
+          image?: string | null
+          is_customizable?: boolean | null
+          name?: string
+          orientation_impression?: string | null
+          original_price?: number | null
+          poids?: string | null
+          price?: number
+          price_adjustment?: number | null
+          quantite?: string | null
+          size?: string | null
+          status?: string
+          stock?: number | null
+          subcategory?: string | null
+          supplier_id?: string | null
+          type_de_materiaux?: string | null
+          types_impression?: string | null
+          updated_at?: string | null
+          variant_image_url?: string | null
+          variant_images?: Json | null
+          variant_status?: string | null
+          variants?: Json | null
+        }
+        Relationships: []
+      }
       user_carts: {
         Row: {
           cart_items: Json

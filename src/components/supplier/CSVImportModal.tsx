@@ -170,7 +170,7 @@ const CSVImportModal = ({ open, onOpenChange, onImportSuccess }: CSVImportModalP
       
       // Get the highest current product ID to start generating sequential IDs
       const { data: lastProduct, error: countError } = await supabase
-        .from('products_complete')
+        .from('unified_products')
         .select('id')
         .order('id', { ascending: false })
         .limit(1);
@@ -191,9 +191,9 @@ const CSVImportModal = ({ open, onOpenChange, onImportSuccess }: CSVImportModalP
             id: crypto.randomUUID()
           })) || [];
 
-          // Create product with variants in products_complete table
+          // Create product with variants in unified_products table
           const { error: productError } = await supabase
-            .from("products_complete")
+            .from("unified_products")
             .insert({
               id: nextId.toString(),  // Use sequential ID
               name: productData.name,
@@ -205,6 +205,7 @@ const CSVImportModal = ({ open, onOpenChange, onImportSuccess }: CSVImportModalP
               status: productData.status || "draft",
               is_customizable: productData.is_customizable || false,
               supplier_id: userData.user.id,
+              variants: variants
             });
           
           if (productError) throw productError;
