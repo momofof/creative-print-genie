@@ -1,3 +1,4 @@
+
 export interface Product {
   id: string;
   name: string;
@@ -29,6 +30,7 @@ export interface CartItem {
   option_format?: string;
   option_quantity?: string;
   variants?: Record<string, string>;
+  supplier_id?: string;
 }
 
 export interface Color {

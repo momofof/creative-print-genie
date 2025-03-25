@@ -9,6 +9,7 @@ import ProductForm from "./components/ProductForm";
 import OrderFormHeader from "./components/OrderFormHeader";
 import MobilePreviewContainer from "./components/MobilePreviewContainer";
 import OrderSummaryHandler from "./components/OrderSummaryHandler";
+import SupplierSelector from "./components/SupplierSelector";
 
 // Import hooks
 import { useOrderFormState } from "./hooks/useOrderFormState";
@@ -46,6 +47,8 @@ const OrderForm = ({
     setVariants,
     availableVariants,
     setAvailableVariants,
+    selectedSupplierId,
+    setSelectedSupplierId,
     userId,
     openIllustration,
     setOpenIllustration
@@ -75,11 +78,13 @@ const OrderForm = ({
     selectedQuantity,
     variants,
     userId,
+    selectedSupplierId,
     onOrderSuccess: () => {
       // Reset form
       setSelectedProduct(undefined);
       setSelectedQuantity(null);
       setVariants({});
+      setSelectedSupplierId(null);
     },
     onShowOrderSummary: handleShowOrderSummary
   });
@@ -126,6 +131,14 @@ const OrderForm = ({
             editMode={editMode}
             productSelectionDisabled={editMode}
           />
+          
+          {/* Section de sélection de fournisseur */}
+          {selectedProduct && (
+            <SupplierSelector 
+              productId={selectedProduct.id}
+              onSupplierSelect={setSelectedSupplierId}
+            />
+          )}
         </div>
 
         {/* Illustration Column - Hidden on mobile, replaced with sheet/drawer */}

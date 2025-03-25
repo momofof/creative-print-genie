@@ -4,7 +4,6 @@ import { Product, CartItem } from "@/types/product";
 import { supabase } from "@/integrations/supabase/client";
 import { orderService, OrderItem } from "@/services/orderService";
 import { toast } from "sonner";
-import { parseJsonArray, toJsonValue } from "@/utils/jsonUtils";
 import { useNavigate } from "react-router-dom";
 
 interface UseOrderSubmissionProps {
@@ -12,6 +11,7 @@ interface UseOrderSubmissionProps {
   selectedQuantity: number | null;
   variants: Record<string, string>;
   userId: string | null;
+  selectedSupplierId: string | null;
   onOrderSuccess: () => void;
   onShowOrderSummary: (items: CartItem[], total: number) => void;
 }
@@ -21,6 +21,7 @@ export const useOrderSubmission = ({
   selectedQuantity,
   variants,
   userId,
+  selectedSupplierId,
   onOrderSuccess,
   onShowOrderSummary
 }: UseOrderSubmissionProps) => {
@@ -42,6 +43,11 @@ export const useOrderSubmission = ({
       return;
     }
     
+    if (!selectedSupplierId) {
+      toast.warning("Veuillez sélectionner un fournisseur");
+      return;
+    }
+    
     setIsSubmitting(true);
     
     try {
@@ -51,7 +57,8 @@ export const useOrderSubmission = ({
         product_name: selectedProduct.name,
         quantity: selectedQuantity,
         price: selectedProduct.price,
-        variants: Object.keys(variants).length > 0 ? variants : undefined
+        variants: Object.keys(variants).length > 0 ? variants : undefined,
+        supplier_id: selectedSupplierId
       };
       
       // Calculate total price
@@ -89,7 +96,7 @@ export const useOrderSubmission = ({
         toast.success(`Commande de ${selectedQuantity} ${selectedProduct.name} envoyée avec succès !`);
         
         // Add to cart automatically
-        await addToCart(selectedProduct, selectedQuantity, variants, userId);
+        await addToCart(selectedProduct, selectedQuantity, variants, selectedSupplierId, userId);
         
         // Reset form via callback
         onOrderSuccess();
@@ -108,6 +115,7 @@ export const useOrderSubmission = ({
     product: Product,
     quantity: number,
     variants: Record<string, string>,
+    supplierId: string,
     userId: string | null
   ) => {
     try {
@@ -135,7 +143,8 @@ export const useOrderSubmission = ({
             option_color: variants.color,
             option_size: variants.size,
             option_format: variants.format,
-            option_quantity: variants.quantity
+            option_quantity: variants.quantity,
+            supplier_id: supplierId
           });
           
         if (error) throw error;
@@ -144,6 +153,9 @@ export const useOrderSubmission = ({
         // For anonymous users, use localStorage
         const savedCart = localStorage.getItem("cart");
         const existingCartItems = savedCart ? JSON.parse(savedCart) : [];
+        
+        // Add supplier info to cart item
+        newCartItem.supplier_id = supplierId;
         
         // Check if product already exists
         const existingItemIndex = existingCartItems.findIndex((item: CartItem) => 
