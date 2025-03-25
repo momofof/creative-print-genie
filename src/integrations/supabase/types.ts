@@ -263,6 +263,52 @@ export type Database = {
         }
         Relationships: []
       }
+      supplier_products: {
+        Row: {
+          created_at: string | null
+          id: string
+          product_id: string | null
+          supplier_id: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          product_id?: string | null
+          supplier_id?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          product_id?: string | null
+          supplier_id?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "supplier_products_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products_complete"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "supplier_products_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "unified_products"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "supplier_products_supplier_id_fkey"
+            columns: ["supplier_id"]
+            isOneToOne: false
+            referencedRelation: "suppliers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       suppliers: {
         Row: {
           address: string | null

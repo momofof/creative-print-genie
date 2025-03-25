@@ -16,6 +16,7 @@ export interface ShippingAddress {
   city: string;
   postal_code: string;
   country: string;
+  supplier_id?: string; // Add supplier_id to shipping address temporarily
 }
 
 export interface Order {
@@ -35,7 +36,7 @@ export interface OrderCreateResponse {
 }
 
 export const orderService = {
-  // Création d'une commande
+  // Create order
   createOrder: async (order: Order): Promise<OrderCreateResponse> => {
     try {
       // Use orders_complete instead of orders
@@ -55,7 +56,8 @@ export const orderService = {
           shipping_address_state: "",
           shipping_address_zip: order.shipping_address.postal_code,
           shipping_address_country: order.shipping_address.country,
-          customer_name: order.shipping_address.name
+          customer_name: order.shipping_address.name,
+          supplier_id: order.shipping_address.supplier_id // Use supplier_id from shipping address
         })
         .select("id")
         .single();
@@ -64,19 +66,19 @@ export const orderService = {
       
       return {
         success: true,
-        message: "Commande créée avec succès",
+        message: "Order created successfully",
         orderId: data.id
       };
     } catch (error: any) {
-      console.error("Erreur lors de la création de la commande:", error);
+      console.error("Error creating order:", error);
       return {
         success: false,
-        message: error.message || "Erreur lors de la création de la commande"
+        message: error.message || "Error creating order"
       };
     }
   },
   
-  // Récupération des commandes
+  // Get orders
   getOrders: async (): Promise<Order[]> => {
     try {
       // Use orders_complete instead of orders
@@ -106,13 +108,14 @@ export const orderService = {
           address: order.shipping_address_street || "",
           city: order.shipping_address_city || "",
           postal_code: order.shipping_address_zip || "",
-          country: order.shipping_address_country || ""
+          country: order.shipping_address_country || "",
+          supplier_id: order.supplier_id
         },
         created_at: order.created_at
       }));
     } catch (error: any) {
-      console.error("Erreur lors de la récupération des commandes:", error);
-      toast.error(error.message || "Erreur lors de la récupération des commandes");
+      console.error("Error fetching orders:", error);
+      toast.error(error.message || "Error fetching orders");
       return [];
     }
   }

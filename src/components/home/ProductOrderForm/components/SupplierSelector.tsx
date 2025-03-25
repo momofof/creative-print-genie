@@ -35,7 +35,7 @@ const SupplierSelector = ({ productId, onSupplierSelect }: SupplierSelectorProps
   const fetchSuppliers = async (productId: string) => {
     setLoading(true);
     try {
-      // Récupérer les fournisseurs associés au produit sélectionné
+      // Get suppliers associated with the selected product
       const { data, error } = await supabase
         .from('products_complete')
         .select('supplier_id')
@@ -43,23 +43,23 @@ const SupplierSelector = ({ productId, onSupplierSelect }: SupplierSelectorProps
         .single();
 
       if (error) {
-        console.error("Erreur lors de la récupération des informations du produit:", error);
+        console.error("Error fetching product information:", error);
         return;
       }
 
       if (data && data.supplier_id) {
-        // Récupérer les détails du fournisseur
+        // Get details of the main supplier
         const { data: supplierData, error: supplierError } = await supabase
           .from('suppliers')
           .select('*')
           .eq('id', data.supplier_id);
 
         if (supplierError) {
-          console.error("Erreur lors de la récupération des fournisseurs:", supplierError);
+          console.error("Error fetching supplier:", supplierError);
           return;
         }
 
-        // Récupérer quelques fournisseurs supplémentaires pour avoir plus de choix
+        // Get some additional suppliers for more choices
         const { data: otherSuppliers, error: otherSuppliersError } = await supabase
           .from('suppliers')
           .select('*')
@@ -67,23 +67,23 @@ const SupplierSelector = ({ productId, onSupplierSelect }: SupplierSelectorProps
           .limit(3);
 
         if (otherSuppliersError) {
-          console.error("Erreur lors de la récupération des autres fournisseurs:", otherSuppliersError);
+          console.error("Error fetching other suppliers:", otherSuppliersError);
         }
 
-        // Combiner le fournisseur principal avec les autres fournisseurs
+        // Combine the main supplier with other suppliers
         const allSuppliers = [...(supplierData || []), ...(otherSuppliers || [])];
         
         setSuppliers(allSuppliers);
         
-        // Sélectionner le fournisseur principal par défaut
+        // Select the main supplier by default
         if (supplierData && supplierData.length > 0) {
           setSelectedSupplierId(supplierData[0].id);
           onSupplierSelect(supplierData[0].id);
         }
       }
     } catch (error) {
-      console.error("Erreur lors de la récupération des fournisseurs:", error);
-      toast.error("Impossible de charger les fournisseurs");
+      console.error("Error fetching suppliers:", error);
+      toast.error("Unable to load suppliers");
     } finally {
       setLoading(false);
     }

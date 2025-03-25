@@ -1,7 +1,7 @@
 
 import { useState } from "react";
 import { Product } from "@/types/product";
-import { useAuth as useSupabaseAuth } from "@/integrations/supabase/auth-helpers-react";
+import { useAuth } from "@supabase/auth-helpers-react";
 
 export const useOrderFormState = () => {
   const [selectedProduct, setSelectedProduct] = useState<Product | undefined>();
@@ -11,8 +11,8 @@ export const useOrderFormState = () => {
   const [selectedSupplierId, setSelectedSupplierId] = useState<string | null>(null);
   const [openIllustration, setOpenIllustration] = useState(false);
   
-  // Récupérer l'ID utilisateur de Supabase Auth s'il y en a un
-  const { data: { user } } = useSupabaseAuth();
+  // Get the user ID from Supabase Auth if available
+  const { user } = useAuth();
   const userId = user?.id || null;
 
   return {

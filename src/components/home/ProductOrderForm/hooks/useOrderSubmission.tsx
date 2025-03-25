@@ -31,7 +31,7 @@ export const useOrderSubmission = ({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    // Rediriger vers la page de connexion si l'utilisateur n'est pas connecté
+    // Redirect to login page if user is not logged in
     if (!userId) {
       toast.info("Veuillez vous connecter pour passer une commande");
       navigate("/login");
@@ -57,14 +57,13 @@ export const useOrderSubmission = ({
         product_name: selectedProduct.name,
         quantity: selectedQuantity,
         price: selectedProduct.price,
-        variants: Object.keys(variants).length > 0 ? variants : undefined,
-        supplier_id: selectedSupplierId
+        variants: Object.keys(variants).length > 0 ? variants : undefined
       };
       
       // Calculate total price
       const totalPrice = orderItem.price * orderItem.quantity;
       
-      // Create the order
+      // Create the order with supplier info in shipping_address for now
       const result = await orderService.createOrder({
         customer_id: userId || undefined,
         items: [orderItem],
@@ -75,7 +74,8 @@ export const useOrderSubmission = ({
           address: "",
           city: "",
           postal_code: "",
-          country: ""
+          country: "",
+          supplier_id: selectedSupplierId // Store supplier ID here temporarily
         }
       });
       
@@ -87,7 +87,8 @@ export const useOrderSubmission = ({
           price: selectedProduct.price,
           quantity: selectedQuantity,
           image: selectedProduct.image || "/placeholder.svg",
-          variants: Object.keys(variants).length > 0 ? variants : undefined
+          variants: Object.keys(variants).length > 0 ? variants : undefined,
+          supplier_id: selectedSupplierId
         };
         
         // Show order summary dialog
@@ -125,7 +126,8 @@ export const useOrderSubmission = ({
         price: product.price,
         quantity: quantity,
         image: product.image || "/placeholder.svg",
-        variants: Object.keys(variants).length > 0 ? variants : undefined
+        variants: Object.keys(variants).length > 0 ? variants : undefined,
+        supplier_id: supplierId
       };
       
       // For logged in users
@@ -153,9 +155,6 @@ export const useOrderSubmission = ({
         // For anonymous users, use localStorage
         const savedCart = localStorage.getItem("cart");
         const existingCartItems = savedCart ? JSON.parse(savedCart) : [];
-        
-        // Add supplier info to cart item
-        newCartItem.supplier_id = supplierId;
         
         // Check if product already exists
         const existingItemIndex = existingCartItems.findIndex((item: CartItem) => 

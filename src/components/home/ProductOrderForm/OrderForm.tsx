@@ -132,7 +132,7 @@ const OrderForm = ({
             productSelectionDisabled={editMode}
           />
           
-          {/* Section de sélection de fournisseur */}
+          {/* Supplier Selection Section */}
           {selectedProduct && (
             <SupplierSelector 
               productId={selectedProduct.id}
