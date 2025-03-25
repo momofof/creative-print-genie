@@ -1,7 +1,7 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Product } from "@/types/product";
-import { useAuth } from "@supabase/auth-helpers-react";
+import { supabase } from "@/integrations/supabase/client";
 
 export const useOrderFormState = () => {
   const [selectedProduct, setSelectedProduct] = useState<Product | undefined>();
@@ -10,10 +10,26 @@ export const useOrderFormState = () => {
   const [availableVariants, setAvailableVariants] = useState<string[]>([]);
   const [selectedSupplierId, setSelectedSupplierId] = useState<string | null>(null);
   const [openIllustration, setOpenIllustration] = useState(false);
+  const [userId, setUserId] = useState<string | null>(null);
   
-  // Get the user ID from Supabase Auth if available
-  const { user } = useAuth();
-  const userId = user?.id || null;
+  // Get the user ID from Supabase Auth
+  useEffect(() => {
+    const checkUser = async () => {
+      const { data } = await supabase.auth.getSession();
+      setUserId(data.session?.user?.id || null);
+    };
+    
+    checkUser();
+    
+    // Listen for auth changes
+    const { data: authListener } = supabase.auth.onAuthStateChange((event, session) => {
+      setUserId(session?.user?.id || null);
+    });
+    
+    return () => {
+      authListener.subscription.unsubscribe();
+    };
+  }, []);
 
   return {
     selectedProduct,
