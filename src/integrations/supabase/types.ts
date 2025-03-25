@@ -358,7 +358,117 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      unified_products: {
+        Row: {
+          bat: string | null
+          category: string | null
+          color: string | null
+          created_at: string | null
+          customization_description: string | null
+          customization_name: string | null
+          customization_position: string | null
+          customization_price_adjustment: number | null
+          customization_required: boolean | null
+          customization_type: string | null
+          description: string | null
+          details_impression: string | null
+          echantillon: string | null
+          format: string | null
+          hex_color: string | null
+          id: string | null
+          image: string | null
+          is_customizable: boolean | null
+          name: string | null
+          orientation_impression: string | null
+          original_price: number | null
+          poids: string | null
+          price: number | null
+          quantite: string | null
+          size: string | null
+          status: string | null
+          stock: number | null
+          subcategory: string | null
+          supplier_id: string | null
+          type_de_materiaux: string | null
+          types_impression: string | null
+          updated_at: string | null
+          variant_image_url: string | null
+          variant_status: string | null
+        }
+        Insert: {
+          bat?: string | null
+          category?: string | null
+          color?: string | null
+          created_at?: string | null
+          customization_description?: string | null
+          customization_name?: string | null
+          customization_position?: string | null
+          customization_price_adjustment?: number | null
+          customization_required?: boolean | null
+          customization_type?: string | null
+          description?: string | null
+          details_impression?: string | null
+          echantillon?: string | null
+          format?: string | null
+          hex_color?: string | null
+          id?: string | null
+          image?: string | null
+          is_customizable?: boolean | null
+          name?: string | null
+          orientation_impression?: string | null
+          original_price?: number | null
+          poids?: string | null
+          price?: number | null
+          quantite?: string | null
+          size?: string | null
+          status?: string | null
+          stock?: number | null
+          subcategory?: string | null
+          supplier_id?: string | null
+          type_de_materiaux?: string | null
+          types_impression?: string | null
+          updated_at?: string | null
+          variant_image_url?: string | null
+          variant_status?: string | null
+        }
+        Update: {
+          bat?: string | null
+          category?: string | null
+          color?: string | null
+          created_at?: string | null
+          customization_description?: string | null
+          customization_name?: string | null
+          customization_position?: string | null
+          customization_price_adjustment?: number | null
+          customization_required?: boolean | null
+          customization_type?: string | null
+          description?: string | null
+          details_impression?: string | null
+          echantillon?: string | null
+          format?: string | null
+          hex_color?: string | null
+          id?: string | null
+          image?: string | null
+          is_customizable?: boolean | null
+          name?: string | null
+          orientation_impression?: string | null
+          original_price?: number | null
+          poids?: string | null
+          price?: number | null
+          quantite?: string | null
+          size?: string | null
+          status?: string | null
+          stock?: number | null
+          subcategory?: string | null
+          supplier_id?: string | null
+          type_de_materiaux?: string | null
+          types_impression?: string | null
+          updated_at?: string | null
+          variant_image_url?: string | null
+          variant_status?: string | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       [_ in never]: never

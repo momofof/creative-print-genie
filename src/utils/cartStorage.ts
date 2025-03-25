@@ -1,104 +1,57 @@
 
-import { supabase } from "@/integrations/supabase/client";
-import { CartItem, CartItemOption } from "@/types/product";
+import { CartItem } from "@/types/product";
 
-// Fonction pour convertir les items du panier avec les options pour le stockage
-const convertCartItemsForStorage = async (
-  userId: string, 
-  cartItems: CartItem[]
-): Promise<boolean> => {
+export const saveCartToLocalStorage = (cartItems: CartItem[]) => {
   try {
-    // Supprimer les éléments existants
-    await supabase
-      .from('cart_items')
-      .delete()
-      .eq('user_id', userId);
-    
-    // 2. Insérer les nouveaux éléments
-    for (const item of cartItems) {
-      // Ajouter l'élément de panier
-      const insertData = {
-        user_id: userId,
-        product_id: item.id,
-        product_name: item.name,
-        price: item.price,
-        quantity: item.quantity,
-        product_image: item.image || null,
-        option_color: item.option_color || null,
-        option_size: item.option_size || null,
-        option_format: item.option_format || null,
-        option_quantity: item.option_quantity || null
-      };
-      
-      const { error: itemError } = await supabase
-        .from('cart_items')
-        .insert(insertData);
-      
-      if (itemError) {
-        console.error("Erreur lors de l'ajout de l'élément au panier:", itemError);
-        continue;
-      }
+    localStorage.setItem("cart", JSON.stringify(cartItems));
+  } catch (error) {
+    console.error("Error saving cart to localStorage:", error);
+  }
+};
+
+export const getCartFromLocalStorage = (): CartItem[] => {
+  try {
+    const cart = localStorage.getItem("cart");
+    if (cart) {
+      return JSON.parse(cart) as CartItem[];
     }
-    
-    return true;
   } catch (error) {
-    console.error("Erreur lors de la conversion des éléments du panier:", error);
-    return false;
+    console.error("Error getting cart from localStorage:", error);
+  }
+  return [];
+};
+
+export const addItemToLocalCart = (item: CartItem) => {
+  const cart = getCartFromLocalStorage();
+  const existingItem = cart.find(
+    (cartItem) => 
+      cartItem.id === item.id && 
+      JSON.stringify(cartItem.variants || {}) === JSON.stringify(item.variants || {})
+  );
+
+  if (existingItem) {
+    existingItem.quantity += item.quantity;
+  } else {
+    cart.push(item);
+  }
+
+  saveCartToLocalStorage(cart);
+};
+
+export const removeItemFromLocalCart = (index: number) => {
+  const cart = getCartFromLocalStorage();
+  cart.splice(index, 1);
+  saveCartToLocalStorage(cart);
+};
+
+export const updateItemQuantityInLocalCart = (index: number, quantity: number) => {
+  const cart = getCartFromLocalStorage();
+  if (cart[index]) {
+    cart[index].quantity = quantity;
+    saveCartToLocalStorage(cart);
   }
 };
 
-// Fonction pour convertir les données de la base en objets CartItem
-const convertStorageToCartItems = async (userId: string): Promise<CartItem[]> => {
-  try {
-    // Récupérer les éléments du panier
-    const { data: items, error: itemsError } = await supabase
-      .from('cart_items')
-      .select('*')
-      .eq('user_id', userId);
-    
-    if (itemsError || !items) {
-      console.error("Erreur lors de la récupération des éléments du panier:", itemsError);
-      return [];
-    }
-    
-    // Convertir les éléments en CartItem
-    const cartItems: CartItem[] = items.map((item: any) => ({
-      id: item.product_id || "",
-      name: item.product_name,
-      price: item.price,
-      quantity: item.quantity,
-      image: item.product_image || "/placeholder.svg",
-      option_color: item.option_color,
-      option_size: item.option_size,
-      option_format: item.option_format,
-      option_quantity: item.option_quantity
-    }));
-    
-    return cartItems;
-  } catch (error) {
-    console.error("Erreur lors de la conversion du stockage en éléments du panier:", error);
-    return [];
-  }
-};
-
-export const saveCartToSupabase = async (userId: string, cartItems: CartItem[]): Promise<void> => {
-  await convertCartItemsForStorage(userId, cartItems);
-};
-
-export const saveCartToLocalStorage = (cartItems: CartItem[]): void => {
-  localStorage.setItem("cart", JSON.stringify(cartItems));
-};
-
-export const loadCartFromSupabase = async (userId: string): Promise<CartItem[]> => {
-  try {
-    return await convertStorageToCartItems(userId);
-  } catch (error) {
-    console.error("Erreur lors du chargement du panier:", error);
-    return [];
-  }
-};
-
-export const loadCartFromLocalStorage = (): CartItem[] => {
-  const savedCart = localStorage.getItem("cart");
-  return savedCart ? JSON.parse(savedCart) : [];
+export const clearLocalCart = () => {
+  localStorage.removeItem("cart");
 };

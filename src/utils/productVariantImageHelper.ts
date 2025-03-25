@@ -3,79 +3,57 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
 /**
- * Updates a product with a variant image URL
- * @param productId ID of the product
- * @param imageUrl Full URL of the image
- * @returns boolean indicating success
+ * Initialize variant image for specific product (like the bicycle)
  */
-export const updateProductVariantImage = async (
-  productId: string,
-  imageUrl: string
-): Promise<boolean> => {
+export const initializeBicycleVariantImage = async (): Promise<boolean> => {
   try {
-    // Update the product with the variant image URL
-    const { error } = await supabase
-      .from('unified_products')
-      .update({
-        variant_image_url: imageUrl
-      })
-      .eq('id', productId);
+    // The bicycle product with the red variant
+    const bicycleId = '36'; // Bicycle product ID
+    const colorValue = 'Rouge'; // Find the red variant
     
-    if (error) {
-      console.error('Error updating variant image URL:', error);
-      toast.error('Impossible de mettre à jour l\'image de variante');
+    console.log(`Initializing bicycle variant image for product ID: ${bicycleId}, color: ${colorValue}`);
+    
+    // First, check if the product exists
+    const { data: productData, error: productError } = await supabase
+      .from('products_complete')
+      .select('*')
+      .eq('id', bicycleId)
+      .maybeSingle();
+    
+    if (productError) {
+      console.error("Error fetching bicycle product:", productError);
       return false;
     }
     
-    toast.success('Image de variante mise à jour avec succès');
-    return true;
-  } catch (error) {
-    console.error('Error:', error);
-    toast.error('Une erreur est survenue');
-    return false;
-  }
-};
-
-/**
- * Gets the bicycle product by name
- * @returns The bicycle product or null if not found
- */
-export const getBicycleProduct = async () => {
-  try {
-    const { data, error } = await supabase
-      .from('unified_products')
-      .select('*')
-      .ilike('name', '%velo%')
-      .single();
-    
-    if (error) {
-      console.error('Error retrieving bicycle product:', error);
-      return null;
+    if (!productData) {
+      console.error(`Bicycle product with ID ${bicycleId} not found`);
+      return false;
     }
     
-    return data;
+    // Check if color matches
+    if (productData.color !== colorValue) {
+      console.error(`Bicycle product color doesn't match: ${productData.color} vs ${colorValue}`);
+      return false;
+    }
+    
+    // The pre-defined image URL for the red bicycle
+    const variantImageUrl = 'https://zzcgtdjsmjpfppglcgsm.supabase.co/storage/v1/object/public/product-images/8ece699f7c5e047649377f5db32d587d/rouge.jpg';
+    
+    // Update the product with the variant image URL
+    const { error: updateError } = await supabase
+      .from('products_complete')
+      .update({ variant_image_url: variantImageUrl })
+      .eq('id', bicycleId);
+    
+    if (updateError) {
+      console.error("Error updating bicycle variant image:", updateError);
+      return false;
+    }
+    
+    console.log(`Successfully updated bicycle variant image for product ID: ${bicycleId}`);
+    return true;
   } catch (error) {
-    console.error('Error:', error);
-    return null;
+    console.error("Error in initializeBicycleVariantImage:", error);
+    return false;
   }
-};
-
-/**
- * Initialize the bicycle product variant image
- * Sets the variant image URL for the bicycle product
- */
-export const initializeBicycleVariantImage = async () => {
-  const imageUrl = "https://zzcgtdjsmjpfppglcgsm.supabase.co/storage/v1/object/public/product-images/8ece699f7c5e047649377f5db32d587d/rouge.jpg";
-  
-  // Get the bicycle product
-  const product = await getBicycleProduct();
-  
-  if (!product) {
-    console.error('Bicycle product not found');
-    toast.error('Produit "vélo" non trouvé');
-    return;
-  }
-  
-  // Update the variant image
-  await updateProductVariantImage(product.id, imageUrl);
 };

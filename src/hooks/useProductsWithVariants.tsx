@@ -7,6 +7,8 @@ import { toast } from "sonner";
 // Fetch products from Supabase
 export const fetchProductsWithVariants = async (): Promise<Product[]> => {
   try {
+    console.log("Fetching products from database...");
+    
     // Fetch products from products_complete table
     const { data: productsData, error } = await supabase
       .from('products_complete')
@@ -45,7 +47,7 @@ export const fetchProductsWithVariants = async (): Promise<Product[]> => {
           color: item.color || undefined,
           hex_color: item.hex_color || undefined,
           stock: typeof item.stock === 'string' ? parseInt(item.stock) : item.stock,
-          price_adjustment: typeof item.price_adjustment === 'string' ? parseFloat(item.price_adjustment) : item.price_adjustment,
+          price_adjustment: 0, // Default to 0 since it doesn't exist in the table
           status: item.variant_status || 'in_stock',
           bat: item.bat || undefined,
           poids: item.poids || undefined,
@@ -81,9 +83,11 @@ export const useProductsWithVariants = () => {
   } = useQuery({
     queryKey: ["productsWithVariants"],
     queryFn: fetchProductsWithVariants,
-    onError: (err: Error) => {
-      console.error("Error fetching products with variants:", err);
-      toast.error("Une erreur est survenue lors du chargement des produits");
+    onSettled: (data, error) => {
+      if (error) {
+        console.error("Error fetching products with variants:", error);
+        toast.error("Une erreur est survenue lors du chargement des produits");
+      }
     }
   });
 

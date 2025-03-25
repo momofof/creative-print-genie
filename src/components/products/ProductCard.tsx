@@ -12,7 +12,7 @@ interface ProductCardProps {
 
 const ProductCard = ({ product, viewMode }: ProductCardProps) => {
   // Convert potential string prices to numbers
-  const price = typeof product.price === 'string' ? parseFloat(product.price) : product.price;
+  const price = typeof product.price === 'string' ? parseFloat(product.price.toString()) : product.price;
   const originalPrice = product.originalPrice 
     ? (typeof product.originalPrice === 'string' ? parseFloat(product.originalPrice.toString()) : product.originalPrice) 
     : null;

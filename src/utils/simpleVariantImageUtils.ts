@@ -2,107 +2,103 @@
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
+interface UploadOptions {
+  bucketName: string;
+  folderPath: string;
+  fileName: string;
+  file: File;
+}
+
 /**
- * Télécharge une image pour une variante spécifique et définit son URL dans le produit
- * @param file Fichier image à télécharger
- * @param productId ID du produit
- * @param variantId ID de la variante
- * @returns URL de l'image téléchargée ou null en cas d'erreur
+ * Upload a file to Supabase Storage
  */
-export const uploadVariantImage = async (
-  file: File,
-  productId: string,
-  colorName: string
-): Promise<string | null> => {
+export const uploadFile = async ({
+  bucketName,
+  folderPath,
+  fileName,
+  file
+}: UploadOptions): Promise<string | null> => {
   try {
-    if (!file) return null;
-
-    // Générer un nom de fichier unique
-    const fileExt = file.name.split('.').pop();
-    const fileName = `${productId}-color-${colorName}-${Date.now()}.${fileExt}`;
-    const filePath = `variant-images/${fileName}`;
-
-    // Télécharger le fichier vers Supabase Storage
-    const { error: uploadError, data } = await supabase.storage
-      .from('product-images')
-      .upload(filePath, file);
-
-    if (uploadError) {
-      console.error('Erreur lors du téléchargement de l\'image:', uploadError);
-      toast.error('Impossible de télécharger l\'image');
+    // Generate a unique file path
+    const filePath = `${folderPath}/${fileName}`;
+    
+    // Upload the file
+    const { data, error } = await supabase
+      .storage
+      .from(bucketName)
+      .upload(filePath, file, {
+        cacheControl: '3600',
+        upsert: true
+      });
+    
+    if (error) {
+      console.error('Error uploading file:', error);
       return null;
     }
-
-    // Obtenir l'URL publique de l'image
-    const { data: { publicUrl } } = supabase.storage
-      .from('product-images')
-      .getPublicUrl(filePath);
-      
-    // Mettre à jour le produit avec l'URL de l'image
-    await updateProductWithVariantImageUrl(productId, publicUrl);
-
-    return publicUrl;
+    
+    // Get public URL
+    const { data: publicUrlData } = supabase
+      .storage
+      .from(bucketName)
+      .getPublicUrl(data.path);
+    
+    return publicUrlData.publicUrl;
   } catch (error) {
-    console.error('Erreur:', error);
-    toast.error('Une erreur est survenue lors du téléchargement');
+    console.error('Error in uploadFile:', error);
     return null;
   }
 };
 
 /**
- * Met à jour l'URL d'image de variante dans la table unified_products
- * @param productId ID du produit
- * @param imageUrl URL de l'image
- * @returns true si la mise à jour a réussi, false sinon
+ * Update variant image URL for a product
  */
-export const updateProductWithVariantImageUrl = async (
+export const updateProductVariantImage = async (
   productId: string,
   imageUrl: string
 ): Promise<boolean> => {
   try {
-    // Mettre à jour directement l'URL d'image de variante
-    const { error: updateError } = await supabase
-      .from('unified_products')
-      .update({
-        variant_image_url: imageUrl
-      })
+    // Update the product with the variant image URL
+    const { error } = await supabase
+      .from('products_complete')
+      .update({ variant_image_url: imageUrl })
       .eq('id', productId);
-
-    if (updateError) {
-      console.error('Erreur lors de la mise à jour de l\'image de variante:', updateError);
+    
+    if (error) {
+      console.error('Error updating product variant image:', error);
       return false;
     }
-
+    
     return true;
   } catch (error) {
-    console.error('Erreur:', error);
+    console.error('Error in updateProductVariantImage:', error);
     return false;
   }
 };
 
 /**
- * Obtient l'URL d'image de variante pour un produit
- * @param productId ID du produit
- * @returns URL de l'image ou null
+ * Fetch product variant image URL
  */
-export const getVariantImageUrl = async (
-  productId: string
-): Promise<string | null> => {
+export const getProductVariantImage = async (productId: string): Promise<string | null> => {
   try {
+    // Fetch the product with the variant image URL
     const { data, error } = await supabase
-      .from('unified_products')
+      .from('products_complete')
       .select('variant_image_url')
       .eq('id', productId)
-      .single();
-
-    if (error || !data) {
-      console.error('Erreur lors de la récupération de l\'image de variante:', error);
+      .maybeSingle();
+    
+    if (error) {
+      console.error('Error fetching product variant image:', error);
       return null;
     }
-
+    
+    if (!data || !data.variant_image_url) {
+      return null;
+    }
+    
     return data.variant_image_url;
   } catch (error) {
-    console.error('Erreur:', error);
+    console.error('Error in getProductVariantImage:', error);
     return null;
   }
 };

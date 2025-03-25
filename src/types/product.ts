@@ -1,4 +1,3 @@
-
 export interface Product {
   id: string;
   name: string;
@@ -8,16 +7,15 @@ export interface Product {
   image?: string;
   category: string;
   subcategory?: string;
-  rating?: number;
-  reviewCount?: number;
+  rating: number;
+  reviewCount: number;
   isNew?: boolean;
   is_customizable?: boolean;
   color?: string;
   size?: string;
   format?: string;
   created_at?: string;
-  // For variants compatibility
-  variants?: Record<string, string>;
+  variants: ProductVariant[];
 }
 
 export interface CartItem {
@@ -30,10 +28,9 @@ export interface CartItem {
   option_size?: string;
   option_format?: string;
   option_quantity?: string;
-  variants?: Record<string, string>; // Property for compatibility
+  variants?: Record<string, string>;
 }
 
-// Types for the customize components
 export interface Color {
   name: string;
   hex: string;
@@ -49,7 +46,7 @@ export interface SizeGuideItem {
   a: string;
   b: string;
   c: string;
-  size2?: string; // For compatibility
+  size2?: string;
 }
 
 export interface Review {
@@ -71,16 +68,13 @@ export interface RelatedProduct {
 
 export interface ProductVariant {
   id: string;
-  name?: string;
-  value?: string;
-  // Database fields
-  product_id?: string;
+  product_id: string;
   size?: string;
   color?: string;
   hex_color?: string;
-  stock?: number;
-  price_adjustment?: number;
-  status?: string;
+  stock: number;
+  price_adjustment: number;
+  status: string;
   bat?: string;
   poids?: string;
   format?: string;
@@ -91,10 +85,8 @@ export interface ProductVariant {
   details_impression?: string;
   orientation_impression?: string;
   image_url?: string;
-  created_at?: string;
-  updated_at?: string;
-  isNew?: boolean;
-  isDeleted?: boolean;
+  created_at: string;
+  updated_at: string;
 }
 
 export interface CustomizableProduct extends Product {
