@@ -83,11 +83,9 @@ export const useProductsWithVariants = () => {
   } = useQuery({
     queryKey: ["productsWithVariants"],
     queryFn: fetchProductsWithVariants,
-    onSettled: (data, error) => {
-      if (error) {
-        console.error("Error fetching products with variants:", error);
-        toast.error("Une erreur est survenue lors du chargement des produits");
-      }
+    onError: (error) => {
+      console.error("Error fetching products with variants:", error);
+      toast.error("Une erreur est survenue lors du chargement des produits");
     }
   });
 

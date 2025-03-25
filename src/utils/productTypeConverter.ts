@@ -20,7 +20,22 @@ export const convertDashboardToUIProducts = (products: ProductComplete[]): Produ
     color: product.color,
     size: product.size,
     format: product.format,
-    created_at: product.created_at
+    created_at: product.created_at,
+    variants: [
+      // Default variant based on main product properties
+      {
+        id: `default-${product.id}`,
+        product_id: product.id,
+        size: product.size || undefined,
+        color: product.color || undefined,
+        hex_color: product.hex_color || undefined,
+        stock: product.stock || 0,
+        price_adjustment: 0,
+        status: product.variant_status || 'in_stock',
+        created_at: product.created_at,
+        updated_at: product.updated_at
+      }
+    ]
   }));
 };
 

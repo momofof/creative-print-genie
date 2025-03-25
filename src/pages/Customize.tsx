@@ -46,6 +46,7 @@ const sampleProduct: CustomizableProduct = {
     { id: "composition", name: "Composition", image: "https://images.unsplash.com/photo-1581655353564-df123a1eb820?w=800&auto=format&fit=crop&q=60&ixlib=rb-4.0.3" },
   ],
   selectedView: "front",
+  variants: [] // Adding the required variants property
 };
 
 const initialElements: CustomizationElement[] = [];
