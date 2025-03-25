@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import { v4 as uuidv4 } from "uuid";
@@ -28,21 +27,21 @@ const colors: Color[] = [
   { id: "red", name: "Rouge", hex: "#FF0000", available: true },
 ];
 
+// Sample product for development
 const sampleProduct: CustomizableProduct = {
-  id: "tshirt-premium-homme",
-  name: "T-shirt manches longues Premium Homme",
-  price: 16.99,
-  originalPrice: 19.99,
-  image: "/lovable-uploads/a613bb1a-34de-4d67-a4ea-8e2b4c720279.png",
+  id: "1",
+  name: "T-shirt Personnalisé",
+  price: 25,
+  originalPrice: 30,
+  image: "https://images.unsplash.com/photo-1576566588028-4147f3842f27?w=800",
   rating: 4.5,
-  reviewCount: 3775,
+  reviewCount: 12,
   category: "textile",
   subcategory: "t-shirts",
   views: [
-    { id: "front", name: "Devant", image: "/lovable-uploads/a613bb1a-34de-4d67-a4ea-8e2b4c720279.png" },
-    { id: "back", name: "Dos", image: "https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=800&auto=format&fit=crop&q=60&ixlib=rb-4.0.3" },
-    { id: "right", name: "Droite", image: "https://images.unsplash.com/photo-1503341504253-dff4815485f1?w=800&auto=format&fit=crop&q=60&ixlib=rb-4.0.3" },
-    { id: "left", name: "Gauche", image: "https://images.unsplash.com/photo-1503341733017-1901578f9f1e?w=800&auto=format&fit=crop&q=60&ixlib=rb-4.0.3" },
+    { id: "front", name: "Devant", image: "https://images.unsplash.com/photo-1576566588028-4147f3842f27?w=800&auto=format&fit=crop&q=60&ixlib=rb-4.0.3" },
+    { id: "back", name: "Dos", image: "https://images.unsplash.com/photo-1620799140408-edc6dcb6d633?w=800&auto=format&fit=crop&q=60&ixlib=rb-4.0.3" },
+    { id: "side", name: "Côté", image: "https://images.unsplash.com/photo-1529374255404-311a2a4f1fd9?w=800&auto=format&fit=crop&q=60&ixlib=rb-4.0.3" },
     { id: "composition", name: "Composition", image: "https://images.unsplash.com/photo-1581655353564-df123a1eb820?w=800&auto=format&fit=crop&q=60&ixlib=rb-4.0.3" },
   ],
   selectedView: "front",
