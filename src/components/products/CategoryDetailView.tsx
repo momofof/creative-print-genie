@@ -10,10 +10,19 @@ interface CategoryDetailViewProps {
     title: string;
     image: string;
     subcategories: string[];
-  };
+  } | undefined;  // Make category optional to avoid the error
 }
 
 const CategoryDetailView = ({ category }: CategoryDetailViewProps) => {
+  // If category is undefined, provide default values to prevent errors
+  if (!category) {
+    return (
+      <div className="pt-24 pb-8 text-center">
+        <p>Catégorie non trouvée</p>
+      </div>
+    );
+  }
+
   return (
     <div className="pt-24 pb-8">
       <ProductHero 

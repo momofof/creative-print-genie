@@ -36,10 +36,10 @@ const Products = () => {
       {categoryId ? (
         // Vue détaillée de catégorie spécifique
         <>
-          <CategoryDetailView category={currentCategory!} />
+          <CategoryDetailView category={currentCategory || undefined} />
           
           <div className="max-w-7xl mx-auto px-4 py-8">
-            <h2 className="text-2xl font-bold mb-6">{subcategoryId || currentCategory?.title}</h2>
+            <h2 className="text-2xl font-bold mb-6">{subcategoryId || (currentCategory?.title || 'Produits')}</h2>
             <ProductList products={filteredProducts} />
           </div>
         </>
