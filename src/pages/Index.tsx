@@ -7,10 +7,18 @@ import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import Footer from "@/components/Footer";
 import { useProductsWithVariants } from "@/hooks/useProductsWithVariants";
+import { useState } from "react";
+import SupplierSection from "@/components/home/SupplierSection";
 
 const Index = () => {
   const navigate = useNavigate();
   const { products, isLoading, error } = useProductsWithVariants();
+  const [selectedProductId, setSelectedProductId] = useState<string | undefined>();
+  
+  // Handler for product selection
+  const handleProductSelect = (productId: string | undefined) => {
+    setSelectedProductId(productId);
+  };
   
   return (
     <AuthStateWrapper>
@@ -37,13 +45,19 @@ const Index = () => {
               <p className="text-sm text-gray-500">Veuillez réessayer plus tard ou contacter le support.</p>
             </div>
           ) : products.length > 0 ? (
-            <ProductOrderForm products={products} />
+            <ProductOrderForm 
+              products={products} 
+              onProductSelect={handleProductSelect}
+            />
           ) : (
             <div className="text-center py-12 bg-gray-50 rounded-lg">
               <p className="text-gray-700 mb-4">Aucun produit disponible actuellement.</p>
               <p className="text-sm text-gray-500">Veuillez revenir plus tard ou contacter le support.</p>
             </div>
           )}
+          
+          {/* Supplier Section */}
+          <SupplierSection productId={selectedProductId} />
           
           <div className="mt-12 text-center">
             <p className="text-gray-700 mb-4">Vous préférez parcourir notre catalogue ?</p>

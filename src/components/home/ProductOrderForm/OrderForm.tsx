@@ -22,6 +22,7 @@ interface OrderFormProps {
   initialVariants?: Record<string, string>;
   initialQuantity?: number;
   onEditComplete?: (productId: string, quantity: number, variants: Record<string, string>) => void;
+  onProductSelect?: (productId: string | undefined) => void;
 }
 
 const OrderForm = ({ 
@@ -30,7 +31,8 @@ const OrderForm = ({
   initialProductId, 
   initialVariants = {}, 
   initialQuantity,
-  onEditComplete 
+  onEditComplete,
+  onProductSelect
 }: OrderFormProps) => {
   const isMobile = useIsMobile();
   const [showOrderSummary, setShowOrderSummary] = useState(false);
@@ -66,6 +68,13 @@ const OrderForm = ({
     }
   }, [editMode, initialProductId, initialQuantity, initialVariants, products, setSelectedProduct, setSelectedQuantity, setVariants]);
   
+  // Notify parent component when a product is selected
+  useEffect(() => {
+    if (onProductSelect) {
+      onProductSelect(selectedProduct?.id);
+    }
+  }, [selectedProduct, onProductSelect]);
+  
   const handleShowOrderSummary = (items: CartItem[], total: number) => {
     setOrderSummaryItems(items);
     setOrderTotal(total);
@@ -98,6 +107,11 @@ const OrderForm = ({
     }
   };
 
+  // Handle product selection
+  const handleProductSelect = (product: Product | undefined) => {
+    setSelectedProduct(product);
+  };
+
   return (
     <div className="bg-white rounded-lg shadow-lg p-4 md:p-6 max-w-4xl mx-auto my-6 md:my-10">
       <div className="relative">
@@ -119,7 +133,7 @@ const OrderForm = ({
           <ProductForm
             products={products}
             selectedProduct={selectedProduct}
-            setSelectedProduct={setSelectedProduct}
+            setSelectedProduct={handleProductSelect}
             selectedQuantity={selectedQuantity}
             setSelectedQuantity={setSelectedQuantity}
             variants={variants}
