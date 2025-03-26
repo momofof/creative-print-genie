@@ -1,9 +1,7 @@
-
 import { useIsMobile } from "@/hooks/use-mobile";
 import { Product, CartItem } from "@/types/product";
 import { useState, useEffect } from "react";
 
-// Import components
 import ProductIllustration from "./ProductIllustration";
 import ProductForm from "./components/ProductForm";
 import OrderFormHeader from "./components/OrderFormHeader";
@@ -11,7 +9,6 @@ import MobilePreviewContainer from "./components/MobilePreviewContainer";
 import OrderSummaryHandler from "./components/OrderSummaryHandler";
 import SupplierSelector from "./components/SupplierSelector";
 
-// Import hooks
 import { useOrderFormState } from "./hooks/useOrderFormState";
 import { useOrderSubmission } from "./hooks/useOrderSubmission";
 
@@ -39,7 +36,6 @@ const OrderForm = ({
   const [orderSummaryItems, setOrderSummaryItems] = useState<CartItem[]>([]);
   const [orderTotal, setOrderTotal] = useState(0);
   
-  // Use custom hook for form state
   const {
     selectedProduct,
     setSelectedProduct,
@@ -56,7 +52,6 @@ const OrderForm = ({
     setOpenIllustration
   } = useOrderFormState();
   
-  // Set initial values if in edit mode
   useEffect(() => {
     if (editMode && initialProductId) {
       const product = products.find(p => p.id === initialProductId);
@@ -68,7 +63,6 @@ const OrderForm = ({
     }
   }, [editMode, initialProductId, initialQuantity, initialVariants, products, setSelectedProduct, setSelectedQuantity, setVariants]);
   
-  // Notify parent component when a product is selected
   useEffect(() => {
     if (onProductSelect) {
       onProductSelect(selectedProduct?.id);
@@ -81,7 +75,6 @@ const OrderForm = ({
     setShowOrderSummary(true);
   };
   
-  // Use custom hook for order submission
   const { handleSubmit, isSubmitting } = useOrderSubmission({
     selectedProduct,
     selectedQuantity,
@@ -89,7 +82,6 @@ const OrderForm = ({
     userId,
     selectedSupplierId,
     onOrderSuccess: () => {
-      // Reset form
       setSelectedProduct(undefined);
       setSelectedQuantity(null);
       setVariants({});
@@ -98,7 +90,6 @@ const OrderForm = ({
     onShowOrderSummary: handleShowOrderSummary
   });
   
-  // Handle edit completion
   const handleUpdateProduct = async (e: React.FormEvent) => {
     e.preventDefault();
     
@@ -107,11 +98,9 @@ const OrderForm = ({
     }
   };
 
-  // Handle product selection
   const handleProductSelect = (product: Product | undefined) => {
     setSelectedProduct(product);
     
-    // Call the parent's onProductSelect if available
     if (onProductSelect && product) {
       onProductSelect(product.id);
     }
@@ -122,7 +111,6 @@ const OrderForm = ({
       <div className="relative">
         <OrderFormHeader editMode={editMode} />
         
-        {/* Mobile preview illustration - Positioned inside the form below the title */}
         {isMobile && selectedProduct && (
           <MobilePreviewContainer 
             selectedProduct={selectedProduct} 
@@ -133,7 +121,6 @@ const OrderForm = ({
       </div>
       
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-8">
-        {/* Product Form Column */}
         <div>
           <ProductForm
             products={products}
@@ -151,16 +138,24 @@ const OrderForm = ({
             productSelectionDisabled={editMode}
           />
           
-          {/* Supplier Selection Section */}
           {selectedProduct && (
-            <SupplierSelector 
-              productId={selectedProduct.id}
-              onSupplierSelect={setSelectedSupplierId}
-            />
+            <>
+              <SupplierSelector 
+                productId={selectedProduct.id}
+                onSupplierSelect={setSelectedSupplierId}
+              />
+              
+              <div className="mt-6">
+                <ProductFormSubmitButton
+                  isSubmitting={isSubmitting}
+                  disabled={!selectedProduct || !selectedQuantity || !selectedSupplierId}
+                  editMode={editMode}
+                />
+              </div>
+            </>
           )}
         </div>
 
-        {/* Illustration Column - Hidden on mobile, replaced with sheet/drawer */}
         {!isMobile && (
           <ProductIllustration
             selectedProduct={selectedProduct}
@@ -171,7 +166,6 @@ const OrderForm = ({
         )}
       </div>
 
-      {/* Mobile illustration sheet */}
       {isMobile && (
         <ProductIllustration
           selectedProduct={selectedProduct}
@@ -181,7 +175,6 @@ const OrderForm = ({
         />
       )}
       
-      {/* Order Success Dialog */}
       <OrderSummaryHandler
         showOrderSummary={showOrderSummary}
         setShowOrderSummary={setShowOrderSummary}

@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Product } from "@/types/product";
 
@@ -7,7 +6,6 @@ import SearchableDropdown from "../SearchableDropdown";
 import QuantitySelector from "../QuantitySelector";
 import ProductFormVariants from "./ProductFormVariants";
 import ProductFormPrice from "./ProductFormPrice";
-import ProductFormSubmitButton from "./ProductFormSubmitButton";
 import ProductDescription from "./ProductDescription";
 
 // Import utility functions
@@ -130,7 +128,6 @@ const ProductForm = ({
               />
             )}
 
-            {/* Product price */}
             <ProductFormPrice 
               selectedProduct={selectedProduct}
               selectedQuantity={selectedQuantity}
@@ -139,13 +136,7 @@ const ProductForm = ({
         )}
       </div>
       
-      <div className="mt-6 md:mt-8">
-        <ProductFormSubmitButton
-          isSubmitting={isSubmitting}
-          disabled={!selectedProduct || !selectedQuantity}
-          editMode={editMode}
-        />
-      </div>
+      {/* Le bouton a été retiré d'ici */}
     </form>
   );
 };
