@@ -1,4 +1,3 @@
-
 import Navigation from "@/components/Navigation";
 import HeroSection from "@/components/home/HeroSection";
 import ProductOrderForm from "@/components/home/ProductOrderForm";
@@ -8,14 +7,13 @@ import { useNavigate } from "react-router-dom";
 import Footer from "@/components/Footer";
 import { useProductsWithVariants } from "@/hooks/useProductsWithVariants";
 import { useState } from "react";
-import SupplierSection from "@/components/home/SupplierSection";
+import SupplierSection from "@/components/home/supplier/SupplierSection";
 
 const Index = () => {
   const navigate = useNavigate();
   const { products, isLoading, error } = useProductsWithVariants();
   const [selectedProductId, setSelectedProductId] = useState<string | undefined>();
   
-  // Handler for product selection
   const handleProductSelect = (productId: string | undefined) => {
     setSelectedProductId(productId);
     console.log("Product selected:", productId);
@@ -58,7 +56,6 @@ const Index = () => {
           )}
         </div>
         
-        {/* Supplier Section - rendu seulement si un produit est sélectionné */}
         {selectedProductId && (
           <SupplierSection productId={selectedProductId} />
         )}

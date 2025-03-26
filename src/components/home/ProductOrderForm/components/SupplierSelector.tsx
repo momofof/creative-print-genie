@@ -1,17 +1,8 @@
-
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Check, Truck } from "lucide-react";
 import { toast } from "sonner";
-
-interface Supplier {
-  id: string;
-  company_name: string;
-  contact_name?: string;
-  phone?: string;
-  address?: string;
-  email: string;
-}
+import { Supplier } from "@/components/home/supplier/types";
 
 interface SupplierSelectorProps {
   productId?: string;
