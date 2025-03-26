@@ -18,6 +18,7 @@ const Index = () => {
   // Handler for product selection
   const handleProductSelect = (productId: string | undefined) => {
     setSelectedProductId(productId);
+    console.log("Product selected:", productId);
   };
   
   return (
@@ -55,10 +56,14 @@ const Index = () => {
               <p className="text-sm text-gray-500">Veuillez revenir plus tard ou contacter le support.</p>
             </div>
           )}
-          
-          {/* Supplier Section */}
+        </div>
+        
+        {/* Supplier Section - rendu seulement si un produit est sélectionné */}
+        {selectedProductId && (
           <SupplierSection productId={selectedProductId} />
-          
+        )}
+        
+        <div className="container mx-auto px-4 py-8">
           <div className="mt-12 text-center">
             <p className="text-gray-700 mb-4">Vous préférez parcourir notre catalogue ?</p>
             <Button 

@@ -1,33 +1,43 @@
 
 import { useState, useEffect } from "react";
-import { Product } from "@/types/product";
 import { supabase } from "@/integrations/supabase/client";
 
 export const useOrderFormState = () => {
-  const [selectedProduct, setSelectedProduct] = useState<Product | undefined>();
+  const [selectedProduct, setSelectedProduct] = useState<any>();
   const [selectedQuantity, setSelectedQuantity] = useState<number | null>(null);
   const [variants, setVariants] = useState<Record<string, string>>({});
-  const [availableVariants, setAvailableVariants] = useState<string[]>([]);
+  const [availableVariants, setAvailableVariants] = useState<any[]>([]);
   const [selectedSupplierId, setSelectedSupplierId] = useState<string | null>(null);
   const [openIllustration, setOpenIllustration] = useState(false);
   const [userId, setUserId] = useState<string | null>(null);
   
-  // Get the user ID from Supabase Auth
+  // Fetch user session data when component mounts
   useEffect(() => {
-    const checkUser = async () => {
+    const fetchUserSession = async () => {
       const { data } = await supabase.auth.getSession();
-      setUserId(data.session?.user?.id || null);
+      if (data.session?.user) {
+        setUserId(data.session.user.id);
+      }
     };
     
-    checkUser();
+    fetchUserSession();
     
-    // Listen for auth changes
-    const { data: authListener } = supabase.auth.onAuthStateChange((event, session) => {
-      setUserId(session?.user?.id || null);
-    });
+    // Set up auth state change listener
+    const { data: authListener } = supabase.auth.onAuthStateChange(
+      (event, session) => {
+        if (session?.user) {
+          setUserId(session.user.id);
+        } else {
+          setUserId(null);
+        }
+      }
+    );
     
+    // Clean up listener on unmount
     return () => {
-      authListener.subscription.unsubscribe();
+      if (authListener && authListener.subscription) {
+        authListener.subscription.unsubscribe();
+      }
     };
   }, []);
 

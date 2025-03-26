@@ -75,7 +75,7 @@ const SupplierSelector = ({ productId, onSupplierSelect }: SupplierSelectorProps
         
         setSuppliers(allSuppliers);
         
-        // Select the main supplier by default
+        // Select the main supplier by default and notify parent
         if (supplierData && supplierData.length > 0) {
           setSelectedSupplierId(supplierData[0].id);
           onSupplierSelect(supplierData[0].id);
