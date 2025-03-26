@@ -35,55 +35,77 @@ const SupplierSelector = ({ productId, onSupplierSelect }: SupplierSelectorProps
   const fetchSuppliers = async (productId: string) => {
     setLoading(true);
     try {
-      // Get suppliers associated with the selected product
-      const { data, error } = await supabase
+      // Get product supplier info first
+      const { data: productData, error: productError } = await supabase
         .from('products_complete')
         .select('supplier_id')
         .eq('id', productId)
         .single();
 
-      if (error) {
-        console.error("Error fetching product information:", error);
+      if (productError) {
+        console.error("Error fetching product information:", productError);
+        
+        // Get some random suppliers instead
+        const { data: randomSuppliers, error: suppliersError } = await supabase
+          .from('suppliers')
+          .select('*')
+          .limit(4);
+          
+        if (suppliersError) {
+          throw suppliersError;
+        }
+        
+        if (randomSuppliers && randomSuppliers.length > 0) {
+          setSuppliers(randomSuppliers);
+          // Select the first one by default
+          setSelectedSupplierId(randomSuppliers[0].id);
+          onSupplierSelect(randomSuppliers[0].id);
+        }
         return;
       }
 
-      if (data && data.supplier_id) {
-        // Get details of the main supplier
-        const { data: supplierData, error: supplierError } = await supabase
+      let mainSupplierId = productData?.supplier_id;
+      let suppliersToShow: Supplier[] = [];
+      
+      // If product has a supplier, get that one first
+      if (mainSupplierId) {
+        const { data: mainSupplier, error: mainSupplierError } = await supabase
           .from('suppliers')
           .select('*')
-          .eq('id', data.supplier_id);
+          .eq('id', mainSupplierId)
+          .single();
 
-        if (supplierError) {
-          console.error("Error fetching supplier:", supplierError);
-          return;
+        if (!mainSupplierError && mainSupplier) {
+          suppliersToShow.push(mainSupplier);
         }
+      }
 
-        // Get some additional suppliers for more choices
-        const { data: otherSuppliers, error: otherSuppliersError } = await supabase
-          .from('suppliers')
-          .select('*')
-          .neq('id', data.supplier_id)
-          .limit(3);
+      // Get additional suppliers (either related or random)
+      const { data: additionalSuppliers, error: otherSuppliersError } = await supabase
+        .from('suppliers')
+        .select('*')
+        .limit(3);
 
-        if (otherSuppliersError) {
-          console.error("Error fetching other suppliers:", otherSuppliersError);
-        }
-
-        // Combine the main supplier with other suppliers
-        const allSuppliers = [...(supplierData || []), ...(otherSuppliers || [])];
+      if (!otherSuppliersError && additionalSuppliers) {
+        // Filter out the main supplier if it exists
+        const filteredSuppliers = mainSupplierId 
+          ? additionalSuppliers.filter(s => s.id !== mainSupplierId)
+          : additionalSuppliers;
         
-        setSuppliers(allSuppliers);
-        
-        // Select the main supplier by default and notify parent
-        if (supplierData && supplierData.length > 0) {
-          setSelectedSupplierId(supplierData[0].id);
-          onSupplierSelect(supplierData[0].id);
-        }
+        suppliersToShow = [...suppliersToShow, ...filteredSuppliers];
+      }
+      
+      setSuppliers(suppliersToShow);
+      
+      // Select the main supplier by default, or the first one if no main supplier
+      if (suppliersToShow.length > 0) {
+        const defaultSupplierId = mainSupplierId || suppliersToShow[0].id;
+        setSelectedSupplierId(defaultSupplierId);
+        onSupplierSelect(defaultSupplierId);
       }
     } catch (error) {
       console.error("Error fetching suppliers:", error);
-      toast.error("Unable to load suppliers");
+      toast.error("Impossible de charger les fournisseurs");
     } finally {
       setLoading(false);
     }

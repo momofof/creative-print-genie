@@ -110,6 +110,11 @@ const OrderForm = ({
   // Handle product selection
   const handleProductSelect = (product: Product | undefined) => {
     setSelectedProduct(product);
+    
+    // Call the parent's onProductSelect if available
+    if (onProductSelect && product) {
+      onProductSelect(product.id);
+    }
   };
 
   return (
