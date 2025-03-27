@@ -64,42 +64,22 @@ export const getQuantityOptions = (categoryOrSubcategory: string): number[] => {
 export const extractVariantOptionsFromProduct = async (product: Product): Promise<Record<string, string[]>> => {
   const result: Record<string, string[]> = {};
   
-  // Check for variant fields in the product itself first
+  // Check for variant fields in the product
   const variantFields = [
     "size", "color", "format", "quantite", "bat", "poids",
     "echantillon", "types_impression", "type_de_materiaux",
     "details_impression", "orientation_impression"
   ];
   
-  // First collect all unique values from the variants
-  if (product.variants && product.variants.length > 0) {
-    for (const field of variantFields) {
-      const uniqueValues = new Set<string>();
-      
-      // Check each variant for this field
-      product.variants.forEach(variant => {
-        const value = (variant as any)[field];
-        if (value) {
-          uniqueValues.add(value);
-        }
-      });
-      
-      // If we found values, add them to the result
-      if (uniqueValues.size > 0) {
-        result[field] = Array.from(uniqueValues);
-      }
-    }
-  }
-  
-  // If no variants or no values found in variants, check the product itself
-  for (const field of variantFields) {
-    if (!result[field] || result[field].length === 0) {
+  variantFields.forEach(field => {
+    // If the product has a value for this field, add it as an option
+    if ((product as any)[field]) {
       const value = (product as any)[field];
       if (value) {
         result[field] = [value];
       }
     }
-  }
+  });
   
   return result;
 };
