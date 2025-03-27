@@ -5,6 +5,14 @@ import { Product, ProductVariant } from "@/types/product";
 import { toast } from "sonner";
 import { allProducts } from "@/data";
 
+// S'assurer que les produits mockés ont des variants
+const ensureProductVariants = (products: any[]): Product[] => {
+  return products.map(product => ({
+    ...product,
+    variants: Array.isArray(product.variants) ? product.variants : []
+  }));
+};
+
 // Fetch products from Supabase
 export const fetchProductsWithVariants = async (): Promise<Product[]> => {
   try {
@@ -24,11 +32,8 @@ export const fetchProductsWithVariants = async (): Promise<Product[]> => {
     // Si aucun produit n'est trouvé dans la base de données, utiliser les produits mockés
     if (!productsData || productsData.length === 0) {
       console.log("No products found in database, using mocked data");
-      // Assurons-nous que les produits mockés ont le champ variants
-      return allProducts.map(product => ({
-        ...product,
-        variants: product.variants || []
-      }));
+      // S'assurer que les produits mockés ont le champ variants
+      return ensureProductVariants(allProducts);
     }
     
     const products: Product[] = [];
@@ -124,11 +129,8 @@ export const fetchProductsWithVariants = async (): Promise<Product[]> => {
     
     // En fonction du résultat, fusionner avec les produits mockés si nécessaire
     if (products.length === 0) {
-      // Assurons-nous que les produits mockés ont le champ variants
-      return allProducts.map(product => ({
-        ...product,
-        variants: product.variants || []
-      }));
+      // S'assurer que les produits mockés ont le champ variants
+      return ensureProductVariants(allProducts);
     } else {
       // Fusionner avec les produits mockés pour combler les catégories manquantes
       const existingCategories = new Set(products.map(p => p.category));
@@ -144,10 +146,7 @@ export const fetchProductsWithVariants = async (): Promise<Product[]> => {
   } catch (error) {
     console.error("Error in fetchProductsWithVariants:", error);
     // En cas d'erreur, retourner les produits mockés
-    return allProducts.map(product => ({
-      ...product,
-      variants: product.variants || []
-    }));
+    return ensureProductVariants(allProducts);
   }
 };
 

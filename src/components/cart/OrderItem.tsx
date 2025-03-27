@@ -1,15 +1,25 @@
 
-// Correction de l'erreur TS2554: Expected 1 arguments, but got 2.
-// On s'assure que getVariantDisplayName est appelé avec un seul argument
 import React from "react";
 import { CartItem } from "@/types/product";
 import { getVariantDisplayName } from "@/components/home/ProductOrderForm/utils/variantDisplay";
 
 interface OrderItemProps {
   item: CartItem;
+  itemKey?: string;
+  quantity?: number;
+  editMode?: boolean;
+  onEditItem?: (item: CartItem) => void;
+  onQuantityChange?: (item: CartItem, delta: number) => void;
 }
 
-const OrderItem: React.FC<OrderItemProps> = ({ item }) => {
+const OrderItem: React.FC<OrderItemProps> = ({ 
+  item, 
+  itemKey,
+  quantity = item.quantity,
+  editMode = false,
+  onEditItem,
+  onQuantityChange
+}) => {
   return (
     <div className="flex gap-4">
       <div className="shrink-0">
@@ -34,7 +44,35 @@ const OrderItem: React.FC<OrderItemProps> = ({ item }) => {
       
       <div className="text-right">
         <div className="font-medium text-gray-900">{item.price.toFixed(2)} €</div>
-        <div className="text-xs text-gray-500">Qté: {item.quantity}</div>
+        <div className="text-xs text-gray-500">Qté: {quantity}</div>
+        
+        {editMode && onQuantityChange && (
+          <div className="flex items-center justify-end mt-1">
+            <button 
+              onClick={() => onQuantityChange(item, -1)}
+              className="w-6 h-6 flex items-center justify-center text-gray-500 hover:text-gray-700"
+              disabled={quantity <= 1}
+            >
+              -
+            </button>
+            <span className="w-6 text-center">{quantity}</span>
+            <button 
+              onClick={() => onQuantityChange(item, 1)}
+              className="w-6 h-6 flex items-center justify-center text-gray-500 hover:text-gray-700"
+            >
+              +
+            </button>
+          </div>
+        )}
+        
+        {editMode && onEditItem && (
+          <button 
+            onClick={() => onEditItem(item)}
+            className="text-xs text-blue-600 hover:underline mt-1"
+          >
+            Modifier
+          </button>
+        )}
       </div>
     </div>
   );

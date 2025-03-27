@@ -1,6 +1,4 @@
 
-// Correction de l'erreur TS2554: Expected 1 arguments, but got 2.
-// On s'assure que getVariantDisplayName est appelé avec un seul argument
 import React from "react";
 import { CartItem } from "@/types/product";
 import { Button } from "@/components/ui/button";
@@ -11,9 +9,37 @@ interface CartItemProps {
   item: CartItem;
   onRemove: (id: string) => void;
   onEdit: (id: string) => void;
+  updateQuantity?: (id: string, newQuantity: number) => void;
+  removeItem?: (id: string) => void;
+  editCartItem?: (id: string, newQuantity: number, options?: Record<string, string>) => void;
 }
 
-const CartItemComponent = ({ item, onRemove, onEdit }: CartItemProps) => {
+const CartItemComponent = ({ 
+  item, 
+  onRemove, 
+  onEdit,
+  updateQuantity,
+  removeItem,
+  editCartItem
+}: CartItemProps) => {
+  // Utiliser les fonctions passées directement si disponibles, sinon utiliser les props onRemove/onEdit
+  const handleRemove = () => {
+    if (removeItem) {
+      removeItem(item.id);
+    } else {
+      onRemove(item.id);
+    }
+  };
+
+  const handleEdit = () => {
+    if (editCartItem) {
+      // Si editCartItem est fourni, l'utiliser avec la quantité actuelle
+      editCartItem(item.id, item.quantity);
+    } else {
+      onEdit(item.id);
+    }
+  };
+
   return (
     <div className="flex gap-4 p-4 border border-gray-200 rounded-xl bg-white">
       <div className="shrink-0">
@@ -46,7 +72,7 @@ const CartItemComponent = ({ item, onRemove, onEdit }: CartItemProps) => {
               size="icon" 
               variant="ghost" 
               className="h-8 w-8" 
-              onClick={() => onEdit(item.id)}
+              onClick={handleEdit}
             >
               <Edit className="h-4 w-4" />
               <span className="sr-only">Modifier</span>
@@ -56,7 +82,7 @@ const CartItemComponent = ({ item, onRemove, onEdit }: CartItemProps) => {
               size="icon" 
               variant="ghost" 
               className="h-8 w-8 text-destructive hover:text-destructive" 
-              onClick={() => onRemove(item.id)}
+              onClick={handleRemove}
             >
               <Trash2 className="h-4 w-4" />
               <span className="sr-only">Supprimer</span>
