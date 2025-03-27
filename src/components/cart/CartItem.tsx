@@ -40,6 +40,12 @@ const CartItemComponent = ({
     }
   };
 
+  const handleQuantityChange = (delta: number) => {
+    if (updateQuantity) {
+      updateQuantity(item.id, item.quantity + delta);
+    }
+  };
+
   return (
     <div className="flex gap-4 p-4 border border-gray-200 rounded-xl bg-white">
       <div className="shrink-0">
@@ -66,6 +72,29 @@ const CartItemComponent = ({
             <span className="font-medium text-gray-900">{item.price.toFixed(2)} €</span>
             <span className="ml-2 text-gray-500">Qté: {item.quantity}</span>
           </div>
+          
+          {updateQuantity && (
+            <div className="flex items-center space-x-2">
+              <Button 
+                size="sm" 
+                variant="outline" 
+                className="h-7 w-7 p-0" 
+                onClick={() => handleQuantityChange(-1)}
+                disabled={item.quantity <= 1}
+              >
+                -
+              </Button>
+              <span className="w-6 text-center">{item.quantity}</span>
+              <Button 
+                size="sm" 
+                variant="outline" 
+                className="h-7 w-7 p-0" 
+                onClick={() => handleQuantityChange(1)}
+              >
+                +
+              </Button>
+            </div>
+          )}
           
           <div className="flex items-center gap-2">
             <Button 
