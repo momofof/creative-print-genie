@@ -43,11 +43,13 @@ export const fetchProductsWithVariants = async (): Promise<Product[]> => {
         variants: []
       };
       
-      // Fetch variants for this product
+      // For product variants, we'll query the unified_products table for matching products
+      // with the same name or ID (depending on your database structure)
       const { data: variantsData, error: variantsError } = await supabase
         .from('unified_products')
         .select('*')
-        .eq('product_id', item.id);
+        // Use .eq with 'id' since 'product_id' doesn't exist in unified_products
+        .eq('id', item.id);
       
       if (variantsError) {
         console.error(`Error fetching variants for product ${item.id}:`, variantsError);
@@ -57,7 +59,7 @@ export const fetchProductsWithVariants = async (): Promise<Product[]> => {
       if (variantsData && variantsData.length > 0) {
         product.variants = variantsData.map(variant => ({
           id: variant.id || `variant-${Math.random().toString(36).substring(2, 9)}`,
-          product_id: variant.product_id || item.id,
+          product_id: variant.id, // Use variant.id instead of product_id
           size: variant.size || undefined,
           color: variant.color || undefined,
           hex_color: variant.hex_color || undefined,
@@ -97,7 +99,7 @@ export const fetchProductsWithVariants = async (): Promise<Product[]> => {
           type_de_materiaux: item.type_de_materiaux || undefined,
           details_impression: item.details_impression || undefined,
           orientation_impression: item.orientation_impression || undefined,
-          image_url: item.variant_image_url || item.image,
+          image_url: variant_image_url || item.image,
           created_at: item.created_at,
           updated_at: item.updated_at
         }];
