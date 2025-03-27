@@ -48,7 +48,7 @@ const ProductFormVariants = ({
       });
   }, [availableVariants, productVariantOptions]);
   
-  // If no variant options available, don't render anything
+  // Si aucune option de variante disponible, ne rien afficher
   if (sortedVariants.length === 0) {
     return null;
   }

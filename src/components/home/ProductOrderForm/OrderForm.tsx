@@ -66,8 +66,10 @@ const OrderForm = ({
   }, [editMode, initialProductId, initialQuantity, initialVariants, products, setSelectedProduct, setSelectedQuantity, setVariants]);
   
   useEffect(() => {
-    if (onProductSelect) {
-      onProductSelect(selectedProduct?.id);
+    if (onProductSelect && selectedProduct) {
+      onProductSelect(selectedProduct.id);
+    } else if (onProductSelect && !selectedProduct) {
+      onProductSelect(undefined);
     }
   }, [selectedProduct, onProductSelect]);
   
@@ -112,6 +114,8 @@ const OrderForm = ({
     
     if (onProductSelect && product) {
       onProductSelect(product.id);
+    } else if (onProductSelect && !product) {
+      onProductSelect(undefined);
     }
   };
 

@@ -1,3 +1,4 @@
+
 export interface Product {
   id: string;
   name: string;
@@ -17,6 +18,15 @@ export interface Product {
   created_at?: string;
   supplier_id?: string;
   variants: ProductVariant[];
+  // Champs de variantes additionnels qui peuvent être sur le produit lui-même
+  bat?: string;
+  poids?: string;
+  quantite?: string;
+  echantillon?: string;
+  types_impression?: string;
+  type_de_materiaux?: string;
+  details_impression?: string;
+  orientation_impression?: string;
 }
 
 export interface CartItem {
