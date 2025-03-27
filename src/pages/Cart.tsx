@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Trash2, AlertTriangle } from "lucide-react";
 import { Link } from "react-router-dom";
@@ -106,6 +107,8 @@ const Cart = () => {
                     <CartItem 
                       key={item.id}
                       item={item}
+                      onRemove={removeItem}
+                      onEdit={(id) => editCartItem(id, item.quantity)}
                       updateQuantity={updateQuantity}
                       removeItem={removeItem}
                       editCartItem={editCartItem}

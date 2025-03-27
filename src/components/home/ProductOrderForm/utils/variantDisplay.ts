@@ -1,26 +1,26 @@
 
-export const getVariantDisplayName = (variant: string, value?: string): string => {
-  // Maps variant types to display names
-  const variantDisplayMap: Record<string, string> = {
-    'Taille': 'Taille',
-    'Couleur': 'Couleur',
-    'Format': 'Format',
-    'Quantité': 'Quantité',
-    'size': 'Taille',
-    'color': 'Couleur',
-    'format': 'Format',
-    'quantity': 'Quantité',
-    'bat': 'BAT',
-    'poids': 'Poids',
-    'echantillon': 'Échantillon',
-    'types_impression': "Types d'impression",
-    'type_de_materiaux': 'Type de matériaux',
-    'details_impression': "Détails d'impression",
-    'orientation_impression': "Orientation d'impression"
+export const getVariantDisplayName = (variantType: string): string => {
+  const displayNames: Record<string, string> = {
+    size: "Taille",
+    color: "Couleur",
+    format: "Format",
+    quantite: "Quantité",
+    poids: "Grammage",
+    bat: "BAT",
+    echantillon: "Échantillon",
+    types_impression: "Type d'impression",
+    type_de_materiaux: "Matériau",
+    details_impression: "Détails d'impression",
+    orientation_impression: "Orientation"
   };
   
-  const displayName = variantDisplayMap[variant] || variant;
+  return displayNames[variantType] || variantType;
+};
+
+export const getVariantValueDisplayName = (variantType: string, value: string): string => {
+  // Pour certains types de variantes, on peut avoir besoin de transformer les valeurs
+  // Par exemple, convertir "XS" en "Extra Small" ou des codes en noms plus lisibles
   
-  // If value is provided, return "DisplayName: Value", otherwise just return DisplayName
-  return value ? `${displayName}: ${value}` : displayName;
+  // Pour l'instant, retourner simplement la valeur telle quelle
+  return value;
 };
