@@ -99,7 +99,7 @@ export const fetchProductsWithVariants = async (): Promise<Product[]> => {
           type_de_materiaux: item.type_de_materiaux || undefined,
           details_impression: item.details_impression || undefined,
           orientation_impression: item.orientation_impression || undefined,
-          image_url: variant_image_url || item.image,
+          image_url: item.variant_image_url || item.image,
           created_at: item.created_at,
           updated_at: item.updated_at
         }];
