@@ -66,19 +66,10 @@ const OrderForm = ({
   }, [editMode, initialProductId, initialQuantity, initialVariants, products, setSelectedProduct, setSelectedQuantity, setVariants]);
   
   useEffect(() => {
-    if (onProductSelect && selectedProduct) {
-      onProductSelect(selectedProduct.id);
-    } else if (onProductSelect && !selectedProduct) {
-      onProductSelect(undefined);
+    if (onProductSelect) {
+      onProductSelect(selectedProduct?.id);
     }
   }, [selectedProduct, onProductSelect]);
-  
-  // Set supplier ID when product is selected and it has a supplier_id
-  useEffect(() => {
-    if (selectedProduct?.supplier_id && !selectedSupplierId) {
-      setSelectedSupplierId(selectedProduct.supplier_id);
-    }
-  }, [selectedProduct, selectedSupplierId, setSelectedSupplierId]);
   
   const handleShowOrderSummary = (items: CartItem[], total: number) => {
     setOrderSummaryItems(items);
@@ -114,8 +105,6 @@ const OrderForm = ({
     
     if (onProductSelect && product) {
       onProductSelect(product.id);
-    } else if (onProductSelect && !product) {
-      onProductSelect(undefined);
     }
   };
 
@@ -156,7 +145,6 @@ const OrderForm = ({
               <SupplierSelector 
                 productId={selectedProduct.id}
                 onSupplierSelect={setSelectedSupplierId}
-                initialSupplierId={selectedProduct.supplier_id}
               />
               
               <div className="mt-6">
