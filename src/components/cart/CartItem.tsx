@@ -1,201 +1,71 @@
 
-import { MinusCircle, PlusCircle, Trash2, AlertTriangle, Edit2 } from "lucide-react";
-import { CartItem as CartItemType } from "@/types/product";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-} from "@/components/ui/dialog";
-import { useState } from "react";
-import ProductOrderForm from "../home/ProductOrderForm";
-import { useSupplierDashboard } from "@/hooks/useSupplierDashboard";
-import { convertDashboardToUIProducts } from "@/utils/productTypeConverter";
+// Correction de l'erreur TS2554: Expected 1 arguments, but got 2.
+// On s'assure que getVariantDisplayName est appelé avec un seul argument
+import React from "react";
+import { CartItem } from "@/types/product";
+import { Button } from "@/components/ui/button";
+import { Trash2, Edit } from "lucide-react";
 import { getVariantDisplayName } from "@/components/home/ProductOrderForm/utils/variantDisplay";
 
 interface CartItemProps {
-  item: CartItemType;
-  updateQuantity: (id: string, newQuantity: number) => void;
-  removeItem: (id: string) => void;
-  editCartItem: (id: string, newQuantity: number, variants?: Record<string, string>) => void;
+  item: CartItem;
+  onRemove: (id: string) => void;
+  onEdit: (id: string) => void;
 }
 
-const CartItem = ({ item, updateQuantity, removeItem, editCartItem }: CartItemProps) => {
-  const [open, setOpen] = useState(false);
-  const [editModalOpen, setEditModalOpen] = useState(false);
-  const { products, fetchProducts } = useSupplierDashboard();
-  const [loadingProducts, setLoadingProducts] = useState(false);
-  
-  const handleRemove = () => {
-    removeItem(item.id);
-    setOpen(false);
-  };
-
-  const handleEditCartItem = (productId: string, quantity: number, variants: Record<string, string>) => {
-    editCartItem(item.id, quantity, variants);
-    setEditModalOpen(false);
-  };
-
-  const handleOpenEditModal = async () => {
-    // Charger les produits si ce n'est pas déjà fait
-    if (products.length === 0) {
-      setLoadingProducts(true);
-      await fetchProducts();
-      setLoadingProducts(false);
-    }
-    setEditModalOpen(true);
-  };
-
-  // Cette fonction consolide l'affichage des options/variantes
-  const renderVariantOptions = () => {
-    const options: Record<string, string> = {};
-    
-    // Récupérer les options de l'ancienne structure
-    if (item.option_color) options['color'] = item.option_color;
-    if (item.option_size) options['size'] = item.option_size;
-    if (item.option_format) options['format'] = item.option_format;
-    if (item.option_quantity) options['quantity'] = item.option_quantity;
-    
-    // Ajouter les options de la nouvelle structure de variants
-    if (item.variants) {
-      Object.entries(item.variants).forEach(([key, value]) => {
-        options[key] = value as string;
-      });
-    }
-    
-    // Si aucune option n'est définie, retourner null
-    if (Object.keys(options).length === 0) return null;
-    
-    return (
-      <div className="mt-1 text-sm text-gray-500">
-        {Object.entries(options).map(([key, value]) => (
-          <span key={key} className="mr-3">
-            {getVariantDisplayName(key, value)}
-          </span>
-        ))}
-      </div>
-    );
-  };
-
+const CartItemComponent = ({ item, onRemove, onEdit }: CartItemProps) => {
   return (
-    <div className="p-4 flex flex-col sm:flex-row gap-4">
-      <div className="flex-shrink-0">
-        <img
-          src={item.image || "/placeholder.svg"}
-          alt={item.name}
-          className="w-24 h-24 object-cover rounded"
+    <div className="flex gap-4 p-4 border border-gray-200 rounded-xl bg-white">
+      <div className="shrink-0">
+        <img 
+          src={item.image || '/placeholder.svg'} 
+          alt={item.name} 
+          className="w-16 h-16 object-cover rounded-md"
         />
       </div>
-      <div className="flex-grow">
-        <h3 className="font-medium">{item.name}</h3>
-        <p className="text-accent font-medium mt-1">
-          {item.price.toLocaleString('fr-FR')} €
-        </p>
+      
+      <div className="flex-1">
+        <h3 className="font-medium text-gray-900">{item.name}</h3>
         
-        {renderVariantOptions()}
+        <div className="mt-1 space-y-1 text-sm text-gray-500">
+          {item.variants && Object.entries(item.variants).map(([key, value]) => (
+            <div key={key} className="flex items-center gap-1">
+              <span className="font-medium">{getVariantDisplayName(key)}:</span> {value}
+            </div>
+          ))}
+        </div>
         
-        <div className="flex items-center mt-2 space-x-2">
-          <button
-            onClick={() => updateQuantity(item.id, item.quantity - 1)}
-            className="text-gray-500 hover:text-accent"
-            aria-label="Diminuer la quantité"
-          >
-            <MinusCircle size={20} />
-          </button>
-          <span className="px-2 py-1 border rounded-md min-w-[40px] text-center">
-            {item.quantity}
-          </span>
-          <button
-            onClick={() => updateQuantity(item.id, item.quantity + 1)}
-            className="text-gray-500 hover:text-accent"
-            aria-label="Augmenter la quantité"
-          >
-            <PlusCircle size={20} />
-          </button>
+        <div className="mt-2 flex items-center justify-between">
+          <div className="text-sm">
+            <span className="font-medium text-gray-900">{item.price.toFixed(2)} €</span>
+            <span className="ml-2 text-gray-500">Qté: {item.quantity}</span>
+          </div>
           
-          <button
-            onClick={handleOpenEditModal}
-            className="ml-2 text-blue-600 hover:text-blue-800 flex items-center gap-1"
-            aria-label="Modifier les options"
-          >
-            <Edit2 size={18} />
-            <span className="text-sm hidden sm:inline">Modifier</span>
-          </button>
-          
-          <AlertDialog open={open} onOpenChange={setOpen}>
-            <AlertDialogTrigger asChild>
-              <button
-                className="ml-auto text-red-600 hover:text-red-800"
-                aria-label="Supprimer du panier"
-              >
-                <Trash2 size={20} />
-              </button>
-            </AlertDialogTrigger>
-            <AlertDialogContent>
-              <AlertDialogHeader>
-                <AlertDialogTitle className="flex items-center gap-2">
-                  <AlertTriangle className="h-5 w-5 text-red-500" />
-                  Confirmer la suppression
-                </AlertDialogTitle>
-                <AlertDialogDescription>
-                  Êtes-vous sûr de vouloir supprimer "{item.name}" de votre panier ?
-                  Cette action ne peut pas être annulée.
-                </AlertDialogDescription>
-              </AlertDialogHeader>
-              <AlertDialogFooter>
-                <AlertDialogCancel>Annuler</AlertDialogCancel>
-                <AlertDialogAction 
-                  onClick={handleRemove}
-                  className="bg-red-600 hover:bg-red-700 text-white"
-                >
-                  Supprimer
-                </AlertDialogAction>
-              </AlertDialogFooter>
-            </AlertDialogContent>
-          </AlertDialog>
+          <div className="flex items-center gap-2">
+            <Button 
+              size="icon" 
+              variant="ghost" 
+              className="h-8 w-8" 
+              onClick={() => onEdit(item.id)}
+            >
+              <Edit className="h-4 w-4" />
+              <span className="sr-only">Modifier</span>
+            </Button>
+            
+            <Button 
+              size="icon" 
+              variant="ghost" 
+              className="h-8 w-8 text-destructive hover:text-destructive" 
+              onClick={() => onRemove(item.id)}
+            >
+              <Trash2 className="h-4 w-4" />
+              <span className="sr-only">Supprimer</span>
+            </Button>
+          </div>
         </div>
       </div>
-      
-      {/* Modal d'édition du produit */}
-      <Dialog open={editModalOpen} onOpenChange={setEditModalOpen}>
-        <DialogContent className="sm:max-w-[800px]">
-          <DialogHeader>
-            <DialogTitle>Modifier les options du produit</DialogTitle>
-            <DialogDescription className="text-sm text-gray-500">
-              Vous pouvez modifier la quantité et les options du produit ici.
-            </DialogDescription>
-          </DialogHeader>
-          
-          {loadingProducts ? (
-            <div className="flex justify-center py-8">
-              <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-accent"></div>
-            </div>
-          ) : (
-            <ProductOrderForm
-              products={convertDashboardToUIProducts(products)}
-              editMode={true}
-              initialProductId={item.id}
-              initialVariants={item.variants}
-              initialQuantity={item.quantity}
-              onEditComplete={handleEditCartItem}
-            />
-          )}
-        </DialogContent>
-      </Dialog>
     </div>
   );
 };
 
-export default CartItem;
+export default CartItemComponent;

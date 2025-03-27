@@ -24,7 +24,11 @@ export const fetchProductsWithVariants = async (): Promise<Product[]> => {
     // Si aucun produit n'est trouvé dans la base de données, utiliser les produits mockés
     if (!productsData || productsData.length === 0) {
       console.log("No products found in database, using mocked data");
-      return allProducts;
+      // Assurons-nous que les produits mockés ont le champ variants
+      return allProducts.map(product => ({
+        ...product,
+        variants: product.variants || []
+      }));
     }
     
     const products: Product[] = [];
@@ -120,18 +124,30 @@ export const fetchProductsWithVariants = async (): Promise<Product[]> => {
     
     // En fonction du résultat, fusionner avec les produits mockés si nécessaire
     if (products.length === 0) {
-      return allProducts;
+      // Assurons-nous que les produits mockés ont le champ variants
+      return allProducts.map(product => ({
+        ...product,
+        variants: product.variants || []
+      }));
     } else {
       // Fusionner avec les produits mockés pour combler les catégories manquantes
       const existingCategories = new Set(products.map(p => p.category));
-      const missingMockProducts = allProducts.filter(p => !existingCategories.has(p.category));
+      const missingMockProducts = allProducts
+        .filter(p => !existingCategories.has(p.category))
+        .map(product => ({
+          ...product,
+          variants: product.variants || []
+        }));
       
       return [...products, ...missingMockProducts];
     }
   } catch (error) {
     console.error("Error in fetchProductsWithVariants:", error);
     // En cas d'erreur, retourner les produits mockés
-    return allProducts;
+    return allProducts.map(product => ({
+      ...product,
+      variants: product.variants || []
+    }));
   }
 };
 

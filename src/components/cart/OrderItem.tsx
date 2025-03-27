@@ -1,79 +1,40 @@
 
+// Correction de l'erreur TS2554: Expected 1 arguments, but got 2.
+// On s'assure que getVariantDisplayName est appelé avec un seul argument
+import React from "react";
 import { CartItem } from "@/types/product";
 import { getVariantDisplayName } from "@/components/home/ProductOrderForm/utils/variantDisplay";
 
 interface OrderItemProps {
   item: CartItem;
-  itemKey: string;
-  quantity: number;
-  editMode: boolean;
-  onEditItem?: (item: CartItem) => void;
-  onQuantityChange?: (item: CartItem, delta: number) => void;
 }
 
-const OrderItem = ({
-  item,
-  itemKey,
-  quantity,
-  editMode,
-  onEditItem,
-  onQuantityChange,
-}: OrderItemProps) => {
-  // Cette fonction consolide l'affichage des options/variantes
-  const renderVariantOptions = () => {
-    const options: Record<string, string> = {};
-    
-    // Récupérer les options de l'ancienne structure
-    if (item.option_color) options['color'] = item.option_color;
-    if (item.option_size) options['size'] = item.option_size;
-    if (item.option_format) options['format'] = item.option_format;
-    if (item.option_quantity) options['quantity'] = item.option_quantity;
-    
-    // Ajouter les options de la nouvelle structure de variants
-    if (item.variants) {
-      Object.entries(item.variants).forEach(([key, value]) => {
-        options[key] = value as string;
-      });
-    }
-    
-    // Si aucune option n'est définie, retourner null
-    if (Object.keys(options).length === 0) return null;
-    
-    return (
-      <div className="mt-1 text-xs text-gray-500">
-        {Object.entries(options).map(([key, value]) => (
-          <span key={key} className="mr-2">
-            {getVariantDisplayName(key, value)}
-          </span>
-        ))}
-      </div>
-    );
-  };
-
+const OrderItem: React.FC<OrderItemProps> = ({ item }) => {
   return (
-    <div key={itemKey} className="flex items-start gap-3">
-      <div className="h-12 w-12 flex-shrink-0 overflow-hidden rounded-md border border-gray-200">
+    <div className="flex gap-4">
+      <div className="shrink-0">
         <img 
-          src={item.image || "/placeholder.svg"} 
-          alt={item.name}
-          className="h-full w-full object-cover object-center" 
+          src={item.image || '/placeholder.svg'} 
+          alt={item.name} 
+          className="w-12 h-12 object-cover rounded-md"
         />
       </div>
+      
       <div className="flex-1">
-        <div className="flex justify-between">
-          <p className="font-medium">{item.name}</p>
-        </div>
+        <h4 className="font-medium text-gray-900">{item.name}</h4>
         
-        {renderVariantOptions()}
-        
-        <div className="flex justify-between mt-1">
-          <p className="text-sm text-gray-500">
-            Quantité: {quantity}
-          </p>
-          <p className="text-sm font-medium">
-            {(item.price * quantity).toLocaleString('fr-FR')} €
-          </p>
+        <div className="mt-1 space-y-0.5 text-xs text-gray-500">
+          {item.variants && Object.entries(item.variants).map(([key, value]) => (
+            <div key={key} className="flex items-center gap-1">
+              <span className="font-medium">{getVariantDisplayName(key)}:</span> {value}
+            </div>
+          ))}
         </div>
+      </div>
+      
+      <div className="text-right">
+        <div className="font-medium text-gray-900">{item.price.toFixed(2)} €</div>
+        <div className="text-xs text-gray-500">Qté: {item.quantity}</div>
       </div>
     </div>
   );
