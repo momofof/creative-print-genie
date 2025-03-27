@@ -1,78 +1,79 @@
 
-import React from "react";
 import { CartItem } from "@/types/product";
 import { getVariantDisplayName } from "@/components/home/ProductOrderForm/utils/variantDisplay";
 
 interface OrderItemProps {
   item: CartItem;
-  itemKey?: string;
-  quantity?: number;
-  editMode?: boolean;
+  itemKey: string;
+  quantity: number;
+  editMode: boolean;
   onEditItem?: (item: CartItem) => void;
   onQuantityChange?: (item: CartItem, delta: number) => void;
 }
 
-const OrderItem: React.FC<OrderItemProps> = ({ 
-  item, 
+const OrderItem = ({
+  item,
   itemKey,
-  quantity = item.quantity,
-  editMode = false,
+  quantity,
+  editMode,
   onEditItem,
-  onQuantityChange
-}) => {
+  onQuantityChange,
+}: OrderItemProps) => {
+  // Cette fonction consolide l'affichage des options/variantes
+  const renderVariantOptions = () => {
+    const options: Record<string, string> = {};
+    
+    // Récupérer les options de l'ancienne structure
+    if (item.option_color) options['color'] = item.option_color;
+    if (item.option_size) options['size'] = item.option_size;
+    if (item.option_format) options['format'] = item.option_format;
+    if (item.option_quantity) options['quantity'] = item.option_quantity;
+    
+    // Ajouter les options de la nouvelle structure de variants
+    if (item.variants) {
+      Object.entries(item.variants).forEach(([key, value]) => {
+        options[key] = value as string;
+      });
+    }
+    
+    // Si aucune option n'est définie, retourner null
+    if (Object.keys(options).length === 0) return null;
+    
+    return (
+      <div className="mt-1 text-xs text-gray-500">
+        {Object.entries(options).map(([key, value]) => (
+          <span key={key} className="mr-2">
+            {getVariantDisplayName(key, value)}
+          </span>
+        ))}
+      </div>
+    );
+  };
+
   return (
-    <div className="flex gap-4">
-      <div className="shrink-0">
+    <div key={itemKey} className="flex items-start gap-3">
+      <div className="h-12 w-12 flex-shrink-0 overflow-hidden rounded-md border border-gray-200">
         <img 
-          src={item.image || '/placeholder.svg'} 
-          alt={item.name} 
-          className="w-12 h-12 object-cover rounded-md"
+          src={item.image || "/placeholder.svg"} 
+          alt={item.name}
+          className="h-full w-full object-cover object-center" 
         />
       </div>
-      
       <div className="flex-1">
-        <h4 className="font-medium text-gray-900">{item.name}</h4>
-        
-        <div className="mt-1 space-y-0.5 text-xs text-gray-500">
-          {item.variants && Object.entries(item.variants).map(([key, value]) => (
-            <div key={key} className="flex items-center gap-1">
-              <span className="font-medium">{getVariantDisplayName(key)}:</span> {value}
-            </div>
-          ))}
+        <div className="flex justify-between">
+          <p className="font-medium">{item.name}</p>
         </div>
-      </div>
-      
-      <div className="text-right">
-        <div className="font-medium text-gray-900">{item.price.toFixed(2)} €</div>
-        <div className="text-xs text-gray-500">Qté: {quantity}</div>
         
-        {editMode && onQuantityChange && (
-          <div className="flex items-center justify-end mt-1">
-            <button 
-              onClick={() => onQuantityChange(item, -1)}
-              className="w-6 h-6 flex items-center justify-center text-gray-500 hover:text-gray-700"
-              disabled={quantity <= 1}
-            >
-              -
-            </button>
-            <span className="w-6 text-center">{quantity}</span>
-            <button 
-              onClick={() => onQuantityChange(item, 1)}
-              className="w-6 h-6 flex items-center justify-center text-gray-500 hover:text-gray-700"
-            >
-              +
-            </button>
-          </div>
-        )}
+        {renderVariantOptions()}
         
-        {editMode && onEditItem && (
-          <button 
-            onClick={() => onEditItem(item)}
-            className="text-xs text-blue-600 hover:underline mt-1"
-          >
-            Modifier
-          </button>
-        )}
+        <div className="flex justify-between mt-1">
+          <p className="text-sm text-gray-500">
+            Quantité: {quantity}
+          </p>
+          <p className="text-sm font-medium">
+            {(item.price * quantity).toLocaleString('fr-FR')} €
+          </p>
+        </div>
       </div>
     </div>
   );
