@@ -134,12 +134,9 @@ export const fetchProductsWithVariants = async (): Promise<Product[]> => {
     } else {
       // Fusionner avec les produits mockés pour combler les catégories manquantes
       const existingCategories = new Set(products.map(p => p.category));
-      const missingMockProducts = allProducts
-        .filter(p => !existingCategories.has(p.category))
-        .map(product => ({
-          ...product,
-          variants: product.variants || []
-        }));
+      const missingMockProducts = ensureProductVariants(
+        allProducts.filter(p => !existingCategories.has(p.category))
+      );
       
       return [...products, ...missingMockProducts];
     }
