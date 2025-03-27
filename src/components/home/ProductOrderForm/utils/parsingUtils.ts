@@ -3,61 +3,81 @@ import { Product } from "@/types/product";
 
 // Get available variants from a product category or subcategory
 export const getAvailableVariants = (categoryOrSubcategory: string): string[] => {
+  // Convert to lowercase for case-insensitive matching
+  const category = categoryOrSubcategory.toLowerCase();
+  
   // Map of categories/subcategories to their available variant types
   const categoryVariantsMap: Record<string, string[]> = {
     // Textile categories
-    'T-shirts': ['color', 'size'],
-    'Polos': ['color', 'size'],
-    'Sweats': ['color', 'size'],
-    'Vestes': ['color', 'size'],
-    'Casquettes': ['color', 'size'],
+    't-shirts': ['color', 'size'],
+    'polos': ['color', 'size'],
+    'sweats': ['color', 'size'],
+    'vestes': ['color', 'size'],
+    'casquettes': ['color', 'size'],
     
     // Papeterie categories
-    'Flyers': ['format', 'quantite', 'types_impression', 'poids'],
-    'Affiches': ['format', 'quantite', 'types_impression', 'poids'],
-    'Dépliants': ['format', 'quantite', 'types_impression', 'poids', 'details_impression'],
-    'Cartes de visite': ['format', 'quantite', 'types_impression', 'details_impression'],
-    'Papier entête': ['format', 'quantite', 'types_impression'],
+    'flyers': ['format', 'quantite', 'types_impression', 'poids'],
+    'affiches': ['format', 'quantite', 'types_impression', 'poids'],
+    'dépliants': ['format', 'quantite', 'types_impression', 'poids', 'details_impression'],
+    'cartes de visite': ['format', 'quantite', 'types_impression', 'details_impression'],
+    'papier entête': ['format', 'quantite', 'types_impression'],
+    
+    // Bijoux categories
+    'bijoux': ['color', 'size', 'type_de_materiaux'],
+    'colliers': ['color', 'size', 'type_de_materiaux'],
+    'bracelets': ['color', 'size', 'type_de_materiaux'],
+    'boucles d\'oreilles': ['color', 'size', 'type_de_materiaux'],
+    'pendentifs': ['color', 'size', 'type_de_materiaux'],
     
     // Generic categories
-    'Textile': ['color', 'size'],
-    'Papeterie': ['format', 'quantite', 'types_impression', 'poids'],
-    'Packaging': ['format', 'quantite', 'type_de_materiaux'],
-    'Signalétique': ['format', 'quantite', 'type_de_materiaux', 'support'],
-    'Goodies': ['color', 'format', 'quantite'],
+    'textile': ['color', 'size'],
+    'papeterie': ['format', 'quantite', 'types_impression', 'poids'],
+    'packaging': ['format', 'quantite', 'type_de_materiaux'],
+    'signalétique': ['format', 'quantite', 'type_de_materiaux', 'support'],
+    'goodies': ['color', 'format', 'quantite'],
     
     // Default for any other category
     'default': ['color', 'size', 'format', 'quantite']
   };
   
-  return categoryVariantsMap[categoryOrSubcategory] || categoryVariantsMap['default'];
+  return categoryVariantsMap[category] || categoryVariantsMap['default'];
 };
 
 // Get quantity options based on product category
 export const getQuantityOptions = (categoryOrSubcategory: string): number[] => {
+  // Convert to lowercase for case-insensitive matching
+  const category = categoryOrSubcategory.toLowerCase();
+  
   // Map of categories to their quantity options
   const quantityOptionsMap: Record<string, number[]> = {
     // Papeterie (printing) has larger quantities
-    'Flyers': [50, 100, 250, 500, 1000, 2500, 5000],
-    'Affiches': [10, 25, 50, 100, 250, 500],
-    'Dépliants': [50, 100, 250, 500, 1000, 2500],
-    'Cartes de visite': [100, 250, 500, 1000, 2000],
-    'Papier entête': [50, 100, 250, 500, 1000],
-    'Papeterie': [50, 100, 250, 500, 1000, 2500],
+    'flyers': [50, 100, 250, 500, 1000, 2500, 5000],
+    'affiches': [10, 25, 50, 100, 250, 500],
+    'dépliants': [50, 100, 250, 500, 1000, 2500],
+    'cartes de visite': [100, 250, 500, 1000, 2000],
+    'papier entête': [50, 100, 250, 500, 1000],
+    'papeterie': [50, 100, 250, 500, 1000, 2500],
     
     // Textile usually ordered in smaller quantities
-    'T-shirts': [1, 5, 10, 25, 50, 100, 250],
-    'Polos': [1, 5, 10, 25, 50, 100],
-    'Sweats': [1, 5, 10, 25, 50, 100],
-    'Vestes': [1, 5, 10, 25, 50],
-    'Casquettes': [1, 5, 10, 25, 50, 100],
-    'Textile': [1, 5, 10, 25, 50, 100, 250],
+    't-shirts': [1, 5, 10, 25, 50, 100, 250],
+    'polos': [1, 5, 10, 25, 50, 100],
+    'sweats': [1, 5, 10, 25, 50, 100],
+    'vestes': [1, 5, 10, 25, 50],
+    'casquettes': [1, 5, 10, 25, 50, 100],
+    'textile': [1, 5, 10, 25, 50, 100, 250],
+    
+    // Bijoux usually ordered in very small quantities
+    'bijoux': [1, 2, 5, 10, 25, 50],
+    'colliers': [1, 2, 5, 10, 25, 50],
+    'bracelets': [1, 2, 5, 10, 25, 50],
+    'boucles d\'oreilles': [1, 2, 5, 10, 25, 50],
+    'pendentifs': [1, 2, 5, 10, 25, 50],
     
     // Default quantity options
     'default': [1, 2, 5, 10, 25, 50, 100]
   };
   
-  return quantityOptionsMap[categoryOrSubcategory] || quantityOptionsMap['default'];
+  return quantityOptionsMap[category] || quantityOptionsMap['default'];
 };
 
 // Extract variant options from product data

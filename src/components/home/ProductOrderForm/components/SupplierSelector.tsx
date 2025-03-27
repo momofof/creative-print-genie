@@ -13,12 +13,13 @@ import {
 interface SupplierSelectorProps {
   productId: string;
   onSupplierSelect: (supplierId: string | null) => void;
+  initialSupplierId?: string | undefined;
 }
 
-const SupplierSelector = ({ productId, onSupplierSelect }: SupplierSelectorProps) => {
+const SupplierSelector = ({ productId, onSupplierSelect, initialSupplierId }: SupplierSelectorProps) => {
   const [suppliers, setSuppliers] = useState<Supplier[]>([]);
   const [isLoading, setIsLoading] = useState(false);
-  const [selectedSupplierId, setSelectedSupplierId] = useState<string | null>(null);
+  const [selectedSupplierId, setSelectedSupplierId] = useState<string | null>(initialSupplierId || null);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -27,7 +28,24 @@ const SupplierSelector = ({ productId, onSupplierSelect }: SupplierSelectorProps
       setError(null);
       
       try {
-        // First, try to fetch suppliers who have this specific product
+        // First check if this product has a default supplier
+        const { data: productData, error: productError } = await supabase
+          .from('products_complete')
+          .select('supplier_id')
+          .eq('id', productId)
+          .single();
+        
+        if (productError && productError.code !== 'PGRST116') {
+          console.error("Error fetching product supplier:", productError);
+        }
+        
+        // If product has a default supplier, pre-select it
+        if (productData?.supplier_id && !initialSupplierId) {
+          setSelectedSupplierId(productData.supplier_id);
+          onSupplierSelect(productData.supplier_id);
+        }
+        
+        // Then, try to fetch suppliers who have this specific product
         let { data: productSuppliers, error: productSupplierError } = await supabase
           .from('supplier_products')
           .select('supplier_id')
@@ -81,7 +99,7 @@ const SupplierSelector = ({ productId, onSupplierSelect }: SupplierSelectorProps
     } else {
       setSuppliers([]);
     }
-  }, [productId]);
+  }, [productId, onSupplierSelect, initialSupplierId]);
 
   const handleSupplierChange = (value: string) => {
     setSelectedSupplierId(value);
@@ -108,7 +126,7 @@ const SupplierSelector = ({ productId, onSupplierSelect }: SupplierSelectorProps
           <p className="text-yellow-700 text-sm">Aucun fournisseur disponible pour ce produit.</p>
         </div>
       ) : (
-        <Select onValueChange={handleSupplierChange} value={selectedSupplierId || ""}>
+        <Select onValueChange={handleSupplierChange} value={selectedSupplierId || ""} defaultValue={selectedSupplierId || ""}>
           <SelectTrigger>
             <SelectValue placeholder="Sélectionner un fournisseur" />
           </SelectTrigger>

@@ -71,6 +71,13 @@ const OrderForm = ({
     }
   }, [selectedProduct, onProductSelect]);
   
+  // Set supplier ID when product is selected and it has a supplier_id
+  useEffect(() => {
+    if (selectedProduct?.supplier_id && !selectedSupplierId) {
+      setSelectedSupplierId(selectedProduct.supplier_id);
+    }
+  }, [selectedProduct, selectedSupplierId, setSelectedSupplierId]);
+  
   const handleShowOrderSummary = (items: CartItem[], total: number) => {
     setOrderSummaryItems(items);
     setOrderTotal(total);
@@ -145,6 +152,7 @@ const OrderForm = ({
               <SupplierSelector 
                 productId={selectedProduct.id}
                 onSupplierSelect={setSelectedSupplierId}
+                initialSupplierId={selectedProduct.supplier_id}
               />
               
               <div className="mt-6">

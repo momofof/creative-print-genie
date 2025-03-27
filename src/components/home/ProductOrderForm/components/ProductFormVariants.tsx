@@ -1,5 +1,5 @@
 
-import { useState, useMemo } from "react";
+import { useMemo } from "react";
 import { Product } from "@/types/product";
 import VariantSelector from "../VariantSelector";
 import { getVariantDisplayName } from "../utils/variantDisplay";
@@ -31,6 +31,14 @@ const ProductFormVariants = ({
           color: 1,
           size: 2,
           format: 3,
+          quantite: 4,
+          poids: 5,
+          types_impression: 6,
+          type_de_materiaux: 7,
+          details_impression: 8,
+          orientation_impression: 9,
+          echantillon: 10,
+          bat: 11
         };
         
         const orderA = order[a] || 99;

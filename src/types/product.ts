@@ -1,4 +1,3 @@
-
 export interface Product {
   id: string;
   name: string;
@@ -16,6 +15,7 @@ export interface Product {
   size?: string;
   format?: string;
   created_at?: string;
+  supplier_id?: string;
   variants: ProductVariant[];
 }
 

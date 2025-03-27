@@ -40,15 +40,14 @@ export const fetchProductsWithVariants = async (): Promise<Product[]> => {
         is_customizable: item.is_customizable || false,
         color: item.color || undefined,
         created_at: item.created_at,
+        supplier_id: item.supplier_id || undefined, // Track supplier ID directly in product
         variants: []
       };
       
-      // For product variants, we'll query the unified_products table for matching products
-      // with the same name or ID (depending on your database structure)
+      // For product variants, query the unified_products table for matching products
       const { data: variantsData, error: variantsError } = await supabase
         .from('unified_products')
         .select('*')
-        // Use .eq with 'id' since 'product_id' doesn't exist in unified_products
         .eq('id', item.id);
       
       if (variantsError) {
@@ -59,7 +58,7 @@ export const fetchProductsWithVariants = async (): Promise<Product[]> => {
       if (variantsData && variantsData.length > 0) {
         product.variants = variantsData.map(variant => ({
           id: variant.id || `variant-${Math.random().toString(36).substring(2, 9)}`,
-          product_id: variant.id, // Use variant.id instead of product_id
+          product_id: variant.id, // Use variant.id since product_id doesn't exist in unified_products
           size: variant.size || undefined,
           color: variant.color || undefined,
           hex_color: variant.hex_color || undefined,
