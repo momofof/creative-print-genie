@@ -40,7 +40,7 @@ export const fetchProductsWithVariants = async (): Promise<Product[]> => {
     // Fetch products from products_complete table
     const { data: productsData, error } = await supabase
       .from('products_complete')
-      .select('*')
+      .select('*, supplier_selection_label')
       .eq('status', 'published')
       .order('created_at', { ascending: false });
     
@@ -190,7 +190,9 @@ export const fetchProductsWithVariants = async (): Promise<Product[]> => {
         variants: productVariants,
         // Ajouter les fournisseurs
         supplier_id: item.supplier_id,
-        suppliers: productSuppliers
+        suppliers: productSuppliers,
+        // Ajouter le libellé personnalisé pour la sélection du fournisseur
+        supplier_selection_label: item.supplier_selection_label || "Choisissez votre fournisseur"
       };
     });
     

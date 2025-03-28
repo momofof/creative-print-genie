@@ -1,4 +1,3 @@
-
 export interface Product {
   id: string;
   name: string;
@@ -29,6 +28,7 @@ export interface Product {
   // Champs pour les fournisseurs
   supplier_id?: string;
   suppliers?: ProductSupplier[];
+  supplier_selection_label?: string;
 }
 
 export interface CartItem {

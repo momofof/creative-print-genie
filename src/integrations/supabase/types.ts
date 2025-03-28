@@ -319,6 +319,7 @@ export type Database = {
           stock: number | null
           subcategory: string | null
           supplier_id: string | null
+          supplier_selection_label: string | null
           type_de_materiaux: string | null
           types_impression: string | null
           updated_at: string | null
@@ -355,6 +356,7 @@ export type Database = {
           stock?: number | null
           subcategory?: string | null
           supplier_id?: string | null
+          supplier_selection_label?: string | null
           type_de_materiaux?: string | null
           types_impression?: string | null
           updated_at?: string | null
@@ -391,6 +393,7 @@ export type Database = {
           stock?: number | null
           subcategory?: string | null
           supplier_id?: string | null
+          supplier_selection_label?: string | null
           type_de_materiaux?: string | null
           types_impression?: string | null
           updated_at?: string | null

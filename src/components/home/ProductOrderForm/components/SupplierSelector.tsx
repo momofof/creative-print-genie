@@ -50,6 +50,7 @@ const SupplierSelector = ({ productId, onSupplierSelect }: SupplierSelectorProps
   const [suppliers, setSuppliers] = useState<Supplier[]>([]);
   const [selectedSupplierId, setSelectedSupplierId] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [sectionTitle, setSectionTitle] = useState("Choisissez votre fournisseur");
 
   useEffect(() => {
     if (productId) {
@@ -63,6 +64,17 @@ const SupplierSelector = ({ productId, onSupplierSelect }: SupplierSelectorProps
   const fetchSuppliers = async (productId: string) => {
     setLoading(true);
     try {
+      // Récupérer le libellé personnalisé du produit
+      const { data: productData, error: productLabelError } = await supabase
+        .from('products_complete')
+        .select('supplier_selection_label')
+        .eq('id', productId)
+        .single();
+
+      if (!productLabelError && productData?.supplier_selection_label) {
+        setSectionTitle(productData.supplier_selection_label);
+      }
+      
       // Vérifions d'abord si nous avons des fournisseurs associés à ce produit dans la nouvelle table product_suppliers
       const { data: productSuppliers, error: suppliersError } = await supabase
         .from('product_suppliers')
@@ -182,7 +194,7 @@ const SupplierSelector = ({ productId, onSupplierSelect }: SupplierSelectorProps
 
   return (
     <div className="mt-6 pt-6 border-t border-gray-200">
-      <h3 className="text-lg font-medium mb-4">Choisissez votre fournisseur</h3>
+      <h3 className="text-lg font-medium mb-4">{sectionTitle}</h3>
       
       <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
         {suppliers.map((supplier) => (
