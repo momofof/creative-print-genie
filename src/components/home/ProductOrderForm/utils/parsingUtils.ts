@@ -21,14 +21,15 @@ export const getAvailableVariants = (categoryOrSubcategory: string): string[] =>
     'Papier entête': ['format', 'quantite', 'types_impression'],
     
     // Generic categories
-    'Textile': ['color', 'size'],
-    'Papeterie': ['format', 'quantite', 'types_impression', 'poids'],
-    'Packaging': ['format', 'quantite', 'type_de_materiaux'],
-    'Signalétique': ['format', 'quantite', 'type_de_materiaux', 'support'],
-    'Goodies': ['color', 'format', 'quantite'],
+    'Textile': ['color', 'size', 'types_impression', 'echantillon', 'bat'],
+    'Papeterie': ['format', 'quantite', 'types_impression', 'poids', 'echantillon', 'bat', 'details_impression', 'orientation_impression'],
+    'Packaging': ['format', 'quantite', 'type_de_materiaux', 'echantillon', 'bat'],
+    'Signalétique': ['format', 'quantite', 'type_de_materiaux', 'support', 'echantillon', 'bat'],
+    'Goodies': ['color', 'format', 'quantite', 'echantillon', 'bat'],
     
     // Default for any other category
-    'default': ['color', 'size', 'format', 'quantite']
+    'default': ['color', 'size', 'format', 'quantite', 'bat', 'poids', 'echantillon', 'types_impression', 
+                'type_de_materiaux', 'details_impression', 'orientation_impression']
   };
   
   return categoryVariantsMap[categoryOrSubcategory] || categoryVariantsMap['default'];

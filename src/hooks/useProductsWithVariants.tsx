@@ -94,6 +94,14 @@ export const fetchProductsWithVariants = async (): Promise<Product[]> => {
         // Traiter chaque champ de variante pour convertir les chaînes de texte au format liste
         size: processVariantField(item.size),
         format: processVariantField(item.format),
+        bat: processVariantField(item.bat),
+        poids: processVariantField(item.poids),
+        quantite: processVariantField(item.quantite),
+        echantillon: processVariantField(item.echantillon),
+        types_impression: processVariantField(item.types_impression),
+        type_de_materiaux: processVariantField(item.type_de_materiaux),
+        details_impression: processVariantField(item.details_impression),
+        orientation_impression: processVariantField(item.orientation_impression),
         // Toujours garantir un tableau de variantes
         variants: [defaultVariant]
       };

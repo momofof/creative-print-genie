@@ -16,6 +16,15 @@ export interface Product {
   size?: string;
   format?: string;
   created_at?: string;
+  // Champs additionnels pour toutes les variantes possibles
+  bat?: string;
+  poids?: string;
+  quantite?: string;
+  echantillon?: string;
+  types_impression?: string;
+  type_de_materiaux?: string;
+  details_impression?: string;
+  orientation_impression?: string;
   variants: ProductVariant[];
 }
 
