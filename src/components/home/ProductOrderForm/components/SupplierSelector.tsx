@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Check, Truck } from "lucide-react";
@@ -62,69 +63,97 @@ const SupplierSelector = ({ productId, onSupplierSelect }: SupplierSelectorProps
   const fetchSuppliers = async (productId: string) => {
     setLoading(true);
     try {
-      // Get product supplier info first
-      const { data: productData, error: productError } = await supabase
-        .from('products_complete')
-        .select('supplier_id')
-        .eq('id', productId)
-        .single();
+      // Vérifions d'abord si nous avons des fournisseurs associés à ce produit dans la nouvelle table product_suppliers
+      const { data: productSuppliers, error: suppliersError } = await supabase
+        .from('product_suppliers')
+        .select('supplier_id, is_default')
+        .eq('product_id', productId);
 
-      if (productError) {
-        console.error("Error fetching product information:", productError);
-        
-        // Use mock suppliers if database query fails
-        const mockSuppliersToShow = MOCK_SUPPLIERS.slice(0, 4);
-        setSuppliers(mockSuppliersToShow);
-        // Select the first one by default
-        setSelectedSupplierId(mockSuppliersToShow[0].id);
-        onSupplierSelect(mockSuppliersToShow[0].id);
+      if (suppliersError) {
+        console.error("Error fetching product suppliers:", suppliersError);
+        // Fallback aux fournisseurs mockés
+        setSuppliers(MOCK_SUPPLIERS.slice(0, 4));
+        setSelectedSupplierId(MOCK_SUPPLIERS[0].id);
+        onSupplierSelect(MOCK_SUPPLIERS[0].id);
         setLoading(false);
         return;
       }
 
-      let mainSupplierId = productData?.supplier_id;
       let suppliersToShow: Supplier[] = [];
+      let defaultSupplierId: string | null = null;
       
-      // If product has a supplier, get that one first
-      if (mainSupplierId) {
-        const { data: mainSupplier, error: mainSupplierError } = await supabase
+      // Si nous avons des fournisseurs dans product_suppliers
+      if (productSuppliers && productSuppliers.length > 0) {
+        // Trouver l'ID du fournisseur par défaut
+        const defaultSupplier = productSuppliers.find(s => s.is_default);
+        if (defaultSupplier) {
+          defaultSupplierId = defaultSupplier.supplier_id;
+        }
+        
+        // Récupérer les détails de tous les fournisseurs associés
+        const supplierIds = productSuppliers.map(s => s.supplier_id);
+        
+        const { data: supplierDetails, error: detailsError } = await supabase
           .from('suppliers')
           .select('*')
-          .eq('id', mainSupplierId)
-          .single();
-
-        if (!mainSupplierError && mainSupplier) {
-          suppliersToShow.push(mainSupplier);
+          .in('id', supplierIds);
+          
+        if (!detailsError && supplierDetails && supplierDetails.length > 0) {
+          suppliersToShow = supplierDetails;
         }
       }
+      
+      // Si aucun fournisseur n'a été trouvé, essayons avec l'ancienne méthode
+      if (suppliersToShow.length === 0) {
+        // Get product supplier info first
+        const { data: productData, error: productError } = await supabase
+          .from('products_complete')
+          .select('supplier_id')
+          .eq('id', productId)
+          .single();
 
-      // Get additional suppliers (either related or random)
-      const { data: additionalSuppliers, error: otherSuppliersError } = await supabase
-        .from('suppliers')
-        .select('*')
-        .limit(3);
+        if (!productError && productData?.supplier_id) {
+          defaultSupplierId = productData.supplier_id;
+          
+          const { data: mainSupplier, error: mainSupplierError } = await supabase
+            .from('suppliers')
+            .select('*')
+            .eq('id', defaultSupplierId)
+            .single();
 
-      if (!otherSuppliersError && additionalSuppliers && additionalSuppliers.length > 0) {
-        // Filter out the main supplier if it exists
-        const filteredSuppliers = mainSupplierId 
-          ? additionalSuppliers.filter(s => s.id !== mainSupplierId)
-          : additionalSuppliers;
+          if (!mainSupplierError && mainSupplier) {
+            suppliersToShow.push(mainSupplier);
+          }
+        }
         
-        suppliersToShow = [...suppliersToShow, ...filteredSuppliers];
+        // Get additional suppliers
+        const { data: additionalSuppliers, error: otherSuppliersError } = await supabase
+          .from('suppliers')
+          .select('*')
+          .limit(3);
+
+        if (!otherSuppliersError && additionalSuppliers && additionalSuppliers.length > 0) {
+          // Filter out the main supplier if it exists
+          const filteredSuppliers = defaultSupplierId 
+            ? additionalSuppliers.filter(s => s.id !== defaultSupplierId)
+            : additionalSuppliers;
+          
+          suppliersToShow = [...suppliersToShow, ...filteredSuppliers];
+        }
       }
       
-      // If no database suppliers found, use mock data
+      // Si toujours aucun fournisseur, utiliser les mocks
       if (suppliersToShow.length === 0) {
         suppliersToShow = MOCK_SUPPLIERS.slice(0, 4);
       }
       
       setSuppliers(suppliersToShow);
       
-      // Select the main supplier by default, or the first one if no main supplier
+      // Select the default supplier or the first one if no default supplier
       if (suppliersToShow.length > 0) {
-        const defaultSupplierId = mainSupplierId || suppliersToShow[0].id;
-        setSelectedSupplierId(defaultSupplierId);
-        onSupplierSelect(defaultSupplierId);
+        const supplierToSelect = defaultSupplierId || suppliersToShow[0].id;
+        setSelectedSupplierId(supplierToSelect);
+        onSupplierSelect(supplierToSelect);
       }
     } catch (error) {
       console.error("Error fetching suppliers:", error);

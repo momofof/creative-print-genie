@@ -59,6 +59,16 @@ export const fetchProductsWithVariants = async (): Promise<Product[]> => {
       // Continue with default variants if we can't get the dedicated variants
     }
     
+    // Fetch product suppliers from the product_suppliers table
+    const { data: suppliersData, error: suppliersError } = await supabase
+      .from('product_suppliers')
+      .select('product_id, supplier_id, is_default, price_adjustment');
+      
+    if (suppliersError) {
+      console.error("Error fetching product suppliers:", suppliersError);
+      // Continue without suppliers information if we can't get the dedicated suppliers
+    }
+    
     // Group variants by product_id for easier access
     const variantsByProductId: Record<string, ProductVariant[]> = {};
     if (variantsData && variantsData.length > 0) {
@@ -92,6 +102,22 @@ export const fetchProductsWithVariants = async (): Promise<Product[]> => {
       });
     }
     
+    // Group suppliers by product_id for easier access
+    const suppliersByProductId: Record<string, { supplier_id: string, is_default: boolean, price_adjustment: number }[]> = {};
+    if (suppliersData && suppliersData.length > 0) {
+      suppliersData.forEach(supplier => {
+        if (!suppliersByProductId[supplier.product_id]) {
+          suppliersByProductId[supplier.product_id] = [];
+        }
+        
+        suppliersByProductId[supplier.product_id].push({
+          supplier_id: supplier.supplier_id,
+          is_default: supplier.is_default || false,
+          price_adjustment: supplier.price_adjustment || 0
+        });
+      });
+    }
+    
     // Map database results to Product type
     const products: Product[] = productsData.map(item => {
       // Créer un objet variante par défaut à partir des champs du produit
@@ -121,6 +147,18 @@ export const fetchProductsWithVariants = async (): Promise<Product[]> => {
       // Get dedicated variants for this product or use the default one
       const productVariants = variantsByProductId[item.id] || [defaultVariant];
       
+      // Get suppliers for this product
+      const productSuppliers = suppliersByProductId[item.id] || [];
+      
+      // If there are no suppliers, add the default one if available
+      if (productSuppliers.length === 0 && item.supplier_id) {
+        productSuppliers.push({
+          supplier_id: item.supplier_id,
+          is_default: true,
+          price_adjustment: 0
+        });
+      }
+      
       // Créer l'objet produit
       return {
         id: item.id,
@@ -149,13 +187,18 @@ export const fetchProductsWithVariants = async (): Promise<Product[]> => {
         details_impression: processVariantField(item.details_impression),
         orientation_impression: processVariantField(item.orientation_impression),
         // Toujours garantir un tableau de variantes
-        variants: productVariants
+        variants: productVariants,
+        // Ajouter les fournisseurs
+        supplier_id: item.supplier_id,
+        suppliers: productSuppliers
       };
     });
     
     console.log(`Fetched ${products.length} products with ${
       Object.values(variantsByProductId).reduce((sum, variants) => sum + variants.length, 0)
-    } total variants`);
+    } total variants and ${
+      Object.values(suppliersByProductId).reduce((sum, suppliers) => sum + suppliers.length, 0)
+    } total suppliers`);
     return products;
   } catch (error) {
     console.error("Error in fetchProductsWithVariants:", error);

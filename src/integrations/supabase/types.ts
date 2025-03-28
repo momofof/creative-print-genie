@@ -149,6 +149,61 @@ export type Database = {
         }
         Relationships: []
       }
+      product_suppliers: {
+        Row: {
+          availability_status: string | null
+          created_at: string | null
+          id: string
+          is_default: boolean | null
+          price_adjustment: number | null
+          product_id: string
+          supplier_id: string
+          updated_at: string | null
+        }
+        Insert: {
+          availability_status?: string | null
+          created_at?: string | null
+          id?: string
+          is_default?: boolean | null
+          price_adjustment?: number | null
+          product_id: string
+          supplier_id: string
+          updated_at?: string | null
+        }
+        Update: {
+          availability_status?: string | null
+          created_at?: string | null
+          id?: string
+          is_default?: boolean | null
+          price_adjustment?: number | null
+          product_id?: string
+          supplier_id?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "product_suppliers_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products_complete"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "product_suppliers_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "unified_products"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "product_suppliers_supplier_id_fkey"
+            columns: ["supplier_id"]
+            isOneToOne: false
+            referencedRelation: "suppliers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       product_variants: {
         Row: {
           bat: string | null

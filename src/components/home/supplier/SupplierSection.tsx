@@ -35,52 +35,63 @@ const SupplierSection = ({ productId }: SupplierSectionProps) => {
     const fetchSupplier = async () => {
       setLoading(true);
       try {
-        // First get the product to check if it has a supplier
-        const { data: productData, error: productError } = await supabase
-          .from('products_complete')
+        // D'abord vérifier si un fournisseur par défaut existe dans product_suppliers
+        const { data: productSupplier, error: supplierRelError } = await supabase
+          .from('product_suppliers')
           .select('supplier_id')
-          .eq('id', productId)
-          .single();
+          .eq('product_id', productId)
+          .eq('is_default', true)
+          .maybeSingle();
 
-        if (productError) {
-          console.error("Error fetching product supplier ID:", productError);
-          // Use mock supplier if product fetch fails
-          setSupplier(MOCK_SUPPLIER);
-          setLoading(false);
-          return;
+        let supplierId = null;
+        
+        if (!supplierRelError && productSupplier) {
+          // Utiliser le fournisseur par défaut de la relation product_suppliers
+          supplierId = productSupplier.supplier_id;
+        } else {
+          // Sinon, essayer avec l'ancien champ supplier_id sur products_complete
+          const { data: productData, error: productError } = await supabase
+            .from('products_complete')
+            .select('supplier_id')
+            .eq('id', productId)
+            .single();
+
+          if (!productError && productData?.supplier_id) {
+            supplierId = productData.supplier_id;
+          }
         }
 
-        // If the product doesn't have a supplier assigned, get a random one
-        if (!productData.supplier_id) {
+        // Si nous avons un supplier_id, récupérer les détails du fournisseur
+        if (supplierId) {
+          const { data: supplierData, error: supplierError } = await supabase
+            .from('suppliers')
+            .select('*')
+            .eq('id', supplierId)
+            .single();
+            
+          if (!supplierError && supplierData) {
+            setSupplier(supplierData);
+          } else {
+            // Utiliser le fournisseur mock en cas d'erreur
+            setSupplier(MOCK_SUPPLIER);
+          }
+        } else {
+          // Si aucun fournisseur n'est associé, récupérer un aléatoire
           const { data: randomSupplier, error: suppliersError } = await supabase
             .from('suppliers')
             .select('*')
             .limit(1);
             
-          if (suppliersError || !randomSupplier || randomSupplier.length === 0) {
-            // Use mock supplier if no suppliers in database
-            setSupplier(MOCK_SUPPLIER);
-          } else {
+          if (!suppliersError && randomSupplier && randomSupplier.length > 0) {
             setSupplier(randomSupplier[0]);
-          }
-        } else {
-          // Get the specific supplier for this product
-          const { data: supplierData, error: supplierError } = await supabase
-            .from('suppliers')
-            .select('*')
-            .eq('id', productData.supplier_id)
-            .single();
-            
-          if (supplierError || !supplierData) {
-            // Use mock supplier if specific supplier fetch fails
-            setSupplier(MOCK_SUPPLIER);
           } else {
-            setSupplier(supplierData);
+            // Utiliser le fournisseur mock en dernier recours
+            setSupplier(MOCK_SUPPLIER);
           }
         }
       } catch (err) {
         console.error("Error fetching supplier:", err);
-        // Use mock supplier in case of any error
+        // Utiliser le fournisseur mock en cas d'erreur
         setSupplier(MOCK_SUPPLIER);
         setError("Impossible de charger les informations du fournisseur");
       } finally {
