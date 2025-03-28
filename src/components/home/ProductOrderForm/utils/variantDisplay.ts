@@ -43,6 +43,21 @@ export const parseVariantListString = (listString?: string | null): string[] => 
   // Si c'est déjà un tableau, on le retourne directement
   if (Array.isArray(listString)) return listString;
   
+  // Si c'est un objet avec _type et value (format de certaines réponses)
+  if (typeof listString === 'object' && listString !== null) {
+    // @ts-ignore - Handle special object format from database
+    if (listString._type === 'undefined' && listString.value === 'undefined') {
+      return [];
+    }
+    // Try to stringify and parse
+    try {
+      const str = JSON.stringify(listString);
+      return parseVariantListString(str);
+    } catch (e) {
+      return [];
+    }
+  }
+  
   try {
     // Vérifie si c'est une chaîne au format "[valeur1, valeur2, ...]"
     if (typeof listString === 'string' && listString.trim().startsWith('[') && listString.trim().endsWith(']')) {

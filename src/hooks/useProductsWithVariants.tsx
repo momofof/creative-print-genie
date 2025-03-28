@@ -5,6 +5,33 @@ import { Product, ProductVariant } from "@/types/product";
 import { toast } from "sonner";
 import { parseVariantListString } from "@/components/home/ProductOrderForm/utils/variantDisplay";
 
+// Process a variant field value to ensure it's in the correct format
+const processVariantField = (value: any): string | undefined => {
+  if (!value) return undefined;
+  
+  // Handle the special object format that sometimes comes from the database
+  if (typeof value === 'object' && value !== null) {
+    // Handle the special object format with _type and value properties
+    if (value._type === 'undefined' && value.value === 'undefined') {
+      return undefined;
+    }
+    // Try to convert to string if it's another type of object
+    try {
+      return JSON.stringify(value);
+    } catch (e) {
+      return undefined;
+    }
+  }
+  
+  // Handle string format
+  if (typeof value === 'string') {
+    return value;
+  }
+  
+  // For other types, convert to string
+  return String(value);
+};
+
 // Fetch products from Supabase
 export const fetchProductsWithVariants = async (): Promise<Product[]> => {
   try {
@@ -28,21 +55,21 @@ export const fetchProductsWithVariants = async (): Promise<Product[]> => {
       const defaultVariant: ProductVariant = {
         id: `default-${item.id}`,
         product_id: item.id,
-        size: item.size || undefined,
-        color: item.color || undefined,
-        hex_color: item.hex_color || undefined,
+        size: processVariantField(item.size),
+        color: processVariantField(item.color),
+        hex_color: processVariantField(item.hex_color) || undefined,
         stock: typeof item.stock === 'string' ? parseInt(item.stock) : item.stock,
         price_adjustment: 0, // Default to 0 since it doesn't exist in the table
         status: item.variant_status || 'in_stock',
-        bat: item.bat || undefined,
-        poids: item.poids || undefined,
-        format: item.format || undefined,
-        quantite: item.quantite || undefined,
-        echantillon: item.echantillon || undefined,
-        types_impression: item.types_impression || undefined,
-        type_de_materiaux: item.type_de_materiaux || undefined,
-        details_impression: item.details_impression || undefined,
-        orientation_impression: item.orientation_impression || undefined,
+        bat: processVariantField(item.bat),
+        poids: processVariantField(item.poids),
+        format: processVariantField(item.format),
+        quantite: processVariantField(item.quantite),
+        echantillon: processVariantField(item.echantillon),
+        types_impression: processVariantField(item.types_impression),
+        type_de_materiaux: processVariantField(item.type_de_materiaux),
+        details_impression: processVariantField(item.details_impression),
+        orientation_impression: processVariantField(item.orientation_impression),
         image_url: item.variant_image_url || item.image,
         created_at: item.created_at,
         updated_at: item.updated_at
@@ -62,11 +89,11 @@ export const fetchProductsWithVariants = async (): Promise<Product[]> => {
         rating: 5, // Default rating
         reviewCount: 0, // Default review count
         is_customizable: item.is_customizable || false,
-        color: item.color || undefined,
+        color: processVariantField(item.color),
         created_at: item.created_at,
         // Traiter chaque champ de variante pour convertir les chaînes de texte au format liste
-        size: item.size || undefined,
-        format: item.format || undefined,
+        size: processVariantField(item.size),
+        format: processVariantField(item.format),
         // Toujours garantir un tableau de variantes
         variants: [defaultVariant]
       };

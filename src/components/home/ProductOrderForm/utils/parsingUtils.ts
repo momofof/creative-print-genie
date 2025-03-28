@@ -61,6 +61,32 @@ export const getQuantityOptions = (categoryOrSubcategory: string): number[] => {
   return quantityOptionsMap[categoryOrSubcategory] || quantityOptionsMap['default'];
 };
 
+// Helper function to handle variant fields that might have different formats
+const processVariantField = (value: any): string[] => {
+  if (!value) return [];
+  
+  // If it's already an array, return it
+  if (Array.isArray(value)) return value;
+  
+  // Handle the special object format from the database
+  if (typeof value === 'object' && value !== null) {
+    // Handle the case with _type and value properties
+    // @ts-ignore - Handle special object format from database
+    if (value._type === 'undefined' && value.value === 'undefined') {
+      return [];
+    }
+    // Try to stringify and parse
+    try {
+      return parseVariantListString(JSON.stringify(value));
+    } catch (e) {
+      return [];
+    }
+  }
+  
+  // For string values, use the parseVariantListString function
+  return parseVariantListString(value);
+};
+
 // Extract variant options from product data
 export const extractVariantOptionsFromProduct = async (product: Product): Promise<Record<string, string[]>> => {
   const result: Record<string, string[]> = {};
@@ -76,8 +102,8 @@ export const extractVariantOptionsFromProduct = async (product: Product): Promis
     // Pour chaque champ, on vérifie si le produit a une valeur et on la traite comme une liste
     const fieldValue = (product as any)[field];
     if (fieldValue) {
-      // Convertir la chaîne de texte en tableau
-      const parsedValues = parseVariantListString(fieldValue);
+      // Convertir la valeur en tableau
+      const parsedValues = processVariantField(fieldValue);
       if (parsedValues.length > 0) {
         result[field] = parsedValues;
       }
@@ -90,8 +116,8 @@ export const extractVariantOptionsFromProduct = async (product: Product): Promis
       variantFields.forEach(field => {
         const variantValue = (variant as any)[field];
         if (variantValue) {
-          // Convertir la chaîne de texte en tableau
-          const parsedValues = parseVariantListString(variantValue);
+          // Convertir la valeur en tableau
+          const parsedValues = processVariantField(variantValue);
           if (parsedValues.length > 0) {
             // Ajouter les valeurs uniques au résultat
             result[field] = Array.from(new Set([
@@ -104,5 +130,6 @@ export const extractVariantOptionsFromProduct = async (product: Product): Promis
     });
   }
   
+  console.log("Extracted product variant options:", result);
   return result;
 };
