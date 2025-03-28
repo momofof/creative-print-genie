@@ -1,5 +1,6 @@
 
 import { Product } from "@/types/product";
+import { parseVariantListString } from "./variantDisplay";
 
 // Get available variants from a product category or subcategory
 export const getAvailableVariants = (categoryOrSubcategory: string): string[] => {
@@ -64,7 +65,7 @@ export const getQuantityOptions = (categoryOrSubcategory: string): number[] => {
 export const extractVariantOptionsFromProduct = async (product: Product): Promise<Record<string, string[]>> => {
   const result: Record<string, string[]> = {};
   
-  // Check for variant fields in the product
+  // Champs de variantes disponibles dans le produit
   const variantFields = [
     "size", "color", "format", "quantite", "bat", "poids",
     "echantillon", "types_impression", "type_de_materiaux",
@@ -72,14 +73,36 @@ export const extractVariantOptionsFromProduct = async (product: Product): Promis
   ];
   
   variantFields.forEach(field => {
-    // If the product has a value for this field, add it as an option
-    if ((product as any)[field]) {
-      const value = (product as any)[field];
-      if (value) {
-        result[field] = [value];
+    // Pour chaque champ, on vérifie si le produit a une valeur et on la traite comme une liste
+    const fieldValue = (product as any)[field];
+    if (fieldValue) {
+      // Convertir la chaîne de texte en tableau
+      const parsedValues = parseVariantListString(fieldValue);
+      if (parsedValues.length > 0) {
+        result[field] = parsedValues;
       }
     }
   });
+  
+  // Vérifier également les variantes du produit si elles existent
+  if (product.variants && product.variants.length > 0) {
+    product.variants.forEach(variant => {
+      variantFields.forEach(field => {
+        const variantValue = (variant as any)[field];
+        if (variantValue) {
+          // Convertir la chaîne de texte en tableau
+          const parsedValues = parseVariantListString(variantValue);
+          if (parsedValues.length > 0) {
+            // Ajouter les valeurs uniques au résultat
+            result[field] = Array.from(new Set([
+              ...(result[field] || []),
+              ...parsedValues
+            ]));
+          }
+        }
+      });
+    });
+  }
   
   return result;
 };
