@@ -49,6 +49,49 @@ export const fetchProductsWithVariants = async (): Promise<Product[]> => {
       throw new Error("Failed to fetch products");
     }
     
+    // Fetch product variants from the dedicated table
+    const { data: variantsData, error: variantsError } = await supabase
+      .from('product_variants')
+      .select('*');
+      
+    if (variantsError) {
+      console.error("Error fetching product variants:", variantsError);
+      // Continue with default variants if we can't get the dedicated variants
+    }
+    
+    // Group variants by product_id for easier access
+    const variantsByProductId: Record<string, ProductVariant[]> = {};
+    if (variantsData && variantsData.length > 0) {
+      variantsData.forEach(variant => {
+        if (!variantsByProductId[variant.product_id]) {
+          variantsByProductId[variant.product_id] = [];
+        }
+        
+        variantsByProductId[variant.product_id].push({
+          id: variant.id,
+          product_id: variant.product_id,
+          size: processVariantField(variant.size),
+          color: processVariantField(variant.color),
+          hex_color: processVariantField(variant.hex_color),
+          stock: typeof variant.stock === 'string' ? parseInt(variant.stock) : (variant.stock || 0),
+          price_adjustment: typeof variant.price_adjustment === 'string' ? parseFloat(variant.price_adjustment) : (variant.price_adjustment || 0),
+          status: variant.status || 'in_stock',
+          bat: processVariantField(variant.bat),
+          poids: processVariantField(variant.poids),
+          format: processVariantField(variant.format),
+          quantite: processVariantField(variant.quantite),
+          echantillon: processVariantField(variant.echantillon),
+          types_impression: processVariantField(variant.types_impression),
+          type_de_materiaux: processVariantField(variant.type_de_materiaux),
+          details_impression: processVariantField(variant.details_impression),
+          orientation_impression: processVariantField(variant.orientation_impression),
+          image_url: variant.image_url,
+          created_at: variant.created_at,
+          updated_at: variant.updated_at
+        });
+      });
+    }
+    
     // Map database results to Product type
     const products: Product[] = productsData.map(item => {
       // Créer un objet variante par défaut à partir des champs du produit
@@ -74,6 +117,9 @@ export const fetchProductsWithVariants = async (): Promise<Product[]> => {
         created_at: item.created_at,
         updated_at: item.updated_at
       };
+      
+      // Get dedicated variants for this product or use the default one
+      const productVariants = variantsByProductId[item.id] || [defaultVariant];
       
       // Créer l'objet produit
       return {
@@ -103,11 +149,13 @@ export const fetchProductsWithVariants = async (): Promise<Product[]> => {
         details_impression: processVariantField(item.details_impression),
         orientation_impression: processVariantField(item.orientation_impression),
         // Toujours garantir un tableau de variantes
-        variants: [defaultVariant]
+        variants: productVariants
       };
     });
     
-    console.log(`Fetched ${products.length} products with variants`);
+    console.log(`Fetched ${products.length} products with ${
+      Object.values(variantsByProductId).reduce((sum, variants) => sum + variants.length, 0)
+    } total variants`);
     return products;
   } catch (error) {
     console.error("Error in fetchProductsWithVariants:", error);
