@@ -58,27 +58,33 @@ export const useCart = (): UseCartReturn => {
         if (error) throw error;
         
         // Convert the database format to CartItem
-        loadedItems = data.map((item: any) => ({
-          id: item.product_id || "",
-          name: item.product_name,
-          price: item.price,
-          quantity: item.quantity,
-          image: item.image || "/placeholder.svg",
-          supplier_id: item.supplier_id,
-          variants: {
-            ...(item.option_color && { color: item.option_color }),
-            ...(item.option_size && { size: item.option_size }),
-            ...(item.option_format && { format: item.option_format }),
-            ...(item.option_quantity && { quantity: item.option_quantity }),
-            ...(item.option_bat && { bat: item.option_bat }),
-            ...(item.option_poids && { poids: item.option_poids }),
-            ...(item.option_echantillon && { echantillon: item.option_echantillon }),
-            ...(item.option_types_impression && { types_impression: item.option_types_impression }),
-            ...(item.option_type_de_materiaux && { type_de_materiaux: item.option_type_de_materiaux }),
-            ...(item.option_details_impression && { details_impression: item.option_details_impression }),
-            ...(item.option_orientation_impression && { orientation_impression: item.option_orientation_impression })
-          }
-        }));
+        loadedItems = data.map((item: any) => {
+          // Create a variants object for the cart item
+          const variants: Record<string, string> = {};
+          
+          // Add non-null variant options to the variants object
+          if (item.option_color) variants.color = item.option_color;
+          if (item.option_size) variants.size = item.option_size;
+          if (item.option_format) variants.format = item.option_format;
+          if (item.option_quantity) variants.quantity = item.option_quantity;
+          if (item.option_bat) variants.bat = item.option_bat;
+          if (item.option_poids) variants.poids = item.option_poids;
+          if (item.option_echantillon) variants.echantillon = item.option_echantillon;
+          if (item.option_types_impression) variants.types_impression = item.option_types_impression;
+          if (item.option_type_de_materiaux) variants.type_de_materiaux = item.option_type_de_materiaux;
+          if (item.option_details_impression) variants.details_impression = item.option_details_impression;
+          if (item.option_orientation_impression) variants.orientation_impression = item.option_orientation_impression;
+          
+          return {
+            id: item.product_id || "",
+            name: item.product_name,
+            price: item.price,
+            quantity: item.quantity,
+            image: item.image || "/placeholder.svg",
+            supplier_id: item.supplier_id,
+            variants: Object.keys(variants).length > 0 ? variants : undefined
+          };
+        });
       } else {
         // Load cart from localStorage for anonymous users
         const savedCart = localStorage.getItem("cart");
@@ -160,7 +166,7 @@ export const useCart = (): UseCartReturn => {
     selectedSize,
     productImage,
     supplierId,
-    variants
+    variants = {}
   }: AddToCartProps): Promise<boolean> => {
     if (!productId) {
       toast.error("Impossible d'ajouter au panier: ID du produit manquant");
@@ -170,8 +176,10 @@ export const useCart = (): UseCartReturn => {
     setIsLoading(true);
     
     try {
-      // Préparer les variantes
-      const itemVariants = variants || {};
+      // Prepare the item variants as a simple Record<string, string>
+      const itemVariants: Record<string, string> = { ...variants };
+      
+      // Add selectedColor and selectedSize to variants if provided
       if (selectedColor) itemVariants.color = selectedColor;
       if (selectedSize) itemVariants.size = selectedSize;
       

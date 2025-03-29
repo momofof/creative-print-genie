@@ -11,7 +11,7 @@ export const calculateTotalPrice = (cartItems: CartItem[]): number => {
 export const findExistingItemIndex = (
   cartItems: CartItem[], 
   productId: string, 
-  variants: Record<string, string>
+  variants: Record<string, string> = {}
 ): number => {
   return cartItems.findIndex((item) => {
     // Vérification de base sur l'ID du produit
