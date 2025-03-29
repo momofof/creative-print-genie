@@ -5,6 +5,7 @@ import { toast } from "sonner";
 import { CartItem } from "@/types/product";
 import { AddToCartProps, UseCartReturn } from "@/types/cart";
 import { calculateTotalPrice } from "@/utils/cartCalculations";
+import { findExistingItemIndex } from "@/utils/cartCalculations";
 
 export const useCart = (): UseCartReturn => {
   const [isLoading, setIsLoading] = useState(false);
@@ -48,11 +49,11 @@ export const useCart = (): UseCartReturn => {
       let loadedItems: CartItem[] = [];
       
       if (userId) {
-        // Load cart from cart_items table instead of cart_complete
+        // Load cart from cart_items table
         const { data, error } = await supabase
           .from("cart_items")
           .select("*")
-          .eq("cart_id", userId);
+          .eq("user_id", userId);
         
         if (error) throw error;
         
@@ -63,11 +64,20 @@ export const useCart = (): UseCartReturn => {
           price: item.price,
           quantity: item.quantity,
           image: item.image || "/placeholder.svg",
-          // Use optional properties to avoid errors
-          option_color: item.option_color,
-          option_size: item.option_size,
-          option_format: item.option_format,
-          option_quantity: item.option_quantity
+          supplier_id: item.supplier_id,
+          variants: {
+            ...(item.option_color && { color: item.option_color }),
+            ...(item.option_size && { size: item.option_size }),
+            ...(item.option_format && { format: item.option_format }),
+            ...(item.option_quantity && { quantity: item.option_quantity }),
+            ...(item.option_bat && { bat: item.option_bat }),
+            ...(item.option_poids && { poids: item.option_poids }),
+            ...(item.option_echantillon && { echantillon: item.option_echantillon }),
+            ...(item.option_types_impression && { types_impression: item.option_types_impression }),
+            ...(item.option_type_de_materiaux && { type_de_materiaux: item.option_type_de_materiaux }),
+            ...(item.option_details_impression && { details_impression: item.option_details_impression }),
+            ...(item.option_orientation_impression && { orientation_impression: item.option_orientation_impression })
+          }
         }));
       } else {
         // Load cart from localStorage for anonymous users
@@ -78,11 +88,37 @@ export const useCart = (): UseCartReturn => {
       setCartItems(loadedItems);
     } catch (error) {
       console.error("Failed to load cart data:", error);
-      toast.error("Unable to load your cart");
+      toast.error("Impossible de charger votre panier");
       setCartItems([]);
     } finally {
       setIsLoading(false);
     }
+  };
+
+  // Convertir un CartItem vers le format de la BDD
+  const cartItemToDBFormat = (item: CartItem, userId: string) => {
+    const variants = item.variants || {};
+    
+    return {
+      user_id: userId,
+      product_id: item.id,
+      product_name: item.name,
+      price: item.price,
+      quantity: item.quantity,
+      image: item.image,
+      supplier_id: item.supplier_id,
+      option_color: variants.color,
+      option_size: variants.size,
+      option_format: variants.format,
+      option_quantity: variants.quantity,
+      option_bat: variants.bat,
+      option_poids: variants.poids,
+      option_echantillon: variants.echantillon,
+      option_types_impression: variants.types_impression,
+      option_type_de_materiaux: variants.type_de_materiaux,
+      option_details_impression: variants.details_impression,
+      option_orientation_impression: variants.orientation_impression
+    };
   };
 
   // Save cart items
@@ -93,23 +129,11 @@ export const useCart = (): UseCartReturn => {
         await supabase
           .from("cart_items")
           .delete()
-          .eq("cart_id", userId);
+          .eq("user_id", userId);
         
         // Insert new cart items
         if (updatedCartItems.length > 0) {
-          const cartData = updatedCartItems.map(item => ({
-            cart_id: userId,
-            product_id: item.id,
-            product_name: item.name,
-            price: item.price,
-            quantity: item.quantity,
-            image: item.image,
-            // Include optional fields
-            option_color: item.option_color,
-            option_size: item.option_size,
-            option_format: item.option_format,
-            option_quantity: item.option_quantity
-          }));
+          const cartData = updatedCartItems.map(item => cartItemToDBFormat(item, userId));
           
           const { error } = await supabase
             .from("cart_items")
@@ -123,7 +147,7 @@ export const useCart = (): UseCartReturn => {
       }
     } catch (error) {
       console.error("Failed to save cart:", error);
-      toast.error("Unable to save your cart");
+      toast.error("Impossible de sauvegarder votre panier");
     }
   };
 
@@ -133,35 +157,39 @@ export const useCart = (): UseCartReturn => {
     productPrice,
     quantity,
     selectedColor,
-    selectedSize
+    selectedSize,
+    productImage,
+    supplierId,
+    variants
   }: AddToCartProps): Promise<boolean> => {
     if (!productId) {
-      toast.error("Cannot add to cart: Missing product ID");
+      toast.error("Impossible d'ajouter au panier: ID du produit manquant");
       return false;
     }
 
     setIsLoading(true);
     
     try {
+      // Préparer les variantes
+      const itemVariants = variants || {};
+      if (selectedColor) itemVariants.color = selectedColor;
+      if (selectedSize) itemVariants.size = selectedSize;
+      
       const newItem: CartItem = {
         id: productId,
         name: productName,
         price: productPrice,
         quantity: quantity,
-        image: "/placeholder.svg", // Default image
-        option_color: selectedColor,
-        option_size: selectedSize
+        image: productImage || "/placeholder.svg",
+        supplier_id: supplierId,
+        variants: Object.keys(itemVariants).length > 0 ? itemVariants : undefined
       };
       
       // Copy current cart
       const currentCart = [...cartItems];
       
       // Check if item already exists in cart
-      const existingItemIndex = currentCart.findIndex(item => 
-        item.id === productId && 
-        item.option_color === selectedColor && 
-        item.option_size === selectedSize
-      );
+      const existingItemIndex = findExistingItemIndex(currentCart, productId, itemVariants);
       
       if (existingItemIndex >= 0) {
         // Update quantity if item exists
@@ -177,58 +205,65 @@ export const useCart = (): UseCartReturn => {
       // Save updated cart
       await saveCart(currentCart);
       
-      toast.success(`${productName} added to cart`);
+      toast.success(`${productName} ajouté au panier`);
       return true;
     } catch (error) {
       console.error("Error adding to cart:", error);
-      toast.error("Error adding to cart");
+      toast.error("Erreur lors de l'ajout au panier");
       return false;
     } finally {
       setIsLoading(false);
     }
   };
 
-  const updateQuantity = (id: string, newQuantity: number) => {
+  const updateQuantity = (id: string, newQuantity: number, variants?: Record<string, string>) => {
     if (newQuantity < 1) return;
     
-    const updatedCart = cartItems.map((item) =>
-      item.id === id ? { ...item, quantity: newQuantity } : item
-    );
+    const existingItemIndex = findExistingItemIndex(cartItems, id, variants || {});
+    
+    if (existingItemIndex === -1) return;
+    
+    const updatedCart = [...cartItems];
+    updatedCart[existingItemIndex].quantity = newQuantity;
     
     setCartItems(updatedCart);
     saveCart(updatedCart);
     
-    toast.success("Quantity updated");
+    toast.success("Quantité mise à jour");
   };
 
-  const removeItem = (id: string) => {
-    const updatedCart = cartItems.filter((item) => item.id !== id);
+  const removeItem = (id: string, variants?: Record<string, string>) => {
+    const existingItemIndex = findExistingItemIndex(cartItems, id, variants || {});
+    
+    if (existingItemIndex === -1) return;
+    
+    const updatedCart = [...cartItems];
+    updatedCart.splice(existingItemIndex, 1);
+    
     setCartItems(updatedCart);
     saveCart(updatedCart);
     
-    toast.success("Product removed from cart");
+    toast.success("Produit retiré du panier");
   };
 
   const clearCart = () => {
     setCartItems([]);
     saveCart([]);
-    toast.success("Cart cleared");
+    toast.success("Panier vidé");
   };
 
   const editCartItem = (id: string, newQuantity: number, options?: Record<string, string>) => {
-    const updatedCart = cartItems.map((item) => {
-      if (item.id === id) {
-        return { 
-          ...item, 
-          quantity: newQuantity,
-          option_color: options?.color,
-          option_size: options?.size,
-          option_format: options?.format,
-          option_quantity: options?.quantity
-        };
-      }
-      return item;
-    });
+    const existingItemIndex = findExistingItemIndex(cartItems, id, options || {});
+    
+    if (existingItemIndex === -1) return;
+    
+    const updatedCart = [...cartItems];
+    const item = updatedCart[existingItemIndex];
+    
+    item.quantity = newQuantity;
+    if (options) {
+      item.variants = { ...item.variants, ...options };
+    }
     
     setCartItems(updatedCart);
     saveCart(updatedCart);

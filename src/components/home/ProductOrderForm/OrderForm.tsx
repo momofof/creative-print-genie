@@ -13,6 +13,7 @@ import ProductFormSubmitButton from "./components/ProductFormSubmitButton";
 
 import { useOrderFormState } from "./hooks/useOrderFormState";
 import { useOrderSubmission } from "./hooks/useOrderSubmission";
+import { toast } from "sonner";
 
 interface OrderFormProps {
   products: Product[];
@@ -87,7 +88,7 @@ const OrderForm = ({
       setSelectedProduct(undefined);
       setSelectedQuantity(null);
       setVariants({});
-      setSelectedSupplierId(null);
+      // Ne pas réinitialiser le fournisseur pour une meilleure expérience utilisateur
     },
     onShowOrderSummary: handleShowOrderSummary
   });
@@ -95,8 +96,24 @@ const OrderForm = ({
   const handleUpdateProduct = async (e: React.FormEvent) => {
     e.preventDefault();
     
+    if (!selectedProduct || !selectedQuantity) {
+      toast.error("Veuillez sélectionner un produit et une quantité");
+      return;
+    }
+
+    if (!selectedSupplierId) {
+      toast.warning("Veuillez sélectionner un fournisseur");
+      return;
+    }
+    
     if (onEditComplete && selectedProduct && selectedQuantity) {
-      onEditComplete(selectedProduct.id, selectedQuantity, variants);
+      try {
+        onEditComplete(selectedProduct.id, selectedQuantity, variants);
+        toast.success("Produit mis à jour avec succès");
+      } catch (error) {
+        console.error("Error updating product:", error);
+        toast.error("Erreur lors de la mise à jour du produit");
+      }
     }
   };
 
@@ -107,6 +124,12 @@ const OrderForm = ({
       onProductSelect(product.id);
     }
   };
+
+  const handleSupplierSelect = (supplierId: string) => {
+    setSelectedSupplierId(supplierId);
+  };
+
+  const isFormValid = selectedProduct && selectedQuantity && selectedSupplierId;
 
   return (
     <div className="bg-white rounded-lg shadow-lg p-4 md:p-6 max-w-4xl mx-auto my-6 md:my-10">
@@ -144,13 +167,14 @@ const OrderForm = ({
             <>
               <SupplierSelector 
                 productId={selectedProduct.id}
-                onSupplierSelect={setSelectedSupplierId}
+                onSupplierSelect={handleSupplierSelect}
+                selectedSupplierId={selectedSupplierId}
               />
               
               <div className="mt-6">
                 <ProductFormSubmitButton
                   isSubmitting={isSubmitting}
-                  disabled={!selectedProduct || !selectedQuantity || !selectedSupplierId}
+                  disabled={!isFormValid}
                   editMode={editMode}
                 />
               </div>
