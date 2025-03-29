@@ -4,8 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { CartItem } from "@/types/product";
 import { AddToCartProps, UseCartReturn } from "@/types/cart";
-import { calculateTotalPrice } from "@/utils/cartCalculations";
-import { findExistingItemIndex } from "@/utils/cartCalculations";
+import { calculateTotalPrice, findExistingItemIndex } from "@/utils/cartCalculations";
 
 export const useCart = (): UseCartReturn => {
   const [isLoading, setIsLoading] = useState(false);
