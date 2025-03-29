@@ -14,40 +14,40 @@ export const findExistingItemIndex = (
   variants: Record<string, string> = {}
 ): number => {
   return cartItems.findIndex((item) => {
-    // Vérification de base sur l'ID du produit
+    // Basic check on product ID
     if (item.id !== productId) return false;
     
-    // Si les deux articles ont un supplier_id différent, ils sont considérés comme différents
+    // If both items have different supplier_id, they are considered different
     if (item.supplier_id && variants.supplier_id && item.supplier_id !== variants.supplier_id) {
       return false;
     }
     
-    // Si aucun variant n'est spécifié, on vérifie juste l'ID et le fournisseur
-    if (Object.keys(variants).length === 0 && (!item.variants || Object.keys(item.variants).length === 0)) {
+    // If no variants specified, just check ID and supplier
+    if (Object.keys(variants).length === 0 && (!item.variants || Object.keys(item.variants || {}).length === 0)) {
       return true;
     }
     
-    // Si l'un a des variants et l'autre non, ils sont différents
+    // If one has variants and the other doesn't, they are different
     if ((!variants || Object.keys(variants).length === 0) && item.variants && Object.keys(item.variants).length > 0) {
       return false;
     }
-    if ((variants && Object.keys(variants).length > 0) && (!item.variants || Object.keys(item.variants).length === 0)) {
+    if ((variants && Object.keys(variants).length > 0) && (!item.variants || Object.keys(item.variants || {}).length === 0)) {
       return false;
     }
     
-    // Comparaison des variants (si les deux existent)
+    // Compare variants (if both exist)
     if (variants && item.variants) {
       const variantKeys = new Set([
         ...Object.keys(variants),
         ...Object.keys(item.variants)
       ]);
       
-      // Ignorer la clé supplier_id pour la comparaison
+      // Ignore supplier_id for comparison
       variantKeys.delete("supplier_id");
       
-      // Vérifier que toutes les variantes sont identiques
+      // Check that all variants are identical
       for (const key of variantKeys) {
-        if (variants[key] !== item.variants[key]) {
+        if (variants[key] !== (item.variants as Record<string, string>)[key]) {
           return false;
         }
       }

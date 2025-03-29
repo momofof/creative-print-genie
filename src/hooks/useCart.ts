@@ -100,7 +100,7 @@ export const useCart = (): UseCartReturn => {
     }
   };
 
-  // Convertir un CartItem vers le format de la BDD
+  // Convert a CartItem to DB format
   const cartItemToDBFormat = (item: CartItem, userId: string) => {
     const variants = item.variants || {};
     
@@ -175,7 +175,7 @@ export const useCart = (): UseCartReturn => {
     setIsLoading(true);
     
     try {
-      // Prepare the item variants as a simple Record<string, string>
+      // Prepare the item variants as a Record<string, string>
       const itemVariants: Record<string, string> = { ...variants };
       
       // Add selectedColor and selectedSize to variants if provided
@@ -223,10 +223,10 @@ export const useCart = (): UseCartReturn => {
     }
   };
 
-  const updateQuantity = (id: string, newQuantity: number, variants?: Record<string, string>) => {
+  const updateQuantity = (id: string, newQuantity: number, variants: Record<string, string> = {}) => {
     if (newQuantity < 1) return;
     
-    const existingItemIndex = findExistingItemIndex(cartItems, id, variants || {});
+    const existingItemIndex = findExistingItemIndex(cartItems, id, variants);
     
     if (existingItemIndex === -1) return;
     
@@ -239,8 +239,8 @@ export const useCart = (): UseCartReturn => {
     toast.success("Quantité mise à jour");
   };
 
-  const removeItem = (id: string, variants?: Record<string, string>) => {
-    const existingItemIndex = findExistingItemIndex(cartItems, id, variants || {});
+  const removeItem = (id: string, variants: Record<string, string> = {}) => {
+    const existingItemIndex = findExistingItemIndex(cartItems, id, variants);
     
     if (existingItemIndex === -1) return;
     
@@ -259,8 +259,8 @@ export const useCart = (): UseCartReturn => {
     toast.success("Panier vidé");
   };
 
-  const editCartItem = (id: string, newQuantity: number, options?: Record<string, string>) => {
-    const existingItemIndex = findExistingItemIndex(cartItems, id, options || {});
+  const editCartItem = (id: string, newQuantity: number, options: Record<string, string> = {}) => {
+    const existingItemIndex = findExistingItemIndex(cartItems, id, options);
     
     if (existingItemIndex === -1) return;
     
@@ -269,7 +269,7 @@ export const useCart = (): UseCartReturn => {
     
     item.quantity = newQuantity;
     if (options) {
-      item.variants = { ...item.variants, ...options };
+      item.variants = { ...item.variants, ...options } as Record<string, string>;
     }
     
     setCartItems(updatedCart);
