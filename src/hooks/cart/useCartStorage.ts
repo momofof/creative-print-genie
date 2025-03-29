@@ -39,7 +39,7 @@ const cartItemToDBFormat = (item: CartItem, userId: string) => {
 };
 
 // Type for the database cart item
-interface DBCartItem {
+type DBCartItem = {
   product_id: string;
   product_name: string;
   price: number;
@@ -104,7 +104,7 @@ export const useCartStorage = (): UseCartStorageReturn => {
         if (error) throw error;
         
         // Convert the database format to CartItem
-        loadedItems = data.map((item: DBCartItem): CartItem => {
+        loadedItems = data.map((item: DBCartItem) => {
           // Create a variants object for the cart item
           const variants: Record<string, string> = {};
           
