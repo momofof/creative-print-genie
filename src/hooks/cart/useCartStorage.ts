@@ -83,7 +83,7 @@ export const useCartStorage = (): UseCartStorageReturn => {
         if (error) throw error;
         
         // Convert the database format to CartItem
-        loadedItems = data.map((item: any) => {
+        loadedItems = data.map((item: any): CartItem => {
           // Create a variants object for the cart item
           const variants: Record<string, string> = {};
           
