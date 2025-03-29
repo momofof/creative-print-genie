@@ -1,3 +1,4 @@
+
 import { CartItem } from "@/types/product";
 
 export const calculateTotalPrice = (cartItems: CartItem[]): number => {
@@ -10,41 +11,41 @@ export const calculateTotalPrice = (cartItems: CartItem[]): number => {
 export const findExistingItemIndex = (
   cartItems: CartItem[], 
   productId: string, 
-  variants: Record<string, string> = {}
+  variants: Record<string, string>
 ): number => {
   return cartItems.findIndex((item) => {
-    // Basic check on product ID
+    // Vérification de base sur l'ID du produit
     if (item.id !== productId) return false;
     
-    // If both items have different supplier_id, they are considered different
+    // Si les deux articles ont un supplier_id différent, ils sont considérés comme différents
     if (item.supplier_id && variants.supplier_id && item.supplier_id !== variants.supplier_id) {
       return false;
     }
     
-    // If no variants specified, just check ID and supplier
-    if (Object.keys(variants).length === 0 && (!item.variants || Object.keys(item.variants || {}).length === 0)) {
+    // Si aucun variant n'est spécifié, on vérifie juste l'ID et le fournisseur
+    if (Object.keys(variants).length === 0 && (!item.variants || Object.keys(item.variants).length === 0)) {
       return true;
     }
     
-    // If one has variants and the other doesn't, they are different
+    // Si l'un a des variants et l'autre non, ils sont différents
     if ((!variants || Object.keys(variants).length === 0) && item.variants && Object.keys(item.variants).length > 0) {
       return false;
     }
-    if ((variants && Object.keys(variants).length > 0) && (!item.variants || Object.keys(item.variants || {}).length === 0)) {
+    if ((variants && Object.keys(variants).length > 0) && (!item.variants || Object.keys(item.variants).length === 0)) {
       return false;
     }
     
-    // Compare variants (if both exist)
+    // Comparaison des variants (si les deux existent)
     if (variants && item.variants) {
       const variantKeys = new Set([
         ...Object.keys(variants),
         ...Object.keys(item.variants)
       ]);
       
-      // Ignore supplier_id for comparison
+      // Ignorer la clé supplier_id pour la comparaison
       variantKeys.delete("supplier_id");
       
-      // Check that all variants are identical
+      // Vérifier que toutes les variantes sont identiques
       for (const key of variantKeys) {
         if (variants[key] !== item.variants[key]) {
           return false;
