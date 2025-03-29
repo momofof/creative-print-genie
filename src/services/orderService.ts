@@ -39,65 +39,53 @@ export const orderService = {
   // Create order
   createOrder: async (order: Order): Promise<OrderCreateResponse> => {
     try {
-      // Préparer les données pour insertion
-      const orderData = {
-        customer_id: order.customer_id,
-        total: order.total,
-        status: order.status,
-        product_quantity: order.items[0]?.quantity || 0,
-        product_price: order.items[0]?.price || 0,
-        product_id: order.items[0]?.product_id || "",
-        product_name: order.items[0]?.product_name || "",
-        product_options: JSON.stringify(order.items[0]?.variants || {}),
-        shipping_address_street: order.shipping_address.address,
-        shipping_address_city: order.shipping_address.city,
-        shipping_address_state: "",
-        shipping_address_zip: order.shipping_address.postal_code,
-        shipping_address_country: order.shipping_address.country,
-        customer_name: order.shipping_address.name,
-        supplier_id: order.shipping_address.supplier_id // Use supplier_id from shipping address
-      };
-      
-      // Insérer dans orders_complete
+      // Use orders_complete instead of orders
       const { data, error } = await supabase
         .from("orders_complete")
-        .insert(orderData)
+        .insert({
+          customer_id: order.customer_id,
+          total: order.total,
+          status: order.status,
+          product_quantity: order.items.length,
+          product_price: order.items[0]?.price || 0,
+          product_id: order.items[0]?.product_id || "",
+          product_name: order.items[0]?.product_name || "",
+          product_options: JSON.stringify(order.items[0]?.variants || {}),
+          shipping_address_street: order.shipping_address.address,
+          shipping_address_city: order.shipping_address.city,
+          shipping_address_state: "",
+          shipping_address_zip: order.shipping_address.postal_code,
+          shipping_address_country: order.shipping_address.country,
+          customer_name: order.shipping_address.name,
+          supplier_id: order.shipping_address.supplier_id // Use supplier_id from shipping address
+        })
         .select("id")
         .single();
       
-      if (error) {
-        console.error("Database error creating order:", error);
-        throw new Error(`Erreur de base de données: ${error.message}`);
-      }
+      if (error) throw error;
       
       return {
         success: true,
-        message: "Commande créée avec succès",
+        message: "Order created successfully",
         orderId: data.id
       };
     } catch (error: any) {
       console.error("Error creating order:", error);
       return {
         success: false,
-        message: error.message || "Erreur lors de la création de la commande"
+        message: error.message || "Error creating order"
       };
     }
   },
   
   // Get orders
-  getOrders: async (userId?: string): Promise<Order[]> => {
+  getOrders: async (): Promise<Order[]> => {
     try {
-      let query = supabase
+      // Use orders_complete instead of orders
+      const { data, error } = await supabase
         .from("orders_complete")
         .select("*")
         .order("created_at", { ascending: false });
-      
-      // Si un userId est fourni, filtrer par client
-      if (userId) {
-        query = query.eq("customer_id", userId);
-      }
-      
-      const { data, error } = await query;
       
       if (error) throw error;
       
@@ -129,24 +117,6 @@ export const orderService = {
       console.error("Error fetching orders:", error);
       toast.error(error.message || "Error fetching orders");
       return [];
-    }
-  },
-  
-  // Update order status
-  updateOrderStatus: async (orderId: string, status: string): Promise<boolean> => {
-    try {
-      const { error } = await supabase
-        .from("orders_complete")
-        .update({ status })
-        .eq("id", orderId);
-      
-      if (error) throw error;
-      
-      return true;
-    } catch (error: any) {
-      console.error("Error updating order status:", error);
-      toast.error(error.message || "Error updating order status");
-      return false;
     }
   }
 };

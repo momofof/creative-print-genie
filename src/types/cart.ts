@@ -8,9 +8,6 @@ export interface AddToCartProps {
   quantity: number;
   selectedColor?: string;
   selectedSize?: string;
-  productImage?: string;
-  supplierId?: string;
-  variants?: Record<string, string>;
 }
 
 export interface CartState {
@@ -21,8 +18,8 @@ export interface CartState {
 
 export interface CartOperations {
   addToCart: (props: AddToCartProps) => Promise<boolean>;
-  updateQuantity: (id: string, newQuantity: number, variants?: Record<string, string>) => void;
-  removeItem: (id: string, variants?: Record<string, string>) => void;
+  updateQuantity: (id: string, newQuantity: number) => void;
+  removeItem: (id: string) => void;
   clearCart: () => void;
   loadCart: () => Promise<void>;
   editCartItem: (id: string, newQuantity: number, variants?: Record<string, string>) => void;

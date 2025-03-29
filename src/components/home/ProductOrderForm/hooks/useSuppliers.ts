@@ -1,21 +1,17 @@
-
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Supplier } from "@/components/home/supplier/types";
 import { toast } from "sonner";
 import { MOCK_SUPPLIERS } from "../constants/mockData";
 
-export const useSuppliers = (productId?: string, initialSelectedSupplierId?: string | null) => {
+export const useSuppliers = (productId?: string) => {
   const [suppliers, setSuppliers] = useState<Supplier[]>([]);
-  const [selectedSupplierId, setSelectedSupplierId] = useState<string | null>(initialSelectedSupplierId || null);
+  const [selectedSupplierId, setSelectedSupplierId] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<boolean>(false);
   const [sectionTitle, setSectionTitle] = useState("Choisissez votre fournisseur");
 
   const fetchSuppliers = async (productId: string) => {
     setLoading(true);
-    setError(false);
-    
     try {
       // Récupérer le libellé personnalisé du produit
       const { data: productData, error: productLabelError } = await supabase
@@ -28,7 +24,7 @@ export const useSuppliers = (productId?: string, initialSelectedSupplierId?: str
         setSectionTitle(productData.supplier_selection_label);
       }
       
-      // Vérifier d'abord si nous avons des fournisseurs associés à ce produit
+      // Vérifions d'abord si nous avons des fournisseurs associés à ce produit dans la nouvelle table product_suppliers
       const { data: productSuppliers, error: suppliersError } = await supabase
         .from('product_suppliers')
         .select('supplier_id, is_default')
@@ -36,7 +32,11 @@ export const useSuppliers = (productId?: string, initialSelectedSupplierId?: str
 
       if (suppliersError) {
         console.error("Error fetching product suppliers:", suppliersError);
-        throw suppliersError;
+        // Fallback aux fournisseurs mockés
+        setSuppliers(MOCK_SUPPLIERS.slice(0, 4));
+        setSelectedSupplierId(MOCK_SUPPLIERS[0].id);
+        setLoading(false);
+        return;
       }
 
       let suppliersToShow: Supplier[] = [];
@@ -58,11 +58,7 @@ export const useSuppliers = (productId?: string, initialSelectedSupplierId?: str
           .select('*')
           .in('id', supplierIds);
           
-        if (detailsError) {
-          throw detailsError;
-        }
-        
-        if (supplierDetails && supplierDetails.length > 0) {
+        if (!detailsError && supplierDetails && supplierDetails.length > 0) {
           suppliersToShow = supplierDetails;
         }
       }
@@ -114,17 +110,14 @@ export const useSuppliers = (productId?: string, initialSelectedSupplierId?: str
       setSuppliers(suppliersToShow);
       
       // Select the default supplier or the first one if no default supplier
-      if (initialSelectedSupplierId) {
-        setSelectedSupplierId(initialSelectedSupplierId);
-      } else if (suppliersToShow.length > 0 && !selectedSupplierId) {
+      if (suppliersToShow.length > 0) {
         const supplierToSelect = defaultSupplierId || suppliersToShow[0].id;
         setSelectedSupplierId(supplierToSelect);
       }
-    } catch (error: any) {
+    } catch (error) {
       console.error("Error fetching suppliers:", error);
-      setError(true);
       setSuppliers(MOCK_SUPPLIERS.slice(0, 4));
-      if (MOCK_SUPPLIERS.length > 0 && !selectedSupplierId) {
+      if (MOCK_SUPPLIERS.length > 0) {
         setSelectedSupplierId(MOCK_SUPPLIERS[0].id);
       }
       toast.error("Impossible de charger les fournisseurs");
@@ -147,7 +140,6 @@ export const useSuppliers = (productId?: string, initialSelectedSupplierId?: str
     selectedSupplierId,
     setSelectedSupplierId,
     loading,
-    error,
     sectionTitle
   };
 };

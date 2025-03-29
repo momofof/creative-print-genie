@@ -63,33 +63,19 @@ export const useOrderSubmission = ({
       // Calculate total price
       const totalPrice = orderItem.price * orderItem.quantity;
       
-      // Get user's name if available
-      let customerName = "";
-      if (userId) {
-        const { data: userData } = await supabase
-          .from('users_complete')
-          .select('first_name, last_name')
-          .eq('id', userId)
-          .single();
-        
-        if (userData) {
-          customerName = `${userData.first_name || ''} ${userData.last_name || ''}`.trim();
-        }
-      }
-      
-      // Create the order with supplier info
+      // Create the order with supplier info in shipping_address for now
       const result = await orderService.createOrder({
-        customer_id: userId,
+        customer_id: userId || undefined,
         items: [orderItem],
         total: totalPrice,
         status: 'pending',
         shipping_address: {
-          name: customerName,
+          name: "",
           address: "",
           city: "",
           postal_code: "",
           country: "",
-          supplier_id: selectedSupplierId
+          supplier_id: selectedSupplierId // Store supplier ID here temporarily
         }
       });
       
@@ -146,35 +132,24 @@ export const useOrderSubmission = ({
       
       // For logged in users
       if (userId) {
-        // Transform variants to individual option fields
-        const cartItemData = {
-          user_id: userId,
-          product_id: product.id,
-          product_name: product.name,
-          price: product.price,
-          quantity: quantity,
-          image: product.image || "/placeholder.svg",
-          supplier_id: supplierId,
-          option_color: variants.color,
-          option_size: variants.size,
-          option_format: variants.format,
-          option_quantity: variants.quantity,
-          option_bat: variants.bat,
-          option_poids: variants.poids,
-          option_echantillon: variants.echantillon,
-          option_types_impression: variants.types_impression,
-          option_type_de_materiaux: variants.type_de_materiaux,
-          option_details_impression: variants.details_impression,
-          option_orientation_impression: variants.orientation_impression
-        };
-          
+        // Insert directly into cart_items table with type assertion
         const { error } = await supabase
           .from('cart_items')
-          .insert(cartItemData);
+          .insert({
+            user_id: userId,
+            product_id: product.id,
+            product_name: product.name,
+            price: product.price,
+            quantity: quantity,
+            product_image: product.image || "/placeholder.svg",
+            option_color: variants.color,
+            option_size: variants.size,
+            option_format: variants.format,
+            option_quantity: variants.quantity,
+            supplier_id: supplierId
+          });
           
         if (error) throw error;
-        
-        // Notify the cart was updated
         toast.success("Produit ajouté au panier");
       } else {
         // For anonymous users, use localStorage
