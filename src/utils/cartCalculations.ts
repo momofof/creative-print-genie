@@ -1,4 +1,3 @@
-
 import { CartItem } from "@/types/product";
 
 export const calculateTotalPrice = (cartItems: CartItem[]): number => {
@@ -47,8 +46,7 @@ export const findExistingItemIndex = (
       
       // Check that all variants are identical
       for (const key of variantKeys) {
-        // Use type assertion to ensure TypeScript knows it's a string-keyed object
-        if (variants[key] !== (item.variants as Record<string, string>)[key]) {
+        if (variants[key] !== item.variants[key]) {
           return false;
         }
       }
