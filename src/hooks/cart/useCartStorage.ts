@@ -38,6 +38,27 @@ const cartItemToDBFormat = (item: CartItem, userId: string) => {
   };
 };
 
+// Type for the database cart item
+interface DBCartItem {
+  product_id: string;
+  product_name: string;
+  price: number;
+  quantity: number;
+  image: string | null;
+  supplier_id: string | null;
+  option_color: string | null;
+  option_size: string | null;
+  option_format: string | null;
+  option_quantity: string | null;
+  option_bat: string | null;
+  option_poids: string | null;
+  option_echantillon: string | null;
+  option_types_impression: string | null;
+  option_type_de_materiaux: string | null;
+  option_details_impression: string | null;
+  option_orientation_impression: string | null;
+}
+
 export const useCartStorage = (): UseCartStorageReturn => {
   const [isLoading, setIsLoading] = useState(false);
   const [userId, setUserId] = useState<string | null>(null);
@@ -83,7 +104,7 @@ export const useCartStorage = (): UseCartStorageReturn => {
         if (error) throw error;
         
         // Convert the database format to CartItem
-        loadedItems = data.map((item: any): CartItem => {
+        loadedItems = data.map((item: DBCartItem): CartItem => {
           // Create a variants object for the cart item
           const variants: Record<string, string> = {};
           
