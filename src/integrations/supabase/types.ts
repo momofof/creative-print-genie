@@ -299,6 +299,7 @@ export type Database = {
           customization_position: string | null
           customization_price_adjustment: number | null
           customization_required: boolean | null
+          customization_type: string | null
           description: string | null
           details_impression: string | null
           echantillon: string | null
@@ -336,6 +337,7 @@ export type Database = {
           customization_position?: string | null
           customization_price_adjustment?: number | null
           customization_required?: boolean | null
+          customization_type?: string | null
           description?: string | null
           details_impression?: string | null
           echantillon?: string | null
@@ -373,6 +375,7 @@ export type Database = {
           customization_position?: string | null
           customization_price_adjustment?: number | null
           customization_required?: boolean | null
+          customization_type?: string | null
           description?: string | null
           details_impression?: string | null
           echantillon?: string | null
