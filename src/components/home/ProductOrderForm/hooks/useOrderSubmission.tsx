@@ -5,6 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { orderService, OrderItem } from "@/services/orderService";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
+import { addItemToLocalCart } from "@/utils/cartStorage";
 
 interface UseOrderSubmissionProps {
   selectedProduct: Product | undefined;
@@ -30,6 +31,12 @@ export const useOrderSubmission = ({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    console.log("Button clicked, starting order submission");
+    console.log("Selected product:", selectedProduct);
+    console.log("Selected quantity:", selectedQuantity);
+    console.log("Selected supplier:", selectedSupplierId);
+    console.log("Variants:", variants);
     
     // Validation de base
     if (!selectedProduct || !selectedQuantity) {
@@ -57,6 +64,12 @@ export const useOrderSubmission = ({
       // Calcul du prix total
       const totalPrice = orderItem.price * orderItem.quantity;
       
+      console.log("Creating order with:", {
+        items: [orderItem],
+        total: totalPrice,
+        supplier_id: selectedSupplierId
+      });
+      
       // Créer la commande avec les informations fournisseur dans shipping_address
       const result = await orderService.createOrder({
         customer_id: userId || undefined,
@@ -72,6 +85,8 @@ export const useOrderSubmission = ({
           supplier_id: selectedSupplierId
         }
       });
+      
+      console.log("Order creation result:", result);
       
       if (result.success) {
         // Création d'un CartItem pour afficher dans le récapitulatif
@@ -114,6 +129,8 @@ export const useOrderSubmission = ({
     userId: string | null
   ) => {
     try {
+      console.log("Adding to cart:", { product, quantity, variants, supplierId });
+      
       const newCartItem: CartItem = {
         id: product.id,
         name: product.name,
@@ -129,14 +146,25 @@ export const useOrderSubmission = ({
         const variantFields: Record<string, any> = {};
         
         // Ajouter les champs de variantes avec le préfixe option_
-        if (variants) {
+        if (Object.keys(variants).length > 0) {
           Object.entries(variants).forEach(([key, value]) => {
             variantFields[`option_${key}`] = value;
           });
         }
         
+        console.log("Inserting into cart_items with fields:", {
+          cart_id: userId,
+          product_id: product.id,
+          product_name: product.name,
+          price: product.price,
+          quantity: quantity,
+          image: product.image || "/placeholder.svg",
+          supplier_id: supplierId,
+          ...variantFields
+        });
+        
         // Insérer directement dans la table cart_items
-        const { error } = await supabase
+        const { data, error } = await supabase
           .from('cart_items')
           .insert({
             cart_id: userId,
@@ -149,29 +177,17 @@ export const useOrderSubmission = ({
             ...variantFields
           });
           
-        if (error) throw error;
-        toast.success("Produit ajouté au panier");
-      } else {
-        // Pour les utilisateurs anonymes, utiliser localStorage
-        const savedCart = localStorage.getItem("cart");
-        const existingCartItems = savedCart ? JSON.parse(savedCart) : [];
-        
-        // Vérifier si le produit existe déjà
-        const existingItemIndex = existingCartItems.findIndex((item: CartItem) => 
-          item.id === product.id && 
-          JSON.stringify(item.variants || {}) === JSON.stringify(variants || {})
-        );
-        
-        if (existingItemIndex >= 0) {
-          // Mettre à jour la quantité si l'article existe
-          existingCartItems[existingItemIndex].quantity += quantity;
-        } else {
-          // Ajouter un nouvel article
-          existingCartItems.push(newCartItem);
+        if (error) {
+          console.error("Supabase cart insert error:", error);
+          throw error;
         }
         
-        // Sauvegarder dans localStorage
-        localStorage.setItem("cart", JSON.stringify(existingCartItems));
+        console.log("Cart item added successfully:", data);
+        toast.success("Produit ajouté au panier");
+      } else {
+        // Pour les utilisateurs anonymes, utiliser localStorage via notre utilitaire
+        addItemToLocalCart(newCartItem);
+        console.log("Product added to local cart");
         toast.success("Produit ajouté au panier");
       }
     } catch (error) {

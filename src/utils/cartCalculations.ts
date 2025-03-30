@@ -17,7 +17,7 @@ export const findExistingItemIndex = (
     // Vérification de base sur l'ID du produit
     if (item.id !== productId) return false;
     
-    // Si aucun variant n'est spécifié, on vérifie juste l'ID
+    // Si aucun variant n'est spécifié pour l'un ou l'autre, on vérifie juste l'ID
     if (!variants && !item.variants) return true;
     
     // Si l'un a des variants et l'autre non, ils sont différents
@@ -25,7 +25,9 @@ export const findExistingItemIndex = (
     
     // Comparaison des variants (si les deux existent)
     if (variants && item.variants) {
-      return JSON.stringify(variants) === JSON.stringify(item.variants);
+      const variantsA = JSON.stringify(variants);
+      const variantsB = JSON.stringify(item.variants);
+      return variantsA === variantsB;
     }
     
     return true;

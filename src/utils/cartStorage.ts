@@ -22,20 +22,25 @@ export const getCartFromLocalStorage = (): CartItem[] => {
 };
 
 export const addItemToLocalCart = (item: CartItem) => {
-  const cart = getCartFromLocalStorage();
-  const existingItem = cart.find(
-    (cartItem) => 
-      cartItem.id === item.id && 
-      JSON.stringify(cartItem.variants || {}) === JSON.stringify(item.variants || {})
-  );
+  try {
+    const cart = getCartFromLocalStorage();
+    const existingItemIndex = cart.findIndex(
+      (cartItem) => 
+        cartItem.id === item.id && 
+        JSON.stringify(cartItem.variants || {}) === JSON.stringify(item.variants || {})
+    );
 
-  if (existingItem) {
-    existingItem.quantity += item.quantity;
-  } else {
-    cart.push(item);
+    if (existingItemIndex >= 0) {
+      cart[existingItemIndex].quantity += item.quantity;
+    } else {
+      cart.push(item);
+    }
+
+    saveCartToLocalStorage(cart);
+    console.log("Item added to local cart:", item, "New cart:", cart);
+  } catch (error) {
+    console.error("Error adding item to local cart:", error);
   }
-
-  saveCartToLocalStorage(cart);
 };
 
 export const removeItemFromLocalCart = (index: number) => {
