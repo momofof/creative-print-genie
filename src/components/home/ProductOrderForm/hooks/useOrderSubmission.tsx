@@ -31,13 +31,7 @@ export const useOrderSubmission = ({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    // Redirect to login page if user is not logged in
-    if (!userId) {
-      toast.info("Veuillez vous connecter pour passer une commande");
-      navigate("/login");
-      return;
-    }
-    
+    // Validation de base
     if (!selectedProduct || !selectedQuantity) {
       toast.error("Veuillez sélectionner un produit et une quantité");
       return;
@@ -51,19 +45,19 @@ export const useOrderSubmission = ({
     setIsSubmitting(true);
     
     try {
-      // Create order item from the selected product
+      // Création de l'élément de commande à partir du produit sélectionné
       const orderItem: OrderItem = {
         product_id: selectedProduct.id,
         product_name: selectedProduct.name,
         quantity: selectedQuantity,
         price: selectedProduct.price,
-        variants: Object.keys(variants).length > 0 ? variants : undefined
+        variants: Object.keys(variants).length > 0 ? variants : {}
       };
       
-      // Calculate total price
+      // Calcul du prix total
       const totalPrice = orderItem.price * orderItem.quantity;
       
-      // Create the order with supplier info in shipping_address for now
+      // Créer la commande avec les informations fournisseur dans shipping_address
       const result = await orderService.createOrder({
         customer_id: userId || undefined,
         items: [orderItem],
@@ -75,12 +69,12 @@ export const useOrderSubmission = ({
           city: "",
           postal_code: "",
           country: "",
-          supplier_id: selectedSupplierId // Store supplier ID here temporarily
+          supplier_id: selectedSupplierId
         }
       });
       
       if (result.success) {
-        // Create a CartItem to display in the summary
+        // Création d'un CartItem pour afficher dans le récapitulatif
         const cartItem: CartItem = {
           id: selectedProduct.id,
           name: selectedProduct.name,
@@ -91,15 +85,15 @@ export const useOrderSubmission = ({
           supplier_id: selectedSupplierId
         };
         
-        // Show order summary dialog
+        // Afficher la boîte de dialogue de récapitulatif de la commande
         onShowOrderSummary([cartItem], totalPrice);
         
         toast.success(`Commande de ${selectedQuantity} ${selectedProduct.name} envoyée avec succès !`);
         
-        // Add to cart automatically
+        // Ajouter au panier automatiquement
         await addToCart(selectedProduct, selectedQuantity, variants, selectedSupplierId, userId);
         
-        // Reset form via callback
+        // Réinitialiser le formulaire via la fonction de rappel
         onOrderSuccess();
       } else {
         toast.error("La commande n'a pas pu être traitée. Veuillez réessayer.");
@@ -130,47 +124,53 @@ export const useOrderSubmission = ({
         supplier_id: supplierId
       };
       
-      // For logged in users
+      // Pour les utilisateurs connectés
       if (userId) {
-        // Insert directly into cart_items table with type assertion
+        const variantFields: Record<string, any> = {};
+        
+        // Ajouter les champs de variantes avec le préfixe option_
+        if (variants) {
+          Object.entries(variants).forEach(([key, value]) => {
+            variantFields[`option_${key}`] = value;
+          });
+        }
+        
+        // Insérer directement dans la table cart_items
         const { error } = await supabase
           .from('cart_items')
           .insert({
-            user_id: userId,
+            cart_id: userId,
             product_id: product.id,
             product_name: product.name,
             price: product.price,
             quantity: quantity,
-            product_image: product.image || "/placeholder.svg",
-            option_color: variants.color,
-            option_size: variants.size,
-            option_format: variants.format,
-            option_quantity: variants.quantity,
-            supplier_id: supplierId
+            image: product.image || "/placeholder.svg",
+            supplier_id: supplierId,
+            ...variantFields
           });
           
         if (error) throw error;
         toast.success("Produit ajouté au panier");
       } else {
-        // For anonymous users, use localStorage
+        // Pour les utilisateurs anonymes, utiliser localStorage
         const savedCart = localStorage.getItem("cart");
         const existingCartItems = savedCart ? JSON.parse(savedCart) : [];
         
-        // Check if product already exists
+        // Vérifier si le produit existe déjà
         const existingItemIndex = existingCartItems.findIndex((item: CartItem) => 
           item.id === product.id && 
           JSON.stringify(item.variants || {}) === JSON.stringify(variants || {})
         );
         
         if (existingItemIndex >= 0) {
-          // Update quantity if item exists
+          // Mettre à jour la quantité si l'article existe
           existingCartItems[existingItemIndex].quantity += quantity;
         } else {
-          // Add new item
+          // Ajouter un nouvel article
           existingCartItems.push(newCartItem);
         }
         
-        // Save to localStorage
+        // Sauvegarder dans localStorage
         localStorage.setItem("cart", JSON.stringify(existingCartItems));
         toast.success("Produit ajouté au panier");
       }
