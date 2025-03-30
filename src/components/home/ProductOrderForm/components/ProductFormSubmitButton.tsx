@@ -18,10 +18,10 @@ const ProductFormSubmitButton = ({
       type="submit"
       disabled={disabled || isSubmitting}
       className={cn(
-        "w-full bg-accent text-white py-3 px-6 rounded-md font-medium transition-colors flex items-center justify-center gap-2 shadow-md hover:shadow-lg",
+        "w-full bg-accent text-white py-3 px-6 rounded-md font-medium transition-all flex items-center justify-center gap-2 shadow-md",
         (disabled || isSubmitting) ? 
           "opacity-50 cursor-not-allowed" : 
-          "hover:bg-accent/90 transform hover:scale-[1.01] active:scale-[0.99]"
+          "hover:bg-accent/90 transform hover:scale-[1.02] active:scale-[0.99] hover:shadow-lg"
       )}
       style={{ minHeight: "48px" }}
     >

@@ -190,6 +190,11 @@ export const useOrderSubmission = ({
         console.log("Product added to local cart");
         toast.success("Produit ajouté au panier");
       }
+
+      // Automatically navigate to cart after a short delay
+      setTimeout(() => {
+        navigate('/cart');
+      }, 1500);
     } catch (error) {
       console.error("Failed to add to cart:", error);
       toast.error("Erreur lors de l'ajout au panier");
