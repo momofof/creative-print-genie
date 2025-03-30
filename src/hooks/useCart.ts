@@ -3,8 +3,8 @@ import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { CartItem } from "@/types/product";
-import { AddToCartProps, UseCartReturn } from "@/types/cart";
-import { calculateTotalPrice } from "@/utils/cartCalculations";
+import { AddToCartProps, UseCartReturn, DBCartItem } from "@/types/cart";
+import { calculateTotalPrice, findExistingItemIndex } from "@/utils/cartCalculations";
 
 export const useCart = (): UseCartReturn => {
   const [isLoading, setIsLoading] = useState(false);
@@ -56,18 +56,23 @@ export const useCart = (): UseCartReturn => {
         
         if (error) throw error;
         
-        // Convert the database format to CartItem
-        loadedItems = data.map((item: any) => ({
+        // Convert the database format to CartItem with explicit typing
+        loadedItems = data.map((item: DBCartItem): CartItem => ({
           id: item.product_id || "",
           name: item.product_name,
           price: item.price,
           quantity: item.quantity,
           image: item.image || "/placeholder.svg",
-          // Use optional properties to avoid errors
-          option_color: item.option_color,
-          option_size: item.option_size,
-          option_format: item.option_format,
-          option_quantity: item.option_quantity
+          variants: {
+            ...(item.option_color ? { color: item.option_color } : {}),
+            ...(item.option_size ? { size: item.option_size } : {}),
+            ...(item.option_format ? { format: item.option_format } : {}),
+            ...(item.option_quantity ? { quantity: item.option_quantity } : {}),
+            ...(item.option_bat ? { bat: item.option_bat } : {}),
+            ...(item.option_poids ? { poids: item.option_poids } : {}),
+            ...(item.option_echantillon ? { echantillon: item.option_echantillon } : {})
+          },
+          supplier_id: item.supplier_id
         }));
       } else {
         // Load cart from localStorage for anonymous users
@@ -104,11 +109,14 @@ export const useCart = (): UseCartReturn => {
             price: item.price,
             quantity: item.quantity,
             image: item.image,
-            // Include optional fields
-            option_color: item.option_color,
-            option_size: item.option_size,
-            option_format: item.option_format,
-            option_quantity: item.option_quantity
+            option_color: item.variants?.color,
+            option_size: item.variants?.size,
+            option_format: item.variants?.format,
+            option_quantity: item.variants?.quantity,
+            option_bat: item.variants?.bat,
+            option_poids: item.variants?.poids,
+            option_echantillon: item.variants?.echantillon,
+            supplier_id: item.supplier_id
           }));
           
           const { error } = await supabase

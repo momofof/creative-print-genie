@@ -299,7 +299,6 @@ export type Database = {
           customization_position: string | null
           customization_price_adjustment: number | null
           customization_required: boolean | null
-          customization_type: string | null
           description: string | null
           details_impression: string | null
           echantillon: string | null
@@ -317,6 +316,7 @@ export type Database = {
           size: string | null
           status: string
           stock: number | null
+          "style  de pliages": string | null
           subcategory: string | null
           supplier_id: string | null
           supplier_selection_label: string | null
@@ -336,7 +336,6 @@ export type Database = {
           customization_position?: string | null
           customization_price_adjustment?: number | null
           customization_required?: boolean | null
-          customization_type?: string | null
           description?: string | null
           details_impression?: string | null
           echantillon?: string | null
@@ -354,6 +353,7 @@ export type Database = {
           size?: string | null
           status?: string
           stock?: number | null
+          "style  de pliages"?: string | null
           subcategory?: string | null
           supplier_id?: string | null
           supplier_selection_label?: string | null
@@ -373,7 +373,6 @@ export type Database = {
           customization_position?: string | null
           customization_price_adjustment?: number | null
           customization_required?: boolean | null
-          customization_type?: string | null
           description?: string | null
           details_impression?: string | null
           echantillon?: string | null
@@ -391,6 +390,7 @@ export type Database = {
           size?: string | null
           status?: string
           stock?: number | null
+          "style  de pliages"?: string | null
           subcategory?: string | null
           supplier_id?: string | null
           supplier_selection_label?: string | null
