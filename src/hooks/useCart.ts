@@ -57,19 +57,21 @@ export const useCart = (): UseCartReturn => {
         
         if (error) throw error;
         
-        // Convert the database format to CartItem
+        // Convert the database format to CartItem - fixed the problematic code here
         loadedItems = data.map((item: any) => ({
           id: item.product_id || "",
           name: item.product_name,
           price: item.price,
           quantity: item.quantity,
           image: item.image || "/placeholder.svg",
-          variants: {
-            ...(item.option_color ? { color: item.option_color } : {}),
-            ...(item.option_size ? { size: item.option_size } : {}),
-            ...(item.option_format ? { format: item.option_format } : {}),
-            ...(item.option_quantity ? { quantity: item.option_quantity } : {})
-          },
+          variants: item.option_color || item.option_size || item.option_format || item.option_quantity
+            ? {
+                ...(item.option_color ? { color: item.option_color } : {}),
+                ...(item.option_size ? { size: item.option_size } : {}),
+                ...(item.option_format ? { format: item.option_format } : {}),
+                ...(item.option_quantity ? { quantity: item.option_quantity } : {})
+              }
+            : undefined,
           supplier_id: item.supplier_id
         }));
       } else {
