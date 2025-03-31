@@ -4,7 +4,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { CartItem } from "@/types/product";
 import { AddToCartProps, UseCartReturn } from "@/types/cart";
-import { calculateTotalPrice } from "@/utils/cartCalculations";
+import { calculateTotalPrice, findExistingItemIndex } from "@/utils/cartCalculations";
+import { saveCartToLocalStorage, getCartFromLocalStorage } from "@/utils/cartStorage";
 
 export const useCart = (): UseCartReturn => {
   const [isLoading, setIsLoading] = useState(false);
@@ -48,11 +49,11 @@ export const useCart = (): UseCartReturn => {
       let loadedItems: CartItem[] = [];
       
       if (userId) {
-        // Load cart from cart_items table instead of cart_complete
+        // Load cart from database for logged-in users
         const { data, error } = await supabase
           .from("cart_items")
           .select("*")
-          .eq("cart_id", userId);
+          .eq("user_id", userId);
         
         if (error) throw error;
         
@@ -63,67 +64,70 @@ export const useCart = (): UseCartReturn => {
           price: item.price,
           quantity: item.quantity,
           image: item.image || "/placeholder.svg",
-          // Use optional properties to avoid errors
-          option_color: item.option_color,
-          option_size: item.option_size,
-          option_format: item.option_format,
-          option_quantity: item.option_quantity
+          variants: {
+            ...(item.option_color ? { color: item.option_color } : {}),
+            ...(item.option_size ? { size: item.option_size } : {}),
+            ...(item.option_format ? { format: item.option_format } : {}),
+            ...(item.option_quantity ? { quantity: item.option_quantity } : {})
+          },
+          supplier_id: item.supplier_id
         }));
       } else {
         // Load cart from localStorage for anonymous users
-        const savedCart = localStorage.getItem("cart");
-        loadedItems = savedCart ? JSON.parse(savedCart) : [];
+        loadedItems = getCartFromLocalStorage();
       }
       
       setCartItems(loadedItems);
     } catch (error) {
       console.error("Failed to load cart data:", error);
-      toast.error("Unable to load your cart");
+      toast.error("Impossible de charger votre panier");
       setCartItems([]);
     } finally {
       setIsLoading(false);
     }
   };
 
-  // Save cart items
   const saveCart = async (updatedCartItems: CartItem[]) => {
     try {
       if (userId) {
-        // Delete existing cart items
+        // For logged-in users, save to database
+        // First, delete all existing items
         await supabase
           .from("cart_items")
           .delete()
-          .eq("cart_id", userId);
-        
-        // Insert new cart items
+          .eq("user_id", userId);
+          
         if (updatedCartItems.length > 0) {
+          // Then insert the updated cart items
           const cartData = updatedCartItems.map(item => ({
-            cart_id: userId,
+            user_id: userId,
             product_id: item.id,
             product_name: item.name,
             price: item.price,
             quantity: item.quantity,
             image: item.image,
-            // Include optional fields
-            option_color: item.option_color,
-            option_size: item.option_size,
-            option_format: item.option_format,
-            option_quantity: item.option_quantity
+            supplier_id: item.supplier_id,
+            option_color: item.variants?.color,
+            option_size: item.variants?.size,
+            option_format: item.variants?.format,
+            option_quantity: item.variants?.quantity
           }));
           
           const { error } = await supabase
             .from("cart_items")
             .insert(cartData);
-          
+            
           if (error) throw error;
         }
       } else {
-        // Save to localStorage for anonymous users
-        localStorage.setItem("cart", JSON.stringify(updatedCartItems));
+        // For anonymous users, save to localStorage
+        saveCartToLocalStorage(updatedCartItems);
       }
+      
+      setCartItems(updatedCartItems);
     } catch (error) {
       console.error("Failed to save cart:", error);
-      toast.error("Unable to save your cart");
+      toast.error("Impossible de sauvegarder votre panier");
     }
   };
 
@@ -135,53 +139,43 @@ export const useCart = (): UseCartReturn => {
     selectedColor,
     selectedSize
   }: AddToCartProps): Promise<boolean> => {
-    if (!productId) {
-      toast.error("Cannot add to cart: Missing product ID");
-      return false;
-    }
-
     setIsLoading(true);
     
     try {
+      const variants: Record<string, string> = {};
+      if (selectedColor) variants.color = selectedColor;
+      if (selectedSize) variants.size = selectedSize;
+      
       const newItem: CartItem = {
         id: productId,
         name: productName,
         price: productPrice,
         quantity: quantity,
-        image: "/placeholder.svg", // Default image
-        option_color: selectedColor,
-        option_size: selectedSize
+        image: "/placeholder.svg", // Image par défaut
+        variants: Object.keys(variants).length > 0 ? variants : undefined
       };
       
-      // Copy current cart
+      // Copier le panier actuel
       const currentCart = [...cartItems];
       
-      // Check if item already exists in cart
-      const existingItemIndex = currentCart.findIndex(item => 
-        item.id === productId && 
-        item.option_color === selectedColor && 
-        item.option_size === selectedSize
-      );
+      // Vérifier si l'article existe déjà dans le panier
+      const existingItemIndex = findExistingItemIndex(currentCart, productId, variants);
       
       if (existingItemIndex >= 0) {
-        // Update quantity if item exists
+        // Mettre à jour la quantité si l'article existe
         currentCart[existingItemIndex].quantity += quantity;
       } else {
-        // Add new item
+        // Ajouter un nouvel article
         currentCart.push(newItem);
       }
       
-      // Update cart state
-      setCartItems(currentCart);
-      
-      // Save updated cart
+      // Sauvegarder le panier mis à jour
       await saveCart(currentCart);
       
-      toast.success(`${productName} added to cart`);
       return true;
     } catch (error) {
       console.error("Error adding to cart:", error);
-      toast.error("Error adding to cart");
+      toast.error("Erreur lors de l'ajout au panier");
       return false;
     } finally {
       setIsLoading(false);
@@ -195,44 +189,34 @@ export const useCart = (): UseCartReturn => {
       item.id === id ? { ...item, quantity: newQuantity } : item
     );
     
-    setCartItems(updatedCart);
     saveCart(updatedCart);
-    
-    toast.success("Quantity updated");
+    toast.success("Quantité mise à jour");
   };
 
   const removeItem = (id: string) => {
     const updatedCart = cartItems.filter((item) => item.id !== id);
-    setCartItems(updatedCart);
     saveCart(updatedCart);
-    
-    toast.success("Product removed from cart");
+    toast.success("Produit retiré du panier");
   };
 
   const clearCart = () => {
-    setCartItems([]);
     saveCart([]);
-    toast.success("Cart cleared");
+    toast.success("Panier vidé");
   };
 
-  const editCartItem = (id: string, newQuantity: number, options?: Record<string, string>) => {
+  const editCartItem = (id: string, newQuantity: number, variants?: Record<string, string>) => {
     const updatedCart = cartItems.map((item) => {
       if (item.id === id) {
         return { 
           ...item, 
           quantity: newQuantity,
-          option_color: options?.color,
-          option_size: options?.size,
-          option_format: options?.format,
-          option_quantity: options?.quantity
+          variants: variants || item.variants
         };
       }
       return item;
     });
     
-    setCartItems(updatedCart);
     saveCart(updatedCart);
-    
     toast.success("Panier mis à jour");
   };
 

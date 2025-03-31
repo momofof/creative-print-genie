@@ -39,7 +39,7 @@ const OrderDialogFooter = ({
           >
             <Link to="/cart">
               <ShoppingCart size={16} />
-              <span>Passer à la caisse</span>
+              <span>Voir le panier</span>
             </Link>
           </Button>
         </>

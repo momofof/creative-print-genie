@@ -5,6 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { orderService, OrderItem } from "@/services/orderService";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
+import { useCart } from "@/hooks/useCart";
 
 interface UseOrderSubmissionProps {
   selectedProduct: Product | undefined;
@@ -27,16 +28,10 @@ export const useOrderSubmission = ({
 }: UseOrderSubmissionProps) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const navigate = useNavigate();
+  const { addToCart } = useCart();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
-    // Redirect to login page if user is not logged in
-    if (!userId) {
-      toast.info("Veuillez vous connecter pour passer une commande");
-      navigate("/login");
-      return;
-    }
     
     if (!selectedProduct || !selectedQuantity) {
       toast.error("Veuillez sélectionner un produit et une quantité");
@@ -51,132 +46,45 @@ export const useOrderSubmission = ({
     setIsSubmitting(true);
     
     try {
-      // Create order item from the selected product
-      const orderItem: OrderItem = {
-        product_id: selectedProduct.id,
-        product_name: selectedProduct.name,
-        quantity: selectedQuantity,
+      // Créer l'élément panier
+      const cartItem: CartItem = {
+        id: selectedProduct.id,
+        name: selectedProduct.name,
         price: selectedProduct.price,
-        variants: Object.keys(variants).length > 0 ? variants : undefined
+        quantity: selectedQuantity,
+        image: selectedProduct.image || "/placeholder.svg",
+        variants: Object.keys(variants).length > 0 ? variants : undefined,
+        supplier_id: selectedSupplierId
       };
       
-      // Calculate total price
-      const totalPrice = orderItem.price * orderItem.quantity;
+      // Calculer le prix total
+      const totalPrice = cartItem.price * cartItem.quantity;
       
-      // Create the order with supplier info in shipping_address for now
-      const result = await orderService.createOrder({
-        customer_id: userId || undefined,
-        items: [orderItem],
-        total: totalPrice,
-        status: 'pending',
-        shipping_address: {
-          name: "",
-          address: "",
-          city: "",
-          postal_code: "",
-          country: "",
-          supplier_id: selectedSupplierId // Store supplier ID here temporarily
-        }
+      // Ajouter au panier
+      const addedToCart = await addToCart({
+        productId: selectedProduct.id,
+        productName: selectedProduct.name,
+        productPrice: selectedProduct.price,
+        quantity: selectedQuantity,
+        selectedColor: variants.color,
+        selectedSize: variants.size
       });
       
-      if (result.success) {
-        // Create a CartItem to display in the summary
-        const cartItem: CartItem = {
-          id: selectedProduct.id,
-          name: selectedProduct.name,
-          price: selectedProduct.price,
-          quantity: selectedQuantity,
-          image: selectedProduct.image || "/placeholder.svg",
-          variants: Object.keys(variants).length > 0 ? variants : undefined,
-          supplier_id: selectedSupplierId
-        };
-        
-        // Show order summary dialog
+      if (addedToCart) {
+        // Montrer la boîte de dialogue récapitulative
         onShowOrderSummary([cartItem], totalPrice);
+        toast.success(`${selectedProduct.name} ajouté au panier`);
         
-        toast.success(`Commande de ${selectedQuantity} ${selectedProduct.name} envoyée avec succès !`);
-        
-        // Add to cart automatically
-        await addToCart(selectedProduct, selectedQuantity, variants, selectedSupplierId, userId);
-        
-        // Reset form via callback
+        // Réinitialiser le formulaire
         onOrderSuccess();
       } else {
-        toast.error("La commande n'a pas pu être traitée. Veuillez réessayer.");
+        toast.error("Impossible d'ajouter le produit au panier. Veuillez réessayer.");
       }
     } catch (error) {
-      console.error("Order submission error:", error);
-      toast.error("Une erreur est survenue lors de la commande");
+      console.error("Erreur lors de l'ajout au panier:", error);
+      toast.error("Une erreur est survenue");
     } finally {
       setIsSubmitting(false);
-    }
-  };
-  
-  const addToCart = async (
-    product: Product,
-    quantity: number,
-    variants: Record<string, string>,
-    supplierId: string,
-    userId: string | null
-  ) => {
-    try {
-      const newCartItem: CartItem = {
-        id: product.id,
-        name: product.name,
-        price: product.price,
-        quantity: quantity,
-        image: product.image || "/placeholder.svg",
-        variants: Object.keys(variants).length > 0 ? variants : undefined,
-        supplier_id: supplierId
-      };
-      
-      // For logged in users
-      if (userId) {
-        // Insert directly into cart_items table with type assertion
-        const { error } = await supabase
-          .from('cart_items')
-          .insert({
-            user_id: userId,
-            product_id: product.id,
-            product_name: product.name,
-            price: product.price,
-            quantity: quantity,
-            product_image: product.image || "/placeholder.svg",
-            option_color: variants.color,
-            option_size: variants.size,
-            option_format: variants.format,
-            option_quantity: variants.quantity,
-            supplier_id: supplierId
-          });
-          
-        if (error) throw error;
-        toast.success("Produit ajouté au panier");
-      } else {
-        // For anonymous users, use localStorage
-        const savedCart = localStorage.getItem("cart");
-        const existingCartItems = savedCart ? JSON.parse(savedCart) : [];
-        
-        // Check if product already exists
-        const existingItemIndex = existingCartItems.findIndex((item: CartItem) => 
-          item.id === product.id && 
-          JSON.stringify(item.variants || {}) === JSON.stringify(variants || {})
-        );
-        
-        if (existingItemIndex >= 0) {
-          // Update quantity if item exists
-          existingCartItems[existingItemIndex].quantity += quantity;
-        } else {
-          // Add new item
-          existingCartItems.push(newCartItem);
-        }
-        
-        // Save to localStorage
-        localStorage.setItem("cart", JSON.stringify(existingCartItems));
-        toast.success("Produit ajouté au panier");
-      }
-    } catch (error) {
-      console.error("Failed to add to cart:", error);
-      toast.error("Erreur lors de l'ajout au panier");
     }
   };
 

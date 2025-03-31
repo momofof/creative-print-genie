@@ -32,7 +32,7 @@ const ProductFormSubmitButton = ({
           Traitement en cours...
         </span>
       ) : (
-        editMode ? "Mettre à jour" : "Commander"
+        editMode ? "Mettre à jour" : "Ajouter au panier"
       )}
     </button>
   );
