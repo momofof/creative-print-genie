@@ -1,8 +1,7 @@
-
 import { Product } from "@/types/product";
 import VariantSelector from "../VariantSelector";
-import { getVariantDisplayName } from "../utils/variantDisplay";
-import { getVariantOptions } from "../utils/variantConfig";
+import { getVariantDisplayName } from "../utils";
+import { getVariantOptions } from "../utils";
 
 interface ProductFormVariantsProps {
   selectedProduct: Product;

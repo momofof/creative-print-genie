@@ -19,5 +19,6 @@ export {
 
 // Export variant display utilities
 export {
-  getVariantDisplayName
+  getVariantDisplayName,
+  parseVariantListString
 } from './variantDisplay';
