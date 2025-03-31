@@ -9,7 +9,7 @@ interface ProductFormVariantsProps {
   variants: Record<string, string>;
   availableVariants: string[];
   onVariantChange: (variantType: string, value: string) => void;
-  productVariantOptions: Record<string, string[]>;
+  productVariantOptions: Record<string, string[] | number[]>;
 }
 
 const ProductFormVariants = ({
@@ -20,7 +20,7 @@ const ProductFormVariants = ({
   productVariantOptions
 }: ProductFormVariantsProps) => {
   // Get variant options prioritizing product-specific options if available
-  const getOptionsForVariant = (variantType: string): string[] => {
+  const getOptionsForVariant = (variantType: string): string[] | number[] => {
     if (selectedProduct) {
       // Si des options spécifiques au produit existent pour cette variante, les utiliser
       if (productVariantOptions[variantType] && productVariantOptions[variantType].length > 0) {

@@ -22,7 +22,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 interface VariantSelectorProps {
   variantType: string;
   displayName: string;
-  options: string[];
+  options: string[] | number[];
   selectedValue: string;
   onChange: (value: string) => void;
   productCategory: string;
@@ -41,9 +41,9 @@ const VariantSelector = ({
   const isMobile = useIsMobile();
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   
-  // Filter options by search term
+  // Filter options by search term, ensuring all options are treated as strings
   const filteredOptions = options.filter(option => 
-    option.toLowerCase().includes(searchTerm.toLowerCase())
+    String(option).toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   // Determine if we need scroll buttons (5 or more options)
@@ -109,8 +109,8 @@ const VariantSelector = ({
               >
                 {filteredOptions.length > 0 ? (
                   filteredOptions.map((option) => (
-                    <SelectItem key={option} value={option} className="py-3 hover:bg-gray-100">
-                      {option}
+                    <SelectItem key={String(option)} value={String(option)} className="py-3 hover:bg-gray-100">
+                      {String(option)}
                     </SelectItem>
                   ))
                 ) : (
