@@ -53,9 +53,10 @@ export const useCart = (): UseCartReturn => {
         
         if (error) throw error;
         
+        // Use a simple approach to avoid deep type instantiation
         loadedItems = data.map((item: any) => {
-          // Create base item without variants first
-          const baseItem: CartItem = {
+          // First create a CartItem without variants
+          const cartItem: Omit<CartItem, 'variants'> = {
             id: item.product_id || "",
             name: item.product_name,
             price: item.price,
@@ -64,20 +65,20 @@ export const useCart = (): UseCartReturn => {
             supplier_id: item.supplier_id
           };
           
-          // Build options separately
-          const options: Record<string, string> = {};
+          // Collect variant options separately
+          const variantOptions: Record<string, string> = {};
+          if (item.option_color) variantOptions.color = item.option_color;
+          if (item.option_size) variantOptions.size = item.option_size;
+          if (item.option_format) variantOptions.format = item.option_format;
+          if (item.option_quantity) variantOptions.quantity = item.option_quantity;
           
-          if (item.option_color) options.color = item.option_color;
-          if (item.option_size) options.size = item.option_size;
-          if (item.option_format) options.format = item.option_format;
-          if (item.option_quantity) options.quantity = item.option_quantity;
+          // Create the final item with explicit typing
+          const finalItem: CartItem = {
+            ...cartItem,
+            ...(Object.keys(variantOptions).length > 0 ? { variants: variantOptions } : {})
+          };
           
-          // Only add variants if we have options
-          if (Object.keys(options).length > 0) {
-            baseItem.variants = options;
-          }
-          
-          return baseItem;
+          return finalItem;
         });
       } else {
         loadedItems = getCartFromLocalStorage();
