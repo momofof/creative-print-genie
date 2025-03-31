@@ -44,8 +44,8 @@ const processVariantField = (value: any): string[] => {
 };
 
 // Extract variant options from product data
-export const extractVariantOptionsFromProduct = async (product: Product): Promise<Record<string, string[] | number[]>> => {
-  const result: Record<string, string[] | number[]> = {};
+export const extractVariantOptionsFromProduct = async (product: Product): Promise<Record<string, string[]>> => {
+  const result: Record<string, string[]> = {};
   
   // Champs de variantes disponibles dans le produit
   const variantFields = [
@@ -61,9 +61,9 @@ export const extractVariantOptionsFromProduct = async (product: Product): Promis
       // Si le champ est "quantite" et c'est un nombre ou un tableau de nombres, le traiter différemment
       if (field === "quantite" && (typeof fieldValue === 'number' || (Array.isArray(fieldValue) && typeof fieldValue[0] === 'number'))) {
         if (Array.isArray(fieldValue)) {
-          result[field] = fieldValue;
+          result[field] = fieldValue.map(String);
         } else {
-          result[field] = [fieldValue];
+          result[field] = [String(fieldValue)];
         }
       } else {
         // Convertir la valeur en tableau de strings
@@ -84,11 +84,11 @@ export const extractVariantOptionsFromProduct = async (product: Product): Promis
           // Si le champ est "quantite" et c'est un nombre, le traiter différemment
           if (field === "quantite" && (typeof variantValue === 'number' || (Array.isArray(variantValue) && typeof variantValue[0] === 'number'))) {
             if (!result[field]) {
-              result[field] = Array.isArray(variantValue) ? variantValue : [variantValue];
+              result[field] = Array.isArray(variantValue) ? variantValue.map(String) : [String(variantValue)];
             } else {
               // Ajouter les valeurs uniques
-              const existingValues = result[field] as number[];
-              const newValues = Array.isArray(variantValue) ? variantValue : [variantValue];
+              const existingValues = result[field].map(String);
+              const newValues = Array.isArray(variantValue) ? variantValue.map(String) : [String(variantValue)];
               result[field] = Array.from(new Set([...existingValues, ...newValues]));
             }
           } else {
@@ -100,7 +100,7 @@ export const extractVariantOptionsFromProduct = async (product: Product): Promis
                 result[field] = parsedValues;
               } else {
                 // Convertir toutes les valeurs en chaînes pour la déduplication
-                const existingValues = (result[field] as string[]).map(String);
+                const existingValues = result[field].map(String);
                 const stringValues = parsedValues.map(String);
                 result[field] = Array.from(new Set([...existingValues, ...stringValues]));
               }

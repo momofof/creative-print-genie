@@ -1,10 +1,16 @@
 
 // Re-export functions from all utils files
 export { 
-  getAvailableVariants, 
-  getVariantOptions, 
-  getQuantityOptions 
+  getAvailableVariants
+} from './configs/availableVariants';
+
+export { 
+  getVariantOptions
 } from './configs/variantOptions';
+
+export {
+  getQuantityOptions
+} from './configs/quantityOptions';
 
 export { 
   extractVariantOptionsFromProduct 

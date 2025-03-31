@@ -25,9 +25,17 @@ export const getVariantIllustration = (category: string, variantType: string, va
 };
 
 // Helper function to get feature illustration URL
-export const getFeatureIllustration = (featureType: string): string => {
+export const getFeatureIllustration = (product: any, variants?: Record<string, string>): string => {
   // Base illustrations path
   const basePath = "/illustrations/features";
+  
+  // If no product is provided, return placeholder
+  if (!product) {
+    return `${basePath}/placeholder.svg`;
+  }
+  
+  // Get product category or subcategory
+  const category = product.subcategory || product.category;
   
   // Map of feature types to their illustration files
   const illustrationMap: Record<string, string> = {
@@ -42,8 +50,8 @@ export const getFeatureIllustration = (featureType: string): string => {
   };
   
   // Return specific illustration if available, otherwise placeholder
-  return illustrationMap[featureType] 
-    ? `${basePath}/${illustrationMap[featureType]}` 
+  return illustrationMap[category] 
+    ? `${basePath}/${illustrationMap[category]}` 
     : `${basePath}/placeholder.svg`;
 };
 

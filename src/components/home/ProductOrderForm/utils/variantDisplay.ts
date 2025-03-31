@@ -1,6 +1,5 @@
-
 // Format variant types for display
-export const getVariantDisplayName = (variantType: string): string => {
+export const getVariantDisplayName = (variantType: string, variantValue?: string): string => {
   const displayNameMap: Record<string, string> = {
     color: "Couleur",
     size: "Taille",
@@ -20,6 +19,13 @@ export const getVariantDisplayName = (variantType: string): string => {
     finish: "Finition"
   };
 
+  // If variantValue is provided, format as "DisplayName: Value"
+  if (variantValue !== undefined) {
+    const displayName = displayNameMap[variantType] || variantType.charAt(0).toUpperCase() + variantType.slice(1);
+    return `${displayName}: ${variantValue}`;
+  }
+
+  // Otherwise just return the display name
   return displayNameMap[variantType] || variantType.charAt(0).toUpperCase() + variantType.slice(1);
 };
 
