@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -57,18 +56,9 @@ export const useCart = (): UseCartReturn => {
         
         if (error) throw error;
         
-        // Fixed version to solve the TypeScript excessive recursion
-        loadedItems = data.map((item: any): CartItem => {
-          // Define a simple object to collect variant options
-          const variantObj: Record<string, string> = {};
-          
-          // Add each option to the variant object only if it exists
-          if (item.option_color) variantObj.color = item.option_color;
-          if (item.option_size) variantObj.size = item.option_size;
-          if (item.option_format) variantObj.format = item.option_format;
-          if (item.option_quantity) variantObj.quantity = item.option_quantity;
-          
-          // Create the cart item with explicit typings to prevent recursion
+        // Process database items into CartItem objects
+        loadedItems = data.map((item: any) => {
+          // Create a simple cart item without variants first
           const cartItem: CartItem = {
             id: item.product_id || "",
             name: item.product_name,
@@ -78,9 +68,17 @@ export const useCart = (): UseCartReturn => {
             supplier_id: item.supplier_id
           };
           
-          // Only add variants if we have any
-          if (Object.keys(variantObj).length > 0) {
-            cartItem.variants = variantObj;
+          // Handle all possible variant options
+          const variantOptions: Record<string, string> = {};
+          
+          if (item.option_color) variantOptions.color = item.option_color;
+          if (item.option_size) variantOptions.size = item.option_size;
+          if (item.option_format) variantOptions.format = item.option_format;
+          if (item.option_quantity) variantOptions.quantity = item.option_quantity;
+          
+          // Only add variants field if we have any options
+          if (Object.keys(variantOptions).length > 0) {
+            cartItem.variants = variantOptions;
           }
           
           return cartItem;
