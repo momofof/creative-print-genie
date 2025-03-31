@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -56,9 +57,9 @@ export const useCart = (): UseCartReturn => {
         
         if (error) throw error;
         
-        // Process database items into CartItem objects
+        // Process database items into CartItem objects with explicit typing
         loadedItems = data.map((item: any) => {
-          // Create a simple cart item without variants first
+          // First create a basic cart item without variants
           const cartItem: CartItem = {
             id: item.product_id || "",
             name: item.product_name,
@@ -68,15 +69,16 @@ export const useCart = (): UseCartReturn => {
             supplier_id: item.supplier_id
           };
           
-          // Handle all possible variant options
+          // Separately build variant options to avoid recursion
           const variantOptions: Record<string, string> = {};
           
+          // Only add properties if they exist
           if (item.option_color) variantOptions.color = item.option_color;
           if (item.option_size) variantOptions.size = item.option_size;
           if (item.option_format) variantOptions.format = item.option_format;
           if (item.option_quantity) variantOptions.quantity = item.option_quantity;
           
-          // Only add variants field if we have any options
+          // Only assign variants property if we have any options
           if (Object.keys(variantOptions).length > 0) {
             cartItem.variants = variantOptions;
           }
