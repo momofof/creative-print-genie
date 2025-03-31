@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -12,7 +11,6 @@ export const useCart = (): UseCartReturn => {
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [userId, setUserId] = useState<string | null>(null);
 
-  // Check if user is logged in and get their ID
   useEffect(() => {
     const checkAuth = async () => {
       const { data: { user } } = await supabase.auth.getUser();
@@ -23,7 +21,6 @@ export const useCart = (): UseCartReturn => {
     
     checkAuth();
     
-    // Set up auth state listener
     const { data: authListener } = supabase.auth.onAuthStateChange((event, session) => {
       if (session?.user) {
         setUserId(session.user.id);
@@ -37,7 +34,6 @@ export const useCart = (): UseCartReturn => {
     };
   }, []);
 
-  // Load cart items when user ID changes
   useEffect(() => {
     loadCart();
   }, [userId]);
@@ -49,7 +45,6 @@ export const useCart = (): UseCartReturn => {
       let loadedItems: CartItem[] = [];
       
       if (userId) {
-        // Load cart from database for logged-in users
         const { data, error } = await supabase
           .from("cart_items")
           .select("*")
@@ -57,10 +52,8 @@ export const useCart = (): UseCartReturn => {
         
         if (error) throw error;
         
-        // Process database items into CartItem objects with explicit typing
         loadedItems = data.map((item: any) => {
-          // Create a basic item without variants first to avoid recursion
-          const baseItem: Omit<CartItem, 'variants'> = {
+          const plainItem = {
             id: item.product_id || "",
             name: item.product_name,
             price: item.price,
@@ -69,28 +62,22 @@ export const useCart = (): UseCartReturn => {
             supplier_id: item.supplier_id
           };
           
-          // Build variant options separately
-          const variantOptions: Record<string, string> = {};
+          const options: Record<string, string> = {};
           
-          if (item.option_color) variantOptions.color = item.option_color;
-          if (item.option_size) variantOptions.size = item.option_size;
-          if (item.option_format) variantOptions.format = item.option_format;
-          if (item.option_quantity) variantOptions.quantity = item.option_quantity;
+          if (item.option_color) options.color = item.option_color;
+          if (item.option_size) options.size = item.option_size;
+          if (item.option_format) options.format = item.option_format;
+          if (item.option_quantity) options.quantity = item.option_quantity;
           
-          // Create final cart item
-          const cartItem: CartItem = {
-            ...baseItem
-          };
+          const result: CartItem = plainItem;
           
-          // Only add variants property if we have any options
-          if (Object.keys(variantOptions).length > 0) {
-            cartItem.variants = variantOptions;
+          if (Object.keys(options).length > 0) {
+            result.variants = options;
           }
           
-          return cartItem;
+          return result;
         });
       } else {
-        // Load cart from localStorage for anonymous users
         loadedItems = getCartFromLocalStorage();
       }
       
@@ -107,15 +94,12 @@ export const useCart = (): UseCartReturn => {
   const saveCart = async (updatedCartItems: CartItem[]) => {
     try {
       if (userId) {
-        // For logged-in users, save to database
-        // First, delete all existing items
         await supabase
           .from("cart_items")
           .delete()
           .eq("user_id", userId);
           
         if (updatedCartItems.length > 0) {
-          // Then insert the updated cart items
           const cartData = updatedCartItems.map(item => ({
             user_id: userId,
             product_id: item.id,
@@ -137,7 +121,6 @@ export const useCart = (): UseCartReturn => {
           if (error) throw error;
         }
       } else {
-        // For anonymous users, save to localStorage
         saveCartToLocalStorage(updatedCartItems);
       }
       
@@ -168,25 +151,20 @@ export const useCart = (): UseCartReturn => {
         name: productName,
         price: productPrice,
         quantity: quantity,
-        image: "/placeholder.svg", // Image par défaut
+        image: "/placeholder.svg",
         variants: Object.keys(variants).length > 0 ? variants : undefined
       };
       
-      // Copier le panier actuel
       const currentCart = [...cartItems];
       
-      // Vérifier si l'article existe déjà dans le panier
       const existingItemIndex = findExistingItemIndex(currentCart, productId, variants);
       
       if (existingItemIndex >= 0) {
-        // Mettre à jour la quantité si l'article existe
         currentCart[existingItemIndex].quantity += quantity;
       } else {
-        // Ajouter un nouvel article
         currentCart.push(newItem);
       }
       
-      // Sauvegarder le panier mis à jour
       await saveCart(currentCart);
       
       return true;
