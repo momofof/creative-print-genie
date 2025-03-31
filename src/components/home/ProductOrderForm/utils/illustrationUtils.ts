@@ -1,3 +1,4 @@
+
 import { Product } from "@/types/product";
 
 // This function returns a placeholder or specific variant illustration URL
@@ -57,4 +58,27 @@ export const getFeatureIllustration2 = (
     default:
       return `/placeholder.svg`;
   }
+};
+
+// Get variant-specific image for product gallery
+export const getVariantImage = (
+  product: Product,
+  variantType: string,
+  variantValue: string
+): string | undefined => {
+  // Check if product has variants with images
+  if (product.variants && Array.isArray(product.variants)) {
+    // Find a variant that matches the selected type and value
+    const matchingVariant = product.variants.find(
+      variant => variant[variantType as keyof typeof variant] === variantValue
+    );
+    
+    // If a matching variant with an image is found, return it
+    if (matchingVariant && matchingVariant.image_url) {
+      return matchingVariant.image_url;
+    }
+  }
+  
+  // If no specific variant image found, return undefined so we can fall back to default
+  return undefined;
 };
