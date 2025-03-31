@@ -57,25 +57,33 @@ export const useCart = (): UseCartReturn => {
         
         if (error) throw error;
         
-        // Fixed the problematic code by simplifying the variants creation
-        loadedItems = data.map((item: any) => {
-          // Create a variants object only if we have variant options
-          const variantOptions: Record<string, string> = {};
+        // Fixed version to solve the TypeScript excessive recursion
+        loadedItems = data.map((item: any): CartItem => {
+          // Define a simple object to collect variant options
+          const variantObj: Record<string, string> = {};
           
-          if (item.option_color) variantOptions.color = item.option_color;
-          if (item.option_size) variantOptions.size = item.option_size;
-          if (item.option_format) variantOptions.format = item.option_format;
-          if (item.option_quantity) variantOptions.quantity = item.option_quantity;
+          // Add each option to the variant object only if it exists
+          if (item.option_color) variantObj.color = item.option_color;
+          if (item.option_size) variantObj.size = item.option_size;
+          if (item.option_format) variantObj.format = item.option_format;
+          if (item.option_quantity) variantObj.quantity = item.option_quantity;
           
-          return {
+          // Create the cart item with explicit typings to prevent recursion
+          const cartItem: CartItem = {
             id: item.product_id || "",
             name: item.product_name,
             price: item.price,
             quantity: item.quantity,
             image: item.image || "/placeholder.svg",
-            variants: Object.keys(variantOptions).length > 0 ? variantOptions : undefined,
             supplier_id: item.supplier_id
           };
+          
+          // Only add variants if we have any
+          if (Object.keys(variantObj).length > 0) {
+            cartItem.variants = variantObj;
+          }
+          
+          return cartItem;
         });
       } else {
         // Load cart from localStorage for anonymous users
