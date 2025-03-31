@@ -1,44 +1,55 @@
-// Map variant keys to display names
-const variantKeyDisplayNames: Record<string, string> = {
-  color: "Couleur",
-  size: "Taille",
-  format: "Format",
-  quantity: "Quantité",
-  bat: "BAT",
-  poids: "Poids",
-  echantillon: "Echantillon",
-  types_impression: "Types d'impression",
-  type_de_materiaux: "Type de matériaux",
-  details_impression: "Détails d'impression",
-  orientation_impression: "Orientation"
+
+// Format variant types for display
+export const getVariantDisplayName = (variantType: string): string => {
+  const displayNameMap: Record<string, string> = {
+    color: "Couleur",
+    size: "Taille",
+    format: "Format",
+    quantite: "Quantité",
+    bat: "BAT",
+    poids: "Poids",
+    echantillon: "Échantillon",
+    types_impression: "Type d'impression",
+    print_design: "Design d'impression",
+    design: "Design",
+    paper_type: "Type de papier",
+    face_a_imprimer: "Face à imprimer",
+    type_de_materiaux: "Type de matériaux",
+    details_impression: "Détails d'impression",
+    orientation_impression: "Orientation",
+    finish: "Finition"
+  };
+
+  return displayNameMap[variantType] || variantType.charAt(0).toUpperCase() + variantType.slice(1);
 };
 
-/**
- * Get display name for a variant key and value
- */
-export const getVariantDisplayName = (key: string, value?: string): string => {
-  const displayKey = variantKeyDisplayNames[key] || key.charAt(0).toUpperCase() + key.slice(1);
-  
-  // If value is provided, return the full display string, otherwise just the key name
-  return value ? `${displayKey}: ${value}` : displayKey;
-};
-
-/**
- * Parse a comma-separated or JSON string list of variants into an array
- */
-export const parseVariantListString = (variantString?: string): string[] => {
-  if (!variantString) return [];
+// Parse a variant list string into an array of strings
+export const parseVariantListString = (str: string | null | undefined): string[] => {
+  if (!str) return [];
   
   try {
-    // Try to parse as JSON first
-    if (variantString.startsWith('[') && variantString.endsWith(']')) {
-      return JSON.parse(variantString);
+    // Try to parse as JSON array first
+    if (str.startsWith('[') && str.endsWith(']')) {
+      try {
+        return JSON.parse(str);
+      } catch (e) {
+        // Si l'erreur est liée au parsing JSON, essayons un parsing manuel
+        // Supprimer les crochets et diviser par virgules
+        const withoutBrackets = str.slice(1, -1);
+        return withoutBrackets.split(',').map(item => item.trim());
+      }
     }
     
-    // Otherwise split by comma and trim
-    return variantString.split(',').map(item => item.trim());
+    // Attempt to parse as a comma-separated list
+    if (str.includes(',')) {
+      return str.split(',').map(item => item.trim());
+    }
+    
+    // Single value
+    return [str];
   } catch (error) {
-    console.error('Error parsing variant list string:', error);
-    return [];
+    console.error("Error parsing variant list string:", error);
+    // Return the original string as a single element array
+    return [str];
   }
 };

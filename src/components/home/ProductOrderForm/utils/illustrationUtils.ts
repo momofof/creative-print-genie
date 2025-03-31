@@ -1,84 +1,57 @@
 
-import { Product } from "@/types/product";
-
-// This function returns a placeholder or specific variant illustration URL
-export const getVariantIllustration = (
-  categoryOrSubcategory: string,
-  variantType: string,
-  variantValue: string
-): string => {
-  // For demo purposes, return placeholders based on variant type and value
-  // In a real implementation, these would come from a product-specific API or database
+// Helper function to get illustration URL for a variant
+export const getVariantIllustration = (category: string, variantType: string, value: string): string => {
+  // Base illustrations path
+  const basePath = "/illustrations";
   
-  // Simple mapping for some common variant types
-  if (variantType === 'color') {
-    // We could return actual color swatches
-    return `/placeholder.svg`;
+  // Create a clean path segment from value
+  const cleanValue = value.toLowerCase().replace(/\s+/g, '-');
+  
+  // Check for specific illustrations based on category and variant type
+  if (variantType === "color") {
+    return `${basePath}/colors/${cleanValue}.svg`;
   }
   
-  if (variantType === 'size') {
-    return `/placeholder.svg`;
+  if (variantType === "size") {
+    return `${basePath}/sizes/${category.toLowerCase()}/${cleanValue}.svg`;
   }
   
-  if (variantType === 'format') {
-    return `/placeholder.svg`;
+  if (variantType === "format") {
+    return `${basePath}/formats/${cleanValue}.svg`;
   }
   
-  // Default placeholder
-  return `/placeholder.svg`;
+  // Default illustration for unknown variant types
+  return `${basePath}/placeholder.svg`;
 };
 
-// Helper function to get feature illustration for product order form
-export const getFeatureIllustration = (
-  product: Product | undefined,
-  variants: Record<string, string>
-): string => {
-  // Default placeholder
-  if (!product) return `/placeholder.svg`;
+// Helper function to get feature illustration URL
+export const getFeatureIllustration = (featureType: string): string => {
+  // Base illustrations path
+  const basePath = "/illustrations/features";
   
-  // If the product has an image, use it
-  if (product.image) return product.image;
+  // Map of feature types to their illustration files
+  const illustrationMap: Record<string, string> = {
+    "shipping": "shipping.svg",
+    "returns": "returns.svg",
+    "quality": "quality.svg",
+    "support": "support.svg",
+    "sizing": "sizing.svg",
+    "customization": "customization.svg",
+    "material": "material.svg",
+    "delivery": "delivery.svg",
+  };
   
-  // Otherwise, use placeholders based on the product category
-  return `/placeholder.svg`;
+  // Return specific illustration if available, otherwise placeholder
+  return illustrationMap[featureType] 
+    ? `${basePath}/${illustrationMap[featureType]}` 
+    : `${basePath}/placeholder.svg`;
 };
 
-// Helper function to get feature illustration for specific features
-export const getFeatureIllustration2 = (
-  feature: string
-): string => {
-  // Provide illustrations for specific product features
-  switch (feature) {
-    case 'eco-friendly':
-      return `/placeholder.svg`;
-    case 'fast-delivery':
-      return `/placeholder.svg`;
-    case 'custom-design':
-      return `/placeholder.svg`;
-    default:
-      return `/placeholder.svg`;
-  }
-};
-
-// Get variant-specific image for product gallery
-export const getVariantImage = (
-  product: Product,
-  variantType: string,
-  variantValue: string
-): string | undefined => {
-  // Check if product has variants with images
-  if (product.variants && Array.isArray(product.variants)) {
-    // Find a variant that matches the selected type and value
-    const matchingVariant = product.variants.find(
-      variant => variant[variantType as keyof typeof variant] === variantValue
-    );
-    
-    // If a matching variant with an image is found, return it
-    if (matchingVariant && matchingVariant.image_url) {
-      return matchingVariant.image_url;
-    }
-  }
+// Helper function to get variant image URL for product gallery
+export const getVariantImage = (productId: string, variantId: string): string => {
+  // Base images path
+  const basePath = "/product-images";
   
-  // If no specific variant image found, return undefined so we can fall back to default
-  return undefined;
+  // For now, return a placeholder based on IDs
+  return `${basePath}/variants/${productId}/${variantId}.jpg`;
 };

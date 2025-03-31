@@ -4,7 +4,7 @@ export {
   getAvailableVariants, 
   getVariantOptions, 
   getQuantityOptions 
-} from './variantConfig';
+} from './configs/variantOptions';
 
 export { 
   extractVariantOptionsFromProduct 
