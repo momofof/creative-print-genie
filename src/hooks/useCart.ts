@@ -59,8 +59,8 @@ export const useCart = (): UseCartReturn => {
         
         // Process database items into CartItem objects with explicit typing
         loadedItems = data.map((item: any) => {
-          // First create a basic cart item without variants
-          const cartItem: CartItem = {
+          // Create a basic item without variants first to avoid recursion
+          const baseItem: Omit<CartItem, 'variants'> = {
             id: item.product_id || "",
             name: item.product_name,
             price: item.price,
@@ -69,16 +69,20 @@ export const useCart = (): UseCartReturn => {
             supplier_id: item.supplier_id
           };
           
-          // Separately build variant options to avoid recursion
+          // Build variant options separately
           const variantOptions: Record<string, string> = {};
           
-          // Only add properties if they exist
           if (item.option_color) variantOptions.color = item.option_color;
           if (item.option_size) variantOptions.size = item.option_size;
           if (item.option_format) variantOptions.format = item.option_format;
           if (item.option_quantity) variantOptions.quantity = item.option_quantity;
           
-          // Only assign variants property if we have any options
+          // Create final cart item
+          const cartItem: CartItem = {
+            ...baseItem
+          };
+          
+          // Only add variants property if we have any options
           if (Object.keys(variantOptions).length > 0) {
             cartItem.variants = variantOptions;
           }
