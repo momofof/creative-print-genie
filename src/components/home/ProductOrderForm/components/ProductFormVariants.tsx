@@ -1,3 +1,4 @@
+
 import { Product } from "@/types/product";
 import VariantSelector from "../VariantSelector";
 import { getVariantDisplayName } from "../utils";

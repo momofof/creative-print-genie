@@ -1,9 +1,8 @@
-
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Product, ProductVariant } from "@/types/product";
 import { toast } from "sonner";
-import { parseVariantListString } from "@/components/home/ProductOrderForm/utils/variantDisplay";
+import { parseVariantListString } from "@/components/home/ProductOrderForm/utils";
 
 // Process a variant field value to ensure it's in the correct format
 const processVariantField = (value: any): string | undefined => {
