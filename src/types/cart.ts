@@ -26,25 +26,3 @@ export interface CartOperations {
 }
 
 export type UseCartReturn = CartState & CartOperations;
-
-// Interface pour les éléments du panier tels qu'ils sont stockés dans la base de données
-export interface DBCartItem {
-  cart_id?: string;
-  product_id: string;
-  product_name: string;
-  price: number;
-  quantity: number;
-  image?: string;
-  option_color?: string;
-  option_size?: string;
-  option_format?: string;
-  option_quantity?: string;
-  option_bat?: string;
-  option_poids?: string;
-  option_echantillon?: string;
-  option_types_impression?: string;
-  option_type_de_materiaux?: string;
-  option_details_impression?: string;
-  option_orientation_impression?: string;
-  supplier_id?: string;
-}

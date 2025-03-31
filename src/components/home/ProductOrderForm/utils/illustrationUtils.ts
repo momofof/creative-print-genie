@@ -1,65 +1,60 @@
+import { Product } from "@/types/product";
 
-// Helper function to get illustration URL for a variant
-export const getVariantIllustration = (category: string, variantType: string, value: string): string => {
-  // Base illustrations path
-  const basePath = "/illustrations";
+// This function returns a placeholder or specific variant illustration URL
+export const getVariantIllustration = (
+  categoryOrSubcategory: string,
+  variantType: string,
+  variantValue: string
+): string => {
+  // For demo purposes, return placeholders based on variant type and value
+  // In a real implementation, these would come from a product-specific API or database
   
-  // Create a clean path segment from value
-  const cleanValue = value.toLowerCase().replace(/\s+/g, '-');
-  
-  // Check for specific illustrations based on category and variant type
-  if (variantType === "color") {
-    return `${basePath}/colors/${cleanValue}.svg`;
+  // Simple mapping for some common variant types
+  if (variantType === 'color') {
+    // We could return actual color swatches
+    return `/placeholder.svg`;
   }
   
-  if (variantType === "size") {
-    return `${basePath}/sizes/${category.toLowerCase()}/${cleanValue}.svg`;
+  if (variantType === 'size') {
+    return `/placeholder.svg`;
   }
   
-  if (variantType === "format") {
-    return `${basePath}/formats/${cleanValue}.svg`;
+  if (variantType === 'format') {
+    return `/placeholder.svg`;
   }
   
-  // Default illustration for unknown variant types
-  return `${basePath}/placeholder.svg`;
+  // Default placeholder
+  return `/placeholder.svg`;
 };
 
-// Helper function to get feature illustration URL
-export const getFeatureIllustration = (product: any, variants?: Record<string, string>): string => {
-  // Base illustrations path
-  const basePath = "/illustrations/features";
+// Helper function to get feature illustration for product order form
+export const getFeatureIllustration = (
+  product: Product | undefined,
+  variants: Record<string, string>
+): string => {
+  // Default placeholder
+  if (!product) return `/placeholder.svg`;
   
-  // If no product is provided, return placeholder
-  if (!product) {
-    return `${basePath}/placeholder.svg`;
-  }
+  // If the product has an image, use it
+  if (product.image) return product.image;
   
-  // Get product category or subcategory
-  const category = product.subcategory || product.category;
-  
-  // Map of feature types to their illustration files
-  const illustrationMap: Record<string, string> = {
-    "shipping": "shipping.svg",
-    "returns": "returns.svg",
-    "quality": "quality.svg",
-    "support": "support.svg",
-    "sizing": "sizing.svg",
-    "customization": "customization.svg",
-    "material": "material.svg",
-    "delivery": "delivery.svg",
-  };
-  
-  // Return specific illustration if available, otherwise placeholder
-  return illustrationMap[category] 
-    ? `${basePath}/${illustrationMap[category]}` 
-    : `${basePath}/placeholder.svg`;
+  // Otherwise, use placeholders based on the product category
+  return `/placeholder.svg`;
 };
 
-// Helper function to get variant image URL for product gallery
-export const getVariantImage = (productId: string, variantId: string): string => {
-  // Base images path
-  const basePath = "/product-images";
-  
-  // For now, return a placeholder based on IDs
-  return `${basePath}/variants/${productId}/${variantId}.jpg`;
+// Helper function to get feature illustration for specific features
+export const getFeatureIllustration2 = (
+  feature: string
+): string => {
+  // Provide illustrations for specific product features
+  switch (feature) {
+    case 'eco-friendly':
+      return `/placeholder.svg`;
+    case 'fast-delivery':
+      return `/placeholder.svg`;
+    case 'custom-design':
+      return `/placeholder.svg`;
+    default:
+      return `/placeholder.svg`;
+  }
 };

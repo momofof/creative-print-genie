@@ -13,24 +13,19 @@ export const findExistingItemIndex = (
   productId: string, 
   variants?: Record<string, string>
 ): number => {
-  console.log("Finding item with ID:", productId, "and variants:", variants);
-  
   return cartItems.findIndex((item) => {
-    // Basic check on product ID
+    // Vérification de base sur l'ID du produit
     if (item.id !== productId) return false;
     
-    // If no variants specified for either, just check the ID
+    // Si aucun variant n'est spécifié, on vérifie juste l'ID
     if (!variants && !item.variants) return true;
     
-    // If one has variants and the other doesn't, they're different
+    // Si l'un a des variants et l'autre non, ils sont différents
     if ((!variants && item.variants) || (variants && !item.variants)) return false;
     
-    // Compare variants (if both exist)
+    // Comparaison des variants (si les deux existent)
     if (variants && item.variants) {
-      const variantsA = JSON.stringify(variants);
-      const variantsB = JSON.stringify(item.variants);
-      console.log("Comparing variants:", variantsA, "vs", variantsB);
-      return variantsA === variantsB;
+      return JSON.stringify(variants) === JSON.stringify(item.variants);
     }
     
     return true;

@@ -1,10 +1,10 @@
 
 import { useState } from "react";
 import { Product, CartItem } from "@/types/product";
-import { useNavigate } from "react-router-dom";
+import { supabase } from "@/integrations/supabase/client";
+import { orderService, OrderItem } from "@/services/orderService";
 import { toast } from "sonner";
-import { useOrderCreation } from "./order/useOrderCreation";
-import { useCartAddition } from "./cart/useCartAddition";
+import { useNavigate } from "react-router-dom";
 
 interface UseOrderSubmissionProps {
   selectedProduct: Product | undefined;
@@ -27,21 +27,17 @@ export const useOrderSubmission = ({
 }: UseOrderSubmissionProps) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const navigate = useNavigate();
-  
-  // Use dedicated hooks for order creation and cart addition
-  const { createOrder } = useOrderCreation();
-  const { addToCart } = useCartAddition({ navigate });
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    console.log("Button clicked, starting order submission");
-    console.log("Selected product:", selectedProduct);
-    console.log("Selected quantity:", selectedQuantity);
-    console.log("Selected supplier:", selectedSupplierId);
-    console.log("Variants:", variants);
+    // Redirect to login page if user is not logged in
+    if (!userId) {
+      toast.info("Veuillez vous connecter pour passer une commande");
+      navigate("/login");
+      return;
+    }
     
-    // Basic validation
     if (!selectedProduct || !selectedQuantity) {
       toast.error("Veuillez sélectionner un produit et une quantité");
       return;
@@ -55,43 +51,53 @@ export const useOrderSubmission = ({
     setIsSubmitting(true);
     
     try {
-      // Calculate the total price
-      const totalPrice = selectedProduct.price * selectedQuantity;
-      
-      // Create the cart item
-      const cartItem: CartItem = {
-        id: selectedProduct.id,
-        name: selectedProduct.name,
-        price: selectedProduct.price,
+      // Create order item from the selected product
+      const orderItem: OrderItem = {
+        product_id: selectedProduct.id,
+        product_name: selectedProduct.name,
         quantity: selectedQuantity,
-        image: selectedProduct.image || "/placeholder.svg",
-        variants: Object.keys(variants).length > 0 ? variants : undefined,
-        supplier_id: selectedSupplierId
+        price: selectedProduct.price,
+        variants: Object.keys(variants).length > 0 ? variants : undefined
       };
       
-      // Create order in database
-      const result = await createOrder({
-        product: selectedProduct,
-        quantity: selectedQuantity,
-        variants,
-        supplierId: selectedSupplierId,
-        userId
+      // Calculate total price
+      const totalPrice = orderItem.price * orderItem.quantity;
+      
+      // Create the order with supplier info in shipping_address for now
+      const result = await orderService.createOrder({
+        customer_id: userId || undefined,
+        items: [orderItem],
+        total: totalPrice,
+        status: 'pending',
+        shipping_address: {
+          name: "",
+          address: "",
+          city: "",
+          postal_code: "",
+          country: "",
+          supplier_id: selectedSupplierId // Store supplier ID here temporarily
+        }
       });
       
       if (result.success) {
+        // Create a CartItem to display in the summary
+        const cartItem: CartItem = {
+          id: selectedProduct.id,
+          name: selectedProduct.name,
+          price: selectedProduct.price,
+          quantity: selectedQuantity,
+          image: selectedProduct.image || "/placeholder.svg",
+          variants: Object.keys(variants).length > 0 ? variants : undefined,
+          supplier_id: selectedSupplierId
+        };
+        
         // Show order summary dialog
         onShowOrderSummary([cartItem], totalPrice);
         
         toast.success(`Commande de ${selectedQuantity} ${selectedProduct.name} envoyée avec succès !`);
         
-        // Add to cart
-        await addToCart({
-          product: selectedProduct,
-          quantity: selectedQuantity,
-          variants,
-          supplierId: selectedSupplierId,
-          userId
-        });
+        // Add to cart automatically
+        await addToCart(selectedProduct, selectedQuantity, variants, selectedSupplierId, userId);
         
         // Reset form via callback
         onOrderSuccess();
@@ -103,6 +109,74 @@ export const useOrderSubmission = ({
       toast.error("Une erreur est survenue lors de la commande");
     } finally {
       setIsSubmitting(false);
+    }
+  };
+  
+  const addToCart = async (
+    product: Product,
+    quantity: number,
+    variants: Record<string, string>,
+    supplierId: string,
+    userId: string | null
+  ) => {
+    try {
+      const newCartItem: CartItem = {
+        id: product.id,
+        name: product.name,
+        price: product.price,
+        quantity: quantity,
+        image: product.image || "/placeholder.svg",
+        variants: Object.keys(variants).length > 0 ? variants : undefined,
+        supplier_id: supplierId
+      };
+      
+      // For logged in users
+      if (userId) {
+        // Insert directly into cart_items table with type assertion
+        const { error } = await supabase
+          .from('cart_items')
+          .insert({
+            user_id: userId,
+            product_id: product.id,
+            product_name: product.name,
+            price: product.price,
+            quantity: quantity,
+            product_image: product.image || "/placeholder.svg",
+            option_color: variants.color,
+            option_size: variants.size,
+            option_format: variants.format,
+            option_quantity: variants.quantity,
+            supplier_id: supplierId
+          });
+          
+        if (error) throw error;
+        toast.success("Produit ajouté au panier");
+      } else {
+        // For anonymous users, use localStorage
+        const savedCart = localStorage.getItem("cart");
+        const existingCartItems = savedCart ? JSON.parse(savedCart) : [];
+        
+        // Check if product already exists
+        const existingItemIndex = existingCartItems.findIndex((item: CartItem) => 
+          item.id === product.id && 
+          JSON.stringify(item.variants || {}) === JSON.stringify(variants || {})
+        );
+        
+        if (existingItemIndex >= 0) {
+          // Update quantity if item exists
+          existingCartItems[existingItemIndex].quantity += quantity;
+        } else {
+          // Add new item
+          existingCartItems.push(newCartItem);
+        }
+        
+        // Save to localStorage
+        localStorage.setItem("cart", JSON.stringify(existingCartItems));
+        toast.success("Produit ajouté au panier");
+      }
+    } catch (error) {
+      console.error("Failed to add to cart:", error);
+      toast.error("Erreur lors de l'ajout au panier");
     }
   };
 

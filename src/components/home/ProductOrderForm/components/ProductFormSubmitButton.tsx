@@ -1,6 +1,5 @@
 
 import { cn } from "@/lib/utils";
-import { ShoppingCart } from "lucide-react";
 
 interface ProductFormSubmitButtonProps {
   isSubmitting: boolean;
@@ -18,12 +17,11 @@ const ProductFormSubmitButton = ({
       type="submit"
       disabled={disabled || isSubmitting}
       className={cn(
-        "w-full bg-accent text-white py-3 px-6 rounded-md font-medium transition-all flex items-center justify-center gap-2 shadow-md",
+        "w-full bg-accent text-white py-3 px-6 rounded-md font-medium transition-colors",
         (disabled || isSubmitting) ? 
           "opacity-50 cursor-not-allowed" : 
-          "hover:bg-accent/90 transform hover:scale-[1.02] active:scale-[0.99] hover:shadow-lg"
+          "hover:bg-accent/90"
       )}
-      style={{ minHeight: "48px" }}
     >
       {isSubmitting ? (
         <span className="flex items-center justify-center">
@@ -34,10 +32,7 @@ const ProductFormSubmitButton = ({
           Traitement en cours...
         </span>
       ) : (
-        <>
-          <ShoppingCart className="h-5 w-5" />
-          {editMode ? "Mettre à jour" : "Commander maintenant"}
-        </>
+        editMode ? "Mettre à jour" : "Commander"
       )}
     </button>
   );

@@ -23,7 +23,7 @@ const OrderItem = ({
   const renderVariantOptions = () => {
     const options: Record<string, string> = {};
     
-    // Récupérer les options de l'ancienne structure (pour compatibilité)
+    // Récupérer les options de l'ancienne structure
     if (item.option_color) options['color'] = item.option_color;
     if (item.option_size) options['size'] = item.option_size;
     if (item.option_format) options['format'] = item.option_format;
@@ -32,24 +32,7 @@ const OrderItem = ({
     // Ajouter les options de la nouvelle structure de variants
     if (item.variants) {
       Object.entries(item.variants).forEach(([key, value]) => {
-        // Skip undefined or null values
-        if (value === undefined || value === null) return;
-        
-        // Handle string or object values
-        if (typeof value === 'object') {
-          // @ts-ignore - Handle special object format from database
-          if (value._type === 'undefined' && value.value === 'undefined') return;
-          
-          // Try to stringify the object if needed
-          try {
-            options[key] = JSON.stringify(value);
-          } catch (e) {
-            // If stringify fails, skip this variant
-            return;
-          }
-        } else {
-          options[key] = value as string;
-        }
+        options[key] = value as string;
       });
     }
     

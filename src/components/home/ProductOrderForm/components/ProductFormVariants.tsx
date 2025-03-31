@@ -1,15 +1,15 @@
 
 import { Product } from "@/types/product";
 import VariantSelector from "../VariantSelector";
-import { getVariantDisplayName } from "../utils";
-import { getVariantOptions } from "../utils";
+import { getVariantDisplayName } from "../utils/variantDisplay";
+import { getVariantOptions } from "../utils/variantConfig";
 
 interface ProductFormVariantsProps {
   selectedProduct: Product;
   variants: Record<string, string>;
   availableVariants: string[];
   onVariantChange: (variantType: string, value: string) => void;
-  productVariantOptions: Record<string, string[] | number[]>;
+  productVariantOptions: Record<string, string[]>;
 }
 
 const ProductFormVariants = ({
@@ -20,7 +20,7 @@ const ProductFormVariants = ({
   productVariantOptions
 }: ProductFormVariantsProps) => {
   // Get variant options prioritizing product-specific options if available
-  const getOptionsForVariant = (variantType: string): string[] | number[] => {
+  const getOptionsForVariant = (variantType: string): string[] => {
     if (selectedProduct) {
       // Si des options spécifiques au produit existent pour cette variante, les utiliser
       if (productVariantOptions[variantType] && productVariantOptions[variantType].length > 0) {

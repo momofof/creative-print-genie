@@ -15,22 +15,10 @@ export type Database = {
           created_at: string | null
           id: string
           image: string | null
-          option_bat: string | null
-          option_color: string | null
-          option_details_impression: string | null
-          option_echantillon: string | null
-          option_format: string | null
-          option_orientation_impression: string | null
-          option_poids: string | null
-          option_quantity: string | null
-          option_size: string | null
-          option_type_de_materiaux: string | null
-          option_types_impression: string | null
           price: number
           product_id: string | null
           product_name: string
           quantity: number
-          supplier_id: string | null
           updated_at: string | null
         }
         Insert: {
@@ -38,22 +26,10 @@ export type Database = {
           created_at?: string | null
           id?: string
           image?: string | null
-          option_bat?: string | null
-          option_color?: string | null
-          option_details_impression?: string | null
-          option_echantillon?: string | null
-          option_format?: string | null
-          option_orientation_impression?: string | null
-          option_poids?: string | null
-          option_quantity?: string | null
-          option_size?: string | null
-          option_type_de_materiaux?: string | null
-          option_types_impression?: string | null
           price: number
           product_id?: string | null
           product_name: string
           quantity?: number
-          supplier_id?: string | null
           updated_at?: string | null
         }
         Update: {
@@ -61,22 +37,10 @@ export type Database = {
           created_at?: string | null
           id?: string
           image?: string | null
-          option_bat?: string | null
-          option_color?: string | null
-          option_details_impression?: string | null
-          option_echantillon?: string | null
-          option_format?: string | null
-          option_orientation_impression?: string | null
-          option_poids?: string | null
-          option_quantity?: string | null
-          option_size?: string | null
-          option_type_de_materiaux?: string | null
-          option_types_impression?: string | null
           price?: number
           product_id?: string | null
           product_name?: string
           quantity?: number
-          supplier_id?: string | null
           updated_at?: string | null
         }
         Relationships: [
@@ -149,145 +113,6 @@ export type Database = {
         }
         Relationships: []
       }
-      product_suppliers: {
-        Row: {
-          availability_status: string | null
-          created_at: string | null
-          id: string
-          is_default: boolean | null
-          price_adjustment: number | null
-          product_id: string
-          supplier_id: string
-          updated_at: string | null
-        }
-        Insert: {
-          availability_status?: string | null
-          created_at?: string | null
-          id?: string
-          is_default?: boolean | null
-          price_adjustment?: number | null
-          product_id: string
-          supplier_id: string
-          updated_at?: string | null
-        }
-        Update: {
-          availability_status?: string | null
-          created_at?: string | null
-          id?: string
-          is_default?: boolean | null
-          price_adjustment?: number | null
-          product_id?: string
-          supplier_id?: string
-          updated_at?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "product_suppliers_product_id_fkey"
-            columns: ["product_id"]
-            isOneToOne: false
-            referencedRelation: "products_complete"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "product_suppliers_product_id_fkey"
-            columns: ["product_id"]
-            isOneToOne: false
-            referencedRelation: "unified_products"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "product_suppliers_supplier_id_fkey"
-            columns: ["supplier_id"]
-            isOneToOne: false
-            referencedRelation: "suppliers"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      product_variants: {
-        Row: {
-          bat: string | null
-          color: string | null
-          created_at: string | null
-          details_impression: string | null
-          echantillon: string | null
-          format: string | null
-          hex_color: string | null
-          id: string
-          image_url: string | null
-          orientation_impression: string | null
-          poids: string | null
-          price_adjustment: number | null
-          product_id: string
-          quantite: string | null
-          size: string | null
-          status: string | null
-          stock: number | null
-          type_de_materiaux: string | null
-          types_impression: string | null
-          updated_at: string | null
-        }
-        Insert: {
-          bat?: string | null
-          color?: string | null
-          created_at?: string | null
-          details_impression?: string | null
-          echantillon?: string | null
-          format?: string | null
-          hex_color?: string | null
-          id?: string
-          image_url?: string | null
-          orientation_impression?: string | null
-          poids?: string | null
-          price_adjustment?: number | null
-          product_id: string
-          quantite?: string | null
-          size?: string | null
-          status?: string | null
-          stock?: number | null
-          type_de_materiaux?: string | null
-          types_impression?: string | null
-          updated_at?: string | null
-        }
-        Update: {
-          bat?: string | null
-          color?: string | null
-          created_at?: string | null
-          details_impression?: string | null
-          echantillon?: string | null
-          format?: string | null
-          hex_color?: string | null
-          id?: string
-          image_url?: string | null
-          orientation_impression?: string | null
-          poids?: string | null
-          price_adjustment?: number | null
-          product_id?: string
-          quantite?: string | null
-          size?: string | null
-          status?: string | null
-          stock?: number | null
-          type_de_materiaux?: string | null
-          types_impression?: string | null
-          updated_at?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "product_variants_product_id_fkey"
-            columns: ["product_id"]
-            isOneToOne: false
-            referencedRelation: "products_complete"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "product_variants_product_id_fkey"
-            columns: ["product_id"]
-            isOneToOne: false
-            referencedRelation: "unified_products"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       products_complete: {
         Row: {
           bat: string | null
@@ -317,10 +142,8 @@ export type Database = {
           size: string | null
           status: string
           stock: number | null
-          "style  de pliages": string | null
           subcategory: string | null
           supplier_id: string | null
-          supplier_selection_label: string | null
           type_de_materiaux: string | null
           types_impression: string | null
           updated_at: string | null
@@ -355,10 +178,8 @@ export type Database = {
           size?: string | null
           status?: string
           stock?: number | null
-          "style  de pliages"?: string | null
           subcategory?: string | null
           supplier_id?: string | null
-          supplier_selection_label?: string | null
           type_de_materiaux?: string | null
           types_impression?: string | null
           updated_at?: string | null
@@ -393,10 +214,8 @@ export type Database = {
           size?: string | null
           status?: string
           stock?: number | null
-          "style  de pliages"?: string | null
           subcategory?: string | null
           supplier_id?: string | null
-          supplier_selection_label?: string | null
           type_de_materiaux?: string | null
           types_impression?: string | null
           updated_at?: string | null
@@ -496,12 +315,9 @@ export type Database = {
           company_name: string
           contact_name: string | null
           created_at: string | null
-          description: string | null
           email: string
-          established_date: string | null
           id: string
           phone: string | null
-          rating: number | null
           status: string
           updated_at: string | null
         }
@@ -510,12 +326,9 @@ export type Database = {
           company_name: string
           contact_name?: string | null
           created_at?: string | null
-          description?: string | null
           email: string
-          established_date?: string | null
           id: string
           phone?: string | null
-          rating?: number | null
           status?: string
           updated_at?: string | null
         }
@@ -524,12 +337,9 @@ export type Database = {
           company_name?: string
           contact_name?: string | null
           created_at?: string | null
-          description?: string | null
           email?: string
-          established_date?: string | null
           id?: string
           phone?: string | null
-          rating?: number | null
           status?: string
           updated_at?: string | null
         }

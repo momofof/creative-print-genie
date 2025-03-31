@@ -25,19 +25,8 @@ export const parseJsonArray = (jsonArray: any): any[] => {
   
   try {
     if (typeof jsonArray === 'string') {
-      if (jsonArray.startsWith('[') && jsonArray.endsWith(']')) {
-        // Format de liste simple [valeur1, valeur2, ...]
-        const content = jsonArray.slice(1, -1);
-        if (!content.trim()) return [];
-        
-        return content.split(',')
-          .map(item => item.trim())
-          .filter(Boolean);
-      } else {
-        // Essayer de parser comme JSON
-        const parsed = JSON.parse(jsonArray);
-        return Array.isArray(parsed) ? parsed : [];
-      }
+      const parsed = JSON.parse(jsonArray);
+      return Array.isArray(parsed) ? parsed : [];
     }
     return Array.isArray(Object.values(jsonArray)) ? Object.values(jsonArray) : [];
   } catch (e) {
@@ -85,42 +74,6 @@ export const parseCustomizations = (customizations: any): any[] => {
     return Object.values(customizations);
   } catch (e) {
     console.error('Error parsing customizations:', e);
-    return [];
-  }
-};
-
-/**
- * Convertit un tableau de valeurs en format liste textuelle "[val1, val2, ...]"
- * 
- * @param values Les valeurs à convertir en liste textuelle
- * @returns Une chaîne de caractères au format liste
- */
-export const toListFormat = (values: string[]): string => {
-  if (!Array.isArray(values) || values.length === 0) return '[]';
-  return `[${values.join(', ')}]`;
-};
-
-/**
- * Convertit une liste textuelle "[val1, val2, ...]" en tableau de valeurs
- * 
- * @param listString La chaîne au format liste
- * @returns Un tableau de valeurs
- */
-export const fromListFormat = (listString: string): string[] => {
-  if (!listString || !listString.trim()) return [];
-  
-  try {
-    if (listString.startsWith('[') && listString.endsWith(']')) {
-      const content = listString.slice(1, -1);
-      if (!content.trim()) return [];
-      
-      return content.split(',')
-        .map(item => item.trim())
-        .filter(Boolean);
-    }
-    return [];
-  } catch (e) {
-    console.error('Error parsing list format:', e);
     return [];
   }
 };

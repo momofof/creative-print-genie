@@ -1,3 +1,4 @@
+
 export interface Product {
   id: string;
   name: string;
@@ -15,20 +16,7 @@ export interface Product {
   size?: string;
   format?: string;
   created_at?: string;
-  // Champs additionnels pour toutes les variantes possibles
-  bat?: string;
-  poids?: string;
-  quantite?: string;
-  echantillon?: string;
-  types_impression?: string;
-  type_de_materiaux?: string;
-  details_impression?: string;
-  orientation_impression?: string;
   variants: ProductVariant[];
-  // Champs pour les fournisseurs
-  supplier_id?: string;
-  suppliers?: ProductSupplier[];
-  supplier_selection_label?: string;
 }
 
 export interface CartItem {
@@ -101,12 +89,6 @@ export interface ProductVariant {
   image_url?: string;
   created_at: string;
   updated_at: string;
-}
-
-export interface ProductSupplier {
-  supplier_id: string;
-  is_default: boolean;
-  price_adjustment: number;
 }
 
 export interface CustomizableProduct extends Product {

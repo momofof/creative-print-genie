@@ -20,7 +20,7 @@ const ProductGallery = ({
   useEffect(() => {
     // If we have a selected variant and it has an image, add it to our images
     if (product && selectedVariant && selectedVariant.type === 'color') {
-      const variantImage = getVariantImage(product.id, selectedVariant.value);
+      const variantImage = getVariantImage(product, selectedVariant.type, selectedVariant.value);
       
       if (variantImage) {
         // Add the variant image if it's not already in the list
