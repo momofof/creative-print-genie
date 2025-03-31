@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -53,7 +54,8 @@ export const useCart = (): UseCartReturn => {
         if (error) throw error;
         
         loadedItems = data.map((item: any) => {
-          const plainItem = {
+          // Create base item without variants first
+          const baseItem: CartItem = {
             id: item.product_id || "",
             name: item.product_name,
             price: item.price,
@@ -62,6 +64,7 @@ export const useCart = (): UseCartReturn => {
             supplier_id: item.supplier_id
           };
           
+          // Build options separately
           const options: Record<string, string> = {};
           
           if (item.option_color) options.color = item.option_color;
@@ -69,13 +72,12 @@ export const useCart = (): UseCartReturn => {
           if (item.option_format) options.format = item.option_format;
           if (item.option_quantity) options.quantity = item.option_quantity;
           
-          const result: CartItem = plainItem;
-          
+          // Only add variants if we have options
           if (Object.keys(options).length > 0) {
-            result.variants = options;
+            baseItem.variants = options;
           }
           
-          return result;
+          return baseItem;
         });
       } else {
         loadedItems = getCartFromLocalStorage();
