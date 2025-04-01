@@ -48,6 +48,19 @@ export const useCart = (): UseCartReturn => {
       let loadedItems: CartItem[] = [];
       
       if (userId) {
+        type CartItemResponse = {
+          product_id: string;
+          product_name: string;
+          price: number;
+          quantity: number;
+          image: string | null;
+          supplier_id: string | null;
+          option_color: string | null;
+          option_size: string | null;
+          option_format: string | null;
+          option_quantity: string | null;
+        };
+        
         const { data, error } = await supabase
           .from("cart_items")
           .select("*")
@@ -76,7 +89,7 @@ export const useCart = (): UseCartReturn => {
             return {
               ...baseItem,
               variants: variantOptions
-            };
+            } as CartItem;
           }
           
           return baseItem as CartItem;
