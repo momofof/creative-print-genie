@@ -17,7 +17,10 @@ interface CartItemResponse {
   quantity: number;
   image: string | null;
   supplier_id: string | null;
-  variants: Record<string, string> | null;
+  option_color: string | null;
+  option_size: string | null;
+  option_format: string | null;
+  option_quantity: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -61,7 +64,7 @@ export const useCart = (): UseCartReturn => {
       let loadedItems: CartItem[] = [];
       
       if (userId) {
-        // Utiliser la table "cart_items" mais adapter la structure au type CartItemResponse
+        // Avoid type instantiation issues by using explicit typing
         const { data, error } = await supabase
           .from("cart_items")
           .select("*")
@@ -69,15 +72,15 @@ export const useCart = (): UseCartReturn => {
         
         if (error) throw error;
         
-        // Transformations manuelles pour contourner le problème de typage
-        loadedItems = data.map((item: any) => ({
+        // Convert the data safely with proper typing
+        loadedItems = (data as any[]).map((item): CartItem => ({
           id: item.product_id || '',
           name: item.product_name,
           price: item.price,
           quantity: item.quantity,
           image: item.image || "/placeholder.svg",
           supplier_id: item.supplier_id,
-          variants: item.option_color || item.option_size ? 
+          variants: item.option_color || item.option_size || item.option_format || item.option_quantity ? 
             {
               color: item.option_color,
               size: item.option_size,
