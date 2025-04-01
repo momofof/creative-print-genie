@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -6,6 +5,9 @@ import { CartItem } from "@/types/product";
 import { AddToCartProps, UseCartReturn } from "@/types/cart";
 import { calculateTotalPrice, findExistingItemIndex } from "@/utils/cartCalculations";
 import { saveCartToLocalStorage, getCartFromLocalStorage } from "@/utils/cartStorage";
+
+type CartItemBase = Omit<CartItem, 'variants'>;
+type CartItemVariants = Pick<CartItem, 'variants'>;
 
 export const useCart = (): UseCartReturn => {
   const [isLoading, setIsLoading] = useState(false);
@@ -53,10 +55,8 @@ export const useCart = (): UseCartReturn => {
         
         if (error) throw error;
         
-        // Simplified approach to avoid deep type instantiation
         loadedItems = (data || []).map((item: any) => {
-          // Create base object without variants
-          const baseItem = {
+          const baseItem: CartItemBase = {
             id: item.product_id || "",
             name: item.product_name,
             price: item.price,
@@ -65,17 +65,18 @@ export const useCart = (): UseCartReturn => {
             supplier_id: item.supplier_id
           };
           
-          // Handle variants separately to avoid recursive type issues
-          const variants: Record<string, string> = {};
+          const variantOptions: Record<string, string> = {};
           
-          if (item.option_color) variants.color = item.option_color;
-          if (item.option_size) variants.size = item.option_size;
-          if (item.option_format) variants.format = item.option_format;
-          if (item.option_quantity) variants.quantity = item.option_quantity;
+          if (item.option_color) variantOptions.color = item.option_color;
+          if (item.option_size) variantOptions.size = item.option_size;
+          if (item.option_format) variantOptions.format = item.option_format;
+          if (item.option_quantity) variantOptions.quantity = item.option_quantity;
           
-          // Only add variants if we have any options
-          if (Object.keys(variants).length > 0) {
-            return { ...baseItem, variants } as CartItem;
+          if (Object.keys(variantOptions).length > 0) {
+            return {
+              ...baseItem,
+              variants: variantOptions
+            };
           }
           
           return baseItem as CartItem;
