@@ -89,6 +89,48 @@ export type Database = {
           },
         ]
       }
+      cart_items_improved: {
+        Row: {
+          created_at: string
+          id: string
+          image: string | null
+          price: number
+          product_id: string | null
+          product_name: string
+          quantity: number
+          supplier_id: string | null
+          updated_at: string
+          user_id: string | null
+          variants: Json | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          image?: string | null
+          price: number
+          product_id?: string | null
+          product_name: string
+          quantity?: number
+          supplier_id?: string | null
+          updated_at?: string
+          user_id?: string | null
+          variants?: Json | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          image?: string | null
+          price?: number
+          product_id?: string | null
+          product_name?: string
+          quantity?: number
+          supplier_id?: string | null
+          updated_at?: string
+          user_id?: string | null
+          variants?: Json | null
+        }
+        Relationships: []
+      }
       orders_complete: {
         Row: {
           created_at: string | null

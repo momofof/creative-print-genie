@@ -7,21 +7,19 @@ import { AddToCartProps, UseCartReturn } from "@/types/cart";
 import { calculateTotalPrice, findExistingItemIndex } from "@/utils/cartCalculations";
 import { saveCartToLocalStorage, getCartFromLocalStorage } from "@/utils/cartStorage";
 
-type CartItemBase = Omit<CartItem, 'variants'>;
-type CartItemVariants = Pick<CartItem, 'variants'>;
-
-// Define what we expect from the database
-interface CartItemResponse {
+// Interface pour les données reçues de la base de données
+interface CartItemImproved {
+  id: string;
+  user_id: string | null;
   product_id: string;
   product_name: string;
   price: number;
   quantity: number;
   image: string | null;
   supplier_id: string | null;
-  option_color: string | null;
-  option_size: string | null;
-  option_format: string | null;
-  option_quantity: string | null;
+  variants: Record<string, string>;
+  created_at: string;
+  updated_at: string;
 }
 
 export const useCart = (): UseCartReturn => {
@@ -64,47 +62,25 @@ export const useCart = (): UseCartReturn => {
       
       if (userId) {
         const { data, error } = await supabase
-          .from("cart_items")
+          .from("cart_items_improved")
           .select("*")
           .eq("user_id", userId);
         
         if (error) throw error;
         
-        // Explicitly type the data array from Supabase
-        const cartData = data as unknown as CartItemResponse[];
+        // Conversion explicite des données de Supabase
+        const cartData = data as unknown as CartItemImproved[];
         
-        // Map the data using specifically typed functions
-        loadedItems = cartData.map((item) => {
-          const baseItem: CartItemBase = {
-            id: item.product_id || "",
-            name: item.product_name,
-            price: item.price,
-            quantity: item.quantity,
-            image: item.image || "/placeholder.svg",
-            supplier_id: item.supplier_id
-          };
-          
-          // Create variant object only if we have options
-          if (item.option_color || item.option_size || item.option_format || item.option_quantity) {
-            const variantOptions: Record<string, string> = {};
-            
-            if (item.option_color) variantOptions.color = item.option_color;
-            if (item.option_size) variantOptions.size = item.option_size;
-            if (item.option_format) variantOptions.format = item.option_format;
-            if (item.option_quantity) variantOptions.quantity = item.option_quantity;
-            
-            // Create final cart item with variants
-            const cartItemWithVariants: CartItem = {
-              ...baseItem,
-              variants: variantOptions
-            };
-            
-            return cartItemWithVariants;
-          }
-          
-          // Return base item without variants
-          return baseItem;
-        });
+        // Transformation en CartItem
+        loadedItems = cartData.map((item) => ({
+          id: item.product_id,
+          name: item.product_name,
+          price: item.price,
+          quantity: item.quantity,
+          image: item.image || "/placeholder.svg",
+          supplier_id: item.supplier_id || undefined,
+          variants: item.variants && Object.keys(item.variants).length > 0 ? item.variants : undefined
+        }));
       } else {
         loadedItems = getCartFromLocalStorage();
       }
@@ -123,7 +99,7 @@ export const useCart = (): UseCartReturn => {
     try {
       if (userId) {
         await supabase
-          .from("cart_items")
+          .from("cart_items_improved")
           .delete()
           .eq("user_id", userId);
           
@@ -136,14 +112,11 @@ export const useCart = (): UseCartReturn => {
             quantity: item.quantity,
             image: item.image,
             supplier_id: item.supplier_id,
-            option_color: item.variants?.color,
-            option_size: item.variants?.size,
-            option_format: item.variants?.format,
-            option_quantity: item.variants?.quantity
+            variants: item.variants || {}
           }));
           
           const { error } = await supabase
-            .from("cart_items")
+            .from("cart_items_improved")
             .insert(cartData);
             
           if (error) throw error;
