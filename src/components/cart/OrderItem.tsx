@@ -1,6 +1,6 @@
 
 import { CartItem } from "@/types/product";
-import { getVariantDisplayName } from "@/components/home/ProductOrderForm/utils/variantDisplay";
+import CartItemVariants from "./CartItemVariants";
 
 interface OrderItemProps {
   item: CartItem;
@@ -19,22 +19,6 @@ const OrderItem = ({
   onEditItem,
   onQuantityChange,
 }: OrderItemProps) => {
-  // Cette fonction consolide l'affichage des options/variantes
-  const renderVariantOptions = () => {
-    // Si aucun variant n'est défini, retourner null
-    if (!item.variants || Object.keys(item.variants).length === 0) return null;
-    
-    return (
-      <div className="mt-1 text-xs text-gray-500">
-        {Object.entries(item.variants).map(([key, value]) => (
-          <span key={key} className="mr-2">
-            {getVariantDisplayName(key, value)}
-          </span>
-        ))}
-      </div>
-    );
-  };
-
   return (
     <div key={itemKey} className="flex items-start gap-3">
       <div className="h-12 w-12 flex-shrink-0 overflow-hidden rounded-md border border-gray-200">
@@ -49,7 +33,7 @@ const OrderItem = ({
           <p className="font-medium">{item.name}</p>
         </div>
         
-        {renderVariantOptions()}
+        <CartItemVariants variants={item.variants} />
         
         <div className="flex justify-between mt-1">
           <p className="text-sm text-gray-500">
