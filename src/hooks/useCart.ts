@@ -7,17 +7,17 @@ import { AddToCartProps, UseCartReturn } from "@/types/cart";
 import { calculateTotalPrice, findExistingItemIndex } from "@/utils/cartCalculations";
 import { saveCartToLocalStorage, getCartFromLocalStorage } from "@/utils/cartStorage";
 
-// Interface pour les données reçues de la base de données
-interface CartItemImproved {
+// Interface simplifiée pour les données reçues de la base de données
+interface CartItemResponse {
   id: string;
   user_id: string | null;
-  product_id: string;
+  product_id: string | null;
   product_name: string;
   price: number;
   quantity: number;
   image: string | null;
   supplier_id: string | null;
-  variants: Record<string, string>;
+  variants: Record<string, string> | null;
   created_at: string;
   updated_at: string;
 }
@@ -61,25 +61,29 @@ export const useCart = (): UseCartReturn => {
       let loadedItems: CartItem[] = [];
       
       if (userId) {
+        // Utiliser la table "cart_items" mais adapter la structure au type CartItemResponse
         const { data, error } = await supabase
-          .from("cart_items_improved")
+          .from("cart_items")
           .select("*")
           .eq("user_id", userId);
         
         if (error) throw error;
         
-        // Conversion explicite des données de Supabase
-        const cartData = data as unknown as CartItemImproved[];
-        
-        // Transformation en CartItem
-        loadedItems = cartData.map((item) => ({
-          id: item.product_id,
+        // Transformations manuelles pour contourner le problème de typage
+        loadedItems = data.map((item: any) => ({
+          id: item.product_id || '',
           name: item.product_name,
           price: item.price,
           quantity: item.quantity,
           image: item.image || "/placeholder.svg",
-          supplier_id: item.supplier_id || undefined,
-          variants: item.variants && Object.keys(item.variants).length > 0 ? item.variants : undefined
+          supplier_id: item.supplier_id,
+          variants: item.option_color || item.option_size ? 
+            {
+              color: item.option_color,
+              size: item.option_size,
+              format: item.option_format,
+              quantity: item.option_quantity
+            } : undefined
         }));
       } else {
         loadedItems = getCartFromLocalStorage();
@@ -98,25 +102,35 @@ export const useCart = (): UseCartReturn => {
   const saveCart = async (updatedCartItems: CartItem[]) => {
     try {
       if (userId) {
+        // Supprimer les anciens éléments
         await supabase
-          .from("cart_items_improved")
+          .from("cart_items")
           .delete()
           .eq("user_id", userId);
           
         if (updatedCartItems.length > 0) {
-          const cartData = updatedCartItems.map(item => ({
-            user_id: userId,
-            product_id: item.id,
-            product_name: item.name,
-            price: item.price,
-            quantity: item.quantity,
-            image: item.image,
-            supplier_id: item.supplier_id,
-            variants: item.variants || {}
-          }));
+          // Préparer les données pour l'insertion
+          const cartData = updatedCartItems.map(item => {
+            // Extraire les variantes si elles existent
+            const variants = item.variants || {};
+            
+            return {
+              user_id: userId,
+              product_id: item.id,
+              product_name: item.name,
+              price: item.price,
+              quantity: item.quantity,
+              image: item.image,
+              supplier_id: item.supplier_id,
+              option_color: variants.color,
+              option_size: variants.size,
+              option_format: variants.format,
+              option_quantity: variants.quantity
+            };
+          });
           
           const { error } = await supabase
-            .from("cart_items_improved")
+            .from("cart_items")
             .insert(cartData);
             
           if (error) throw error;
@@ -143,6 +157,7 @@ export const useCart = (): UseCartReturn => {
     setIsLoading(true);
     
     try {
+      // Créer un objet variants seulement si nécessaire
       const variants: Record<string, string> = {};
       if (selectedColor) variants.color = selectedColor;
       if (selectedSize) variants.size = selectedSize;
