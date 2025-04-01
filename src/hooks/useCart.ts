@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -8,6 +9,20 @@ import { saveCartToLocalStorage, getCartFromLocalStorage } from "@/utils/cartSto
 
 type CartItemBase = Omit<CartItem, 'variants'>;
 type CartItemVariants = Pick<CartItem, 'variants'>;
+
+// Define what we expect from the database
+interface CartItemResponse {
+  product_id: string;
+  product_name: string;
+  price: number;
+  quantity: number;
+  image: string | null;
+  supplier_id: string | null;
+  option_color: string | null;
+  option_size: string | null;
+  option_format: string | null;
+  option_quantity: string | null;
+}
 
 export const useCart = (): UseCartReturn => {
   const [isLoading, setIsLoading] = useState(false);
@@ -48,19 +63,6 @@ export const useCart = (): UseCartReturn => {
       let loadedItems: CartItem[] = [];
       
       if (userId) {
-        type CartItemResponse = {
-          product_id: string;
-          product_name: string;
-          price: number;
-          quantity: number;
-          image: string | null;
-          supplier_id: string | null;
-          option_color: string | null;
-          option_size: string | null;
-          option_format: string | null;
-          option_quantity: string | null;
-        };
-        
         const { data, error } = await supabase
           .from("cart_items")
           .select("*")
@@ -68,7 +70,11 @@ export const useCart = (): UseCartReturn => {
         
         if (error) throw error;
         
-        loadedItems = (data || []).map((item: any) => {
+        // Explicitly type the data array from Supabase
+        const cartData = data as unknown as CartItemResponse[];
+        
+        // Map the data using specifically typed functions
+        loadedItems = cartData.map((item) => {
           const baseItem: CartItemBase = {
             id: item.product_id || "",
             name: item.product_name,
@@ -78,21 +84,26 @@ export const useCart = (): UseCartReturn => {
             supplier_id: item.supplier_id
           };
           
-          const variantOptions: Record<string, string> = {};
-          
-          if (item.option_color) variantOptions.color = item.option_color;
-          if (item.option_size) variantOptions.size = item.option_size;
-          if (item.option_format) variantOptions.format = item.option_format;
-          if (item.option_quantity) variantOptions.quantity = item.option_quantity;
-          
-          if (Object.keys(variantOptions).length > 0) {
-            return {
+          // Create variant object only if we have options
+          if (item.option_color || item.option_size || item.option_format || item.option_quantity) {
+            const variantOptions: Record<string, string> = {};
+            
+            if (item.option_color) variantOptions.color = item.option_color;
+            if (item.option_size) variantOptions.size = item.option_size;
+            if (item.option_format) variantOptions.format = item.option_format;
+            if (item.option_quantity) variantOptions.quantity = item.option_quantity;
+            
+            // Create final cart item with variants
+            const cartItemWithVariants: CartItem = {
               ...baseItem,
               variants: variantOptions
-            } as CartItem;
+            };
+            
+            return cartItemWithVariants;
           }
           
-          return baseItem as CartItem;
+          // Return base item without variants
+          return baseItem;
         });
       } else {
         loadedItems = getCartFromLocalStorage();
