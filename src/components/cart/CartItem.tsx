@@ -60,27 +60,12 @@ const CartItem = ({ item, updateQuantity, removeItem, editCartItem }: CartItemPr
 
   // Cette fonction consolide l'affichage des options/variantes
   const renderVariantOptions = () => {
-    const options: Record<string, string> = {};
-    
-    // Récupérer les options de l'ancienne structure
-    if (item.option_color) options['color'] = item.option_color;
-    if (item.option_size) options['size'] = item.option_size;
-    if (item.option_format) options['format'] = item.option_format;
-    if (item.option_quantity) options['quantity'] = item.option_quantity;
-    
-    // Ajouter les options de la nouvelle structure de variants
-    if (item.variants) {
-      Object.entries(item.variants).forEach(([key, value]) => {
-        options[key] = value as string;
-      });
-    }
-    
-    // Si aucune option n'est définie, retourner null
-    if (Object.keys(options).length === 0) return null;
+    // Si aucun variant n'est défini, retourner null
+    if (!item.variants || Object.keys(item.variants).length === 0) return null;
     
     return (
       <div className="mt-1 text-sm text-gray-500">
-        {Object.entries(options).map(([key, value]) => (
+        {Object.entries(item.variants).map(([key, value]) => (
           <span key={key} className="mr-3">
             {getVariantDisplayName(key, value)}
           </span>
