@@ -1,25 +1,12 @@
+
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { CartItem } from "@/types/product";
 import { AddToCartProps, UseCartReturn } from "@/types/cart";
-import { calculateTotalPrice, findExistingItemIndex } from "@/utils/cartCalculations";
-import { saveCartToLocalStorage, getCartFromLocalStorage } from "@/utils/cartStorage";
-
-// Interface simplifiée pour les données reçues de la base de données
-interface CartItemResponse {
-  id: string;
-  user_id: string | null;
-  product_id: string | null;
-  product_name: string;
-  price: number;
-  quantity: number;
-  image: string | null;
-  supplier_id: string | null;
-  variants: Record<string, string> | null;
-  created_at: string;
-  updated_at: string;
-}
+import { fetchCartItems, saveCartItemsToDatabase } from "@/services/cartAPI";
+import { saveCartToLocalStorage, getCartFromLocalStorage } from "@/services/cartStorage";
+import { calculateTotalPrice, findExistingItemIndex } from "@/utils/cartHelpers";
 
 export const useCart = (): UseCartReturn => {
   const [isLoading, setIsLoading] = useState(false);
@@ -60,30 +47,7 @@ export const useCart = (): UseCartReturn => {
       let loadedItems: CartItem[] = [];
       
       if (userId) {
-        // Utiliser une requête typée de manière sûre
-        const { data, error } = await supabase
-          .from("cart_items")
-          .select("*")
-          .eq("user_id", userId);
-        
-        if (error) throw error;
-        
-        // Convertir les données avec un cast de sécurité
-        loadedItems = (data || []).map((item: any): CartItem => ({
-          id: item.product_id || '',
-          name: item.product_name,
-          price: item.price,
-          quantity: item.quantity,
-          image: item.image || "/placeholder.svg",
-          supplier_id: item.supplier_id,
-          variants: item.option_color || item.option_size || item.option_format || item.option_quantity ? 
-            {
-              color: item.option_color,
-              size: item.option_size,
-              format: item.option_format,
-              quantity: item.option_quantity
-            } : undefined
-        }));
+        loadedItems = await fetchCartItems(userId);
       } else {
         loadedItems = getCartFromLocalStorage();
       }
@@ -101,39 +65,7 @@ export const useCart = (): UseCartReturn => {
   const saveCart = async (updatedCartItems: CartItem[]) => {
     try {
       if (userId) {
-        // Supprimer les anciens éléments
-        await supabase
-          .from("cart_items")
-          .delete()
-          .eq("user_id", userId);
-          
-        if (updatedCartItems.length > 0) {
-          // Préparer les données pour l'insertion
-          const cartData = updatedCartItems.map(item => {
-            // Extraire les variantes si elles existent
-            const variants = item.variants || {};
-            
-            return {
-              user_id: userId,
-              product_id: item.id,
-              product_name: item.name,
-              price: item.price,
-              quantity: item.quantity,
-              image: item.image,
-              supplier_id: item.supplier_id,
-              option_color: variants.color,
-              option_size: variants.size,
-              option_format: variants.format,
-              option_quantity: variants.quantity
-            };
-          });
-          
-          const { error } = await supabase
-            .from("cart_items")
-            .insert(cartData);
-            
-          if (error) throw error;
-        }
+        await saveCartItemsToDatabase(userId, updatedCartItems);
       } else {
         saveCartToLocalStorage(updatedCartItems);
       }
