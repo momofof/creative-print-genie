@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -17,10 +16,7 @@ interface CartItemResponse {
   quantity: number;
   image: string | null;
   supplier_id: string | null;
-  option_color: string | null;
-  option_size: string | null;
-  option_format: string | null;
-  option_quantity: string | null;
+  variants: Record<string, string> | null;
   created_at: string;
   updated_at: string;
 }
@@ -64,7 +60,7 @@ export const useCart = (): UseCartReturn => {
       let loadedItems: CartItem[] = [];
       
       if (userId) {
-        // Avoid type instantiation issues by using explicit typing
+        // Utiliser une requête typée de manière sûre
         const { data, error } = await supabase
           .from("cart_items")
           .select("*")
@@ -72,8 +68,8 @@ export const useCart = (): UseCartReturn => {
         
         if (error) throw error;
         
-        // Convert the data safely with proper typing
-        loadedItems = (data as any[]).map((item): CartItem => ({
+        // Convertir les données avec un cast de sécurité
+        loadedItems = (data || []).map((item: any): CartItem => ({
           id: item.product_id || '',
           name: item.product_name,
           price: item.price,
