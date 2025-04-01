@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -6,7 +5,7 @@ import { CartItem } from "@/types/product";
 import { AddToCartProps, UseCartReturn } from "@/types/cart";
 import { fetchCartItems, saveCartItemsToDatabase } from "@/services/cartAPI";
 import { saveCartToLocalStorage, getCartFromLocalStorage } from "@/services/cartStorage";
-import { calculateTotalPrice, findExistingItemIndex } from "@/utils/cartHelpers";
+import { calculateTotalPrice, findExistingItemIndex } from "@/utils/cartCalculations";
 
 export const useCart = (): UseCartReturn => {
   const [isLoading, setIsLoading] = useState(false);

@@ -1,4 +1,3 @@
-
 export interface Product {
   id: string;
   name: string;
@@ -25,12 +24,8 @@ export interface CartItem {
   price: number;
   quantity: number;
   image: string;
-  option_color?: string;
-  option_size?: string;
-  option_format?: string;
-  option_quantity?: string;
-  variants?: Record<string, string>;
   supplier_id?: string;
+  variants?: Record<string, string>;
 }
 
 export interface Color {
