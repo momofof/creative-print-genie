@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -85,7 +86,6 @@ export const SimpleVariantEditor: React.FC<SimpleVariantEditorProps> = ({
       stock: 0,
       price_adjustment: 0,
       status: "in_stock",
-      // Removed isNew property as it doesn't exist in ProductVariant
     };
 
     return variant;
@@ -160,8 +160,14 @@ export const SimpleVariantEditor: React.FC<SimpleVariantEditorProps> = ({
           </div>
         </div>
         <VariantImageUpload
+          variantId={variantForm.id}
+          productId=""
           imagePreview={variantImagePreview}
-          handleImageChange={handleImageChange}
+          imagesList={[]}
+          onImageChange={(variantId, e) => {
+            const file = e.target.files?.[0];
+            if (file) handleImageChange(file);
+          }}
         />
         <Button onClick={handleSaveVariant} className="bg-teal-600 text-white">
           <Save className="h-4 w-4 mr-2" />

@@ -1,5 +1,5 @@
 
-import { ProductVariant } from "./types/productTypes";
+import { ProductVariant } from "@/types/dashboard";
 
 export const useVariantParser = () => {
   const parseVariantsFromJson = (jsonVariants: any): ProductVariant[] => {

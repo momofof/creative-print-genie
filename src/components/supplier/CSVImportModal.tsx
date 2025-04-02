@@ -12,8 +12,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { supabase } from "@/integrations/supabase/client";
 import { Loader2, FileSpreadsheet, Upload, CheckCircle2 } from "lucide-react";
-import { ProductComplete } from "@/types/dashboard";
-import { ProductVariant } from "@/pages/supplier/hooks/types/productTypes";
+import { ProductComplete, ProductVariant } from "@/types/dashboard";
 
 interface CSVImportModalProps {
   open: boolean;
