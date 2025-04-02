@@ -1,85 +1,113 @@
 
 import { Product } from "@/types/product";
+import { supabase } from "@/integrations/supabase/client";
 
-// Get available variants from a product category or subcategory
-export const getAvailableVariants = (categoryOrSubcategory: string): string[] => {
-  // Map of categories/subcategories to their available variant types
-  const categoryVariantsMap: Record<string, string[]> = {
-    // Textile categories
-    'T-shirts': ['color', 'size'],
-    'Polos': ['color', 'size'],
-    'Sweats': ['color', 'size'],
-    'Vestes': ['color', 'size'],
-    'Casquettes': ['color', 'size'],
-    
-    // Papeterie categories
-    'Flyers': ['format', 'quantite', 'types_impression', 'poids'],
-    'Affiches': ['format', 'quantite', 'types_impression', 'poids'],
-    'Dépliants': ['format', 'quantite', 'types_impression', 'poids', 'details_impression'],
-    'Cartes de visite': ['format', 'quantite', 'types_impression', 'details_impression'],
-    'Papier entête': ['format', 'quantite', 'types_impression'],
-    
-    // Generic categories
-    'Textile': ['color', 'size'],
-    'Papeterie': ['format', 'quantite', 'types_impression', 'poids'],
-    'Packaging': ['format', 'quantite', 'type_de_materiaux'],
-    'Signalétique': ['format', 'quantite', 'type_de_materiaux', 'support'],
-    'Goodies': ['color', 'format', 'quantite'],
-    
-    // Default for any other category
-    'default': ['color', 'size', 'format', 'quantite']
+// Get available variants for a product category
+export const getAvailableVariants = (category: string): string[] => {
+  // Essayer d'abord la sous-catégorie si elle existe
+  const variants = {
+    "t-shirts": ["color", "size", "print_design"],
+    "hoodies": ["color", "size", "print_design"],
+    "mugs": ["color", "design"],
+    "posters": ["size", "paper_type", "format", "orientation_impression"],
+    "stickers": ["size", "finish", "type_de_materiaux", "details_impression"],
+    "accessoires": ["color", "size"],
+    "casquettes": ["color", "size"],
+    "sport": ["color", "size"],
+    "vélo": ["color", "size", "face_a_imprimer"],
+    "papier": ["format", "type_de_papier", "poids", "details_impression", "orientation_impression", "echantillon", "bat"],
+    "carte-de-visite": ["format", "type_de_papier", "poids", "details_impression", "orientation_impression", "echantillon", "bat"],
+    "impression": ["quantite", "format", "type_de_materiaux", "poids", "details_impression", "orientation_impression", "types_impression", "echantillon", "bat"],
+    // Catégories génériques
+    "vêtements": ["color", "size", "print_design"],
+    // Par défaut, inclure toutes les options possibles
+    "default": ["color", "size", "format", "quantite", "bat", "poids", "echantillon", "types_impression", 
+                "type_de_materiaux", "details_impression", "orientation_impression", "print_design", "design", 
+                "paper_type", "finish", "face_a_imprimer"]
   };
+
+  const normalizedCategory = category.toLowerCase();
   
-  return categoryVariantsMap[categoryOrSubcategory] || categoryVariantsMap['default'];
+  // Retourner les variants pour cette catégorie, ou par défaut un ensemble standard
+  return variants[normalizedCategory] || variants["default"];
 };
 
-// Get quantity options based on product category
-export const getQuantityOptions = (categoryOrSubcategory: string): number[] => {
-  // Map of categories to their quantity options
-  const quantityOptionsMap: Record<string, number[]> = {
-    // Papeterie (printing) has larger quantities
-    'Flyers': [50, 100, 250, 500, 1000, 2500, 5000],
-    'Affiches': [10, 25, 50, 100, 250, 500],
-    'Dépliants': [50, 100, 250, 500, 1000, 2500],
-    'Cartes de visite': [100, 250, 500, 1000, 2000],
-    'Papier entête': [50, 100, 250, 500, 1000],
-    'Papeterie': [50, 100, 250, 500, 1000, 2500],
-    
-    // Textile usually ordered in smaller quantities
-    'T-shirts': [1, 5, 10, 25, 50, 100, 250],
-    'Polos': [1, 5, 10, 25, 50, 100],
-    'Sweats': [1, 5, 10, 25, 50, 100],
-    'Vestes': [1, 5, 10, 25, 50],
-    'Casquettes': [1, 5, 10, 25, 50, 100],
-    'Textile': [1, 5, 10, 25, 50, 100, 250],
-    
-    // Default quantity options
-    'default': [1, 2, 5, 10, 25, 50, 100]
+// Get quantity options for a product category
+export const getQuantityOptions = (category: string): number[] => {
+  const options = {
+    "t-shirts": [1, 5, 10, 25, 50, 100],
+    "hoodies": [1, 5, 10, 25, 50],
+    "mugs": [1, 5, 10, 25, 50, 100],
+    "posters": [1, 5, 10, 25, 50, 100],
+    "stickers": [10, 25, 50, 100, 250, 500],
+    "accessoires": [1, 5, 10, 25, 50],
+    "casquettes": [1, 5, 10, 25, 50, 100],
+    "sport": [1, 5, 10, 25, 50],
+    "vélo": [1, 5, 10, 25],
+    "papier": [100, 250, 500, 1000, 2500, 5000],
+    "carte-de-visite": [100, 250, 500, 1000, 2500, 5000],
+    "impression": [50, 100, 250, 500, 1000, 2500, 5000],
+    // Catégories génériques
+    "vêtements": [1, 5, 10, 25, 50, 100],
+    // Par défaut
+    "default": [1, 5, 10, 25, 50, 100, 250, 500, 1000]
   };
+
+  const normalizedCategory = category.toLowerCase();
   
-  return quantityOptionsMap[categoryOrSubcategory] || quantityOptionsMap['default'];
+  return options[normalizedCategory] || options["default"];
 };
 
-// Extract variant options from product data
+// Extract variant options specific to a product from the database
 export const extractVariantOptionsFromProduct = async (product: Product): Promise<Record<string, string[]>> => {
-  const result: Record<string, string[]> = {};
-  
-  // Check for variant fields in the product
-  const variantFields = [
-    "size", "color", "format", "quantite", "bat", "poids",
-    "echantillon", "types_impression", "type_de_materiaux",
-    "details_impression", "orientation_impression"
-  ];
-  
-  variantFields.forEach(field => {
-    // If the product has a value for this field, add it as an option
-    if ((product as any)[field]) {
-      const value = (product as any)[field];
-      if (value) {
-        result[field] = [value];
-      }
+  try {
+    if (!product || !product.id) {
+      console.log("Produit non défini ou sans ID");
+      return {};
     }
-  });
-  
-  return result;
+
+    console.log("Récupération des options pour le produit ID:", product.id);
+    
+    // Récupérer le produit complet depuis la base de données
+    const { data: productData, error } = await supabase
+      .from('products_complete')
+      .select('*')
+      .eq('id', product.id)
+      .single();
+    
+    if (error) {
+      console.error("Erreur lors de la récupération du produit:", error);
+      return {};
+    }
+    
+    if (!productData) {
+      console.warn("Aucun produit trouvé avec l'ID:", product.id);
+      return {};
+    }
+    
+    console.log("Données du produit récupérées:", productData);
+    
+    // Liste des champs de variant à extraire du produit
+    const variantFields = [
+      'color', 'size', 'format', 'quantite', 'bat', 'poids', 'echantillon',
+      'types_impression', 'type_de_materiaux', 'details_impression', 'orientation_impression'
+    ];
+    
+    const options: Record<string, string[]> = {};
+    
+    // Pour chaque champ de variant, extraire la valeur et l'ajouter aux options
+    variantFields.forEach(field => {
+      if (productData[field] && productData[field].trim() !== '') {
+        // Pour chaque champ non vide, créer une liste avec un seul élément (la valeur du champ)
+        options[field] = [productData[field]];
+        console.log(`Option trouvée pour ${field}:`, options[field]);
+      }
+    });
+    
+    console.log("Options de variants extraites:", options);
+    return options;
+  } catch (error) {
+    console.error("Erreur dans extractVariantOptionsFromProduct:", error);
+    return {};
+  }
 };

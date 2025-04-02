@@ -1,3 +1,4 @@
+
 // Define variant options for each product category and variant type
 const variantOptions: Record<string, Record<string, string[]>> = {
   "vêtements": {
