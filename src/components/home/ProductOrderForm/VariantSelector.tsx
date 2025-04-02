@@ -18,6 +18,7 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import { getVariantIllustration } from "./utils";
 import VariantSearch from "./components/VariantSearch";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { useVariantParser } from "@/pages/supplier/hooks/useVariantParser";
 
 interface VariantSelectorProps {
   variantType: string;
@@ -40,10 +41,11 @@ const VariantSelector = ({
   const [showIllustration, setShowIllustration] = useState(false);
   const isMobile = useIsMobile();
   const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const { parseSimpleArrayString } = useVariantParser();
   
   // S'assurer que les options sont toujours un tableau
   const normalizedOptions = Array.isArray(options) ? options : 
-    typeof options === 'string' ? options.split(',').map(o => o.trim()) : [];
+    typeof options === 'string' ? parseSimpleArrayString(options) : [];
   
   // Filter options by search term
   const filteredOptions = normalizedOptions.filter(option => 
