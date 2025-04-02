@@ -43,7 +43,7 @@ const VariantSelector = ({
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const { parseSimpleArrayString } = useVariantParser();
   
-  // S'assurer que les options sont toujours un tableau
+  // S'assurer que les options sont toujours un tableau, en utilisant le parser amélioré
   const normalizedOptions = Array.isArray(options) ? options : 
     typeof options === 'string' ? parseSimpleArrayString(options) : [];
   

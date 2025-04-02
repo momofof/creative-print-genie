@@ -32,7 +32,7 @@ export const ProductVariants = ({
   handleVariantImageDelete,
   variantOptions = {}
 }: ProductVariantsProps) => {
-  const { parseSimpleArrayString } = useVariantParser();
+  const { parseSimpleArrayString, arrayToSimpleString } = useVariantParser();
   const activeVariants = variants.filter(v => !v.isDeleted);
   
   const fieldGroups = [
@@ -81,6 +81,12 @@ export const ProductVariants = ({
   const hasOptions = (fieldName: string): boolean => {
     const optionsKey = `${fieldName}_options`;
     return Array.isArray(variantOptions[optionsKey]) && variantOptions[optionsKey].length > 0;
+  };
+  
+  // Helper pour formater visuellement les options pour l'affichage
+  const formatOptionsDisplay = (options: string[] | undefined): string => {
+    if (!options || !Array.isArray(options)) return '';
+    return arrayToSimpleString(options);
   };
   
   return (
