@@ -20,10 +20,9 @@ export const getAvailableVariants = (category: string): string[] => {
     "impression": ["quantite", "format", "type_de_materiaux", "poids", "details_impression", "orientation_impression", "types_impression", "echantillon", "bat"],
     // Catégories génériques
     "vêtements": ["color", "size", "print_design"],
-    // Par défaut, inclure toutes les options possibles
+    // Par défaut, inclure uniquement les champs qui existent réellement dans la table products_complete
     "default": ["color", "size", "format", "quantite", "bat", "poids", "echantillon", "types_impression", 
-                "type_de_materiaux", "details_impression", "orientation_impression", "print_design", "design", 
-                "paper_type", "finish", "face_a_imprimer"]
+               "type_de_materiaux", "details_impression", "orientation_impression"]
   };
 
   const normalizedCategory = category.toLowerCase();
@@ -95,10 +94,10 @@ export const extractVariantOptionsFromProduct = async (product: Product): Promis
     
     const options: Record<string, string[]> = {};
     
-    // Pour chaque champ de variant, extraire la valeur et l'ajouter aux options
+    // Pour chaque champ de variant, extraire la valeur uniquement si elle existe
     variantFields.forEach(field => {
       if (productData[field] && productData[field].trim() !== '') {
-        // Pour chaque champ non vide, créer une liste avec un seul élément (la valeur du champ)
+        // Pour chaque champ non vide, créer une liste avec la valeur du champ
         options[field] = [productData[field]];
         console.log(`Option trouvée pour ${field}:`, options[field]);
       }

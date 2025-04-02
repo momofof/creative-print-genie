@@ -44,7 +44,7 @@ const ProductFormVariants = ({
   // Group variants by type for better organization
   const groupVariants = () => {
     const groups = {
-      appearance: ['color', 'size', 'print_design', 'design', 'paper_type', 'finish', 'face_a_imprimer'],
+      appearance: ['color', 'size'],
       format: ['quantite', 'format', 'type_de_materiaux', 'poids'],
       impression: ['details_impression', 'orientation_impression', 'types_impression'],
       extras: ['echantillon', 'bat']
