@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -76,7 +77,7 @@ const SimpleVariantEditor = ({ variants, setVariants }: SimpleVariantEditorProps
         stock: 0,
         price_adjustment: 0,
         status: "in_stock",
-        isNew: true
+        isDeleted: false // Using isDeleted instead of isNew
       };
 
       return variant;

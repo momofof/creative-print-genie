@@ -103,7 +103,19 @@ export const useProductForm = (productId?: string) => {
             price_adjustment: data.customization_price_adjustment || 0,
             status: typedStatus,
             variant_status: typedVariantStatus,
-            variant_image_url: data.variant_image_url || null
+            variant_image_url: data.variant_image_url || null,
+            // Options de variantes
+            color_options: data.color_options || [],
+            size_options: data.size_options || [],
+            format_options: data.format_options || [],
+            poids_options: data.poids_options || [],
+            bat_options: data.bat_options || [],
+            quantite_options: data.quantite_options || [],
+            echantillon_options: data.echantillon_options || [],
+            types_impression_options: data.types_impression_options || [],
+            type_de_materiaux_options: data.type_de_materiaux_options || [],
+            details_impression_options: data.details_impression_options || [],
+            orientation_impression_options: data.orientation_impression_options || []
           });
           
           if (data.image) {
@@ -138,8 +150,8 @@ export const useProductForm = (productId?: string) => {
     }
   };
   
-  // Handle select changes
-  const handleSelectChange = (name: string, value: string) => {
+  // Handle select changes - now accepting string or array value 
+  const handleSelectChange = (name: string, value: string | string[]) => {
     setProductData(prev => ({
       ...prev,
       [name]: value
