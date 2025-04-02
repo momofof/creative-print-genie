@@ -1,266 +1,256 @@
-
 import React, { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Plus, Trash2, Check, X } from "lucide-react";
-import { 
-  Table, 
-  TableBody, 
-  TableCell, 
-  TableHead, 
-  TableHeader, 
-  TableRow 
-} from "@/components/ui/table";
-import { toast } from "sonner";
-import { ProductVariant } from "../../hooks/types/productTypes";
+import { Edit2, X, Plus, Save } from "lucide-react";
+import { ProductVariant } from "@/types/dashboard";
+import { VariantImageUpload } from "./VariantImageUpload";
 
 interface SimpleVariantEditorProps {
   variants: ProductVariant[];
-  setVariants: React.Dispatch<React.SetStateAction<ProductVariant[]>>;
+  onVariantsChange: (variants: ProductVariant[]) => void;
 }
 
-const SimpleVariantEditor = ({ variants, setVariants }: SimpleVariantEditorProps) => {
-  const [attributeName, setAttributeName] = useState("");
-  const [attributeValues, setAttributeValues] = useState("");
-  const [attributes, setAttributes] = useState<{ name: string; values: string[] }[]>([]);
-  const [showAttributeForm, setShowAttributeForm] = useState(false);
+export const SimpleVariantEditor: React.FC<SimpleVariantEditorProps> = ({ 
+  variants, 
+  onVariantsChange 
+}) => {
+  const [editingVariantId, setEditingVariantId] = useState<string | null>(null);
+  const [variantForm, setVariantForm] = useState<ProductVariant | null>(null);
+  const [baseVariantForm, setBaseVariantForm] = useState<{ size: string; color: string; hex_color: string }>({
+    size: "",
+    color: "",
+    hex_color: "#000000",
+  });
+  const [variantImagePreview, setVariantImagePreview] = useState<string | null>(null);
 
-  const generateCombinations = () => {
-    if (attributes.length === 0) {
-      toast.error("Ajoutez au moins un attribut avec des valeurs");
-      return;
-    }
-
-    const generateAllCombinations = (
-      attrList: { name: string; values: string[] }[],
-      current: Record<string, string> = {},
-      index: number = 0,
-      result: Record<string, string>[] = []
-    ): Record<string, string>[] => {
-      if (index === attrList.length) {
-        result.push({ ...current });
-        return result;
-      }
-
-      const currentAttr = attrList[index];
-      for (const value of currentAttr.values) {
-        current[currentAttr.name] = value;
-        generateAllCombinations(attrList, current, index + 1, result);
-      }
-
-      return result;
-    };
-
-    const combinations = generateAllCombinations(attributes);
-    
-    const newVariants = combinations.map(combo => {
-      const id = crypto.randomUUID();
-      
-      let size = "Unique";
-      let color = "";
-      let colorHex = "#000000";
-      
-      if (combo["Taille"] || combo["taille"] || combo["TAILLE"]) {
-        size = combo["Taille"] || combo["taille"] || combo["TAILLE"];
-      }
-      
-      if (combo["Couleur"] || combo["couleur"] || combo["COULEUR"]) {
-        color = combo["Couleur"] || combo["couleur"] || combo["COULEUR"];
-      }
-
-      const variant: ProductVariant = {
-        id,
-        size,
-        color: color || "Standard",
-        hex_color: colorHex,
-        stock: 0,
-        price_adjustment: 0,
-        status: "in_stock",
-        isDeleted: false // Using isDeleted instead of isNew
+  const handleImageChange = (file: File | null) => {
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setVariantImagePreview(reader.result as string);
       };
-
-      return variant;
-    });
-
-    setVariants(newVariants);
-    toast.success(`${newVariants.length} variantes générées avec succès`);
+      reader.readAsDataURL(file);
+    } else {
+      setVariantImagePreview(null);
+    }
   };
 
-  const addAttribute = () => {
-    if (!attributeName.trim()) {
-      toast.error("Le nom de l'attribut est requis");
-      return;
+  const handleDeleteVariant = (id: string) => {
+    const updatedVariants = variants.filter((v) => v.id !== id);
+    onVariantsChange(updatedVariants);
+  };
+
+  const handleEditVariant = (variant: ProductVariant) => {
+    setEditingVariantId(variant.id);
+    setVariantForm({ ...variant });
+    setVariantImagePreview(variant.image_url || null);
+  };
+
+  const handleSaveVariant = () => {
+    if (!variantForm) return;
+
+    const updatedVariants = variants.map((v) =>
+      v.id === variantForm.id ? { ...variantForm } : v
+    );
+
+    onVariantsChange(updatedVariants);
+    setEditingVariantId(null);
+    setVariantForm(null);
+    setVariantImagePreview(null);
+  };
+
+  const handleAddVariant = () => {
+    const newVariant = createBaseVariant();
+    if (newVariant) {
+      const updatedVariants = [...variants, newVariant];
+      onVariantsChange(updatedVariants);
+      setBaseVariantForm({ size: "", color: "", hex_color: "#000000" });
+    }
+  };
+
+  const createBaseVariant = () => {
+    if (!baseVariantForm.size && !baseVariantForm.color) {
+      alert("Veuillez entrer au moins une taille ou une couleur");
+      return null;
     }
     
-    if (!attributeValues.trim()) {
-      toast.error("Les valeurs de l'attribut sont requises");
-      return;
-    }
-
-    const values = attributeValues
-      .split(/[,\s]+/)
-      .map(v => v.trim())
-      .filter(v => v !== "");
-
-    if (values.length === 0) {
-      toast.error("Ajoutez au moins une valeur valide");
-      return;
-    }
-
-    const newAttribute = {
-      name: attributeName,
-      values
+    const variant: ProductVariant = {
+      id: crypto.randomUUID(),
+      product_id: "",
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+      size: baseVariantForm.size || null,
+      color: baseVariantForm.color || null,
+      hex_color: baseVariantForm.hex_color || null,
+      stock: 0,
+      price_adjustment: 0,
+      status: "in_stock",
+      // Removed isNew property as it doesn't exist in ProductVariant
     };
 
-    setAttributes([...attributes, newAttribute]);
-    setAttributeName("");
-    setAttributeValues("");
-    setShowAttributeForm(false);
+    return variant;
   };
 
-  const removeAttribute = (index: number) => {
-    const newAttributes = [...attributes];
-    newAttributes.splice(index, 1);
-    setAttributes(newAttributes);
-  };
+  const renderVariantForm = () => {
+    if (!variantForm) return null;
 
-  const resetEditor = () => {
-    if (confirm("Êtes-vous sûr de vouloir réinitialiser l'éditeur de variantes ?")) {
-      setAttributes([]);
-      setVariants([]);
-    }
+    return (
+      <div className="space-y-4">
+        <div className="grid grid-cols-2 gap-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700">Taille</label>
+            <input
+              type="text"
+              value={variantForm.size || ""}
+              onChange={(e) =>
+                setVariantForm({ ...variantForm, size: e.target.value })
+              }
+              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-teal-500 focus:ring-teal-500"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700">Couleur</label>
+            <input
+              type="text"
+              value={variantForm.color || ""}
+              onChange={(e) =>
+                setVariantForm({ ...variantForm, color: e.target.value })
+              }
+              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-teal-500 focus:ring-teal-500"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700">Code Hex Couleur</label>
+            <input
+              type="color"
+              value={variantForm.hex_color || "#000000"}
+              onChange={(e) =>
+                setVariantForm({ ...variantForm, hex_color: e.target.value })
+              }
+              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-teal-500 focus:ring-teal-500 h-10"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700">Stock</label>
+            <input
+              type="number"
+              value={variantForm.stock || 0}
+              onChange={(e) =>
+                setVariantForm({
+                  ...variantForm,
+                  stock: parseInt(e.target.value),
+                })
+              }
+              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-teal-500 focus:ring-teal-500"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700">Ajustement de prix</label>
+            <input
+              type="number"
+              value={variantForm.price_adjustment || 0}
+              onChange={(e) =>
+                setVariantForm({
+                  ...variantForm,
+                  price_adjustment: parseFloat(e.target.value),
+                })
+              }
+              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-teal-500 focus:ring-teal-500"
+            />
+          </div>
+        </div>
+        <VariantImageUpload
+          imagePreview={variantImagePreview}
+          handleImageChange={handleImageChange}
+        />
+        <Button onClick={handleSaveVariant} className="bg-teal-600 text-white">
+          <Save className="h-4 w-4 mr-2" />
+          Enregistrer
+        </Button>
+      </div>
+    );
   };
 
   return (
-    <Card className="mt-4">
-      <CardContent className="pt-6">
-        <div className="flex justify-between items-center mb-4">
-          <h3 className="text-lg font-medium">Définir les variantes simplement</h3>
-          
-          <div className="flex gap-2">
-            <Button 
-              variant="outline" 
-              size="sm"
-              onClick={() => setShowAttributeForm(true)}
-              disabled={showAttributeForm}
+    <Card>
+      <CardContent className="space-y-4">
+        <h2 className="text-lg font-semibold">Variantes</h2>
+        <div className="space-y-2">
+          {variants.map((variant) => (
+            <div
+              key={variant.id}
+              className="flex items-center justify-between p-2 border rounded-md"
             >
-              <Plus className="h-4 w-4 mr-1" /> Ajouter attribut
-            </Button>
-            
-            <Button 
-              variant="default" 
-              size="sm"
-              onClick={generateCombinations}
-              className="bg-teal-600 hover:bg-teal-700"
-              disabled={attributes.length === 0}
-            >
-              <Check className="h-4 w-4 mr-1" /> Générer les variantes
-            </Button>
-            
-            <Button 
-              variant="outline" 
-              size="sm"
-              onClick={resetEditor}
-              className="text-red-500 hover:text-red-600"
-            >
-              <Trash2 className="h-4 w-4 mr-1" /> Réinitialiser
-            </Button>
-          </div>
-        </div>
-
-        {showAttributeForm && (
-          <div className="border p-4 rounded-md mb-4 bg-gray-50">
-            <h4 className="font-medium mb-2">Nouvel attribut</h4>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm mb-1">Nom de l'attribut (ex: Couleur, Taille)</label>
-                <Input
-                  value={attributeName}
-                  onChange={(e) => setAttributeName(e.target.value)}
-                  placeholder="Nom de l'attribut"
+                {variant.size && <span>Taille: {variant.size}</span>}
+                {variant.color && <span>, Couleur: {variant.color}</span>}
+              </div>
+              <div className="flex gap-2">
+                <Button
+                  onClick={() => handleEditVariant(variant)}
+                  size="icon"
+                  variant="outline"
+                >
+                  <Edit2 className="h-4 w-4" />
+                </Button>
+                <Button
+                  onClick={() => handleDeleteVariant(variant.id)}
+                  size="icon"
+                  variant="destructive"
+                >
+                  <X className="h-4 w-4" />
+                </Button>
+              </div>
+            </div>
+          ))}
+        </div>
+        {editingVariantId ? (
+          renderVariantForm()
+        ) : (
+          <div className="space-y-3">
+            <h3 className="text-md font-semibold">Ajouter une variante</h3>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700">Taille</label>
+                <input
+                  type="text"
+                  value={baseVariantForm.size}
+                  onChange={(e) =>
+                    setBaseVariantForm({ ...baseVariantForm, size: e.target.value })
+                  }
+                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-teal-500 focus:ring-teal-500"
                 />
               </div>
               <div>
-                <label className="block text-sm mb-1">Valeurs (séparées par virgules ou espaces)</label>
-                <Input
-                  value={attributeValues}
-                  onChange={(e) => setAttributeValues(e.target.value)}
-                  placeholder="Rouge, Bleu, Noir"
+                <label className="block text-sm font-medium text-gray-700">Couleur</label>
+                <input
+                  type="text"
+                  value={baseVariantForm.color}
+                  onChange={(e) =>
+                    setBaseVariantForm({ ...baseVariantForm, color: e.target.value })
+                  }
+                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-teal-500 focus:ring-teal-500"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700">Code Hex Couleur</label>
+                <input
+                  type="color"
+                  value={baseVariantForm.hex_color}
+                  onChange={(e) =>
+                    setBaseVariantForm({ ...baseVariantForm, hex_color: e.target.value })
+                  }
+                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-teal-500 focus:ring-teal-500 h-10"
                 />
               </div>
             </div>
-            <div className="flex justify-end mt-3 gap-2">
-              <Button 
-                variant="outline" 
-                size="sm"
-                onClick={() => setShowAttributeForm(false)}
-              >
-                <X className="h-4 w-4 mr-1" /> Annuler
-              </Button>
-              <Button 
-                size="sm"
-                onClick={addAttribute}
-                className="bg-teal-600 hover:bg-teal-700"
-              >
-                <Plus className="h-4 w-4 mr-1" /> Ajouter
-              </Button>
-            </div>
+            <Button onClick={handleAddVariant} className="bg-teal-600 text-white">
+              <Plus className="h-4 w-4 mr-2" />
+              Ajouter une variante
+            </Button>
           </div>
         )}
-
-        {attributes.length > 0 && (
-          <div className="mb-4">
-            <h4 className="font-medium mb-2">Attributs définis</h4>
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Attribut</TableHead>
-                  <TableHead>Valeurs</TableHead>
-                  <TableHead className="w-[100px]">Actions</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {attributes.map((attr, index) => (
-                  <TableRow key={index}>
-                    <TableCell className="font-medium">{attr.name}</TableCell>
-                    <TableCell>{attr.values.join(", ")}</TableCell>
-                    <TableCell>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => removeAttribute(index)}
-                        className="text-red-500 hover:text-red-600"
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </div>
-        )}
-
-        {variants.length > 0 && (
-          <div className="mt-4">
-            <h4 className="font-medium mb-2">Aperçu des variantes générées ({variants.length})</h4>
-            <div className="border rounded-md p-3 bg-gray-50">
-              <p className="text-sm text-gray-500 mb-2">
-                Les variantes ont été générées. Utilisez l'éditeur de variantes avancé ci-dessous pour ajuster les stocks et prix.
-              </p>
-            </div>
-          </div>
-        )}
-
-        <div className="mt-4 text-sm text-gray-500">
-          <p>Cette méthode permet de créer facilement des variantes en définissant d'abord les attributs (comme Couleur, Taille) 
-          et leurs valeurs possibles (Rouge/Bleu/Noir, S/M/L). Le système génère ensuite automatiquement toutes les combinaisons 
-          possibles.</p>
-        </div>
       </CardContent>
     </Card>
   );
 };
-
-export default SimpleVariantEditor;

@@ -8,10 +8,10 @@ export interface ProductData {
   category: string;
   subcategory: string | null;
   image: string | null;
-  status: "draft" | "published" | "archived";
+  status: 'draft' | 'published' | 'archived';
   is_customizable: boolean;
   
-  // Variant fields
+  // Champs de variants
   size: string | null;
   color: string | null;
   hex_color: string | null;
@@ -24,13 +24,16 @@ export interface ProductData {
   type_de_materiaux: string | null;
   details_impression: string | null;
   orientation_impression: string | null;
+  stock: number;
+  price_adjustment: number;
+  variant_status: 'in_stock' | 'low_stock' | 'out_of_stock';
   
-  // Options arrays for variants (nouveaux champs)
+  // Options des variantes
   size_options?: string[];
   color_options?: string[];
-  bat_options?: string[];
-  poids_options?: string[];
   format_options?: string[];
+  poids_options?: string[];
+  bat_options?: string[];
   quantite_options?: string[];
   echantillon_options?: string[];
   types_impression_options?: string[];
@@ -38,32 +41,12 @@ export interface ProductData {
   details_impression_options?: string[];
   orientation_impression_options?: string[];
   
-  stock: number;
-  price_adjustment: number;
-  variant_status: "in_stock" | "low_stock" | "out_of_stock";
+  // Image de variante
   variant_image_url: string | null;
 }
 
-export interface ProductVariant {
+export type VariantOption = {
   id: string;
-  product_id?: string;
-  size?: string | null;
-  color?: string | null;
-  hex_color?: string | null;
-  stock: number;
-  price_adjustment: number;
-  status: string;
-  bat?: string | null;
-  poids?: string | null;
-  format?: string | null;
-  quantite?: string | null;
-  echantillon?: string | null;
-  types_impression?: string | null;
-  type_de_materiaux?: string | null;
-  details_impression?: string | null;
-  orientation_impression?: string | null;
-  image_url?: string | null;
-  isDeleted?: boolean;
-  created_at?: string;
-  updated_at?: string;
-}
+  name: string;
+  value: string;
+};

@@ -32,6 +32,19 @@ export interface ProductComplete {
   variant_status?: "in_stock" | "low_stock" | "out_of_stock" | null;
   price_adjustment?: number | null;
   
+  // Options des variantes (nouveaux champs)
+  size_options?: string[] | null;
+  color_options?: string[] | null;
+  format_options?: string[] | null;
+  poids_options?: string[] | null;
+  bat_options?: string[] | null;
+  quantite_options?: string[] | null;
+  echantillon_options?: string[] | null;
+  types_impression_options?: string[] | null;
+  type_de_materiaux_options?: string[] | null;
+  details_impression_options?: string[] | null;
+  orientation_impression_options?: string[] | null;
+  
   // Customisations
   customization_name?: string;
   customization_description?: string;
