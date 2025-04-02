@@ -86,22 +86,35 @@ export const extractVariantOptionsFromProduct = async (product: Product): Promis
     
     console.log("Données du produit récupérées:", productData);
     
-    // Liste des champs de variant à extraire du produit
-    const variantFields = [
-      'color', 'size', 'format', 'quantite', 'bat', 'poids', 'echantillon',
-      'types_impression', 'type_de_materiaux', 'details_impression', 'orientation_impression'
-    ];
+    // Dictionnaire mappant les champs de variantes aux noms de colonnes d'options
+    const variantToOptionsMap = {
+      'color': 'color_options',
+      'size': 'size_options',
+      'format': 'format_options',
+      'poids': 'poids_options',
+      'bat': 'bat_options',
+      'quantite': 'quantite_options',
+      'echantillon': 'echantillon_options',
+      'types_impression': 'types_impression_options',
+      'type_de_materiaux': 'type_de_materiaux_options',
+      'details_impression': 'details_impression_options',
+      'orientation_impression': 'orientation_impression_options'
+    };
     
     const options: Record<string, string[]> = {};
     
-    // Pour chaque champ de variant, extraire la valeur uniquement si elle existe
-    variantFields.forEach(field => {
-      if (productData[field] && productData[field].trim() !== '') {
-        // Pour chaque champ non vide, créer une liste avec la valeur du champ
-        options[field] = [productData[field]];
-        console.log(`Option trouvée pour ${field}:`, options[field]);
+    // Parcourir le dictionnaire et extraire les options
+    for (const [variantField, optionsField] of Object.entries(variantToOptionsMap)) {
+      if (productData[optionsField] && Array.isArray(productData[optionsField])) {
+        // Si des options array sont définies, les utiliser
+        options[variantField] = productData[optionsField];
+        console.log(`Options trouvées pour ${variantField}:`, options[variantField]);
+      } else if (productData[variantField] && typeof productData[variantField] === 'string' && productData[variantField].trim() !== '') {
+        // Fallback: si la valeur est définie comme un string dans le champ individuel
+        options[variantField] = [productData[variantField]];
+        console.log(`Fallback: option unique trouvée pour ${variantField}:`, options[variantField]);
       }
-    });
+    }
     
     console.log("Options de variants extraites:", options);
     return options;

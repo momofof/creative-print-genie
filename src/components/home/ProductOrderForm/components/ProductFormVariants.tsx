@@ -24,6 +24,7 @@ const ProductFormVariants = ({
     if (selectedProduct) {
       // Si des options spécifiques au produit existent pour cette variante, les utiliser
       if (productVariantOptions[variantType] && productVariantOptions[variantType].length > 0) {
+        console.log(`Utilisation des options spécifiques au produit pour ${variantType}:`, productVariantOptions[variantType]);
         return productVariantOptions[variantType];
       }
       
@@ -31,11 +32,14 @@ const ProductFormVariants = ({
       if (selectedProduct.subcategory) {
         const subcategoryOptions = getVariantOptions(selectedProduct.subcategory, variantType);
         if (subcategoryOptions.length > 0) {
+          console.log(`Utilisation des options de sous-catégorie pour ${variantType}:`, subcategoryOptions);
           return subcategoryOptions;
         }
       }
       
-      return getVariantOptions(selectedProduct.category, variantType);
+      const categoryOptions = getVariantOptions(selectedProduct.category, variantType);
+      console.log(`Utilisation des options de catégorie pour ${variantType}:`, categoryOptions);
+      return categoryOptions;
     }
     
     return [];

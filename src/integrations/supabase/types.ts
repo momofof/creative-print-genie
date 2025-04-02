@@ -333,8 +333,10 @@ export type Database = {
       products_complete: {
         Row: {
           bat: string | null
+          bat_options: string[] | null
           category: string
           color: string | null
+          color_options: string[] | null
           created_at: string | null
           customization_description: string | null
           customization_name: string | null
@@ -344,19 +346,26 @@ export type Database = {
           customization_type: string | null
           description: string | null
           details_impression: string | null
+          details_impression_options: string[] | null
           echantillon: string | null
+          echantillon_options: string[] | null
           format: string | null
+          format_options: string[] | null
           hex_color: string | null
           id: string
           image: string | null
           is_customizable: boolean | null
           name: string
           orientation_impression: string | null
+          orientation_impression_options: string[] | null
           original_price: number | null
           poids: string | null
+          poids_options: string[] | null
           price: number
           quantite: string | null
+          quantite_options: string[] | null
           size: string | null
+          size_options: string[] | null
           status: string
           stock: number | null
           "style  de pliages": string | null
@@ -364,15 +373,19 @@ export type Database = {
           supplier_id: string | null
           supplier_selection_label: string | null
           type_de_materiaux: string | null
+          type_de_materiaux_options: string[] | null
           types_impression: string | null
+          types_impression_options: string[] | null
           updated_at: string | null
           variant_image_url: string | null
           variant_status: string | null
         }
         Insert: {
           bat?: string | null
+          bat_options?: string[] | null
           category: string
           color?: string | null
+          color_options?: string[] | null
           created_at?: string | null
           customization_description?: string | null
           customization_name?: string | null
@@ -382,19 +395,26 @@ export type Database = {
           customization_type?: string | null
           description?: string | null
           details_impression?: string | null
+          details_impression_options?: string[] | null
           echantillon?: string | null
+          echantillon_options?: string[] | null
           format?: string | null
+          format_options?: string[] | null
           hex_color?: string | null
           id: string
           image?: string | null
           is_customizable?: boolean | null
           name: string
           orientation_impression?: string | null
+          orientation_impression_options?: string[] | null
           original_price?: number | null
           poids?: string | null
+          poids_options?: string[] | null
           price: number
           quantite?: string | null
+          quantite_options?: string[] | null
           size?: string | null
+          size_options?: string[] | null
           status?: string
           stock?: number | null
           "style  de pliages"?: string | null
@@ -402,15 +422,19 @@ export type Database = {
           supplier_id?: string | null
           supplier_selection_label?: string | null
           type_de_materiaux?: string | null
+          type_de_materiaux_options?: string[] | null
           types_impression?: string | null
+          types_impression_options?: string[] | null
           updated_at?: string | null
           variant_image_url?: string | null
           variant_status?: string | null
         }
         Update: {
           bat?: string | null
+          bat_options?: string[] | null
           category?: string
           color?: string | null
+          color_options?: string[] | null
           created_at?: string | null
           customization_description?: string | null
           customization_name?: string | null
@@ -420,19 +444,26 @@ export type Database = {
           customization_type?: string | null
           description?: string | null
           details_impression?: string | null
+          details_impression_options?: string[] | null
           echantillon?: string | null
+          echantillon_options?: string[] | null
           format?: string | null
+          format_options?: string[] | null
           hex_color?: string | null
           id?: string
           image?: string | null
           is_customizable?: boolean | null
           name?: string
           orientation_impression?: string | null
+          orientation_impression_options?: string[] | null
           original_price?: number | null
           poids?: string | null
+          poids_options?: string[] | null
           price?: number
           quantite?: string | null
+          quantite_options?: string[] | null
           size?: string | null
+          size_options?: string[] | null
           status?: string
           stock?: number | null
           "style  de pliages"?: string | null
@@ -440,7 +471,9 @@ export type Database = {
           supplier_id?: string | null
           supplier_selection_label?: string | null
           type_de_materiaux?: string | null
+          type_de_materiaux_options?: string[] | null
           types_impression?: string | null
+          types_impression_options?: string[] | null
           updated_at?: string | null
           variant_image_url?: string | null
           variant_status?: string | null
@@ -749,7 +782,12 @@ export type Database = {
       }
     }
     Functions: {
-      [_ in never]: never
+      parse_array_format: {
+        Args: {
+          text_input: string
+        }
+        Returns: string[]
+      }
     }
     Enums: {
       customization_type: "text" | "image"
