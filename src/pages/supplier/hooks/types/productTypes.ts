@@ -1,4 +1,6 @@
 
+// Si le fichier n'existe pas, nous le créons avec la définition du type
+
 export interface ProductData {
   id?: string;
   name: string;
@@ -8,10 +10,10 @@ export interface ProductData {
   category: string;
   subcategory: string | null;
   image: string | null;
-  status: 'draft' | 'published' | 'archived';
+  status: "draft" | "published" | "archived";
   is_customizable: boolean;
   
-  // Champs de variants
+  // Variant fields
   size: string | null;
   color: string | null;
   hex_color: string | null;
@@ -26,9 +28,10 @@ export interface ProductData {
   orientation_impression: string | null;
   stock: number;
   price_adjustment: number;
-  variant_status: 'in_stock' | 'low_stock' | 'out_of_stock';
+  variant_status: "in_stock" | "low_stock" | "out_of_stock";
+  variant_image_url: string | null;
   
-  // Options des variantes
+  // Options des variantes (tableaux)
   size_options?: string[];
   color_options?: string[];
   format_options?: string[];
@@ -40,13 +43,4 @@ export interface ProductData {
   type_de_materiaux_options?: string[];
   details_impression_options?: string[];
   orientation_impression_options?: string[];
-  
-  // Image de variante
-  variant_image_url: string | null;
 }
-
-export type VariantOption = {
-  id: string;
-  name: string;
-  value: string;
-};

@@ -41,8 +41,12 @@ const VariantSelector = ({
   const isMobile = useIsMobile();
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   
+  // S'assurer que les options sont toujours un tableau
+  const normalizedOptions = Array.isArray(options) ? options : 
+    typeof options === 'string' ? options.split(',').map(o => o.trim()) : [];
+  
   // Filter options by search term
-  const filteredOptions = options.filter(option => 
+  const filteredOptions = normalizedOptions.filter(option => 
     option.toLowerCase().includes(searchTerm.toLowerCase())
   );
 

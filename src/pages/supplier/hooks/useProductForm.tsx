@@ -5,9 +5,11 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { v4 as uuidv4 } from "uuid";
 import { ProductData } from "./types/productTypes";
+import { useVariantParser } from "./useVariantParser";
 
 export const useProductForm = (productId?: string) => {
   const navigate = useNavigate();
+  const { parseSimpleArrayString } = useVariantParser();
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [isSaving, setIsSaving] = useState<boolean>(false);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
@@ -41,7 +43,20 @@ export const useProductForm = (productId?: string) => {
     stock: 0,
     price_adjustment: 0,
     variant_status: "in_stock",
-    variant_image_url: null
+    variant_image_url: null,
+    
+    // Options arrays
+    size_options: [],
+    color_options: [],
+    format_options: [],
+    poids_options: [],
+    bat_options: [],
+    quantite_options: [],
+    echantillon_options: [],
+    types_impression_options: [],
+    type_de_materiaux_options: [],
+    details_impression_options: [],
+    orientation_impression_options: []
   });
   
   // Fetch product data on component mount
@@ -104,18 +119,18 @@ export const useProductForm = (productId?: string) => {
             status: typedStatus,
             variant_status: typedVariantStatus,
             variant_image_url: data.variant_image_url || null,
-            // Options de variantes
-            color_options: data.color_options || [],
-            size_options: data.size_options || [],
-            format_options: data.format_options || [],
-            poids_options: data.poids_options || [],
-            bat_options: data.bat_options || [],
-            quantite_options: data.quantite_options || [],
-            echantillon_options: data.echantillon_options || [],
-            types_impression_options: data.types_impression_options || [],
-            type_de_materiaux_options: data.type_de_materiaux_options || [],
-            details_impression_options: data.details_impression_options || [],
-            orientation_impression_options: data.orientation_impression_options || []
+            // Options de variantes - s'assurer qu'elles sont toujours des tableaux
+            color_options: Array.isArray(data.color_options) ? data.color_options : [],
+            size_options: Array.isArray(data.size_options) ? data.size_options : [],
+            format_options: Array.isArray(data.format_options) ? data.format_options : [],
+            poids_options: Array.isArray(data.poids_options) ? data.poids_options : [],
+            bat_options: Array.isArray(data.bat_options) ? data.bat_options : [],
+            quantite_options: Array.isArray(data.quantite_options) ? data.quantite_options : [],
+            echantillon_options: Array.isArray(data.echantillon_options) ? data.echantillon_options : [],
+            types_impression_options: Array.isArray(data.types_impression_options) ? data.types_impression_options : [],
+            type_de_materiaux_options: Array.isArray(data.type_de_materiaux_options) ? data.type_de_materiaux_options : [],
+            details_impression_options: Array.isArray(data.details_impression_options) ? data.details_impression_options : [],
+            orientation_impression_options: Array.isArray(data.orientation_impression_options) ? data.orientation_impression_options : []
           });
           
           if (data.image) {
@@ -179,6 +194,17 @@ export const useProductForm = (productId?: string) => {
       setImagePreview(null);
       setImageFile(null);
     }
+  };
+  
+  // Nouvelle fonction pour traiter les entrées de tableau simple
+  const handleArrayInput = (name: string, value: string) => {
+    const optionsField = `${name}_options`;
+    const parsedArray = parseSimpleArrayString(value);
+    
+    setProductData(prev => ({
+      ...prev,
+      [optionsField]: parsedArray
+    }));
   };
   
   // Handle form submission
@@ -255,6 +281,7 @@ export const useProductForm = (productId?: string) => {
     handleSelectChange,
     handleCheckboxChange,
     handleImageChange,
+    handleArrayInput,
     handleSubmit
   };
 };

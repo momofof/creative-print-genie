@@ -20,6 +20,7 @@ const ProductForm = () => {
     handleSelectChange,
     handleCheckboxChange,
     handleImageChange,
+    handleArrayInput,
     handleSubmit
   } = useProductForm(productId);
 
@@ -31,9 +32,9 @@ const ProductForm = () => {
     );
   }
 
-  const handleArrayInput = (name: string, value: string) => {
-    const array = value.split(',').map(item => item.trim()).filter(Boolean);
-    handleSelectChange(`${name}_options`, array);
+  const handleArrayInputAdapter = (name: string) => (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { value } = e.target;
+    handleArrayInput(name, value);
   };
 
   const handleCheckboxAdapter = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -48,6 +49,26 @@ const ProductForm = () => {
 
   const formatArrayForInput = (array?: string[]) => {
     return array && Array.isArray(array) ? array.join(', ') : '';
+  };
+
+  const OptionsInputField = ({ name, placeholder, value, onChange, label }) => {
+    return (
+      <div>
+        <label htmlFor={`${name}_options`} className="block text-sm font-medium text-gray-700">{label}</label>
+        <div className="mt-1 relative">
+          <input
+            type="text"
+            id={`${name}_options`}
+            name={`${name}_options`}
+            value={value}
+            onChange={onChange}
+            placeholder={placeholder}
+            className="block w-full rounded-md border-gray-300 shadow-sm focus:border-teal-500 focus:ring-teal-500"
+          />
+          <p className="mt-1 text-xs text-gray-500">Entrez les options séparées par des virgules ou sous la forme [Option1, Option2, Option3]</p>
+        </div>
+      </div>
+    );
   };
 
   return (
@@ -115,18 +136,13 @@ const ProductForm = () => {
                         className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-teal-500 focus:ring-teal-500"
                       />
                     </div>
-                    <div>
-                      <label htmlFor="size_options" className="block text-sm font-medium text-gray-700">Options de tailles (séparées par des virgules)</label>
-                      <input
-                        type="text"
-                        id="size_options"
-                        name="size_options"
-                        value={formatArrayForInput(productData.size_options)}
-                        onChange={(e) => handleArrayInput('size', e.target.value)}
-                        placeholder="S, M, L, XL, XXL"
-                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-teal-500 focus:ring-teal-500"
-                      />
-                    </div>
+                    <OptionsInputField
+                      name="size"
+                      placeholder="S, M, L, XL, XXL"
+                      value={formatArrayForInput(productData.size_options)}
+                      onChange={handleArrayInputAdapter('size')}
+                      label="Options de tailles (séparées par des virgules)"
+                    />
                     <div>
                       <label htmlFor="color" className="block text-sm font-medium text-gray-700">Couleur</label>
                       <input
@@ -138,18 +154,13 @@ const ProductForm = () => {
                         className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-teal-500 focus:ring-teal-500"
                       />
                     </div>
-                    <div>
-                      <label htmlFor="color_options" className="block text-sm font-medium text-gray-700">Options de couleurs (séparées par des virgules)</label>
-                      <input
-                        type="text"
-                        id="color_options"
-                        name="color_options"
-                        value={formatArrayForInput(productData.color_options)}
-                        onChange={(e) => handleArrayInput('color', e.target.value)}
-                        placeholder="Noir, Blanc, Bleu, Rouge, Vert"
-                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-teal-500 focus:ring-teal-500"
-                      />
-                    </div>
+                    <OptionsInputField
+                      name="color"
+                      placeholder="Noir, Blanc, Bleu, Rouge, Vert"
+                      value={formatArrayForInput(productData.color_options)}
+                      onChange={handleArrayInputAdapter('color')}
+                      label="Options de couleurs (séparées par des virgules)"
+                    />
                     <div>
                       <label htmlFor="hex_color" className="block text-sm font-medium text-gray-700">Code Hex Couleur</label>
                       <input
@@ -196,18 +207,13 @@ const ProductForm = () => {
                         className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-teal-500 focus:ring-teal-500"
                       />
                     </div>
-                    <div>
-                      <label htmlFor="bat_options" className="block text-sm font-medium text-gray-700">Options de BAT (séparées par des virgules)</label>
-                      <input
-                        type="text"
-                        id="bat_options"
-                        name="bat_options"
-                        value={formatArrayForInput(productData.bat_options)}
-                        onChange={(e) => handleArrayInput('bat', e.target.value)}
-                        placeholder="Non, Numérique, Physique"
-                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-teal-500 focus:ring-teal-500"
-                      />
-                    </div>
+                    <OptionsInputField
+                      name="bat"
+                      placeholder="Non, Numérique, Physique"
+                      value={formatArrayForInput(productData.bat_options)}
+                      onChange={handleArrayInputAdapter('bat')}
+                      label="Options de BAT (séparées par des virgules)"
+                    />
                     <div>
                       <label htmlFor="poids" className="block text-sm font-medium text-gray-700">Poids</label>
                       <input
@@ -219,18 +225,13 @@ const ProductForm = () => {
                         className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-teal-500 focus:ring-teal-500"
                       />
                     </div>
-                    <div>
-                      <label htmlFor="poids_options" className="block text-sm font-medium text-gray-700">Options de poids (séparées par des virgules)</label>
-                      <input
-                        type="text"
-                        id="poids_options"
-                        name="poids_options"
-                        value={formatArrayForInput(productData.poids_options)}
-                        onChange={(e) => handleArrayInput('poids', e.target.value)}
-                        placeholder="250 g/m², 300 g/m², 350 g/m²"
-                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-teal-500 focus:ring-teal-500"
-                      />
-                    </div>
+                    <OptionsInputField
+                      name="poids"
+                      placeholder="250 g/m², 300 g/m², 350 g/m²"
+                      value={formatArrayForInput(productData.poids_options)}
+                      onChange={handleArrayInputAdapter('poids')}
+                      label="Options de poids (séparées par des virgules)"
+                    />
                     <div>
                       <label htmlFor="format" className="block text-sm font-medium text-gray-700">Format</label>
                       <input
@@ -242,18 +243,13 @@ const ProductForm = () => {
                         className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-teal-500 focus:ring-teal-500"
                       />
                     </div>
-                    <div>
-                      <label htmlFor="format_options" className="block text-sm font-medium text-gray-700">Options de format (séparées par des virgules)</label>
-                      <input
-                        type="text"
-                        id="format_options"
-                        name="format_options"
-                        value={formatArrayForInput(productData.format_options)}
-                        onChange={(e) => handleArrayInput('format', e.target.value)}
-                        placeholder="A4, A3, A2, A1, Personnalisé"
-                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-teal-500 focus:ring-teal-500"
-                      />
-                    </div>
+                    <OptionsInputField
+                      name="format"
+                      placeholder="A4, A3, A2, A1, Personnalisé"
+                      value={formatArrayForInput(productData.format_options)}
+                      onChange={handleArrayInputAdapter('format')}
+                      label="Options de format (séparées par des virgules)"
+                    />
                     <div>
                       <label htmlFor="quantite" className="block text-sm font-medium text-gray-700">Quantité</label>
                       <input
@@ -265,18 +261,13 @@ const ProductForm = () => {
                         className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-teal-500 focus:ring-teal-500"
                       />
                     </div>
-                    <div>
-                      <label htmlFor="quantite_options" className="block text-sm font-medium text-gray-700">Options de quantité (séparées par des virgules)</label>
-                      <input
-                        type="text"
-                        id="quantite_options"
-                        name="quantite_options"
-                        value={formatArrayForInput(productData.quantite_options)}
-                        onChange={(e) => handleArrayInput('quantite', e.target.value)}
-                        placeholder="Standard, Premium, Économique"
-                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-teal-500 focus:ring-teal-500"
-                      />
-                    </div>
+                    <OptionsInputField
+                      name="quantite"
+                      placeholder="Standard, Premium, Économique"
+                      value={formatArrayForInput(productData.quantite_options)}
+                      onChange={handleArrayInputAdapter('quantite')}
+                      label="Options de quantité (séparées par des virgules)"
+                    />
                     <div>
                       <label htmlFor="echantillon" className="block text-sm font-medium text-gray-700">Échantillon</label>
                       <input
@@ -288,18 +279,13 @@ const ProductForm = () => {
                         className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-teal-500 focus:ring-teal-500"
                       />
                     </div>
-                    <div>
-                      <label htmlFor="echantillon_options" className="block text-sm font-medium text-gray-700">Options d'échantillon (séparées par des virgules)</label>
-                      <input
-                        type="text"
-                        id="echantillon_options"
-                        name="echantillon_options"
-                        value={formatArrayForInput(productData.echantillon_options)}
-                        onChange={(e) => handleArrayInput('echantillon', e.target.value)}
-                        placeholder="Non, Oui"
-                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-teal-500 focus:ring-teal-500"
-                      />
-                    </div>
+                    <OptionsInputField
+                      name="echantillon"
+                      placeholder="Non, Oui"
+                      value={formatArrayForInput(productData.echantillon_options)}
+                      onChange={handleArrayInputAdapter('echantillon')}
+                      label="Options d'échantillon (séparées par des virgules)"
+                    />
                   </div>
                 </div>
 
@@ -315,18 +301,13 @@ const ProductForm = () => {
                       className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-teal-500 focus:ring-teal-500"
                     />
                   </div>
-                  <div>
-                    <label htmlFor="types_impression_options" className="block text-sm font-medium text-gray-700">Options de types d'impression (séparées par des virgules)</label>
-                    <input
-                      type="text"
-                      id="types_impression_options"
-                      name="types_impression_options"
-                      value={formatArrayForInput(productData.types_impression_options)}
-                      onChange={(e) => handleArrayInput('types_impression', e.target.value)}
-                      placeholder="Numérique, Offset, Sérigraphie, Flexographie"
-                      className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-teal-500 focus:ring-teal-500"
-                    />
-                  </div>
+                  <OptionsInputField
+                    name="types_impression"
+                    placeholder="Numérique, Offset, Sérigraphie, Flexographie"
+                    value={formatArrayForInput(productData.types_impression_options)}
+                    onChange={handleArrayInputAdapter('types_impression')}
+                    label="Options de types d'impression (séparées par des virgules)"
+                  />
                   <div>
                     <label htmlFor="type_de_materiaux" className="block text-sm font-medium text-gray-700">Type de matériaux</label>
                     <input
@@ -338,18 +319,13 @@ const ProductForm = () => {
                       className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-teal-500 focus:ring-teal-500"
                     />
                   </div>
-                  <div>
-                    <label htmlFor="type_de_materiaux_options" className="block text-sm font-medium text-gray-700">Options de type de matériaux (séparées par des virgules)</label>
-                    <input
-                      type="text"
-                      id="type_de_materiaux_options"
-                      name="type_de_materiaux_options"
-                      value={formatArrayForInput(productData.type_de_materiaux_options)}
-                      onChange={(e) => handleArrayInput('type_de_materiaux', e.target.value)}
-                      placeholder="Papier, Carton, Vinyle, PVC, Aluminium"
-                      className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-teal-500 focus:ring-teal-500"
-                    />
-                  </div>
+                  <OptionsInputField
+                    name="type_de_materiaux"
+                    placeholder="Papier, Carton, Vinyle, PVC, Aluminium"
+                    value={formatArrayForInput(productData.type_de_materiaux_options)}
+                    onChange={handleArrayInputAdapter('type_de_materiaux')}
+                    label="Options de type de matériaux (séparées par des virgules)"
+                  />
                   <div>
                     <label htmlFor="details_impression" className="block text-sm font-medium text-gray-700">Détails d'impression</label>
                     <input
@@ -361,18 +337,13 @@ const ProductForm = () => {
                       className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-teal-500 focus:ring-teal-500"
                     />
                   </div>
-                  <div>
-                    <label htmlFor="details_impression_options" className="block text-sm font-medium text-gray-700">Options de détails d'impression (séparées par des virgules)</label>
-                    <input
-                      type="text"
-                      id="details_impression_options"
-                      name="details_impression_options"
-                      value={formatArrayForInput(productData.details_impression_options)}
-                      onChange={(e) => handleArrayInput('details_impression', e.target.value)}
-                      placeholder="Haute résolution, Standard, Économique"
-                      className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-teal-500 focus:ring-teal-500"
-                    />
-                  </div>
+                  <OptionsInputField
+                    name="details_impression"
+                    placeholder="Haute résolution, Standard, Économique"
+                    value={formatArrayForInput(productData.details_impression_options)}
+                    onChange={handleArrayInputAdapter('details_impression')}
+                    label="Options de détails d'impression (séparées par des virgules)"
+                  />
                   <div>
                     <label htmlFor="orientation_impression" className="block text-sm font-medium text-gray-700">Orientation d'impression</label>
                     <input
@@ -384,18 +355,13 @@ const ProductForm = () => {
                       className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-teal-500 focus:ring-teal-500"
                     />
                   </div>
-                  <div>
-                    <label htmlFor="orientation_impression_options" className="block text-sm font-medium text-gray-700">Options d'orientation d'impression (séparées par des virgules)</label>
-                    <input
-                      type="text"
-                      id="orientation_impression_options"
-                      name="orientation_impression_options"
-                      value={formatArrayForInput(productData.orientation_impression_options)}
-                      onChange={(e) => handleArrayInput('orientation_impression', e.target.value)}
-                      placeholder="Portrait, Paysage, Carré"
-                      className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-teal-500 focus:ring-teal-500"
-                    />
-                  </div>
+                  <OptionsInputField
+                    name="orientation_impression"
+                    placeholder="Portrait, Paysage, Carré"
+                    value={formatArrayForInput(productData.orientation_impression_options)}
+                    onChange={handleArrayInputAdapter('orientation_impression')}
+                    label="Options d'orientation d'impression (séparées par des virgules)"
+                  />
                 </div>
               </div>
             </div>

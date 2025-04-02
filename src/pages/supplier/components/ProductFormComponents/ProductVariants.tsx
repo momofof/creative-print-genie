@@ -7,6 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Plus, Trash2 } from "lucide-react";
 import { ProductVariant } from "@/types/dashboard";
 import { VariantImageUpload } from "./VariantImageUpload";
+import { useVariantParser } from "../../hooks/useVariantParser";
 
 interface ProductVariantsProps {
   variants: ProductVariant[];
@@ -17,6 +18,7 @@ interface ProductVariantsProps {
   handleVariantChange: (index: number, field: keyof ProductVariant, value: string | number) => void;
   handleVariantImageChange?: (variantId: string, e: React.ChangeEvent<HTMLInputElement>) => void;
   handleVariantImageDelete?: (variantId: string, imageUrl: string) => void;
+  variantOptions?: Record<string, string[]>;
 }
 
 export const ProductVariants = ({
@@ -27,15 +29,17 @@ export const ProductVariants = ({
   removeVariant,
   handleVariantChange,
   handleVariantImageChange,
-  handleVariantImageDelete
+  handleVariantImageDelete,
+  variantOptions = {}
 }: ProductVariantsProps) => {
+  const { parseSimpleArrayString } = useVariantParser();
   const activeVariants = variants.filter(v => !v.isDeleted);
   
   const fieldGroups = [
     {
       title: "Informations de base",
       fields: [
-        { name: "size", label: "Taille", type: "select", options: ["XS", "S", "M", "L", "XL", "XXL", "XXXL", "Unique"] },
+        { name: "size", label: "Taille", type: "select", options: variantOptions.size_options || ["XS", "S", "M", "L", "XL", "XXL", "XXXL", "Unique"] },
         { name: "color", label: "Couleur", type: "text" },
         { name: "hex_color", label: "Code couleur", type: "color" },
         { name: "stock", label: "Stock", type: "number" },
@@ -55,23 +59,29 @@ export const ProductVariants = ({
     {
       title: "Attributs d'impression",
       fields: [
-        { name: "format", label: "Format", type: "text" },
-        { name: "poids", label: "Poids", type: "text" },
-        { name: "quantite", label: "Quantité", type: "text" },
-        { name: "types_impression", label: "Types d'impression", type: "text" },
-        { name: "details_impression", label: "Détails d'impression", type: "text" },
-        { name: "orientation_impression", label: "Orientation", type: "text" },
+        { name: "format", label: "Format", type: "select", options: variantOptions.format_options || [] },
+        { name: "poids", label: "Poids", type: "select", options: variantOptions.poids_options || [] },
+        { name: "quantite", label: "Quantité", type: "select", options: variantOptions.quantite_options || [] },
+        { name: "types_impression", label: "Types d'impression", type: "select", options: variantOptions.types_impression_options || [] },
+        { name: "details_impression", label: "Détails d'impression", type: "select", options: variantOptions.details_impression_options || [] },
+        { name: "orientation_impression", label: "Orientation", type: "select", options: variantOptions.orientation_impression_options || [] },
       ]
     },
     {
       title: "Matériaux et options",
       fields: [
-        { name: "type_de_materiaux", label: "Type de matériaux", type: "text" },
-        { name: "bat", label: "BAT", type: "text" },
-        { name: "echantillon", label: "Échantillon", type: "text" },
+        { name: "type_de_materiaux", label: "Type de matériaux", type: "select", options: variantOptions.type_de_materiaux_options || [] },
+        { name: "bat", label: "BAT", type: "select", options: variantOptions.bat_options || [] },
+        { name: "echantillon", label: "Échantillon", type: "select", options: variantOptions.echantillon_options || [] },
       ]
     }
   ];
+
+  // Helper pour vérifier si un champ dispose d'options
+  const hasOptions = (fieldName: string): boolean => {
+    const optionsKey = `${fieldName}_options`;
+    return Array.isArray(variantOptions[optionsKey]) && variantOptions[optionsKey].length > 0;
+  };
   
   return (
     <Card>
@@ -113,48 +123,66 @@ export const ProductVariants = ({
                   <div key={groupIndex} className="mb-4">
                     <h3 className="text-sm font-medium text-gray-700 mb-2">{group.title}</h3>
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                      {group.fields.map((field) => (
-                        <div key={field.name}>
-                          <label className="block text-xs font-medium text-gray-700 mb-1">
-                            {field.label}
-                          </label>
-                          {field.type === 'select' ? (
-                            <Select
-                              value={variant[field.name as keyof ProductVariant]?.toString() || ''}
-                              onValueChange={(value) => handleVariantChange(variants.indexOf(variant), field.name as keyof ProductVariant, value)}
-                            >
-                              <SelectTrigger>
-                                <SelectValue placeholder={`Choisir ${field.label.toLowerCase()}`} />
-                              </SelectTrigger>
-                              <SelectContent>
-                                {Array.isArray(field.options) ? 
-                                  field.options.map((option) => (
-                                    typeof option === 'string' ? 
-                                      <SelectItem key={option} value={option}>{option}</SelectItem> :
-                                      <SelectItem key={option.value} value={option.value}>{option.label}</SelectItem>
-                                  )) : null
-                                }
-                              </SelectContent>
-                            </Select>
-                          ) : field.type === 'color' ? (
-                            <Input
-                              type="color"
-                              value={variant[field.name as keyof ProductVariant]?.toString() || '#000000'}
-                              onChange={(e) => handleVariantChange(variants.indexOf(variant), field.name as keyof ProductVariant, e.target.value)}
-                              className="w-full p-1 h-9"
-                            />
-                          ) : (
-                            <Input
-                              type={field.type}
-                              value={variant[field.name as keyof ProductVariant]?.toString() || ''}
-                              onChange={(e) => handleVariantChange(variants.indexOf(variant), field.name as keyof ProductVariant, field.type === 'number' ? Number(e.target.value) : e.target.value)}
-                              placeholder={`Entrez ${field.label.toLowerCase()}`}
-                              step={field.type === 'number' ? "0.01" : undefined}
-                              min={field.type === 'number' ? "0" : undefined}
-                            />
-                          )}
-                        </div>
-                      ))}
+                      {group.fields.map((field) => {
+                        const fieldKey = field.name as keyof ProductVariant;
+                        const fieldValue = variant[fieldKey]?.toString() || '';
+                        const variantIndex = variants.indexOf(variant);
+                        const isSelectField = field.type === 'select';
+                        
+                        // Déterminer les options pour les champs select
+                        let selectOptions = [];
+                        if (isSelectField) {
+                          if (Array.isArray(field.options)) {
+                            selectOptions = field.options;
+                          } else if (typeof field.options === 'string') {
+                            const optionsKey = `${field.name}_options`;
+                            selectOptions = variantOptions[optionsKey] || [];
+                          }
+                        }
+
+                        return (
+                          <div key={field.name}>
+                            <label className="block text-xs font-medium text-gray-700 mb-1">
+                              {field.label}
+                            </label>
+                            {isSelectField ? (
+                              <Select
+                                value={fieldValue}
+                                onValueChange={(value) => handleVariantChange(variantIndex, fieldKey, value)}
+                              >
+                                <SelectTrigger>
+                                  <SelectValue placeholder={`Choisir ${field.label.toLowerCase()}`} />
+                                </SelectTrigger>
+                                <SelectContent className="bg-white">
+                                  {Array.isArray(selectOptions) ? 
+                                    selectOptions.map((option) => (
+                                      typeof option === 'string' ? 
+                                        <SelectItem key={option} value={option}>{option}</SelectItem> :
+                                        <SelectItem key={option.value} value={option.value}>{option.label}</SelectItem>
+                                    )) : null
+                                  }
+                                </SelectContent>
+                              </Select>
+                            ) : field.type === 'color' ? (
+                              <Input
+                                type="color"
+                                value={fieldValue || '#000000'}
+                                onChange={(e) => handleVariantChange(variantIndex, fieldKey, e.target.value)}
+                                className="w-full p-1 h-9"
+                              />
+                            ) : (
+                              <Input
+                                type={field.type}
+                                value={fieldValue}
+                                onChange={(e) => handleVariantChange(variantIndex, fieldKey, field.type === 'number' ? Number(e.target.value) : e.target.value)}
+                                placeholder={`Entrez ${field.label.toLowerCase()}`}
+                                step={field.type === 'number' ? "0.01" : undefined}
+                                min={field.type === 'number' ? "0" : undefined}
+                              />
+                            )}
+                          </div>
+                        );
+                      })}
                     </div>
                   </div>
                 ))}
