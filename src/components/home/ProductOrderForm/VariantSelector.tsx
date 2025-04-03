@@ -19,6 +19,7 @@ import { getVariantIllustration } from "./utils";
 import VariantSearch from "./components/VariantSearch";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useVariantParser } from "@/pages/supplier/hooks/useVariantParser";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 interface VariantSelectorProps {
   variantType: string;
@@ -45,8 +46,10 @@ const VariantSelector = ({
   
   // S'assurer que les options sont toujours un tableau, en utilisant le parser amélioré
   let normalizedOptions: string[] = [];
+  
   if (Array.isArray(options)) {
     normalizedOptions = options;
+    console.log(`Options sont déjà un tableau pour ${variantType}:`, normalizedOptions);
   } else if (typeof options === 'string') {
     // Si les options sont une chaîne au format [option1, option2, option3]
     normalizedOptions = parseSimpleArrayString(options);
@@ -154,28 +157,37 @@ const VariantSelector = ({
         </div>
         
         {selectedValue && (
-          <Popover open={showIllustration} onOpenChange={setShowIllustration}>
-            <PopoverTrigger asChild>
-              <Button variant="outline" size="icon" className="px-2 h-10" onClick={() => setShowIllustration(true)}>
-                <span className="sr-only">Aperçu</span>
-                <Eye className="h-4 w-4" />
-              </Button>
-            </PopoverTrigger>
-            <PopoverContent 
-              className="w-64 p-2 bg-white shadow-lg border border-gray-200"
-              sideOffset={5}
-              align={isMobile ? "start" : "center"}
-            >
-              <div className="text-center">
-                <img 
-                  src={getVariantIllustration(productCategory, variantType, selectedValue)}
-                  alt={`${displayName}: ${selectedValue}`} 
-                  className="max-w-full h-32 object-contain mx-auto" 
-                />
-                <p className="mt-2 text-sm font-medium">{displayName}: {selectedValue}</p>
-              </div>
-            </PopoverContent>
-          </Popover>
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Popover open={showIllustration} onOpenChange={setShowIllustration}>
+                  <PopoverTrigger asChild>
+                    <Button variant="outline" size="icon" className="px-2 h-10" onClick={() => setShowIllustration(true)}>
+                      <span className="sr-only">Aperçu</span>
+                      <Eye className="h-4 w-4" />
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent 
+                    className="w-64 p-2 bg-white shadow-lg border border-gray-200"
+                    sideOffset={5}
+                    align={isMobile ? "start" : "center"}
+                  >
+                    <div className="text-center">
+                      <img 
+                        src={getVariantIllustration(productCategory, variantType, selectedValue)}
+                        alt={`${displayName}: ${selectedValue}`} 
+                        className="max-w-full h-32 object-contain mx-auto" 
+                      />
+                      <p className="mt-2 text-sm font-medium">{displayName}: {selectedValue}</p>
+                    </div>
+                  </PopoverContent>
+                </Popover>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>Voir un aperçu</p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
         )}
       </div>
     </div>

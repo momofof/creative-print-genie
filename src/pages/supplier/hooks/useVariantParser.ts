@@ -1,14 +1,12 @@
 
-import { ProductVariant } from "@/types/dashboard";
-
 export const useVariantParser = () => {
-  const parseVariantsFromJson = (jsonVariants: any): ProductVariant[] => {
+  const parseVariantsFromJson = (jsonVariants: any): any[] => {
     if (!jsonVariants) return [];
     
     if (Array.isArray(jsonVariants)) {
-      return jsonVariants as ProductVariant[];
+      return jsonVariants;
     } else if (typeof jsonVariants === 'object') {
-      return Object.values(jsonVariants) as ProductVariant[];
+      return Object.values(jsonVariants);
     }
     
     try {
@@ -36,27 +34,25 @@ export const useVariantParser = () => {
   const parseSimpleArrayString = (input: string | null | undefined): string[] => {
     if (!input) return [];
     
+    console.log("Parsing variant string:", input);
+    
     // Nettoyer l'entrée de base
     let cleanInput = input.trim();
     
     // Si le format ressemble à [valeur1, valeur2, ...] - retirer les crochets
     if (cleanInput.startsWith('[') && cleanInput.endsWith(']')) {
       cleanInput = cleanInput.substring(1, cleanInput.length - 1);
+      console.log("After bracket removal:", cleanInput);
     }
     
     // Diviser par virgules et nettoyer chaque valeur
-    return cleanInput
+    const result = cleanInput
       .split(',')
       .map(item => item.trim())
-      .filter(item => item.length > 0) // Ignorer les valeurs vides
-      .map(item => {
-        // Détecter et nettoyer les guillemets autour des valeurs
-        if ((item.startsWith('"') && item.endsWith('"')) || 
-            (item.startsWith("'") && item.endsWith("'"))) {
-          return item.substring(1, item.length - 1);
-        }
-        return item;
-      });
+      .filter(item => item.length > 0); // Ignorer les valeurs vides
+    
+    console.log("Final parsed array:", result);
+    return result;
   };
 
   /**
