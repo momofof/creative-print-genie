@@ -101,6 +101,8 @@ export const useVariantParser = () => {
     
     // Si c'est une chaîne
     if (typeof input === 'string') {
+      // Ajout de logs pour le débogage
+      console.info("Options sont une chaîne pour", input);
       return parseSimpleArrayString(input);
     }
     
