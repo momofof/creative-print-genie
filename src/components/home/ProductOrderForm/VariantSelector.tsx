@@ -23,7 +23,7 @@ import { useVariantParser } from "@/pages/supplier/hooks/useVariantParser";
 interface VariantSelectorProps {
   variantType: string;
   displayName: string;
-  options: string[];
+  options: string[] | string;
   selectedValue: string;
   onChange: (value: string) => void;
   productCategory: string;
@@ -44,8 +44,19 @@ const VariantSelector = ({
   const { parseSimpleArrayString } = useVariantParser();
   
   // S'assurer que les options sont toujours un tableau, en utilisant le parser amélioré
-  const normalizedOptions = Array.isArray(options) ? options : 
-    typeof options === 'string' ? parseSimpleArrayString(options) : [];
+  let normalizedOptions: string[] = [];
+  if (Array.isArray(options)) {
+    normalizedOptions = options;
+  } else if (typeof options === 'string') {
+    // Si les options sont une chaîne au format [option1, option2, option3]
+    normalizedOptions = parseSimpleArrayString(options);
+    console.log(`Options parsées depuis format texte pour ${variantType}:`, normalizedOptions);
+  }
+  
+  // Pour le débogage
+  if (normalizedOptions.length === 0) {
+    console.log(`Aucune option trouvée pour ${variantType}. Options reçues:`, options);
+  }
   
   // Filter options by search term
   const filteredOptions = normalizedOptions.filter(option => 

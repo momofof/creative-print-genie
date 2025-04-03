@@ -1,99 +1,95 @@
 
-// Define variant options for each product category and variant type
-const variantOptions: Record<string, Record<string, string[]>> = {
-  "vêtements": {
-    "color": ["Noir", "Blanc", "Bleu", "Rouge", "Vert"],
-    "size": ["S", "M", "L", "XL", "XXL", "Unique"],
-  },
-  "t-shirts": {
-    "color": ["Noir", "Blanc", "Bleu", "Rouge", "Vert"],
-    "size": ["S", "M", "L", "XL", "XXL"],
-  },
-  "hoodies": {
-    "color": ["Noir", "Blanc", "Bleu", "Rouge", "Vert"],
-    "size": ["S", "M", "L", "XL", "XXL"],
-  },
-  "mugs": {
-    "color": ["Blanc", "Noir", "Bleu", "Vert"],
-  },
-  "posters": {
-    "size": ["A3", "A2", "A1"],
-    "format": ["A4", "A3", "A2", "A1", "Personnalisé"],
-    "orientation_impression": ["Portrait", "Paysage", "Carré"],
-  },
-  "stickers": {
-    "size": ["Petit", "Moyen", "Grand"],
-    "type_de_materiaux": ["Papier", "Vinyle", "PVC"],
-    "details_impression": ["Haute résolution", "Standard", "Économique"],
-  },
-  "accessoires": {
-    "color": ["Noir", "Blanc", "Bleu", "Rouge", "Vert"],
-    "size": ["S", "M", "L", "XL", "XXL", "Unique"],
-  },
-  "casquettes": {
-    "color": ["Noir", "Blanc", "Bleu", "Rouge", "Vert"],
-    "size": ["Unique"],
-  },
-  "sport": {
-    "color": ["Rouge", "Bleu", "Noir", "Blanc", "Vert"],
-    "size": ["S", "M", "L", "XL"],
-  },
-  "vélo": {
-    "color": ["Rouge", "Bleu", "Noir"],
-    "size": ["S", "M", "L"],
-  },
-  "papier": {
-    "format": ["A4", "A3", "A2", "A1", "Personnalisé"],
-    "poids": ["250 g/m²", "300 g/m²", "350 g/m²"],
-    "details_impression": ["Différents recto et verso", "Même recto et verso", "Impression recto uniquement"],
-    "orientation_impression": ["Paysage", "Portrait"],
-    "echantillon": ["Non", "Oui"],
-    "bat": ["Non", "Oui"],
-  },
-  "carte-de-visite": {
-    "format": ["5,5 x 8,5 cm", "9 x 5 cm", "8,5 x 5 cm"],
-    "poids": ["250 g/m²", "300 g/m²", "350 g/m²"],
-    "details_impression": ["Différents recto et verso", "Même recto et verso", "Impression recto uniquement"],
-    "orientation_impression": ["Paysage", "Portrait"],
-    "echantillon": ["Non", "Oui"],
-    "bat": ["Non", "Oui"],
-  },
-  "impression": {
-    "quantite": ["Standard", "Premium", "Économique"],
-    "format": ["A4", "A3", "A2", "A1", "Personnalisé"],
-    "type_de_materiaux": ["Papier", "Carton", "Vinyle", "PVC", "Aluminium"],
-    "poids": ["Léger", "Standard", "Lourd", "Extra lourd"],
-    "details_impression": ["Haute résolution", "Standard", "Économique"],
-    "orientation_impression": ["Portrait", "Paysage", "Carré"],
-    "types_impression": ["Numérique", "Offset", "Sérigraphie", "Flexographie"],
-    "echantillon": ["Non", "Oui"],
-    "bat": ["Non", "Numérique", "Physique"],
-  },
-  "common": {
-    "color": ["Noir", "Blanc", "Bleu", "Rouge", "Vert"],
-    "size": ["S", "M", "L", "XL", "XXL", "Unique"],
-    "format": ["A4", "A3", "A2", "A1", "Personnalisé"],
-    "type_de_materiaux": ["Papier", "Carton", "Vinyle", "PVC", "Aluminium"],
-    "poids": ["Léger", "Standard", "Lourd", "Extra lourd"],
-    "details_impression": ["Haute résolution", "Standard", "Économique"],
-    "orientation_impression": ["Portrait", "Paysage", "Carré"],
-    "types_impression": ["Numérique", "Offset", "Sérigraphie", "Flexographie"],
-    "echantillon": ["Non", "Oui"],
-    "bat": ["Non", "Numérique", "Physique"],
-    "quantite": ["Standard", "Premium", "Économique"]
-  }
-};
+import { useVariantParser } from "@/pages/supplier/hooks/useVariantParser";
 
-// Function to get variant options for a product category and variant type
+// Get variant options for a product category
 export const getVariantOptions = (category: string, variantType: string): string[] => {
-  // First check if the category has specific options for this variant
-  const categoryOptions = variantOptions[category]?.[variantType] || 
-                         variantOptions[category.toLowerCase()]?.[variantType];
+  // Options par défaut en fonction de la catégorie et du type de variante
+  const defaultOptions: Record<string, Record<string, string[]>> = {
+    "t-shirts": {
+      "color": ["Blanc", "Noir", "Rouge", "Bleu", "Vert"],
+      "size": ["XS", "S", "M", "L", "XL", "XXL"]
+    },
+    "hoodies": {
+      "color": ["Noir", "Gris", "Bleu Marine", "Rouge"],
+      "size": ["S", "M", "L", "XL", "XXL"]
+    },
+    "mugs": {
+      "color": ["Blanc", "Noir", "Rouge", "Bleu"],
+      "design": ["Simple", "Personnalisé", "Impression recto", "Impression recto-verso"]
+    },
+    "posters": {
+      "size": ["A3", "A2", "A1", "50x70cm", "70x100cm"],
+      "paper_type": ["Standard", "Premium", "Mat", "Brillant"],
+      "format": ["Paysage", "Portrait"],
+      "orientation_impression": ["Recto", "Recto-verso"]
+    },
+    "stickers": {
+      "size": ["Petit (5x5cm)", "Moyen (10x10cm)", "Grand (15x15cm)"],
+      "finish": ["Mat", "Brillant", "Transparent"],
+      "type_de_materiaux": ["Papier standard", "Vinyle", "Vinyle transparent", "Vinyle métallisé"]
+    },
+    "papier": {
+      "format": ["A4", "A3", "A2", "A1", "Sur mesure"],
+      "type_de_papier": ["Standard", "Recyclé", "Premium", "Couché"],
+      "poids": ["80g/m²", "100g/m²", "120g/m²", "160g/m²", "250g/m²", "300g/m²"],
+      "details_impression": ["Impression couleur", "Noir et blanc", "Recto", "Recto-verso"],
+      "orientation_impression": ["Portrait", "Paysage"],
+      "quantite": ["100", "250", "500", "1000", "2500", "5000"]
+    },
+    "carte-de-visite": {
+      "format": ["Standard (85x55mm)", "Carré (55x55mm)", "Arrondi", "Forme personnalisée"],
+      "type_de_papier": ["Standard", "Premium", "Cartonné", "Recyclé"],
+      "poids": ["300g/m²", "350g/m²", "400g/m²"],
+      "details_impression": ["Impression couleur", "Noir et blanc", "Recto", "Recto-verso"],
+      "bat": ["Non inclus", "Numérique", "Imprimé"],
+      "quantite": ["100", "250", "500", "1000"]
+    },
+    "impression": {
+      "format": ["A4", "A3", "A2", "A1", "A0", "Sur mesure"],
+      "type_de_materiaux": ["Papier standard", "Papier premium", "Carton", "Vinyle", "Tissu"],
+      "poids": ["80g/m²", "100g/m²", "120g/m²", "160g/m²", "250g/m²", "300g/m²"],
+      "details_impression": ["Haute définition", "Standard", "Économique"],
+      "orientation_impression": ["Portrait", "Paysage"],
+      "types_impression": ["Numérique", "Offset", "Sérigraphie", "Flexographie"],
+      "quantite": ["50", "100", "250", "500", "1000", "2500", "5000"],
+      "echantillon": ["Non", "Oui (+15€)", "Urgent (+25€)"],
+      "bat": ["Numérique (PDF)", "Imprimé (+10€)", "Non requis"]
+    },
+    // Catégories génériques
+    "vêtements": {
+      "color": ["Blanc", "Noir", "Gris", "Rouge", "Bleu", "Vert"],
+      "size": ["XS", "S", "M", "L", "XL", "XXL"]
+    },
+    // Options par défaut pour tous les types
+    "default": {
+      "color": ["Noir", "Blanc", "Rouge", "Bleu", "Jaune", "Vert"],
+      "size": ["XS", "S", "M", "L", "XL", "XXL"],
+      "format": ["A4", "A3", "A2", "A1", "A0", "Sur mesure"],
+      "quantite": ["50", "100", "250", "500", "1000"],
+      "bat": ["Non inclus", "Numérique", "Imprimé"],
+      "poids": ["80g/m²", "100g/m²", "120g/m²", "160g/m²", "250g/m²", "300g/m²"],
+      "echantillon": ["Non", "Oui (+15€)"],
+      "types_impression": ["Numérique", "Offset", "Sérigraphie"],
+      "type_de_materiaux": ["Papier", "Carton", "Vinyle", "Tissu", "Plastique"],
+      "details_impression": ["Standard", "Haute définition", "Économique"],
+      "orientation_impression": ["Portrait", "Paysage", "Recto", "Recto-verso"]
+    }
+  };
+
+  // Normaliser la catégorie pour recherche
+  const normalizedCategory = category.toLowerCase();
   
-  if (categoryOptions) {
-    return categoryOptions;
+  // Normaliser le type de variante
+  const normalizedType = variantType.toLowerCase();
+  
+  // Rechercher les options par catégorie puis par type
+  let result: string[] = [];
+  
+  if (defaultOptions[normalizedCategory] && defaultOptions[normalizedCategory][normalizedType]) {
+    result = defaultOptions[normalizedCategory][normalizedType];
+  } else if (defaultOptions["default"][normalizedType]) {
+    result = defaultOptions["default"][normalizedType];
   }
   
-  // If not found in category-specific options, use common options
-  return variantOptions["common"]?.[variantType] || [];
+  return result;
 };
