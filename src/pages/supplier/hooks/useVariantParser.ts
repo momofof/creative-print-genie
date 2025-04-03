@@ -59,6 +59,8 @@ export const useVariantParser = () => {
       .map(item => item.trim())
       .filter(item => item.length > 0); // Ignorer les valeurs vides
     
+    console.log("parseSimpleArrayString input:", input, "result:", result);
+    
     return result;
   };
 
@@ -102,7 +104,7 @@ export const useVariantParser = () => {
     // Si c'est une chaîne
     if (typeof input === 'string') {
       // Ajout de logs pour le débogage
-      console.info("Options sont une chaîne pour", input);
+      console.log("Options sont une chaîne pour", input);
       return parseSimpleArrayString(input);
     }
     

@@ -4,6 +4,7 @@ import VariantSelector from "../VariantSelector";
 import { getVariantDisplayName } from "../utils/variantDisplay";
 import { getVariantOptions } from "../utils/variantConfig";
 import { useVariantParser } from "@/pages/supplier/hooks/useVariantParser";
+import { useEffect } from "react";
 
 interface ProductFormVariantsProps {
   selectedProduct: Product;
@@ -22,29 +23,56 @@ const ProductFormVariants = ({
 }: ProductFormVariantsProps) => {
   const { standardizeToArray } = useVariantParser();
 
+  // Ajout de logs pour le débogage
+  useEffect(() => {
+    console.log("ProductFormVariants - Product:", selectedProduct);
+    console.log("ProductFormVariants - Available Variants:", availableVariants);
+    console.log("ProductFormVariants - Product Variant Options:", productVariantOptions);
+  }, [selectedProduct, availableVariants, productVariantOptions]);
+
   // Get variant options prioritizing product-specific options if available
   const getOptionsForVariant = (variantType: string): string[] => {
     if (!selectedProduct) return [];
     
     // Si des options spécifiques au produit existent pour cette variante, les utiliser
     if (productVariantOptions[variantType] && productVariantOptions[variantType].length > 0) {
+      console.log(`Utilisation des options spécifiques pour ${variantType}:`, productVariantOptions[variantType]);
       return productVariantOptions[variantType];
     }
     
     // Vérifions si les options sont sous forme de chaîne formatée ou d'un tableau
-    const optionsField = `${variantType}_options`;
+    const optionsField = `${variantType}_options` as keyof Product;
+    
     if (selectedProduct[optionsField]) {
-      const parsedOptions = standardizeToArray(selectedProduct[optionsField]);
-      if (parsedOptions.length > 0) {
-        return parsedOptions;
+      const options = selectedProduct[optionsField];
+      console.log(`Options depuis le produit pour ${variantType}:`, options);
+      
+      // Si c'est une chaîne au format [option1, option2], parsons-la
+      if (typeof options === 'string' && options.includes('[')) {
+        const parsedOptions = standardizeToArray(options);
+        console.log(`Options parsées pour ${variantType}:`, parsedOptions);
+        if (parsedOptions.length > 0) {
+          return parsedOptions;
+        }
+      }
+      
+      // Si c'est déjà un tableau
+      if (Array.isArray(options)) {
+        console.log(`Options tableau pour ${variantType}:`, options);
+        return options;
       }
     }
     
     // Vérifier si la valeur elle-même est au format "[valeur1, valeur2]"
-    if (selectedProduct[variantType] && typeof selectedProduct[variantType] === 'string') {
-      const parsedFromValue = standardizeToArray(selectedProduct[variantType]);
-      if (parsedFromValue.length > 0) {
-        return parsedFromValue;
+    const valueField = variantType as keyof Product;
+    if (selectedProduct[valueField] && typeof selectedProduct[valueField] === 'string') {
+      const value = selectedProduct[valueField] as string;
+      if (value.includes('[')) {
+        const parsedFromValue = standardizeToArray(value);
+        console.log(`Options parsées depuis la valeur ${variantType}:`, parsedFromValue);
+        if (parsedFromValue.length > 0) {
+          return parsedFromValue;
+        }
       }
     }
     
@@ -52,11 +80,13 @@ const ProductFormVariants = ({
     if (selectedProduct.subcategory) {
       const subcategoryOptions = getVariantOptions(selectedProduct.subcategory, variantType);
       if (subcategoryOptions.length > 0) {
+        console.log(`Options de sous-catégorie pour ${variantType}:`, subcategoryOptions);
         return subcategoryOptions;
       }
     }
     
     const categoryOptions = getVariantOptions(selectedProduct.category, variantType);
+    console.log(`Options de catégorie pour ${variantType}:`, categoryOptions);
     return categoryOptions;
   };
 
@@ -123,17 +153,27 @@ const ProductFormVariants = ({
           <div key={group} className="space-y-4">
             <h4 className="text-md font-medium text-gray-700">{groupDisplayNames[group]}</h4>
             <div className="grid grid-cols-1 gap-4">
-              {groupVariants.map((variantType) => (
-                <VariantSelector
-                  key={variantType}
-                  variantType={variantType}
-                  displayName={getVariantDisplayName(variantType)}
-                  options={getOptionsForVariant(variantType)}
-                  selectedValue={variants[variantType] || ""}
-                  onChange={(value) => onVariantChange(variantType, value)}
-                  productCategory={selectedProduct.subcategory || selectedProduct.category}
-                />
-              ))}
+              {groupVariants.map((variantType) => {
+                const options = getOptionsForVariant(variantType);
+                console.log(`Affichage du sélecteur pour ${variantType} avec options:`, options);
+                
+                if (!options || options.length === 0) {
+                  console.log(`Pas d'options pour ${variantType}, skip`);
+                  return null;
+                }
+                
+                return (
+                  <VariantSelector
+                    key={variantType}
+                    variantType={variantType}
+                    displayName={getVariantDisplayName(variantType)}
+                    options={options}
+                    selectedValue={variants[variantType] || ""}
+                    onChange={(value) => onVariantChange(variantType, value)}
+                    productCategory={selectedProduct.subcategory || selectedProduct.category}
+                  />
+                );
+              })}
             </div>
           </div>
         );

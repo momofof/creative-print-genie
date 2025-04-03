@@ -2,11 +2,12 @@
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
 import { useVariantParser } from "@/pages/supplier/hooks/useVariantParser";
+import { useEffect } from "react";
 
 interface VariantSelectorProps {
   variantType: string;
   displayName: string;
-  options: string[];
+  options: string[] | string;
   selectedValue: string;
   onChange: (value: string) => void;
   productCategory: string;
@@ -23,14 +24,38 @@ const VariantSelector = ({
 }: VariantSelectorProps) => {
   const { parseSimpleArrayString } = useVariantParser();
   
-  // Ensure options are processed correctly, handling string format like "[option1, option2]"
-  const processedOptions = Array.isArray(options) 
-    ? options 
-    : typeof options === 'string' 
-      ? parseSimpleArrayString(options)
-      : [];
-
+  // Logs pour le déboggage
+  useEffect(() => {
+    console.log(`VariantSelector - ${variantType}:`, options);
+  }, [variantType, options]);
+  
+  // Traitement amélioré des options pour supporter différents formats
+  const processOptions = (inputOptions: string[] | string): string[] => {
+    // Si c'est déjà un tableau
+    if (Array.isArray(inputOptions)) {
+      return inputOptions.filter(Boolean);
+    }
+    
+    // Si c'est une chaîne
+    if (typeof inputOptions === 'string') {
+      // Vérifier si c'est déjà au format [option1, option2]
+      if (inputOptions.trim().startsWith('[') && inputOptions.trim().endsWith(']')) {
+        return parseSimpleArrayString(inputOptions);
+      }
+      
+      // Si c'est une seule option, on la met dans un tableau
+      if (inputOptions.trim()) {
+        return [inputOptions.trim()];
+      }
+    }
+    
+    return [];
+  };
+  
+  const processedOptions = processOptions(options);
+  
   if (!processedOptions || processedOptions.length === 0) {
+    console.log(`Aucune option trouvée pour ${variantType}`);
     return null;
   }
 
@@ -47,7 +72,7 @@ const VariantSelector = ({
         <SelectTrigger id={`variant-${variantType}`} className="w-full">
           <SelectValue placeholder={`Choisir ${displayName.toLowerCase()}`} />
         </SelectTrigger>
-        <SelectContent>
+        <SelectContent className="bg-white">
           {processedOptions.map((option, index) => (
             <SelectItem key={`${option}-${index}`} value={option}>
               {option}
