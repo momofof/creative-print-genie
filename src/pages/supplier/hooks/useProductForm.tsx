@@ -96,6 +96,17 @@ export const useProductForm = (productId?: string) => {
                                      ? data.variant_status as "in_stock" | "low_stock" | "out_of_stock" 
                                      : "in_stock";
           
+          // Parse options to ensure they are arrays
+          const { standardizeToArray } = useVariantParser();
+          
+          // Fonction pour standardiser les options de variantes
+          const parseOptions = (optionsValue: any): string[] => {
+            if (!optionsValue) return [];
+            if (Array.isArray(optionsValue)) return optionsValue;
+            if (typeof optionsValue === "string") return parseSimpleArrayString(optionsValue);
+            return [];
+          };
+          
           setProductData({
             ...data,
             description: data.description || null,
@@ -120,17 +131,17 @@ export const useProductForm = (productId?: string) => {
             variant_status: typedVariantStatus,
             variant_image_url: data.variant_image_url || null,
             // Options de variantes - s'assurer qu'elles sont toujours des tableaux
-            color_options: Array.isArray(data.color_options) ? data.color_options : [],
-            size_options: Array.isArray(data.size_options) ? data.size_options : [],
-            format_options: Array.isArray(data.format_options) ? data.format_options : [],
-            poids_options: Array.isArray(data.poids_options) ? data.poids_options : [],
-            bat_options: Array.isArray(data.bat_options) ? data.bat_options : [],
-            quantite_options: Array.isArray(data.quantite_options) ? data.quantite_options : [],
-            echantillon_options: Array.isArray(data.echantillon_options) ? data.echantillon_options : [],
-            types_impression_options: Array.isArray(data.types_impression_options) ? data.types_impression_options : [],
-            type_de_materiaux_options: Array.isArray(data.type_de_materiaux_options) ? data.type_de_materiaux_options : [],
-            details_impression_options: Array.isArray(data.details_impression_options) ? data.details_impression_options : [],
-            orientation_impression_options: Array.isArray(data.orientation_impression_options) ? data.orientation_impression_options : []
+            color_options: parseOptions(data.color_options),
+            size_options: parseOptions(data.size_options),
+            format_options: parseOptions(data.format_options),
+            poids_options: parseOptions(data.poids_options),
+            bat_options: parseOptions(data.bat_options),
+            quantite_options: parseOptions(data.quantite_options),
+            echantillon_options: parseOptions(data.echantillon_options),
+            types_impression_options: parseOptions(data.types_impression_options),
+            type_de_materiaux_options: parseOptions(data.type_de_materiaux_options),
+            details_impression_options: parseOptions(data.details_impression_options),
+            orientation_impression_options: parseOptions(data.orientation_impression_options)
           });
           
           if (data.image) {
@@ -242,18 +253,41 @@ export const useProductForm = (productId?: string) => {
       }
       
       // Prepare data for insertion/update
+      const { arrayToSimpleString } = useVariantParser();
+      
+      // Convert array options to string format for database compatibility
+      const convertOptionsForDb = (options: string[] | undefined): string => {
+        if (!options || !Array.isArray(options) || options.length === 0) {
+          return '';
+        }
+        return arrayToSimpleString(options);
+      };
+      
+      // Prepare data object with correctly formatted options for database
       const productToSave = {
         ...productData,
         image: imageUrl,
         id: productData.id || uuidv4(),
         // Map price_adjustment from our app to customization_price_adjustment in DB during save
         customization_price_adjustment: productData.price_adjustment,
+        // Convert array options to string format for database
+        color_options: convertOptionsForDb(productData.color_options),
+        size_options: convertOptionsForDb(productData.size_options),
+        format_options: convertOptionsForDb(productData.format_options),
+        poids_options: convertOptionsForDb(productData.poids_options),
+        bat_options: convertOptionsForDb(productData.bat_options),
+        quantite_options: convertOptionsForDb(productData.quantite_options),
+        echantillon_options: convertOptionsForDb(productData.echantillon_options),
+        types_impression_options: convertOptionsForDb(productData.types_impression_options),
+        type_de_materiaux_options: convertOptionsForDb(productData.type_de_materiaux_options),
+        details_impression_options: convertOptionsForDb(productData.details_impression_options),
+        orientation_impression_options: convertOptionsForDb(productData.orientation_impression_options)
       };
       
       // Insert or update product
       const { error } = await supabase
         .from('products_complete')
-        .upsert(productToSave, { onConflict: 'id' });
+        .upsert(productToSave as any, { onConflict: 'id' });
       
       if (error) {
         toast.error("Erreur lors de l'enregistrement du produit");

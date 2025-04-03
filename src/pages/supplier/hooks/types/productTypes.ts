@@ -1,6 +1,4 @@
 
-// Si le fichier n'existe pas, nous le créons avec la définition du type
-
 export interface ProductData {
   id?: string;
   name: string;
@@ -31,16 +29,16 @@ export interface ProductData {
   variant_status: "in_stock" | "low_stock" | "out_of_stock";
   variant_image_url: string | null;
   
-  // Options des variantes (tableaux)
-  size_options?: string[];
-  color_options?: string[];
-  format_options?: string[];
-  poids_options?: string[];
-  bat_options?: string[];
-  quantite_options?: string[];
-  echantillon_options?: string[];
-  types_impression_options?: string[];
-  type_de_materiaux_options?: string[];
-  details_impression_options?: string[];
-  orientation_impression_options?: string[];
+  // Options arrays - always as string[] in the code
+  size_options: string[];
+  color_options: string[];
+  format_options: string[];
+  poids_options: string[];
+  bat_options: string[];
+  quantite_options: string[];
+  echantillon_options: string[];
+  types_impression_options: string[];
+  type_de_materiaux_options: string[];
+  details_impression_options: string[];
+  orientation_impression_options: string[];
 }

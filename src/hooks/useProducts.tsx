@@ -9,7 +9,7 @@ export const fetchProducts = async (): Promise<ProductComplete[]> => {
     console.log("Fetching products from database...");
     
     // Fetch from products_complete table
-    const { data: products, error } = await supabase
+    const { data: productsData, error } = await supabase
       .from("products_complete")
       .select("*")
       .order("created_at", { ascending: false });
@@ -20,8 +20,9 @@ export const fetchProducts = async (): Promise<ProductComplete[]> => {
       return [];
     }
 
-    console.log(`Fetched ${products.length} products`);
-    return products as ProductComplete[];
+    console.log(`Fetched ${productsData.length} products`);
+    // Type assertion to ensure compatibility
+    return productsData as unknown as ProductComplete[];
   } catch (error) {
     console.error("Error in fetchProducts:", error);
     toast.error("Failed to load products");

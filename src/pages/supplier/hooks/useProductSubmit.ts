@@ -5,6 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { useImageUpload } from "./useImageUpload";
 import { ProductData } from "./types/productTypes";
+import { useVariantParser } from "./useVariantParser";
 
 export const useProductSubmit = (
   isEditing: boolean,
@@ -14,6 +15,7 @@ export const useProductSubmit = (
 ) => {
   const [isSaving, setIsSaving] = useState(false);
   const navigate = useNavigate();
+  const { arrayToSimpleString } = useVariantParser();
   
   // Mise à jour de la ligne suivante pour ne passer que les arguments nécessaires
   const { uploadProductImage } = useImageUpload(imageFile, productData.name);
@@ -34,6 +36,14 @@ export const useProductSubmit = (
       // 1. Upload main product image if there's a new one
       const imageUrl = await uploadProductImage();
       
+      // Convert array options to string format for database compatibility
+      const convertOptionsForDb = (options: string[] | undefined): string => {
+        if (!options || !Array.isArray(options) || options.length === 0) {
+          return '';
+        }
+        return arrayToSimpleString(options);
+      };
+      
       // 2. Create or update product in products_complete table
       const productPayload = {
         ...productData,
@@ -41,6 +51,18 @@ export const useProductSubmit = (
         image: imageUrl || productData.image,
         // Map price_adjustment from our app to customization_price_adjustment in DB during save
         customization_price_adjustment: productData.price_adjustment,
+        // Convert array options to string format for database
+        color_options: convertOptionsForDb(productData.color_options),
+        size_options: convertOptionsForDb(productData.size_options),
+        format_options: convertOptionsForDb(productData.format_options),
+        poids_options: convertOptionsForDb(productData.poids_options),
+        bat_options: convertOptionsForDb(productData.bat_options),
+        quantite_options: convertOptionsForDb(productData.quantite_options),
+        echantillon_options: convertOptionsForDb(productData.echantillon_options),
+        types_impression_options: convertOptionsForDb(productData.types_impression_options),
+        type_de_materiaux_options: convertOptionsForDb(productData.type_de_materiaux_options),
+        details_impression_options: convertOptionsForDb(productData.details_impression_options),
+        orientation_impression_options: convertOptionsForDb(productData.orientation_impression_options)
       };
       
       // Handle product creation or update
@@ -48,7 +70,7 @@ export const useProductSubmit = (
         // Update existing product
         const { error: updateError } = await supabase
           .from("products_complete")
-          .update(productPayload)
+          .update(productPayload as any)
           .eq("id", productId);
         
         if (updateError) throw updateError;
@@ -74,7 +96,7 @@ export const useProductSubmit = (
           .insert({
             ...productPayload,
             id: nextId.toString()
-          });
+          } as any);
         
         if (createError) throw createError;
       }
