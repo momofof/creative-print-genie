@@ -1,5 +1,5 @@
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import {
   Select,
   SelectContent,
@@ -42,19 +42,22 @@ const VariantSelector = ({
   const [showIllustration, setShowIllustration] = useState(false);
   const isMobile = useIsMobile();
   const scrollContainerRef = useRef<HTMLDivElement>(null);
-  const { parseSimpleArrayString } = useVariantParser();
+  const { parseSimpleArrayString, ensureArrayFormat } = useVariantParser();
   
-  // S'assurer que les options sont toujours un tableau, en utilisant le parser amélioré
+  // S'assurer que les options sont toujours un tableau
   let normalizedOptions: string[] = [];
   
+  // Utiliser ensureArrayFormat pour traiter correctement toutes les formes d'options
   if (Array.isArray(options)) {
     normalizedOptions = options;
     console.log(`Options sont déjà un tableau pour ${variantType}:`, normalizedOptions);
   } else if (typeof options === 'string') {
-    // Si les options sont une chaîne au format [option1, option2, option3]
-    normalizedOptions = parseSimpleArrayString(options);
-    console.log(`Options parsées depuis format texte pour ${variantType}:`, normalizedOptions);
+    normalizedOptions = ensureArrayFormat(options);
+    console.log(`Options parsées depuis format texte pour ${variantType}:`, normalizedOptions, 'Original:', options);
   }
+  
+  // S'assurer que les valeurs non-vides sont filtrées
+  normalizedOptions = normalizedOptions.filter(option => option && option.trim().length > 0);
   
   // Pour le débogage
   if (normalizedOptions.length === 0) {

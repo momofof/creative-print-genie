@@ -19,6 +19,8 @@ export const useVariantParser = () => {
       }
     } catch (e) {
       console.error("Error parsing variants JSON:", e);
+      // Si l'analyse JSON échoue, essayons le format de chaîne simple
+      return parseSimpleArrayString(jsonVariants);
     }
     
     return [];
@@ -66,5 +68,24 @@ export const useVariantParser = () => {
     return `[${array.join(', ')}]`;
   };
 
-  return { parseVariantsFromJson, parseSimpleArrayString, arrayToSimpleString };
+  /**
+   * Vérifie si une chaîne est au format [valeur1, valeur2, valeur3]
+   * et la convertit en tableau si c'est le cas
+   */
+  const ensureArrayFormat = (value: string | string[] | null | undefined): string[] => {
+    if (!value) return [];
+    
+    if (Array.isArray(value)) {
+      return value;
+    }
+    
+    return parseSimpleArrayString(value);
+  };
+
+  return { 
+    parseVariantsFromJson, 
+    parseSimpleArrayString, 
+    arrayToSimpleString,
+    ensureArrayFormat
+  };
 };

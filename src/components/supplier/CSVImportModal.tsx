@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { toast } from "sonner";
 import {
@@ -13,6 +14,7 @@ import { Input } from "@/components/ui/input";
 import { supabase } from "@/integrations/supabase/client";
 import { Loader2, FileSpreadsheet, Upload, CheckCircle2 } from "lucide-react";
 import { ProductComplete, ProductVariant } from "@/types/dashboard";
+import { useVariantParser } from "@/pages/supplier/hooks/useVariantParser";
 
 interface CSVImportModalProps {
   open: boolean;
@@ -37,6 +39,18 @@ interface CSVProductData {
     price_adjustment?: number;
     status?: "in_stock" | "low_stock" | "out_of_stock";
   }[];
+  // Options de variantes sous forme de chaîne
+  size_options?: string;
+  color_options?: string;
+  format_options?: string;
+  poids_options?: string;
+  bat_options?: string;
+  quantite_options?: string;
+  echantillon_options?: string;
+  types_impression_options?: string;
+  type_de_materiaux_options?: string;
+  details_impression_options?: string;
+  orientation_impression_options?: string;
 }
 
 const CSVImportModal = ({ open, onOpenChange, onImportSuccess }: CSVImportModalProps) => {
@@ -48,6 +62,7 @@ const CSVImportModal = ({ open, onOpenChange, onImportSuccess }: CSVImportModalP
     failed: number;
   } | null>(null);
   const [isComplete, setIsComplete] = useState(false);
+  const { arrayToSimpleString } = useVariantParser();
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
@@ -111,6 +126,27 @@ const CSVImportModal = ({ open, onOpenChange, onImportSuccess }: CSVImportModalP
         if (customizableIndex !== -1) {
           currentProduct.is_customizable = values[customizableIndex].toLowerCase() === 'true';
         }
+        
+        // Traiter les options de variantes au format texte
+        const optionsFields = [
+          'size_options', 'color_options', 'format_options', 'poids_options',
+          'bat_options', 'quantite_options', 'echantillon_options',
+          'types_impression_options', 'type_de_materiaux_options',
+          'details_impression_options', 'orientation_impression_options'
+        ];
+        
+        optionsFields.forEach(field => {
+          const fieldIndex = headers.indexOf(field);
+          if (fieldIndex !== -1 && values[fieldIndex]) {
+            currentProduct[field] = values[fieldIndex];
+            
+            // Vérifions que les options sont bien au format [valeur1, valeur2, ...]
+            if (currentProduct[field] && !currentProduct[field].startsWith('[')) {
+              const optionsArray = currentProduct[field].split(',').map(o => o.trim());
+              currentProduct[field] = arrayToSimpleString(optionsArray);
+            }
+          }
+        });
       } else if (currentProduct && currentProduct.variants && values[headers.indexOf('size')]) {
         // This is a variant line
         const variant = {
@@ -190,22 +226,36 @@ const CSVImportModal = ({ open, onOpenChange, onImportSuccess }: CSVImportModalP
             id: crypto.randomUUID()
           })) || [];
 
+          // Formater toutes les options de variantes pour s'assurer qu'elles sont au format [valeur1, valeur2]
+          const variantOptionsFields = [
+            'size_options', 'color_options', 'format_options', 'poids_options',
+            'bat_options', 'quantite_options', 'echantillon_options',
+            'types_impression_options', 'type_de_materiaux_options',
+            'details_impression_options', 'orientation_impression_options'
+          ];
+          
+          const formattedProduct: any = {
+            ...productData,
+            id: nextId.toString(),
+            supplier_id: userData.user.id,
+            variants: variants
+          };
+          
+          // S'assurer que toutes les options sont au format correct
+          variantOptionsFields.forEach(field => {
+            if (productData[field] && typeof productData[field] === 'string') {
+              // Vérifier si l'option est déjà au format [valeur1, valeur2]
+              if (!productData[field].startsWith('[')) {
+                const optionsArray = productData[field].split(',').map(o => o.trim());
+                formattedProduct[field] = arrayToSimpleString(optionsArray);
+              }
+            }
+          });
+
           // Create product with variants in unified_products table
           const { error: productError } = await supabase
             .from("unified_products")
-            .insert({
-              id: nextId.toString(),  // Use sequential ID
-              name: productData.name,
-              price: productData.price,
-              original_price: productData.original_price || null,
-              category: productData.category,
-              subcategory: productData.subcategory || null,
-              description: productData.description || null,
-              status: productData.status || "draft",
-              is_customizable: productData.is_customizable || false,
-              supplier_id: userData.user.id,
-              variants: variants
-            });
+            .insert(formattedProduct);
           
           if (productError) throw productError;
           

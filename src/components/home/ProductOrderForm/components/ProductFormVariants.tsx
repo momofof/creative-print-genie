@@ -3,6 +3,7 @@ import { Product } from "@/types/product";
 import VariantSelector from "../VariantSelector";
 import { getVariantDisplayName } from "../utils/variantDisplay";
 import { getVariantOptions } from "../utils/variantConfig";
+import { useVariantParser } from "@/pages/supplier/hooks/useVariantParser";
 
 interface ProductFormVariantsProps {
   selectedProduct: Product;
@@ -19,6 +20,8 @@ const ProductFormVariants = ({
   onVariantChange,
   productVariantOptions
 }: ProductFormVariantsProps) => {
+  const { ensureArrayFormat } = useVariantParser();
+
   // Get variant options prioritizing product-specific options if available
   const getOptionsForVariant = (variantType: string): string[] => {
     if (selectedProduct) {
@@ -26,6 +29,16 @@ const ProductFormVariants = ({
       if (productVariantOptions[variantType] && productVariantOptions[variantType].length > 0) {
         console.log(`Utilisation des options spécifiques au produit pour ${variantType}:`, productVariantOptions[variantType]);
         return productVariantOptions[variantType];
+      }
+      
+      // Vérifions si les options sont sous forme de chaîne formatée au lieu d'un tableau
+      const optionsField = `${variantType}_options`;
+      if (selectedProduct[optionsField] && typeof selectedProduct[optionsField] === 'string') {
+        const parsedOptions = ensureArrayFormat(selectedProduct[optionsField]);
+        if (parsedOptions.length > 0) {
+          console.log(`Options parsées depuis la chaîne pour ${variantType}:`, parsedOptions);
+          return parsedOptions;
+        }
       }
       
       // Sinon, utiliser les options génériques basées sur la catégorie/sous-catégorie
