@@ -5,6 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { ProductData } from "./types/productTypes";
 import { ProductComplete } from "@/types/dashboard";
+import { useVariantParser } from "./useVariantParser";
 
 export const useProductFetch = (
   setProductData: React.Dispatch<React.SetStateAction<ProductData>>,
@@ -12,6 +13,7 @@ export const useProductFetch = (
   setIsLoading: React.Dispatch<React.SetStateAction<boolean>>
 ) => {
   const navigate = useNavigate();
+  const { standardizeToArray } = useVariantParser();
 
   const fetchProductData = async (productId: string) => {
     try {
@@ -60,18 +62,18 @@ export const useProductFetch = (
         type_de_materiaux: typedProduct.type_de_materiaux || null,
         details_impression: typedProduct.details_impression || null,
         orientation_impression: typedProduct.orientation_impression || null,
-        // Options de variantes (nouveaux champs)
-        size_options: typedProduct.size_options || [],
-        color_options: typedProduct.color_options || [],
-        format_options: typedProduct.format_options || [],
-        poids_options: typedProduct.poids_options || [],
-        bat_options: typedProduct.bat_options || [],
-        quantite_options: typedProduct.quantite_options || [],
-        echantillon_options: typedProduct.echantillon_options || [],
-        types_impression_options: typedProduct.types_impression_options || [],
-        type_de_materiaux_options: typedProduct.type_de_materiaux_options || [],
-        details_impression_options: typedProduct.details_impression_options || [],
-        orientation_impression_options: typedProduct.orientation_impression_options || [],
+        // Options de variantes - Convert all options to arrays using standardizeToArray
+        size_options: standardizeToArray(typedProduct.size_options || []),
+        color_options: standardizeToArray(typedProduct.color_options || []),
+        format_options: standardizeToArray(typedProduct.format_options || []),
+        poids_options: standardizeToArray(typedProduct.poids_options || []),
+        bat_options: standardizeToArray(typedProduct.bat_options || []),
+        quantite_options: standardizeToArray(typedProduct.quantite_options || []),
+        echantillon_options: standardizeToArray(typedProduct.echantillon_options || []),
+        types_impression_options: standardizeToArray(typedProduct.types_impression_options || []),
+        type_de_materiaux_options: standardizeToArray(typedProduct.type_de_materiaux_options || []),
+        details_impression_options: standardizeToArray(typedProduct.details_impression_options || []),
+        orientation_impression_options: standardizeToArray(typedProduct.orientation_impression_options || []),
         // URL d'image pour variante (simplifiée)
         variant_image_url: typedProduct.variant_image_url || null
       };
