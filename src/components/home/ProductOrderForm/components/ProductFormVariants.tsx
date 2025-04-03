@@ -20,42 +20,44 @@ const ProductFormVariants = ({
   onVariantChange,
   productVariantOptions
 }: ProductFormVariantsProps) => {
-  const { ensureArrayFormat } = useVariantParser();
+  const { standardizeToArray } = useVariantParser();
 
   // Get variant options prioritizing product-specific options if available
   const getOptionsForVariant = (variantType: string): string[] => {
-    if (selectedProduct) {
-      // Si des options spécifiques au produit existent pour cette variante, les utiliser
-      if (productVariantOptions[variantType] && productVariantOptions[variantType].length > 0) {
-        console.log(`Utilisation des options spécifiques au produit pour ${variantType}:`, productVariantOptions[variantType]);
-        return productVariantOptions[variantType];
-      }
-      
-      // Vérifions si les options sont sous forme de chaîne formatée au lieu d'un tableau
-      const optionsField = `${variantType}_options`;
-      if (selectedProduct[optionsField] && typeof selectedProduct[optionsField] === 'string') {
-        const parsedOptions = ensureArrayFormat(selectedProduct[optionsField]);
-        if (parsedOptions.length > 0) {
-          console.log(`Options parsées depuis la chaîne pour ${variantType}:`, parsedOptions);
-          return parsedOptions;
-        }
-      }
-      
-      // Sinon, utiliser les options génériques basées sur la catégorie/sous-catégorie
-      if (selectedProduct.subcategory) {
-        const subcategoryOptions = getVariantOptions(selectedProduct.subcategory, variantType);
-        if (subcategoryOptions.length > 0) {
-          console.log(`Utilisation des options de sous-catégorie pour ${variantType}:`, subcategoryOptions);
-          return subcategoryOptions;
-        }
-      }
-      
-      const categoryOptions = getVariantOptions(selectedProduct.category, variantType);
-      console.log(`Utilisation des options de catégorie pour ${variantType}:`, categoryOptions);
-      return categoryOptions;
+    if (!selectedProduct) return [];
+    
+    // Si des options spécifiques au produit existent pour cette variante, les utiliser
+    if (productVariantOptions[variantType] && productVariantOptions[variantType].length > 0) {
+      return productVariantOptions[variantType];
     }
     
-    return [];
+    // Vérifions si les options sont sous forme de chaîne formatée ou d'un tableau
+    const optionsField = `${variantType}_options`;
+    if (selectedProduct[optionsField]) {
+      const parsedOptions = standardizeToArray(selectedProduct[optionsField]);
+      if (parsedOptions.length > 0) {
+        return parsedOptions;
+      }
+    }
+    
+    // Vérifier si la valeur elle-même est au format "[valeur1, valeur2]"
+    if (selectedProduct[variantType] && typeof selectedProduct[variantType] === 'string') {
+      const parsedFromValue = standardizeToArray(selectedProduct[variantType]);
+      if (parsedFromValue.length > 0) {
+        return parsedFromValue;
+      }
+    }
+    
+    // Sinon, utiliser les options génériques basées sur la catégorie/sous-catégorie
+    if (selectedProduct.subcategory) {
+      const subcategoryOptions = getVariantOptions(selectedProduct.subcategory, variantType);
+      if (subcategoryOptions.length > 0) {
+        return subcategoryOptions;
+      }
+    }
+    
+    const categoryOptions = getVariantOptions(selectedProduct.category, variantType);
+    return categoryOptions;
   };
 
   // Group variants by type for better organization
