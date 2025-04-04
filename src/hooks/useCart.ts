@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -40,26 +39,34 @@ export const useCart = (): UseCartReturn => {
     loadCart();
   }, [userId]);
 
-  // Traiter les articles en attente après connexion
   useEffect(() => {
     const handlePendingCartItem = async () => {
       if (userId) {
         const pendingCartItem = localStorage.getItem("pendingCartItem");
         if (pendingCartItem) {
           try {
-            const item = JSON.parse(pendingCartItem);
-            await addToCart({
-              productId: item.productId,
-              productName: item.productName,
-              productPrice: item.productPrice,
-              quantity: item.quantity,
-              selectedColor: item.variants?.color,
-              selectedSize: item.variants?.size
-            });
-            
-            toast.success(`${item.productName} ajouté au panier`);
-            // Supprimer l'article en attente après l'avoir ajouté
             localStorage.removeItem("pendingCartItem");
+            
+            const item = JSON.parse(pendingCartItem);
+            
+            const existingItemIndex = cartItems.findIndex(
+              (cartItem) => 
+                cartItem.id === item.productId && 
+                JSON.stringify(cartItem.variants || {}) === JSON.stringify(item.variants || {})
+            );
+            
+            if (existingItemIndex === -1) {
+              await addToCart({
+                productId: item.productId,
+                productName: item.productName,
+                productPrice: item.productPrice,
+                quantity: item.quantity,
+                selectedColor: item.variants?.color,
+                selectedSize: item.variants?.size
+              });
+              
+              toast.success(`${item.productName} ajouté au panier`);
+            }
           } catch (error) {
             console.error("Erreur lors du traitement de l'article en attente:", error);
           }
@@ -68,7 +75,7 @@ export const useCart = (): UseCartReturn => {
     };
 
     handlePendingCartItem();
-  }, [userId]);
+  }, [userId, cartItems]);
 
   const loadCart = async () => {
     setIsLoading(true);
@@ -118,7 +125,6 @@ export const useCart = (): UseCartReturn => {
     setIsLoading(true);
     
     try {
-      // Créer un objet variants seulement si nécessaire
       const variants: Record<string, string> = {};
       if (selectedColor) variants.color = selectedColor;
       if (selectedSize) variants.size = selectedSize;

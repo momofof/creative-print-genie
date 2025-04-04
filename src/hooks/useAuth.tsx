@@ -30,11 +30,14 @@ export const useAuth = () => {
         setUser(session?.user || null);
         setIsLoading(false);
         
-        // Si l'utilisateur vient de se connecter, vérifier s'il y a une redirection en attente
+        // Only redirect if the user has just signed in
         if (event === 'SIGNED_IN' && session) {
           const redirectPath = localStorage.getItem("redirectAfterLogin");
           if (redirectPath) {
-            // Utiliser setTimeout pour éviter les problèmes de concurrence
+            // Clear the redirect path first to prevent multiple redirects
+            localStorage.removeItem("redirectAfterLogin");
+            
+            // Use setTimeout to avoid concurrency issues
             setTimeout(() => {
               window.location.href = redirectPath;
             }, 0);

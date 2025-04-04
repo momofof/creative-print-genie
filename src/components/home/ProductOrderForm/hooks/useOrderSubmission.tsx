@@ -43,9 +43,12 @@ export const useOrderSubmission = ({
       return;
     }
     
-    // Vérifier si l'utilisateur est connecté
+    // Check if user is logged in
     if (!userId) {
-      // Sauvegarder les détails du produit dans localStorage pour les récupérer après connexion
+      // Check if there's already a pending item to avoid duplicates
+      localStorage.removeItem("pendingCartItem");
+      
+      // Save product details to localStorage to retrieve after login
       localStorage.setItem("pendingCartItem", JSON.stringify({
         productId: selectedProduct.id,
         productName: selectedProduct.name,
@@ -56,7 +59,7 @@ export const useOrderSubmission = ({
         image: selectedProduct.image || "/placeholder.svg"
       }));
       
-      // Définir la page à rediriger après connexion
+      // Set page to redirect after login
       localStorage.setItem("redirectAfterLogin", "/cart");
       
       toast.info("Veuillez vous connecter pour ajouter des articles au panier");
@@ -67,7 +70,7 @@ export const useOrderSubmission = ({
     setIsSubmitting(true);
     
     try {
-      // Créer l'élément panier
+      // Create cart item
       const cartItem: CartItem = {
         id: selectedProduct.id,
         name: selectedProduct.name,
@@ -78,10 +81,10 @@ export const useOrderSubmission = ({
         supplier_id: selectedSupplierId
       };
       
-      // Calculer le prix total
+      // Calculate total price
       const totalPrice = cartItem.price * cartItem.quantity;
       
-      // Ajouter au panier
+      // Add to cart
       const addedToCart = await addToCart({
         productId: selectedProduct.id,
         productName: selectedProduct.name,
@@ -92,11 +95,11 @@ export const useOrderSubmission = ({
       });
       
       if (addedToCart) {
-        // Montrer la boîte de dialogue récapitulative
+        // Show summary dialog
         onShowOrderSummary([cartItem], totalPrice);
         toast.success(`${selectedProduct.name} ajouté au panier`);
         
-        // Réinitialiser le formulaire
+        // Reset form
         onOrderSuccess();
       } else {
         toast.error("Impossible d'ajouter le produit au panier. Veuillez réessayer.");
