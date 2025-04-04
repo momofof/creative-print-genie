@@ -1,6 +1,6 @@
 
 import { useState, useEffect } from "react";
-import { Trash2, AlertTriangle, LogIn } from "lucide-react";
+import { Trash2, AlertTriangle, LogIn, Loader2 } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import Navigation from "@/components/Navigation";
@@ -8,6 +8,7 @@ import { useCart } from "@/hooks/useCart";
 import { useAuth } from "@/hooks/useAuth";
 import CartItem from "@/components/cart/CartItem";
 import OrderSuccessDialog from "@/components/cart/OrderSuccessDialog";
+import { supabase } from "@/integrations/supabase/client";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -35,6 +36,7 @@ const Cart = () => {
   const [clearCartDialogOpen, setClearCartDialogOpen] = useState(false);
   const [orderSuccessDialogOpen, setOrderSuccessDialogOpen] = useState(false);
   const [loginDialogOpen, setLoginDialogOpen] = useState(false);
+  const [isProcessingPayment, setIsProcessingPayment] = useState(false);
   const navigate = useNavigate();
   
   // Force cart reload when component mounts to ensure latest state
@@ -47,16 +49,60 @@ const Cart = () => {
     setClearCartDialogOpen(false);
   };
 
-  const handleCheckout = () => {
+  const handleCheckout = async () => {
     if (!isLoggedIn) {
       // Enregistrer que l'utilisateur essayait de passer à la caisse
       localStorage.setItem("redirectAfterLogin", "/cart");
       setLoginDialogOpen(true);
       return;
     }
+
+    if (cartItems.length === 0) {
+      toast.error("Votre panier est vide");
+      return;
+    }
     
-    setOrderSuccessDialogOpen(true);
-    toast.success("Votre commande a été traitée avec succès!");
+    setIsProcessingPayment(true);
+    
+    try {
+      // Get user information for the payment
+      const { data: profileData } = await supabase
+        .from('profiles')
+        .select('first_name, last_name, email, phone_number')
+        .eq('id', user?.id)
+        .single();
+      
+      // Call the create-payment edge function
+      const { data, error } = await supabase.functions.invoke("create-payment", {
+        body: {
+          cartItems,
+          totalPrice,
+          userId: user?.id,
+          firstName: profileData?.first_name || '',
+          lastName: profileData?.last_name || '',
+          email: profileData?.email || user?.email || '',
+          phoneNumber: profileData?.phone_number || ''
+        }
+      });
+
+      if (error) {
+        console.error("Payment creation error:", error);
+        toast.error("Erreur lors de l'initialisation du paiement");
+        return;
+      }
+
+      if (data.success && data.paymentUrl) {
+        // Redirect to CinetPay payment page
+        window.location.href = data.paymentUrl;
+      } else {
+        toast.error("Impossible d'initialiser le paiement. Veuillez réessayer.");
+      }
+    } catch (error) {
+      console.error("Error during checkout:", error);
+      toast.error("Une erreur est survenue pendant le traitement de votre commande");
+    } finally {
+      setIsProcessingPayment(false);
+    }
   };
 
   const handleLogin = () => {
@@ -157,10 +203,18 @@ const Cart = () => {
                 </div>
                 
                 <button
-                  className="w-full bg-accent text-white py-3 rounded-md font-medium mt-6 hover:bg-accent/90"
+                  className="w-full bg-accent text-white py-3 rounded-md font-medium mt-6 hover:bg-accent/90 flex items-center justify-center"
                   onClick={handleCheckout}
+                  disabled={isProcessingPayment}
                 >
-                  Passer à la caisse
+                  {isProcessingPayment ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" /> 
+                      Traitement en cours...
+                    </>
+                  ) : (
+                    "Passer à la caisse"
+                  )}
                 </button>
                 
                 <Link

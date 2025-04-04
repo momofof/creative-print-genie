@@ -8,6 +8,7 @@ import Signup from "@/pages/auth/Signup";
 import AuthLanding from "@/pages/auth/AuthLanding";
 import Profile from "@/pages/Profile";
 import Cart from "@/pages/Cart";
+import PaymentSuccess from "@/pages/PaymentSuccess";
 import Products from "@/pages/Products";
 import AuthStateWrapper from "@/components/home/AuthStateWrapper";
 import Favorites from "./pages/Favorites";
@@ -37,6 +38,7 @@ const App = () => {
             <Route path="/signup" element={<Signup />} />
             <Route path="/profile" element={<Profile />} />
             <Route path="/cart" element={<Cart />} />
+            <Route path="/payment-success" element={<PaymentSuccess />} />
             <Route path="/favorites" element={<Favorites />} />
             <Route path="/products" element={<Products />} />
             <Route path="/products/:categoryId" element={<Products />} />
