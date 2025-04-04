@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -37,6 +38,36 @@ export const useCart = (): UseCartReturn => {
 
   useEffect(() => {
     loadCart();
+  }, [userId]);
+
+  // Traiter les articles en attente après connexion
+  useEffect(() => {
+    const handlePendingCartItem = async () => {
+      if (userId) {
+        const pendingCartItem = localStorage.getItem("pendingCartItem");
+        if (pendingCartItem) {
+          try {
+            const item = JSON.parse(pendingCartItem);
+            await addToCart({
+              productId: item.productId,
+              productName: item.productName,
+              productPrice: item.productPrice,
+              quantity: item.quantity,
+              selectedColor: item.variants?.color,
+              selectedSize: item.variants?.size
+            });
+            
+            toast.success(`${item.productName} ajouté au panier`);
+            // Supprimer l'article en attente après l'avoir ajouté
+            localStorage.removeItem("pendingCartItem");
+          } catch (error) {
+            console.error("Erreur lors du traitement de l'article en attente:", error);
+          }
+        }
+      }
+    };
+
+    handlePendingCartItem();
   }, [userId]);
 
   const loadCart = async () => {

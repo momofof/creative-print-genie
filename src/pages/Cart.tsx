@@ -1,9 +1,11 @@
-import { useState } from "react";
-import { Trash2, AlertTriangle } from "lucide-react";
-import { Link } from "react-router-dom";
+
+import { useState, useEffect } from "react";
+import { Trash2, AlertTriangle, LogIn } from "lucide-react";
+import { Link, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import Navigation from "@/components/Navigation";
 import { useCart } from "@/hooks/useCart";
+import { useAuth } from "@/hooks/useAuth";
 import CartItem from "@/components/cart/CartItem";
 import OrderSuccessDialog from "@/components/cart/OrderSuccessDialog";
 import {
@@ -28,8 +30,11 @@ const Cart = () => {
     clearCart,
     editCartItem
   } = useCart();
+  const { isLoggedIn, user } = useAuth();
   const [clearCartDialogOpen, setClearCartDialogOpen] = useState(false);
   const [orderSuccessDialogOpen, setOrderSuccessDialogOpen] = useState(false);
+  const [loginDialogOpen, setLoginDialogOpen] = useState(false);
+  const navigate = useNavigate();
   
   const handleClearCart = () => {
     clearCart();
@@ -37,8 +42,19 @@ const Cart = () => {
   };
 
   const handleCheckout = () => {
+    if (!isLoggedIn) {
+      // Enregistrer que l'utilisateur essayait de passer à la caisse
+      localStorage.setItem("redirectAfterLogin", "/cart");
+      setLoginDialogOpen(true);
+      return;
+    }
+    
     setOrderSuccessDialogOpen(true);
     toast.success("Votre commande a été traitée avec succès!");
+  };
+
+  const handleLogin = () => {
+    navigate("/login");
   };
 
   return (
@@ -151,6 +167,31 @@ const Cart = () => {
             </div>
           </div>
         )}
+        
+        {/* Dialogue de connexion */}
+        <AlertDialog open={loginDialogOpen} onOpenChange={setLoginDialogOpen}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle className="flex items-center gap-2">
+                <LogIn className="h-5 w-5 text-accent" />
+                Connexion requise
+              </AlertDialogTitle>
+              <AlertDialogDescription>
+                Pour finaliser votre commande, vous devez être connecté à votre compte.
+                Votre panier sera conservé après la connexion.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Annuler</AlertDialogCancel>
+              <AlertDialogAction 
+                onClick={handleLogin}
+                className="bg-accent hover:bg-accent/90 text-white"
+              >
+                Se connecter
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
         
         <OrderSuccessDialog
           open={orderSuccessDialogOpen}

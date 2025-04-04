@@ -43,6 +43,27 @@ export const useOrderSubmission = ({
       return;
     }
     
+    // Vérifier si l'utilisateur est connecté
+    if (!userId) {
+      // Sauvegarder les détails du produit dans localStorage pour les récupérer après connexion
+      localStorage.setItem("pendingCartItem", JSON.stringify({
+        productId: selectedProduct.id,
+        productName: selectedProduct.name,
+        productPrice: selectedProduct.price,
+        quantity: selectedQuantity,
+        variants,
+        supplierId: selectedSupplierId,
+        image: selectedProduct.image || "/placeholder.svg"
+      }));
+      
+      // Définir la page à rediriger après connexion
+      localStorage.setItem("redirectAfterLogin", "/cart");
+      
+      toast.info("Veuillez vous connecter pour ajouter des articles au panier");
+      navigate("/login");
+      return;
+    }
+    
     setIsSubmitting(true);
     
     try {

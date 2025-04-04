@@ -1,10 +1,11 @@
 
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { User } from "@supabase/supabase-js";
 
 export const useAuth = () => {
   const [isLoading, setIsLoading] = useState(true);
-  const [user, setUser] = useState(null);
+  const [user, setUser] = useState<User | null>(null);
   
   useEffect(() => {
     // Check current session when the component mounts
@@ -28,6 +29,17 @@ export const useAuth = () => {
       (event, session) => {
         setUser(session?.user || null);
         setIsLoading(false);
+        
+        // Si l'utilisateur vient de se connecter, vérifier s'il y a une redirection en attente
+        if (event === 'SIGNED_IN' && session) {
+          const redirectPath = localStorage.getItem("redirectAfterLogin");
+          if (redirectPath) {
+            // Utiliser setTimeout pour éviter les problèmes de concurrence
+            setTimeout(() => {
+              window.location.href = redirectPath;
+            }, 0);
+          }
+        }
       }
     );
 
