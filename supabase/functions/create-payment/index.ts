@@ -39,6 +39,17 @@ serve(async (req) => {
     // Amount needs to be in the smallest currency unit (for XOF, there are no decimals)
     const amountInSmallestUnit = Math.round(totalPrice);
 
+    console.log("Creating payment with data:", {
+      userId,
+      firstName,
+      lastName,
+      email,
+      phoneNumber,
+      amountInSmallestUnit,
+      description,
+      transactionId,
+    });
+
     // CinetPay payment creation API call
     const paymentResponse = await fetch('https://api-checkout.cinetpay.com/v2/payment', {
       method: 'POST',
@@ -56,7 +67,7 @@ serve(async (req) => {
         notify_url: `${req.headers.get("origin")}/api/cinetpay-webhook`,
         channels: 'ALL',
         lang: 'fr',
-        customer_name: `${firstName} ${lastName}`,
+        customer_name: `${firstName || ''} ${lastName || ''}`.trim() || 'Client',
         customer_email: email || 'client@example.com',
         customer_phone_number: phoneNumber || '',
         customer_address: '',
@@ -68,6 +79,7 @@ serve(async (req) => {
     });
 
     const paymentData = await paymentResponse.json();
+    console.log("CinetPay response:", paymentData);
     
     if (paymentData && paymentData.code === '201') {
       // Store the transaction reference in Supabase for later verification

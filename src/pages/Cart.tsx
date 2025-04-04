@@ -66,9 +66,9 @@ const Cart = () => {
     
     try {
       // Get user information for the payment
-      const { data: profileData } = await supabase
-        .from('profiles')
-        .select('first_name, last_name, email, phone_number')
+      const { data: userData } = await supabase
+        .from('users_complete')
+        .select('first_name, last_name, email')
         .eq('id', user?.id)
         .single();
       
@@ -78,10 +78,10 @@ const Cart = () => {
           cartItems,
           totalPrice,
           userId: user?.id,
-          firstName: profileData?.first_name || '',
-          lastName: profileData?.last_name || '',
-          email: profileData?.email || user?.email || '',
-          phoneNumber: profileData?.phone_number || ''
+          firstName: userData?.first_name || '',
+          lastName: userData?.last_name || '',
+          email: userData?.email || user?.email || '',
+          phoneNumber: '' // Phone number might not exist in users_complete table
         }
       });
 
