@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -11,6 +12,7 @@ export const useCart = (): UseCartReturn => {
   const [isLoading, setIsLoading] = useState(false);
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [userId, setUserId] = useState<string | null>(null);
+  const [pendingItemProcessed, setPendingItemProcessed] = useState(false);
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -41,21 +43,24 @@ export const useCart = (): UseCartReturn => {
 
   useEffect(() => {
     const handlePendingCartItem = async () => {
-      if (userId) {
+      if (userId && !pendingItemProcessed) {
         const pendingCartItem = localStorage.getItem("pendingCartItem");
         if (pendingCartItem) {
           try {
+            // Mark as processed to prevent multiple processing attempts
+            setPendingItemProcessed(true);
             localStorage.removeItem("pendingCartItem");
             
             const item = JSON.parse(pendingCartItem);
             
-            const existingItemIndex = cartItems.findIndex(
-              (cartItem) => 
-                cartItem.id === item.productId && 
-                JSON.stringify(cartItem.variants || {}) === JSON.stringify(item.variants || {})
+            const existingItemIndex = findExistingItemIndex(
+              cartItems,
+              item.productId,
+              item.variants || {}
             );
             
             if (existingItemIndex === -1) {
+              console.log("Adding pending item to cart:", item);
               await addToCart({
                 productId: item.productId,
                 productName: item.productName,
@@ -66,9 +71,14 @@ export const useCart = (): UseCartReturn => {
               });
               
               toast.success(`${item.productName} ajouté au panier`);
+            } else {
+              console.log("Item already exists in cart, not adding duplicate");
             }
           } catch (error) {
             console.error("Erreur lors du traitement de l'article en attente:", error);
+          } finally {
+            // Reset processing flag after a delay to prevent immediate re-processing
+            setTimeout(() => setPendingItemProcessed(false), 2000);
           }
         }
       }

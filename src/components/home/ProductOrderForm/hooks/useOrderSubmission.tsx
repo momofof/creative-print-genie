@@ -45,7 +45,7 @@ export const useOrderSubmission = ({
     
     // Check if user is logged in
     if (!userId) {
-      // Check if there's already a pending item to avoid duplicates
+      // Remove any existing pending cart items to prevent duplication
       localStorage.removeItem("pendingCartItem");
       
       // Save product details to localStorage to retrieve after login

@@ -6,6 +6,7 @@ import { User } from "@supabase/supabase-js";
 export const useAuth = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [user, setUser] = useState<User | null>(null);
+  const [isRedirecting, setIsRedirecting] = useState(false);
   
   useEffect(() => {
     // Check current session when the component mounts
@@ -30,9 +31,11 @@ export const useAuth = () => {
         setUser(session?.user || null);
         setIsLoading(false);
         
-        // Only redirect if the user has just signed in
-        if (event === 'SIGNED_IN' && session) {
+        // Only redirect if the user has just signed in and we're not already redirecting
+        if (event === 'SIGNED_IN' && session && !isRedirecting) {
+          setIsRedirecting(true);
           const redirectPath = localStorage.getItem("redirectAfterLogin");
+          
           if (redirectPath) {
             // Clear the redirect path first to prevent multiple redirects
             localStorage.removeItem("redirectAfterLogin");
@@ -40,7 +43,11 @@ export const useAuth = () => {
             // Use setTimeout to avoid concurrency issues
             setTimeout(() => {
               window.location.href = redirectPath;
+              // Reset redirecting state after a short delay
+              setTimeout(() => setIsRedirecting(false), 1000);
             }, 0);
+          } else {
+            setIsRedirecting(false);
           }
         }
       }
@@ -52,7 +59,7 @@ export const useAuth = () => {
         authListener.subscription.unsubscribe();
       }
     };
-  }, []);
+  }, [isRedirecting]);
 
   const signOut = async () => {
     try {

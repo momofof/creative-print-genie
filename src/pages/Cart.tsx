@@ -28,13 +28,19 @@ const Cart = () => {
     updateQuantity, 
     removeItem, 
     clearCart,
-    editCartItem
+    editCartItem,
+    loadCart
   } = useCart();
   const { isLoggedIn, user } = useAuth();
   const [clearCartDialogOpen, setClearCartDialogOpen] = useState(false);
   const [orderSuccessDialogOpen, setOrderSuccessDialogOpen] = useState(false);
   const [loginDialogOpen, setLoginDialogOpen] = useState(false);
   const navigate = useNavigate();
+  
+  // Force cart reload when component mounts to ensure latest state
+  useEffect(() => {
+    loadCart();
+  }, [isLoggedIn]);
   
   const handleClearCart = () => {
     clearCart();
