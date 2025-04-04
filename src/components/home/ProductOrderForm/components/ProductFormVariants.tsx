@@ -59,7 +59,8 @@ const ProductFormVariants = ({
       // Si c'est déjà un tableau
       if (Array.isArray(options)) {
         console.log(`Options tableau pour ${variantType}:`, options);
-        return options;
+        // Ensure each item is a string
+        return options.map(item => String(item));
       }
     }
     
