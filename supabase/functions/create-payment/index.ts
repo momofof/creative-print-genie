@@ -65,10 +65,8 @@ serve(async (req) => {
         description: description,
         return_url: `${req.headers.get("origin")}/payment-success?transaction_id=${transactionId}`,
         notify_url: `${req.headers.get("origin")}/api/cinetpay-webhook`,
-        channels: 'CREDIT_CARD,MOBILE_MONEY',  // Spécifiquement demander les cartes de crédit et mobile money
-        alternative_currency: 'EUR',  // Permet les paiements en Euro également
+        channels: 'ALL',
         lang: 'fr',
-        metadata: JSON.stringify({ cartItems }),  // Stocker des données supplémentaires
         customer_name: `${firstName || ''} ${lastName || ''}`.trim() || 'Client',
         customer_email: email || 'client@example.com',
         customer_phone_number: phoneNumber || '',
