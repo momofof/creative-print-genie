@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { Trash2, AlertTriangle, LogIn, Loader2 } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
@@ -38,6 +39,7 @@ const Cart = () => {
   const [isProcessingPayment, setIsProcessingPayment] = useState(false);
   const navigate = useNavigate();
   
+  // Force cart reload when component mounts to ensure latest state
   useEffect(() => {
     loadCart();
   }, [isLoggedIn]);
@@ -49,6 +51,7 @@ const Cart = () => {
 
   const handleCheckout = async () => {
     if (!isLoggedIn) {
+      // Enregistrer que l'utilisateur essayait de passer à la caisse
       localStorage.setItem("redirectAfterLogin", "/cart");
       setLoginDialogOpen(true);
       return;
@@ -62,12 +65,14 @@ const Cart = () => {
     setIsProcessingPayment(true);
     
     try {
+      // Get user information for the payment
       const { data: userData } = await supabase
         .from('users_complete')
         .select('first_name, last_name, email')
         .eq('id', user?.id)
         .single();
       
+      // Call the create-payment edge function
       const { data, error } = await supabase.functions.invoke("create-payment", {
         body: {
           cartItems,
@@ -76,7 +81,7 @@ const Cart = () => {
           firstName: userData?.first_name || '',
           lastName: userData?.last_name || '',
           email: userData?.email || user?.email || '',
-          phoneNumber: ''
+          phoneNumber: '' // Phone number might not exist in users_complete table
         }
       });
 
@@ -87,6 +92,7 @@ const Cart = () => {
       }
 
       if (data.success && data.paymentUrl) {
+        // Redirect to CinetPay payment page
         window.location.href = data.paymentUrl;
       } else {
         toast.error("Impossible d'initialiser le paiement. Veuillez réessayer.");
@@ -222,6 +228,7 @@ const Cart = () => {
           </div>
         )}
         
+        {/* Dialogue de connexion */}
         <AlertDialog open={loginDialogOpen} onOpenChange={setLoginDialogOpen}>
           <AlertDialogContent>
             <AlertDialogHeader>
