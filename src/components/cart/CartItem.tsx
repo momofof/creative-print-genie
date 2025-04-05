@@ -9,7 +9,7 @@ interface CartItemProps {
   item: CartItemType;
   updateQuantity: (itemId: string, quantity: number) => void;
   removeItem: (itemId: string) => void;
-  editCartItem?: (itemId: string, productName: string, price: number, quantity: number) => void;
+  editCartItem?: (itemId: string, newQuantity: number, variants?: Record<string, string>) => void;
 }
 
 const CartItem = ({ item, updateQuantity, removeItem, editCartItem }: CartItemProps) => {
@@ -71,7 +71,13 @@ const CartItem = ({ item, updateQuantity, removeItem, editCartItem }: CartItemPr
     
     // Call the editCartItem function if provided
     if (editCartItem) {
-      editCartItem(item.id, editedName, editedPrice, quantity);
+      const variants: Record<string, string> = {
+        ...(item.variants || {}),
+        editedName: editedName,
+        editedPrice: editedPrice.toString()
+      };
+      
+      editCartItem(item.id, quantity, variants);
     }
     
     setIsLoading(false);
@@ -94,11 +100,16 @@ const CartItem = ({ item, updateQuantity, removeItem, editCartItem }: CartItemPr
     
     return (
       <div className="text-sm text-gray-600 mt-1">
-        {Object.entries(item.variants).map(([key, value]) => (
-          <div key={key}>
-            <span className="font-medium capitalize">{key}:</span> {value}
-          </div>
-        ))}
+        {Object.entries(item.variants).map(([key, value]) => {
+          // Skip internal editedName/editedPrice variants
+          if (key === 'editedName' || key === 'editedPrice') return null;
+          
+          return (
+            <div key={key}>
+              <span className="font-medium capitalize">{key}:</span> {value}
+            </div>
+          );
+        })}
       </div>
     );
   };
@@ -160,7 +171,7 @@ const CartItem = ({ item, updateQuantity, removeItem, editCartItem }: CartItemPr
             />
           ) : (
             <span className="font-bold text-gray-900">
-              {(item.price * item.quantity).toLocaleString('fr-FR')} €
+              {(item.price * item.quantity).toLocaleString('fr-FR')} FCFA
             </span>
           )}
           

@@ -9,6 +9,6 @@ export function cn(...inputs: ClassValue[]) {
 export function formatPrice(price: number): string {
   return new Intl.NumberFormat('fr-FR', {
     style: 'currency',
-    currency: 'EUR',
+    currency: 'XOF',
   }).format(price);
 }

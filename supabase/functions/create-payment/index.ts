@@ -74,7 +74,8 @@ serve(async (req) => {
         customer_city: '',
         customer_country: 'CI',
         customer_state: '',
-        customer_zip_code: ''
+        customer_zip_code: '',
+        metadata: 'no_limit_payment' // Add metadata to indicate no payment limits
       })
     });
 

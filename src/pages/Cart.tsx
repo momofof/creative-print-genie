@@ -190,7 +190,7 @@ const Cart = () => {
                 <div className="space-y-2">
                   <div className="flex justify-between pb-2">
                     <span>Sous-total</span>
-                    <span>{totalPrice.toLocaleString('fr-FR')} €</span>
+                    <span>{totalPrice.toLocaleString('fr-FR')} FCFA</span>
                   </div>
                   <div className="flex justify-between pb-2">
                     <span>Livraison</span>
@@ -198,7 +198,7 @@ const Cart = () => {
                   </div>
                   <div className="border-t pt-2 font-medium text-lg flex justify-between">
                     <span>Total</span>
-                    <span>{totalPrice.toLocaleString('fr-FR')} €</span>
+                    <span>{totalPrice.toLocaleString('fr-FR')} FCFA</span>
                   </div>
                 </div>
                 
