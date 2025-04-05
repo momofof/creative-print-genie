@@ -9,7 +9,7 @@ interface CartItemProps {
   item: CartItemType;
   updateQuantity: (itemId: string, quantity: number) => void;
   removeItem: (itemId: string) => void;
-  editCartItem?: (itemId: string, productName: string, price: number, quantity: number) => void;
+  editCartItem?: (itemId: string, newQuantity: number, variants?: Record<string, string>) => void;
 }
 
 const CartItem = ({ item, updateQuantity, removeItem, editCartItem }: CartItemProps) => {
@@ -71,7 +71,14 @@ const CartItem = ({ item, updateQuantity, removeItem, editCartItem }: CartItemPr
     
     // Call the editCartItem function if provided
     if (editCartItem) {
-      editCartItem(item.id, editedName, editedPrice, quantity);
+      // Create a variants object with updated name and price
+      const updatedVariants = {
+        ...item.variants,
+        _name: editedName,  // Store edited name in variants
+        _price: editedPrice.toString()  // Store edited price in variants
+      };
+      
+      editCartItem(item.id, quantity, updatedVariants);
     }
     
     setIsLoading(false);
@@ -92,9 +99,18 @@ const CartItem = ({ item, updateQuantity, removeItem, editCartItem }: CartItemPr
       return null;
     }
     
+    // Filter out the _name and _price special variant keys
+    const displayVariants = { ...item.variants };
+    delete displayVariants._name;
+    delete displayVariants._price;
+    
+    if (Object.keys(displayVariants).length === 0) {
+      return null;
+    }
+    
     return (
       <div className="text-sm text-gray-600 mt-1">
-        {Object.entries(item.variants).map(([key, value]) => (
+        {Object.entries(displayVariants).map(([key, value]) => (
           <div key={key}>
             <span className="font-medium capitalize">{key}:</span> {value}
           </div>
