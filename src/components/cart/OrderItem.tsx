@@ -40,7 +40,7 @@ const OrderItem = ({
             Quantité: {quantity}
           </p>
           <p className="text-sm font-medium">
-            {(item.price * quantity).toLocaleString('fr-FR')} €
+            {(item.price * quantity).toLocaleString('fr-FR')} FCFA
           </p>
         </div>
       </div>
