@@ -6,15 +6,16 @@ import CartItemInfo from "./CartItemInfo";
 import CartItemPrice from "./CartItemPrice";
 import CartItemActions from "./CartItemActions";
 import CartItemQuantityInput from "./CartItemQuantityInput";
+import CartItemEditButton from "./CartItemEditButton";
 
 interface CartItemProps {
   item: CartItemType;
   updateQuantity: (itemId: string, quantity: number) => void;
   removeItem: (itemId: string) => void;
-  editCartItem?: (itemId: string, newQuantity: number, variants?: Record<string, string>) => void;
+  onEdit: () => void;
 }
 
-const CartItem = ({ item, updateQuantity, removeItem, editCartItem }: CartItemProps) => {
+const CartItem = ({ item, updateQuantity, removeItem, onEdit }: CartItemProps) => {
   const [quantity, setQuantity] = useState(item.quantity);
   const [isEditing, setIsEditing] = useState(false);
   const [editedName, setEditedName] = useState(item.name);
@@ -33,7 +34,7 @@ const CartItem = ({ item, updateQuantity, removeItem, editCartItem }: CartItemPr
     removeItem(item.id);
   };
   
-  const handleEdit = () => {
+  const handleEditInline = () => {
     setIsEditing(true);
   };
   
@@ -45,15 +46,7 @@ const CartItem = ({ item, updateQuantity, removeItem, editCartItem }: CartItemPr
     setIsLoading(true);
     
     // Call the editCartItem function if provided
-    if (editCartItem) {
-      const variants: Record<string, string> = {
-        ...(item.variants || {}),
-        editedName: editedName,
-        editedPrice: editedPrice.toString()
-      };
-      
-      editCartItem(item.id, quantity, variants);
-    }
+    // Note: This is for inline editing of name/price, not full product edit
     
     setIsLoading(false);
     setIsEditing(false);
@@ -101,15 +94,19 @@ const CartItem = ({ item, updateQuantity, removeItem, editCartItem }: CartItemPr
             setEditedPrice={setEditedPrice}
           />
           
-          <CartItemActions 
-            isEditing={isEditing}
-            isLoading={isLoading}
-            hasEditFunction={!!editCartItem}
-            onEdit={handleEdit}
-            onSave={handleSave}
-            onCancel={handleCancel}
-            onRemove={handleRemove}
-          />
+          <div className="flex flex-col sm:flex-row items-end sm:items-center space-y-2 sm:space-y-0 sm:space-x-2 mt-2">
+            <CartItemEditButton onEdit={onEdit} />
+            
+            <CartItemActions 
+              isEditing={isEditing}
+              isLoading={isLoading}
+              hasEditFunction={false}
+              onEdit={handleEditInline}
+              onSave={handleSave}
+              onCancel={handleCancel}
+              onRemove={handleRemove}
+            />
+          </div>
         </div>
       </div>
     </div>
