@@ -1,16 +1,17 @@
 
 import React, { useState } from "react";
-import { CartItem } from "@/types/product";
-import CartItem from "./CartItem";
+import { CartItem as CartItemType } from "@/types/product";
+import CartItemComponent from "./CartItem";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { AlertCircle } from "lucide-react";
 import RemoveItemDialog from "./RemoveItemDialog";
 import EditItemModal from "./EditItemModal";
 import { useProductsWithVariants } from "@/hooks/useProductsWithVariants";
+import { convertDashboardToUIProducts } from "@/utils/productTypeConverter";
 
 interface CartItemsListProps {
-  cartItems: CartItem[];
+  cartItems: CartItemType[];
   updateQuantity: (itemId: string, quantity: number) => void;
   removeItem: (itemId: string) => void;
   editCartItem: (itemId: string, newQuantity: number, variants?: Record<string, string>) => void;
@@ -30,11 +31,11 @@ const CartItemsList = ({
   setClearCartDialogOpen,
   handleClearCart
 }: CartItemsListProps) => {
-  const [editingItem, setEditingItem] = useState<CartItem | null>(null);
+  const [editingItem, setEditingItem] = useState<CartItemType | null>(null);
   const [editModalOpen, setEditModalOpen] = useState(false);
   const { products, isLoading: loadingProducts } = useProductsWithVariants();
 
-  const handleEditItem = (item: CartItem) => {
+  const handleEditItem = (item: CartItemType) => {
     setEditingItem(item);
     setEditModalOpen(true);
   };
@@ -67,7 +68,7 @@ const CartItemsList = ({
         {cartItems.length > 0 ? (
           <div className="divide-y divide-gray-200">
             {cartItems.map((item) => (
-              <CartItem
+              <CartItemComponent
                 key={`${item.id}-${JSON.stringify(item.variants)}`}
                 item={item}
                 updateQuantity={updateQuantity}
@@ -87,18 +88,15 @@ const CartItemsList = ({
       </div>
 
       <RemoveItemDialog
-        open={clearCartDialogOpen}
-        onOpenChange={setClearCartDialogOpen}
-        onConfirm={handleClearCart}
-        title="Vider le panier"
-        description="Êtes-vous sûr de vouloir vider votre panier ? Cette action ne peut pas être annulée."
+        itemName="tous les articles"
+        onRemove={handleClearCart}
       />
 
       <EditItemModal
         open={editModalOpen}
         onOpenChange={setEditModalOpen}
         editingItem={editingItem}
-        products={products}
+        products={convertDashboardToUIProducts(products)}
         loadingProducts={loadingProducts}
         onEditComplete={handleEditComplete}
       />

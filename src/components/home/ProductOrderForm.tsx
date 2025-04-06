@@ -9,6 +9,7 @@ interface ProductOrderFormProps {
   initialVariants?: Record<string, string>;
   initialQuantity?: number;
   onEditComplete?: (productId: string, quantity: number, variants: Record<string, string>) => void;
+  onProductSelect?: (productId: string | undefined) => void;
 }
 
 const ProductOrderForm = ({
@@ -17,7 +18,8 @@ const ProductOrderForm = ({
   initialProductId,
   initialVariants,
   initialQuantity,
-  onEditComplete
+  onEditComplete,
+  onProductSelect
 }: ProductOrderFormProps) => {
   return (
     <OrderForm
@@ -27,6 +29,7 @@ const ProductOrderForm = ({
       initialVariants={initialVariants}
       initialQuantity={initialQuantity}
       onEditComplete={onEditComplete}
+      onProductSelect={onProductSelect}
     />
   );
 };

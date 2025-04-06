@@ -1,15 +1,13 @@
 
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
-import { CartItem } from "@/types/product";
+import { CartItem, Product } from "@/types/product";
 import ProductOrderForm from "../home/ProductOrderForm";
-import { convertDashboardToUIProducts } from "@/utils/productTypeConverter";
-import { ProductComplete } from "@/types/dashboard";
 
 interface EditItemModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   editingItem: CartItem | null;
-  products: ProductComplete[];
+  products: Product[];
   loadingProducts: boolean;
   onEditComplete: (productId: string, quantity: number, variants: Record<string, string>) => void;
 }
@@ -38,7 +36,7 @@ const EditItemModal = ({
           </div>
         ) : editingItem ? (
           <ProductOrderForm
-            products={convertDashboardToUIProducts(products)}
+            products={products}
             editMode={true}
             initialProductId={editingItem.id}
             initialVariants={editingItem.variants}

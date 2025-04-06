@@ -16,35 +16,54 @@ import { useState } from "react";
 interface RemoveItemDialogProps {
   itemName: string;
   onRemove: () => void;
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
+  title?: string;
+  description?: string;
 }
 
-const RemoveItemDialog = ({ itemName, onRemove }: RemoveItemDialogProps) => {
-  const [open, setOpen] = useState(false);
+const RemoveItemDialog = ({ 
+  itemName, 
+  onRemove, 
+  open: controlledOpen, 
+  onOpenChange: setControlledOpen,
+  title = "Confirmer la suppression",
+  description
+}: RemoveItemDialogProps) => {
+  const [internalOpen, setInternalOpen] = useState(false);
+  
+  const isControlled = controlledOpen !== undefined && setControlledOpen !== undefined;
+  const isOpen = isControlled ? controlledOpen : internalOpen;
+  const setIsOpen = isControlled ? setControlledOpen : setInternalOpen;
   
   const handleRemove = () => {
     onRemove();
-    setOpen(false);
+    setIsOpen(false);
   };
+  
+  const dialogDescription = description || 
+    `Êtes-vous sûr de vouloir supprimer "${itemName}" de votre panier ? Cette action ne peut pas être annulée.`;
 
   return (
-    <AlertDialog open={open} onOpenChange={setOpen}>
-      <AlertDialogTrigger asChild>
-        <button
-          className="text-red-600 hover:text-red-800"
-          aria-label="Supprimer du panier"
-        >
-          <Trash2 size={20} />
-        </button>
-      </AlertDialogTrigger>
+    <AlertDialog open={isOpen} onOpenChange={setIsOpen}>
+      {!isControlled && (
+        <AlertDialogTrigger asChild>
+          <button
+            className="text-red-600 hover:text-red-800"
+            aria-label="Supprimer du panier"
+          >
+            <Trash2 size={20} />
+          </button>
+        </AlertDialogTrigger>
+      )}
       <AlertDialogContent>
         <AlertDialogHeader>
           <AlertDialogTitle className="flex items-center gap-2">
             <AlertTriangle className="h-5 w-5 text-red-500" />
-            Confirmer la suppression
+            {title}
           </AlertDialogTitle>
           <AlertDialogDescription>
-            Êtes-vous sûr de vouloir supprimer "{itemName}" de votre panier ?
-            Cette action ne peut pas être annulée.
+            {dialogDescription}
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
