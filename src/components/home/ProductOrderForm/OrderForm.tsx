@@ -117,13 +117,18 @@ const OrderForm = ({
     }
   };
 
+  // Ajuster les classes CSS en fonction du mode (édition ou normal)
+  const formClasses = editMode 
+    ? "p-2 md:p-4 mx-auto" 
+    : "bg-white rounded-lg shadow-lg p-4 md:p-6 max-w-4xl mx-auto my-6 md:my-10";
+
   return (
-    <div className="bg-white rounded-lg shadow-lg p-4 md:p-6 max-w-4xl mx-auto my-6 md:my-10">
+    <div className={formClasses}>
       <div className="relative">
         <OrderFormHeader editMode={editMode} />
         
         {/* Mobile preview illustration - Positioned inside the form below the title */}
-        {isMobile && selectedProduct && (
+        {isMobile && selectedProduct && !editMode && (
           <MobilePreviewContainer 
             selectedProduct={selectedProduct} 
             variants={variants}
@@ -132,7 +137,7 @@ const OrderForm = ({
         )}
       </div>
       
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-8">
+      <div className={`grid grid-cols-1 ${!editMode ? 'md:grid-cols-2' : ''} gap-4 md:gap-6`}>
         {/* Product Form Column */}
         <div>
           <ProductForm
@@ -151,8 +156,8 @@ const OrderForm = ({
             productSelectionDisabled={editMode}
           />
           
-          {/* Supplier Selection Section */}
-          {selectedProduct && (
+          {/* Supplier Selection Section - Only in normal mode */}
+          {selectedProduct && !editMode && (
             <SupplierSelector 
               productId={selectedProduct.id}
               onSupplierSelect={setSelectedSupplierId}
@@ -160,8 +165,8 @@ const OrderForm = ({
           )}
         </div>
 
-        {/* Illustration Column - Hidden on mobile, replaced with sheet/drawer */}
-        {!isMobile && (
+        {/* Illustration Column - Hidden on mobile and in edit mode, replaced with sheet/drawer */}
+        {!isMobile && !editMode && (
           <ProductIllustration
             selectedProduct={selectedProduct}
             variants={variants}
@@ -171,8 +176,8 @@ const OrderForm = ({
         )}
       </div>
 
-      {/* Mobile illustration sheet */}
-      {isMobile && (
+      {/* Mobile illustration sheet - Only in normal mode */}
+      {isMobile && !editMode && (
         <ProductIllustration
           selectedProduct={selectedProduct}
           variants={variants}

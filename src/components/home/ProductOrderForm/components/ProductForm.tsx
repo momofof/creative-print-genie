@@ -96,9 +96,12 @@ const ProductForm = ({
     setVariants(prev => ({ ...prev, [variantType]: value }));
   };
 
+  // Adjust spacing in edit mode
+  const sectionSpacing = editMode ? "space-y-3 md:space-y-4" : "space-y-4 md:space-y-6";
+
   return (
-    <form onSubmit={handleSubmit}>
-      <div className="space-y-4 md:space-y-6">
+    <form onSubmit={handleSubmit} className={editMode ? "pb-4" : ""}>
+      <div className={sectionSpacing}>
         <SearchableDropdown
           label="Sélectionnez un produit"
           placeholder="Choisir un produit..."
@@ -139,7 +142,7 @@ const ProductForm = ({
         )}
       </div>
       
-      <div className="mt-6 md:mt-8">
+      <div className="mt-4 md:mt-6">
         <ProductFormSubmitButton
           isSubmitting={isSubmitting}
           disabled={!selectedProduct || !selectedQuantity}
