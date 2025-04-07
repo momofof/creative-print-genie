@@ -8,7 +8,6 @@ import { AlertCircle } from "lucide-react";
 import RemoveItemDialog from "./RemoveItemDialog";
 import EditItemModal from "./EditItemModal";
 import { useProductsWithVariants } from "@/hooks/useProductsWithVariants";
-import { convertDashboardToUIProducts } from "@/utils/productTypeConverter";
 
 interface CartItemsListProps {
   cartItems: CartItemType[];
@@ -96,7 +95,7 @@ const CartItemsList = ({
         open={editModalOpen}
         onOpenChange={setEditModalOpen}
         editingItem={editingItem}
-        products={convertDashboardToUIProducts(products)}
+        products={products}
         loadingProducts={loadingProducts}
         onEditComplete={handleEditComplete}
       />
