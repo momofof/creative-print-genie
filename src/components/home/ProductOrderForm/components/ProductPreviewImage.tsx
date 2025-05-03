@@ -14,7 +14,7 @@ const ProductPreviewImage = ({
   selectedProduct,
   variants,
   activeVariant,
-  className = "max-w-full max-h-52 md:max-h-64 object-contain"
+  className = "max-w-full max-h-60 md:max-h-72 object-contain"
 }: ProductPreviewImageProps) => {
   // Function to get the currently displayed illustration
   const getCurrentIllustration = () => {
@@ -30,7 +30,7 @@ const ProductPreviewImage = ({
 
   if (!selectedProduct) {
     return (
-      <div className="text-center p-4">
+      <div className="text-center p-4 h-full flex flex-col items-center justify-center">
         <Image className="mx-auto h-12 w-12 text-gray-400 mb-2" />
         <p className="text-gray-500">Sélectionnez un produit et ses options pour visualiser l'aperçu</p>
       </div>

@@ -31,7 +31,7 @@ const MobileProductSheet = ({
 }: MobileProductSheetProps) => {
   return (
     <Sheet open={openIllustration} onOpenChange={setOpenIllustration}>
-      <SheetContent side="bottom" className="h-[80vh] rounded-t-xl pt-6">
+      <SheetContent side="bottom" className="h-[85vh] rounded-t-xl pt-6">
         <SheetHeader className="text-left pb-4">
           <SheetTitle className="text-xl">Aperçu des options</SheetTitle>
           <SheetDescription>
@@ -40,16 +40,18 @@ const MobileProductSheet = ({
               "Sélectionnez un produit pour voir l'aperçu"}
           </SheetDescription>
         </SheetHeader>
-        <ScrollArea className="flex-1 h-[calc(80vh-120px)]">
+        <ScrollArea className="flex-1 h-[calc(85vh-120px)]">
           <div className="flex items-center justify-center overflow-visible py-4">
             {selectedProduct ? (
               <div className="flex flex-col items-center">
-                <ProductPreviewImage 
-                  selectedProduct={selectedProduct}
-                  variants={variants}
-                  activeVariant={activeVariant}
-                  className="max-w-full max-h-[40vh] object-contain"
-                />
+                <div className="w-full flex justify-center items-center h-[45vh]">
+                  <ProductPreviewImage 
+                    selectedProduct={selectedProduct}
+                    variants={variants}
+                    activeVariant={activeVariant}
+                    className="max-w-full max-h-[40vh] object-contain"
+                  />
+                </div>
                 <div className="mt-4 text-center px-4">
                   <h4 className="font-medium text-lg">{selectedProduct.name}</h4>
                   {activeVariant ? (
