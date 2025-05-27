@@ -28,7 +28,7 @@ const Cart = () => {
     isProcessingPayment,
     loginDialogOpen,
     setLoginDialogOpen,
-    handleCheckout,
+    handleDepositCheckout,
     handleLogin
   } = useCheckout();
   const [clearCartDialogOpen, setClearCartDialogOpen] = useState(false);
@@ -42,6 +42,29 @@ const Cart = () => {
   const handleClearCart = () => {
     clearCart();
     setClearCartDialogOpen(false);
+  };
+
+  // Handle checkout for cart items (convert to deposit format)
+  const handleCheckout = async () => {
+    if (cartItems.length === 0) {
+      toast.error("Votre panier est vide");
+      return;
+    }
+
+    // For cart checkout, we'll need to convert cart items to a deposit format
+    // This is a simplified approach - you might want to handle multiple items differently
+    const firstItem = cartItems[0];
+    const depositData = {
+      sellerUsername: firstItem.supplier_id || 'vendeur_inconnu',
+      sellerName: 'Vendeur', // You might want to fetch this from supplier data
+      productName: firstItem.name,
+      productDescription: `Commande de ${cartItems.length} article(s)`,
+      productLink: '',
+      amount: totalPrice,
+      estimatedDeliveryDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0] // 7 days from now
+    };
+
+    await handleDepositCheckout(depositData);
   };
 
   return (
