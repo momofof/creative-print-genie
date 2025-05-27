@@ -7,11 +7,10 @@ import Login from "@/pages/auth/Login";
 import Signup from "@/pages/auth/Signup";
 import AuthLanding from "@/pages/auth/AuthLanding";
 import Profile from "@/pages/Profile";
-import Cart from "@/pages/Cart";
+import Dashboard from "@/pages/Dashboard";
+import NewDeposit from "@/pages/NewDeposit";
 import PaymentSuccess from "@/pages/PaymentSuccess";
-import Products from "@/pages/Products";
 import AuthStateWrapper from "@/components/home/AuthStateWrapper";
-import Favorites from "./pages/Favorites";
 import ForgotPassword from "./pages/auth/ForgotPassword";
 import ResetPassword from "./pages/auth/ResetPassword";
 
@@ -37,12 +36,9 @@ const App = () => {
             <Route path="/login" element={<Login />} />
             <Route path="/signup" element={<Signup />} />
             <Route path="/profile" element={<Profile />} />
-            <Route path="/cart" element={<Cart />} />
+            <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/new-deposit" element={<NewDeposit />} />
             <Route path="/payment-success" element={<PaymentSuccess />} />
-            <Route path="/favorites" element={<Favorites />} />
-            <Route path="/products" element={<Products />} />
-            <Route path="/products/:categoryId" element={<Products />} />
-            <Route path="/products/:categoryId/:subcategoryId" element={<Products />} />
             <Route path="/forgot-password" element={<ForgotPassword />} />
             <Route path="/reset-password" element={<ResetPassword />} />
             <Route path="*" element={<Index />} />

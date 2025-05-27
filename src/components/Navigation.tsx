@@ -1,12 +1,11 @@
 
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
-import { Menu, X } from "lucide-react";
+import { Menu, X, Shield } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuthStatus } from "@/hooks/useAuthStatus";
 import NavigationUserAvatar from "@/components/navigation/NavigationUserAvatar";
 import { supabase } from "@/integrations/supabase/client";
-import NavigationCart from "@/components/navigation/NavigationCart";
 import { useIsMobile } from "@/hooks/use-mobile";
 
 const Navigation = () => {
@@ -19,48 +18,44 @@ const Navigation = () => {
   };
 
   return (
-    <header className="fixed w-full bg-white z-50 shadow-sm">
+    <header className="fixed w-full bg-white z-50 shadow-sm border-b">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           <div className="flex items-center">
-            <Link to="/" className="flex-shrink-0">
-              <span className="text-xl font-bold text-accent">PrintGenie</span>
+            <Link to="/" className="flex-shrink-0 flex items-center">
+              <Shield className="h-8 w-8 text-blue-600 mr-2" />
+              <span className="text-xl font-bold">SafePay <span className="text-blue-600">XOF</span></span>
             </Link>
           </div>
 
           {/* Desktop navigation links */}
           <nav className="hidden md:flex items-center space-x-8">
             <Button variant="link" asChild>
-              <Link to="/" className="text-gray-600 hover:text-accent">
+              <Link to="/" className="text-gray-600 hover:text-blue-600">
                 Accueil
               </Link>
             </Button>
+            {isLoggedIn && (
+              <Button variant="link" asChild>
+                <Link to="/dashboard" className="text-gray-600 hover:text-blue-600">
+                  Tableau de bord
+                </Link>
+              </Button>
+            )}
             <Button variant="link" asChild>
-              <Link to="/products" className="text-gray-600 hover:text-accent">
-                Produits
-              </Link>
-            </Button>
-            <Button variant="link" asChild>
-              <Link to="/services/custom-design" className="text-gray-600 hover:text-accent">
-                Services
+              <Link to="#comment-ca-marche" className="text-gray-600 hover:text-blue-600">
+                Comment ça marche
               </Link>
             </Button>
           </nav>
 
-          {/* Mobile icons - Always visible on mobile */}
-          <div className="flex items-center space-x-2 md:hidden">
-            <NavigationCart className="p-2" />
-            {isLoggedIn && <NavigationUserAvatar isSupplier={false} />}
-          </div>
-
           {/* Desktop authentication */}
           <div className="hidden md:flex items-center space-x-4">
-            <NavigationCart className="p-2.5" />
             {isLoggedIn ? (
               <NavigationUserAvatar isSupplier={false} />
             ) : (
               <Link to="/auth">
-                <Button variant="outline" size="sm" className="gap-2">
+                <Button variant="outline" size="sm" className="gap-2 border-blue-600 text-blue-600 hover:bg-blue-50">
                   <span>Connexion</span>
                 </Button>
               </Link>
@@ -86,44 +81,38 @@ const Navigation = () => {
       {/* Mobile menu */}
       {isMenuOpen && (
         <div className="md:hidden" id="mobile-menu">
-          <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3 bg-white">
+          <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3 bg-white border-t">
             <Link
               to="/"
-              className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-accent hover:bg-gray-50"
+              className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-blue-600 hover:bg-gray-50"
               onClick={toggleMenu}
             >
               Accueil
             </Link>
             
-            <Link
-              to="/products"
-              className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-accent hover:bg-gray-50"
-              onClick={toggleMenu}
-            >
-              Produits
-            </Link>
+            {isLoggedIn && (
+              <Link
+                to="/dashboard"
+                className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-blue-600 hover:bg-gray-50"
+                onClick={toggleMenu}
+              >
+                Tableau de bord
+              </Link>
+            )}
             
             <Link
-              to="/services/custom-design"
-              className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-accent hover:bg-gray-50"
+              to="#comment-ca-marche"
+              className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-blue-600 hover:bg-gray-50"
               onClick={toggleMenu}
             >
-              Services
-            </Link>
-            
-            <Link
-              to="/cart"
-              className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-accent hover:bg-gray-50"
-              onClick={toggleMenu}
-            >
-              Panier
+              Comment ça marche
             </Link>
             
             {isLoggedIn ? (
               <>
                 <Link
                   to="/profile"
-                  className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-accent hover:bg-gray-50"
+                  className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-blue-600 hover:bg-gray-50"
                   onClick={toggleMenu}
                 >
                   Profil
@@ -145,7 +134,7 @@ const Navigation = () => {
             ) : (
               <Link
                 to="/auth"
-                className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-accent hover:bg-gray-50"
+                className="block px-3 py-2 rounded-md text-base font-medium text-blue-600 hover:bg-blue-50"
                 onClick={toggleMenu}
               >
                 Connexion

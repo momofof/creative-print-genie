@@ -2,40 +2,46 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
-import { CartItem } from "@/types/product";
 import { useAuth } from "@/hooks/useAuth";
-import { useCart } from "@/hooks/useCart";
 import { supabase } from "@/integrations/supabase/client";
 
-interface UseCheckoutReturn {
+interface DepositData {
+  sellerUsername: string;
+  sellerName: string;
+  productName: string;
+  productDescription: string;
+  productLink?: string;
+  amount: number;
+  estimatedDeliveryDate: string;
+}
+
+interface UseDepositReturn {
   isProcessingPayment: boolean;
   loginDialogOpen: boolean;
   setLoginDialogOpen: (open: boolean) => void;
-  handleCheckout: () => Promise<void>;
+  handleDepositCheckout: (depositData: DepositData) => Promise<void>;
   handleLogin: () => void;
 }
 
-export const useCheckout = (): UseCheckoutReturn => {
+export const useCheckout = (): UseDepositReturn => {
   const [isProcessingPayment, setIsProcessingPayment] = useState(false);
   const [loginDialogOpen, setLoginDialogOpen] = useState(false);
   const { isLoggedIn, user } = useAuth();
-  const { cartItems, totalPrice } = useCart();
   const navigate = useNavigate();
 
   const handleLogin = () => {
     navigate("/login");
   };
 
-  const handleCheckout = async () => {
+  const handleDepositCheckout = async (depositData: DepositData) => {
     if (!isLoggedIn) {
-      // Enregistrer que l'utilisateur essayait de passer à la caisse
-      localStorage.setItem("redirectAfterLogin", "/cart");
+      localStorage.setItem("redirectAfterLogin", "/dashboard");
       setLoginDialogOpen(true);
       return;
     }
 
-    if (cartItems.length === 0) {
-      toast.error("Votre panier est vide");
+    if (!depositData.amount || depositData.amount <= 0) {
+      toast.error("Montant invalide");
       return;
     }
     
@@ -49,16 +55,34 @@ export const useCheckout = (): UseCheckoutReturn => {
         .eq('id', user?.id)
         .single();
       
+      // Calculate fees (2.5%)
+      const applicationFee = depositData.amount * 0.025;
+      const totalAmount = depositData.amount + applicationFee;
+      
+      // Create a cart-like structure for the payment system
+      const cartItems = [{
+        id: 'deposit',
+        name: `Dépôt sécurisé - ${depositData.productName}`,
+        price: totalAmount,
+        quantity: 1,
+        image: '/placeholder.svg',
+        variants: {
+          seller: depositData.sellerUsername,
+          type: 'secure_deposit'
+        }
+      }];
+      
       // Call the create-payment edge function
       const { data, error } = await supabase.functions.invoke("create-payment", {
         body: {
           cartItems,
-          totalPrice,
+          totalPrice: totalAmount,
           userId: user?.id,
           firstName: userData?.first_name || '',
           lastName: userData?.last_name || '',
           email: userData?.email || user?.email || '',
-          phoneNumber: '' // Phone number might not exist in users_complete table
+          phoneNumber: '',
+          depositData: depositData // Include deposit specific data
         }
       });
 
@@ -76,7 +100,7 @@ export const useCheckout = (): UseCheckoutReturn => {
       }
     } catch (error) {
       console.error("Error during checkout:", error);
-      toast.error("Une erreur est survenue pendant le traitement de votre commande");
+      toast.error("Une erreur est survenue pendant le traitement de votre dépôt");
     } finally {
       setIsProcessingPayment(false);
     }
@@ -86,7 +110,7 @@ export const useCheckout = (): UseCheckoutReturn => {
     isProcessingPayment,
     loginDialogOpen,
     setLoginDialogOpen,
-    handleCheckout,
+    handleDepositCheckout,
     handleLogin
   };
 };
