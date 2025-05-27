@@ -1,6 +1,7 @@
 
 import React, { useState } from 'react';
 import { useAuth } from '@/hooks/useAuth';
+import { useCheckout } from '@/hooks/useCheckout';
 import Navigation from '@/components/Navigation';
 import Footer from '@/components/Footer';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -9,13 +10,19 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Shield, ArrowLeft, Calculator, CreditCard } from 'lucide-react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { toast } from 'sonner';
+import LoginDialog from '@/components/cart/LoginDialog';
 
 const NewDeposit = () => {
   const { user, isLoading } = useAuth();
-  const navigate = useNavigate();
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const {
+    isProcessingPayment,
+    loginDialogOpen,
+    setLoginDialogOpen,
+    handleDepositCheckout,
+    handleLogin
+  } = useCheckout();
   
   const [formData, setFormData] = useState({
     sellerUsername: '',
@@ -54,24 +61,29 @@ const NewDeposit = () => {
       return;
     }
 
-    setIsSubmitting(true);
-    
-    try {
-      // Here we would integrate with your existing payment system
-      // For now, just show success message
-      toast.success("Dépôt créé avec succès ! Redirection vers le paiement...");
-      
-      // Simulate payment redirect
-      setTimeout(() => {
-        navigate('/dashboard');
-      }, 2000);
-      
-    } catch (error) {
-      console.error("Erreur lors de la création du dépôt:", error);
-      toast.error("Erreur lors de la création du dépôt");
-    } finally {
-      setIsSubmitting(false);
+    if (!formData.estimatedDeliveryDate) {
+      toast.error("Veuillez indiquer une date de livraison estimée");
+      return;
     }
+
+    if (!formData.productDescription) {
+      toast.error("Veuillez ajouter une description détaillée");
+      return;
+    }
+
+    // Prepare deposit data for CinetPay payment
+    const depositData = {
+      sellerUsername: formData.sellerUsername,
+      sellerName: formData.sellerName || formData.sellerUsername,
+      productName: formData.productName,
+      productDescription: formData.productDescription,
+      productLink: formData.productLink,
+      amount: amount,
+      estimatedDeliveryDate: formData.estimatedDeliveryDate,
+    };
+
+    // Use the existing CinetPay checkout system
+    await handleDepositCheckout(depositData);
   };
 
   if (isLoading) {
@@ -262,11 +274,11 @@ const NewDeposit = () => {
                     <div className="pt-6">
                       <Button 
                         type="submit" 
-                        disabled={isSubmitting}
+                        disabled={isProcessingPayment}
                         className="w-full bg-blue-600 hover:bg-blue-700 h-12"
                       >
-                        {isSubmitting ? (
-                          "Création en cours..."
+                        {isProcessingPayment ? (
+                          "Redirection vers CinetPay..."
                         ) : (
                           <>
                             <CreditCard className="mr-2 h-5 w-5" />
@@ -335,6 +347,12 @@ const NewDeposit = () => {
           </div>
         </div>
       </main>
+
+      <LoginDialog 
+        open={loginDialogOpen} 
+        onOpenChange={setLoginDialogOpen} 
+        onLogin={handleLogin} 
+      />
 
       <Footer />
     </div>
