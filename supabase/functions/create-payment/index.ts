@@ -39,12 +39,17 @@ serve(async (req) => {
     // Amount needs to be in the smallest currency unit (for XOF, there are no decimals)
     const amountInSmallestUnit = Math.round(totalPrice);
 
+    // Ensure required fields are not empty
+    const customerName = `${firstName || ''} ${lastName || ''}`.trim() || 'Client';
+    const customerEmail = email || 'client@example.com';
+    const customerPhone = phoneNumber || '0000000000'; // Provide a default phone number
+
     console.log("Creating payment with data:", {
       userId,
-      firstName,
-      lastName,
-      email,
-      phoneNumber,
+      firstName: firstName || 'N/A',
+      lastName: lastName || 'N/A', 
+      email: customerEmail,
+      phoneNumber: customerPhone,
       amountInSmallestUnit,
       description,
       transactionId,
@@ -67,14 +72,14 @@ serve(async (req) => {
         notify_url: `${req.headers.get("origin")}/api/cinetpay-webhook`,
         channels: 'ALL', // Permet toutes les méthodes de paiement (cartes bancaires, mobile money, etc.)
         lang: 'fr',
-        customer_name: `${firstName || ''} ${lastName || ''}`.trim() || 'Client',
-        customer_email: email || 'client@example.com',
-        customer_phone_number: phoneNumber || '',
-        customer_address: '',
-        customer_city: '',
+        customer_name: customerName,
+        customer_email: customerEmail,
+        customer_phone_number: customerPhone,
+        customer_address: 'Adresse non spécifiée',
+        customer_city: 'Ville non spécifiée',
         customer_country: 'CI',
-        customer_state: '',
-        customer_zip_code: '',
+        customer_state: 'État non spécifié',
+        customer_zip_code: '00000',
         metadata: 'no_limit_payment', // Permet les paiements sans limite
         // Paramètres additionnels pour forcer l'activation de toutes les méthodes
         payment_method: 'ALL'

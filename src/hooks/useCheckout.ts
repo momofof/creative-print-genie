@@ -49,11 +49,20 @@ export const useCheckout = (): UseDepositReturn => {
     
     try {
       // Get user information for the payment
-      const { data: userData } = await supabase
+      const { data: userData, error: userError } = await supabase
         .from('users_complete')
         .select('first_name, last_name, email')
         .eq('id', user?.id)
-        .single();
+        .maybeSingle();
+      
+      if (userError) {
+        console.error("Error fetching user data:", userError);
+      }
+
+      // Use available user data or fallback values
+      const firstName = userData?.first_name || 'Utilisateur';
+      const lastName = userData?.last_name || '';
+      const userEmail = userData?.email || user?.email || 'user@example.com';
       
       // Calculate fees (2.5%)
       const applicationFee = depositData.amount * 0.025;
@@ -71,6 +80,17 @@ export const useCheckout = (): UseDepositReturn => {
           type: 'secure_deposit'
         }
       }];
+
+      console.log("Calling create-payment with:", {
+        cartItems,
+        totalPrice: totalAmount,
+        userId: user?.id,
+        firstName,
+        lastName,
+        email: userEmail,
+        phoneNumber: '0000000000', // Default phone number
+        depositData
+      });
       
       // Call the create-payment edge function
       const { data, error } = await supabase.functions.invoke("create-payment", {
@@ -78,10 +98,10 @@ export const useCheckout = (): UseDepositReturn => {
           cartItems,
           totalPrice: totalAmount,
           userId: user?.id,
-          firstName: userData?.first_name || '',
-          lastName: userData?.last_name || '',
-          email: userData?.email || user?.email || '',
-          phoneNumber: '',
+          firstName,
+          lastName,
+          email: userEmail,
+          phoneNumber: '0000000000', // Provide default phone number
           depositData: depositData // Include deposit specific data
         }
       });
@@ -96,6 +116,7 @@ export const useCheckout = (): UseDepositReturn => {
         // Redirect to CinetPay payment page
         window.location.href = data.paymentUrl;
       } else {
+        console.error("Payment creation failed:", data);
         toast.error("Impossible d'initialiser le paiement. Veuillez réessayer.");
       }
     } catch (error) {
