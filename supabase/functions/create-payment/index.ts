@@ -18,7 +18,7 @@ serve(async (req) => {
 
   try {
     // Get the request body
-    const { cartItems, totalPrice, userId, firstName, lastName, email, phoneNumber } = await req.json();
+    const { cartItems, totalPrice, userId, firstName, lastName, email, phoneNumber, depositData } = await req.json();
 
     // Create a Supabase client
     const supabase = createClient(
@@ -65,7 +65,7 @@ serve(async (req) => {
         description: description,
         return_url: `${req.headers.get("origin")}/payment-success?transaction_id=${transactionId}`,
         notify_url: `${req.headers.get("origin")}/api/cinetpay-webhook`,
-        channels: 'ALL',
+        channels: 'ALL', // Permet toutes les méthodes de paiement (cartes bancaires, mobile money, etc.)
         lang: 'fr',
         customer_name: `${firstName || ''} ${lastName || ''}`.trim() || 'Client',
         customer_email: email || 'client@example.com',
@@ -75,7 +75,9 @@ serve(async (req) => {
         customer_country: 'CI',
         customer_state: '',
         customer_zip_code: '',
-        metadata: 'no_limit_payment' // Add metadata to indicate no payment limits
+        metadata: 'no_limit_payment', // Permet les paiements sans limite
+        // Paramètres additionnels pour forcer l'activation de toutes les méthodes
+        payment_method: 'ALL'
       })
     });
 
@@ -84,14 +86,24 @@ serve(async (req) => {
     
     if (paymentData && paymentData.code === '201') {
       // Store the transaction reference in Supabase for later verification
-      await supabase.from('payment_transactions').insert({
+      const insertData = {
         transaction_id: transactionId,
         user_id: userId,
         amount: totalPrice,
         status: 'pending',
         payment_url: paymentData.data.payment_url,
         details: JSON.stringify(cartItems)
-      });
+      };
+
+      // Add deposit data if present
+      if (depositData) {
+        insertData.details = JSON.stringify({
+          cartItems,
+          depositData
+        });
+      }
+
+      await supabase.from('payment_transactions').insert(insertData);
       
       // Return the payment URL to redirect the user
       return new Response(
